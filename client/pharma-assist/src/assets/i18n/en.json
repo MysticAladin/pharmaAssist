@@ -1,0 +1,246 @@
+{
+  "common": {
+    "appName": "PharmaAssist",
+    "loading": "Loading...",
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "edit": "Edit",
+    "add": "Add",
+    "search": "Search",
+    "filter": "Filter",
+    "export": "Export",
+    "import": "Import",
+    "refresh": "Refresh",
+    "submit": "Submit",
+    "confirm": "Confirm",
+    "back": "Back",
+    "next": "Next",
+    "previous": "Previous",
+    "yes": "Yes",
+    "no": "No",
+    "ok": "OK",
+    "close": "Close",
+    "actions": "Actions",
+    "status": "Status",
+    "details": "Details",
+    "more": "More",
+    "noData": "No data available",
+    "noResults": "No results found",
+    "selectAll": "Select All",
+    "clearAll": "Clear All"
+  },
+  "auth": {
+    "login": {
+      "title": "Welcome back",
+      "subtitle": "Sign in to your account",
+      "email": "Email address",
+      "emailPlaceholder": "your@email.com",
+      "password": "Password",
+      "passwordPlaceholder": "••••••••",
+      "showPassword": "Show password",
+      "hidePassword": "Hide password",
+      "rememberMe": "Remember me",
+      "forgotPassword": "Forgot password?",
+      "submit": "Sign In",
+      "submitting": "Signing in...",
+      "noAccount": "Don't have an account?",
+      "register": "Register",
+      "errors": {
+        "emailRequired": "Email is required",
+        "emailInvalid": "Enter a valid email address",
+        "passwordRequired": "Password is required",
+        "invalidCredentials": "Invalid email or password",
+        "accountBlocked": "Your account has been blocked. Contact support.",
+        "genericError": "Login failed. Please try again."
+      }
+    },
+    "logout": {
+      "title": "Logout",
+      "confirm": "Are you sure you want to logout?",
+      "success": "You have been logged out successfully"
+    },
+    "register": {
+      "title": "Create Account",
+      "subtitle": "Sign up for a new account"
+    },
+    "forgotPassword": {
+      "title": "Forgot Password",
+      "subtitle": "Enter your email to reset your password"
+    },
+    "branding": {
+      "title": "Your partner for pharmaceutical distribution",
+      "subtitle": "Efficient pharmacy management, inventory, and orders for the pharmaceutical industry in Bosnia and Herzegovina",
+      "features": {
+        "inventory": "Complete medication inventory tracking",
+        "orders": "Real-time order management",
+        "reports": "Advanced reporting and analytics",
+        "compliance": "Compliance with BiH regulations"
+      },
+      "copyright": "© {{year}} PharmaAssist d.o.o. - All rights reserved"
+    }
+  },
+  "sidebar": {
+    "menu": "Menu",
+    "administration": "Administration",
+    "collapse": "Collapse sidebar",
+    "expand": "Expand sidebar",
+    "plan": "{{tier}} Plan"
+  },
+  "nav": {
+    "dashboard": "Dashboard",
+    "products": "Products",
+    "allProducts": "All Products",
+    "categories": "Categories",
+    "manufacturers": "Manufacturers",
+    "lowStock": "Low Stock",
+    "inventory": "Inventory",
+    "orders": "Orders",
+    "allOrders": "All Orders",
+    "pending": "Pending",
+    "prescriptions": "Prescriptions",
+    "customers": "Customers",
+    "reports": "Reports",
+    "salesReport": "Sales Report",
+    "inventoryReport": "Inventory Report",
+    "advancedAnalytics": "Advanced Analytics",
+    "userManagement": "User Management",
+    "settings": "Settings",
+    "auditLogs": "Audit Logs",
+    "integrations": "Integrations"
+  },
+  "header": {
+    "search": "Search...",
+    "notifications": "Notifications",
+    "profile": "Profile",
+    "settings": "Settings",
+    "logout": "Logout",
+    "language": "Language",
+    "theme": "Theme",
+    "lightMode": "Light Mode",
+    "darkMode": "Dark Mode"
+  },
+  "notifications": {
+    "title": "Notifications",
+    "markAllRead": "Mark all as read",
+    "clearAll": "Clear all",
+    "noNotifications": "No notifications",
+    "viewAll": "View all notifications"
+  },
+  "dashboard": {
+    "title": "Dashboard",
+    "welcome": "Welcome back, {{name}}!",
+    "overview": "Overview",
+    "recentActivity": "Recent Activity",
+    "quickActions": "Quick Actions",
+    "stats": {
+      "totalSales": "Total Sales",
+      "totalOrders": "Total Orders",
+      "totalProducts": "Total Products",
+      "totalCustomers": "Total Customers",
+      "lowStockItems": "Low Stock Items",
+      "pendingOrders": "Pending Orders"
+    }
+  },
+  "products": {
+    "title": "Products",
+    "addProduct": "Add Product",
+    "editProduct": "Edit Product",
+    "deleteProduct": "Delete Product",
+    "productDetails": "Product Details",
+    "fields": {
+      "name": "Product Name",
+      "sku": "SKU",
+      "category": "Category",
+      "manufacturer": "Manufacturer",
+      "price": "Price",
+      "quantity": "Quantity",
+      "description": "Description",
+      "expiryDate": "Expiry Date",
+      "batchNumber": "Batch Number"
+    }
+  },
+  "customers": {
+    "title": "Customers",
+    "addCustomer": "Add Customer",
+    "editCustomer": "Edit Customer",
+    "customerDetails": "Customer Details",
+    "fields": {
+      "name": "Name",
+      "email": "Email",
+      "phone": "Phone",
+      "address": "Address",
+      "city": "City",
+      "canton": "Canton",
+      "type": "Customer Type"
+    }
+  },
+  "orders": {
+    "title": "Orders",
+    "createOrder": "Create Order",
+    "orderDetails": "Order Details",
+    "status": {
+      "pending": "Pending",
+      "processing": "Processing",
+      "shipped": "Shipped",
+      "delivered": "Delivered",
+      "cancelled": "Cancelled"
+    }
+  },
+  "settings": {
+    "title": "Settings",
+    "general": "General",
+    "profile": "Profile",
+    "security": "Security",
+    "notifications": "Notifications",
+    "preferences": "Preferences",
+    "language": "Language",
+    "theme": "Theme"
+  },
+  "errors": {
+    "notFound": {
+      "title": "Page Not Found",
+      "message": "The page you're looking for doesn't exist or has been moved.",
+      "backHome": "Back to Home"
+    },
+    "accessDenied": {
+      "title": "Access Denied",
+      "message": "You don't have permission to access this page.",
+      "backHome": "Back to Home"
+    },
+    "serverError": {
+      "title": "Server Error",
+      "message": "Something went wrong on our end. Please try again later.",
+      "retry": "Try Again"
+    },
+    "networkError": "Network error. Please check your connection.",
+    "sessionExpired": "Your session has expired. Please login again."
+  },
+  "validation": {
+    "required": "This field is required",
+    "email": "Enter a valid email address",
+    "minLength": "Minimum {{min}} characters required",
+    "maxLength": "Maximum {{max}} characters allowed",
+    "pattern": "Invalid format",
+    "passwordMismatch": "Passwords do not match",
+    "invalidDate": "Invalid date format"
+  },
+  "table": {
+    "showing": "Showing {{start}} to {{end}} of {{total}} entries",
+    "noRecords": "No records found",
+    "itemsPerPage": "Items per page",
+    "page": "Page",
+    "of": "of"
+  },
+  "branding": {
+    "tagline": "Your partner for pharmaceutical distribution",
+    "description": "Efficient management of pharmacies, inventory, and orders for the pharmaceutical industry in Bosnia and Herzegovina",
+    "features": {
+      "inventory": "Complete medication inventory tracking",
+      "realtime": "Real-time order management",
+      "reports": "Advanced reporting and analytics",
+      "compliance": "BiH regulatory compliance"
+    },
+    "copyright": "© {{year}} PharmaAssist d.o.o. - All rights reserved"
+  }
+}

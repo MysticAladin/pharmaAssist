@@ -1,0 +1,246 @@
+{
+  "common": {
+    "appName": "PharmaAssist",
+    "loading": "Učitavanje...",
+    "save": "Sačuvaj",
+    "cancel": "Otkaži",
+    "delete": "Obriši",
+    "edit": "Uredi",
+    "add": "Dodaj",
+    "search": "Pretraži",
+    "filter": "Filtriraj",
+    "export": "Izvezi",
+    "import": "Uvezi",
+    "refresh": "Osvježi",
+    "submit": "Pošalji",
+    "confirm": "Potvrdi",
+    "back": "Nazad",
+    "next": "Dalje",
+    "previous": "Prethodno",
+    "yes": "Da",
+    "no": "Ne",
+    "ok": "U redu",
+    "close": "Zatvori",
+    "actions": "Akcije",
+    "status": "Status",
+    "details": "Detalji",
+    "more": "Više",
+    "noData": "Nema dostupnih podataka",
+    "noResults": "Nema rezultata",
+    "selectAll": "Odaberi sve",
+    "clearAll": "Obriši sve"
+  },
+  "auth": {
+    "login": {
+      "title": "Dobro došli natrag",
+      "subtitle": "Prijavite se na svoj račun",
+      "email": "Email adresa",
+      "emailPlaceholder": "vase@email.ba",
+      "password": "Lozinka",
+      "passwordPlaceholder": "••••••••",
+      "showPassword": "Prikaži lozinku",
+      "hidePassword": "Sakrij lozinku",
+      "rememberMe": "Zapamti me",
+      "forgotPassword": "Zaboravili ste lozinku?",
+      "submit": "Prijava",
+      "submitting": "Prijava u toku...",
+      "noAccount": "Nemate račun?",
+      "register": "Registrujte se",
+      "errors": {
+        "emailRequired": "Email je obavezan",
+        "emailInvalid": "Unesite validnu email adresu",
+        "passwordRequired": "Lozinka je obavezna",
+        "invalidCredentials": "Pogrešan email ili lozinka",
+        "accountBlocked": "Vaš račun je blokiran. Kontaktirajte podršku.",
+        "genericError": "Greška pri prijavi. Molimo pokušajte ponovo."
+      }
+    },
+    "logout": {
+      "title": "Odjava",
+      "confirm": "Da li ste sigurni da želite da se odjavite?",
+      "success": "Uspješno ste se odjavili"
+    },
+    "register": {
+      "title": "Kreiraj račun",
+      "subtitle": "Registrujte novi račun"
+    },
+    "forgotPassword": {
+      "title": "Zaboravljena lozinka",
+      "subtitle": "Unesite email za resetovanje lozinke"
+    },
+    "branding": {
+      "title": "Vaš partner za farmaceutsku distribuciju",
+      "subtitle": "Efikasno upravljanje apotekama, zalihama i narudžbama za farmaceutsku industriju u Bosni i Hercegovini",
+      "features": {
+        "inventory": "Potpuno praćenje inventara lijekova",
+        "orders": "Upravljanje narudžbama u realnom vremenu",
+        "reports": "Napredna izvještavanja i analitika",
+        "compliance": "Usklađenost sa propisima BiH"
+      },
+      "copyright": "© {{year}} PharmaAssist d.o.o. - Sva prava zadržana"
+    }
+  },
+  "sidebar": {
+    "menu": "Meni",
+    "administration": "Administracija",
+    "collapse": "Smanji bočnu traku",
+    "expand": "Proširi bočnu traku",
+    "plan": "{{tier}} Plan"
+  },
+  "nav": {
+    "dashboard": "Kontrolna tabla",
+    "products": "Proizvodi",
+    "allProducts": "Svi proizvodi",
+    "categories": "Kategorije",
+    "manufacturers": "Proizvođači",
+    "lowStock": "Niske zalihe",
+    "inventory": "Inventar",
+    "orders": "Narudžbe",
+    "allOrders": "Sve narudžbe",
+    "pending": "Na čekanju",
+    "prescriptions": "Recepti",
+    "customers": "Kupci",
+    "reports": "Izvještaji",
+    "salesReport": "Izvještaj prodaje",
+    "inventoryReport": "Izvještaj inventara",
+    "advancedAnalytics": "Napredna analitika",
+    "userManagement": "Upravljanje korisnicima",
+    "settings": "Postavke",
+    "auditLogs": "Revizijski logovi",
+    "integrations": "Integracije"
+  },
+  "header": {
+    "search": "Pretraži...",
+    "notifications": "Obavještenja",
+    "profile": "Profil",
+    "settings": "Postavke",
+    "logout": "Odjava",
+    "language": "Jezik",
+    "theme": "Tema",
+    "lightMode": "Svijetla tema",
+    "darkMode": "Tamna tema"
+  },
+  "notifications": {
+    "title": "Obavještenja",
+    "markAllRead": "Označi sve kao pročitano",
+    "clearAll": "Obriši sve",
+    "noNotifications": "Nema obavještenja",
+    "viewAll": "Pogledaj sva obavještenja"
+  },
+  "dashboard": {
+    "title": "Kontrolna tabla",
+    "welcome": "Dobro došli, {{name}}!",
+    "overview": "Pregled",
+    "recentActivity": "Nedavna aktivnost",
+    "quickActions": "Brze akcije",
+    "stats": {
+      "totalSales": "Ukupna prodaja",
+      "totalOrders": "Ukupne narudžbe",
+      "totalProducts": "Ukupno proizvoda",
+      "totalCustomers": "Ukupno kupaca",
+      "lowStockItems": "Proizvodi s niskim zalihama",
+      "pendingOrders": "Narudžbe na čekanju"
+    }
+  },
+  "products": {
+    "title": "Proizvodi",
+    "addProduct": "Dodaj proizvod",
+    "editProduct": "Uredi proizvod",
+    "deleteProduct": "Obriši proizvod",
+    "productDetails": "Detalji proizvoda",
+    "fields": {
+      "name": "Naziv proizvoda",
+      "sku": "SKU",
+      "category": "Kategorija",
+      "manufacturer": "Proizvođač",
+      "price": "Cijena",
+      "quantity": "Količina",
+      "description": "Opis",
+      "expiryDate": "Datum isteka",
+      "batchNumber": "Broj serije"
+    }
+  },
+  "customers": {
+    "title": "Kupci",
+    "addCustomer": "Dodaj kupca",
+    "editCustomer": "Uredi kupca",
+    "customerDetails": "Detalji kupca",
+    "fields": {
+      "name": "Ime",
+      "email": "Email",
+      "phone": "Telefon",
+      "address": "Adresa",
+      "city": "Grad",
+      "canton": "Kanton",
+      "type": "Tip kupca"
+    }
+  },
+  "orders": {
+    "title": "Narudžbe",
+    "createOrder": "Kreiraj narudžbu",
+    "orderDetails": "Detalji narudžbe",
+    "status": {
+      "pending": "Na čekanju",
+      "processing": "U obradi",
+      "shipped": "Poslano",
+      "delivered": "Isporučeno",
+      "cancelled": "Otkazano"
+    }
+  },
+  "settings": {
+    "title": "Postavke",
+    "general": "Općenito",
+    "profile": "Profil",
+    "security": "Sigurnost",
+    "notifications": "Obavještenja",
+    "preferences": "Preference",
+    "language": "Jezik",
+    "theme": "Tema"
+  },
+  "errors": {
+    "notFound": {
+      "title": "Stranica nije pronađena",
+      "message": "Stranica koju tražite ne postoji ili je premještena.",
+      "backHome": "Nazad na početnu"
+    },
+    "accessDenied": {
+      "title": "Pristup odbijen",
+      "message": "Nemate dozvolu za pristup ovoj stranici.",
+      "backHome": "Nazad na početnu"
+    },
+    "serverError": {
+      "title": "Greška servera",
+      "message": "Nešto je pošlo po zlu. Molimo pokušajte ponovo kasnije.",
+      "retry": "Pokušaj ponovo"
+    },
+    "networkError": "Greška mreže. Provjerite vašu konekciju.",
+    "sessionExpired": "Vaša sesija je istekla. Molimo prijavite se ponovo."
+  },
+  "validation": {
+    "required": "Ovo polje je obavezno",
+    "email": "Unesite validnu email adresu",
+    "minLength": "Minimalno {{min}} karaktera",
+    "maxLength": "Maksimalno {{max}} karaktera",
+    "pattern": "Neispravan format",
+    "passwordMismatch": "Lozinke se ne poklapaju",
+    "invalidDate": "Neispravan format datuma"
+  },
+  "table": {
+    "showing": "Prikazano {{start}} do {{end}} od {{total}} unosa",
+    "noRecords": "Nema pronađenih zapisa",
+    "itemsPerPage": "Stavki po stranici",
+    "page": "Stranica",
+    "of": "od"
+  },
+  "branding": {
+    "tagline": "Vaš partner za farmaceutsku distribuciju",
+    "description": "Efikasno upravljanje apotekama, zalihama i narudžbama za farmaceutsku industriju u Bosni i Hercegovini",
+    "features": {
+      "inventory": "Potpuno praćenje inventara lijekova",
+      "realtime": "Upravljanje narudžbama u realnom vremenu",
+      "reports": "Napredna izvještavanja i analitika",
+      "compliance": "Usklađenost sa propisima BiH"
+    },
+    "copyright": "© {{year}} PharmaAssist d.o.o. - Sva prava zadržana"
+  }
+}
