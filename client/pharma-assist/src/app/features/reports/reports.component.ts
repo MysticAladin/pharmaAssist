@@ -205,7 +205,7 @@ interface QuickStat {
 })
 export class ReportsComponent implements OnInit {
   selectedPeriod = 'month';
-  
+
   reportCards: ReportCard[] = [
     { id: 'sales', icon: 'sales', titleKey: 'reports.types.sales.title', descriptionKey: 'reports.types.sales.description', route: '/reports/sales', color: '#0d9488', available: true },
     { id: 'inventory', icon: 'inventory', titleKey: 'reports.types.inventory.title', descriptionKey: 'reports.types.inventory.description', route: '/reports/inventory', color: '#3b82f6', available: true },

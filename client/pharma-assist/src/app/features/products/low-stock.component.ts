@@ -104,14 +104,14 @@ import { EmptyStateComponent } from '../../shared/components/empty-state/empty-s
           [placeholder]="'lowStock.searchPlaceholder' | translate"
           (search)="onSearch($event)"
         ></app-search-input>
-        
+
         <div class="filter-group">
           <select class="filter-select" [(ngModel)]="selectedSeverity" (change)="applyFilters()">
             <option value="all">{{ 'lowStock.allSeverities' | translate }}</option>
             <option value="critical">{{ 'lowStock.critical' | translate }}</option>
             <option value="warning">{{ 'lowStock.warning' | translate }}</option>
           </select>
-          
+
           <select class="filter-select" [(ngModel)]="threshold" (change)="loadProducts()">
             <option [value]="10">{{ 'lowStock.threshold' | translate }}: 10</option>
             <option [value]="25">{{ 'lowStock.threshold' | translate }}: 25</option>
@@ -202,7 +202,7 @@ import { EmptyStateComponent } from '../../shared/components/empty-state/empty-s
                   </td>
                   <td class="text-right">{{ product.reorderLevel }}</td>
                   <td class="text-center">
-                    <app-status-badge 
+                    <app-status-badge
                       [variant]="getStockLevel(product) === 'critical' ? 'danger' : 'warning'"
                       [label]="(getStockLevel(product) === 'critical' ? 'lowStock.critical' : 'lowStock.warning') | translate"
                     ></app-status-badge>
@@ -323,42 +323,42 @@ export class LowStockComponent implements OnInit {
   // Computed values
   filteredProducts = computed(() => {
     let result = this.products();
-    
+
     // Filter by search
     if (this.searchTerm) {
       const term = this.searchTerm.toLowerCase();
-      result = result.filter(p => 
+      result = result.filter(p =>
         p.name.toLowerCase().includes(term) ||
         p.nameLocal.toLowerCase().includes(term) ||
         p.sku.toLowerCase().includes(term)
       );
     }
-    
+
     // Filter by severity
     if (this.selectedSeverity !== 'all') {
       result = result.filter(p => this.getStockLevel(p) === this.selectedSeverity);
     }
-    
+
     // Sort
     result = [...result].sort((a, b) => {
       const aVal = a[this.sortColumn as keyof Product];
       const bVal = b[this.sortColumn as keyof Product];
       const modifier = this.sortDirection === 'asc' ? 1 : -1;
-      
+
       if (typeof aVal === 'string' && typeof bVal === 'string') {
         return aVal.localeCompare(bVal) * modifier;
       }
       return ((aVal as number) - (bVal as number)) * modifier;
     });
-    
+
     return result;
   });
 
-  criticalCount = computed(() => 
+  criticalCount = computed(() =>
     this.products().filter(p => p.stockQuantity === 0 || p.stockQuantity <= p.reorderLevel * 0.5).length
   );
 
-  warningCount = computed(() => 
+  warningCount = computed(() =>
     this.products().filter(p => p.stockQuantity > p.reorderLevel * 0.5 && p.stockQuantity <= p.reorderLevel).length
   );
 

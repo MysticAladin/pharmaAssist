@@ -5,10 +5,10 @@ import { Router } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
 import { OrderService, PaginatedResult } from '../../core/services/order.service';
-import { 
-  OrderSummary, 
-  OrderStatus, 
-  PaymentStatus, 
+import {
+  OrderSummary,
+  OrderStatus,
+  PaymentStatus,
   OrderFilter,
   getOrderStatusLabel,
   getOrderStatusColor,
@@ -133,18 +133,18 @@ import { ConfirmDialogComponent } from '../../shared/components/confirm-dialog';
 
           <div class="date-filter">
             <label>{{ 'common.from' | translate }}</label>
-            <input 
-              type="date" 
-              [(ngModel)]="fromDate" 
+            <input
+              type="date"
+              [(ngModel)]="fromDate"
               (ngModelChange)="onDateFilterChange()"
               class="date-input"
             >
           </div>
           <div class="date-filter">
             <label>{{ 'common.to' | translate }}</label>
-            <input 
-              type="date" 
-              [(ngModel)]="toDate" 
+            <input
+              type="date"
+              [(ngModel)]="toDate"
               (ngModelChange)="onDateFilterChange()"
               class="date-input"
             >
@@ -802,51 +802,51 @@ export class OrdersListComponent implements OnInit {
 
   private initColumns(): void {
     this.columns = [
-      { 
-        key: 'orderNumber', 
-        label: 'orders.orderNumber', 
+      {
+        key: 'orderNumber',
+        label: 'orders.orderNumber',
         sortable: true,
         template: this.orderNumberTemplate
       },
-      { 
-        key: 'customerName', 
-        label: 'orders.customer', 
+      {
+        key: 'customerName',
+        label: 'orders.customer',
         sortable: true,
         template: this.customerTemplate
       },
-      { 
-        key: 'status', 
-        label: 'orders.status.label', 
+      {
+        key: 'status',
+        label: 'orders.status.label',
         sortable: true,
         template: this.orderStatusTemplate
       },
-      { 
-        key: 'paymentStatus', 
-        label: 'orders.paymentStatus.label', 
+      {
+        key: 'paymentStatus',
+        label: 'orders.paymentStatus.label',
         sortable: true,
         template: this.paymentStatusTemplate
       },
-      { 
-        key: 'orderDate', 
-        label: 'orders.orderDate', 
+      {
+        key: 'orderDate',
+        label: 'orders.orderDate',
         sortable: true,
         template: this.dateTemplate
       },
-      { 
-        key: 'totalAmount', 
-        label: 'orders.totalAmount', 
+      {
+        key: 'totalAmount',
+        label: 'orders.totalAmount',
         sortable: true,
         template: this.amountTemplate
       },
-      { 
-        key: 'itemCount', 
-        label: 'orders.items', 
+      {
+        key: 'itemCount',
+        label: 'orders.items',
         sortable: true,
         template: this.itemsTemplate
       },
-      { 
-        key: 'actions', 
-        label: '', 
+      {
+        key: 'actions',
+        label: '',
         sortable: false,
         width: '120px',
         template: this.actionsTemplate
@@ -856,9 +856,9 @@ export class OrdersListComponent implements OnInit {
 
   loadOrders(): void {
     this.loading.set(true);
-    
+
     const filter: OrderFilter = {};
-    
+
     if (this.searchTerm) {
       filter.searchTerm = this.searchTerm;
     }
@@ -1049,8 +1049,8 @@ export class OrdersListComponent implements OnInit {
   }
 
   canCancelOrder(order: OrderSummary): boolean {
-    return order.status !== OrderStatus.Cancelled && 
-           order.status !== OrderStatus.Delivered && 
+    return order.status !== OrderStatus.Cancelled &&
+           order.status !== OrderStatus.Delivered &&
            order.status !== OrderStatus.Returned;
   }
 

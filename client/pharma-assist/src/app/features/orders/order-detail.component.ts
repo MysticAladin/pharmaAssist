@@ -4,11 +4,11 @@ import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 
 import { OrderService } from '../../core/services/order.service';
-import { 
-  Order, 
-  OrderItem, 
+import {
+  Order,
+  OrderItem,
   Prescription,
-  OrderStatus, 
+  OrderStatus,
   PaymentStatus,
   PaymentMethod,
   getOrderStatusLabel,
@@ -550,7 +550,7 @@ export class OrderDetailComponent implements OnInit {
 
   private loadOrder(id: string): void {
     this.loading.set(true);
-    
+
     this.orderService.getOrder(id).subscribe({
       next: (order) => {
         this.order.set(order);
@@ -692,8 +692,8 @@ export class OrderDetailComponent implements OnInit {
   canCancelOrder(): boolean {
     const order = this.order();
     if (!order) return false;
-    return order.status !== OrderStatus.Cancelled && 
-           order.status !== OrderStatus.Delivered && 
+    return order.status !== OrderStatus.Cancelled &&
+           order.status !== OrderStatus.Delivered &&
            order.status !== OrderStatus.Returned;
   }
 

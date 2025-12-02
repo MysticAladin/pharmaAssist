@@ -4,9 +4,9 @@ import { RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
 import { CustomerService } from '../../core/services/customer.service';
-import { 
-  Customer, 
-  CustomerType, 
+import {
+  Customer,
+  CustomerType,
   CustomerTier,
   getCustomerTypeLabel,
   getTierLabel,
@@ -85,7 +85,7 @@ import { ModalComponent } from '../../shared/components/modal/modal.component';
           [placeholder]="'customers.searchPlaceholder' | translate"
           (search)="onSearch($event)"
         ></app-search-input>
-        
+
         <div class="filter-group">
           <select class="filter-select" [(ngModel)]="selectedType" (change)="applyFilters()">
             <option value="">{{ 'customers.allTypes' | translate }}</option>
@@ -95,14 +95,14 @@ import { ModalComponent } from '../../shared/components/modal/modal.component';
             <option [value]="CustomerType.Wholesale">{{ 'customers.types.wholesale' | translate }}</option>
             <option [value]="CustomerType.Clinic">{{ 'customers.types.clinic' | translate }}</option>
           </select>
-          
+
           <select class="filter-select" [(ngModel)]="selectedTier" (change)="applyFilters()">
             <option value="">{{ 'customers.allTiers' | translate }}</option>
             <option [value]="CustomerTier.A">{{ 'customers.tiers.premium' | translate }}</option>
             <option [value]="CustomerTier.B">{{ 'customers.tiers.standard' | translate }}</option>
             <option [value]="CustomerTier.C">{{ 'customers.tiers.basic' | translate }}</option>
           </select>
-          
+
           <label class="filter-checkbox">
             <input type="checkbox" [(ngModel)]="activeOnly" (change)="applyFilters()">
             <span>{{ 'customers.activeOnly' | translate }}</span>
@@ -175,7 +175,7 @@ import { ModalComponent } from '../../shared/components/modal/modal.component';
                     }
                   </td>
                   <td class="text-center">
-                    <app-status-badge 
+                    <app-status-badge
                       [variant]="customer.isActive ? 'success' : 'neutral'"
                       [label]="(customer.isActive ? 'common.active' : 'common.inactive') | translate"
                     ></app-status-badge>
@@ -401,28 +401,28 @@ export class CustomersListComponent implements OnInit {
 
   filteredCustomers = computed(() => {
     let result = this.customers();
-    
+
     if (this.searchTerm) {
       const term = this.searchTerm.toLowerCase();
-      result = result.filter(c => 
+      result = result.filter(c =>
         c.name.toLowerCase().includes(term) ||
         c.customerCode.toLowerCase().includes(term) ||
         c.email?.toLowerCase().includes(term)
       );
     }
-    
+
     if (this.selectedType) {
       result = result.filter(c => c.customerType === +this.selectedType);
     }
-    
+
     if (this.selectedTier) {
       result = result.filter(c => c.tier === +this.selectedTier);
     }
-    
+
     if (this.activeOnly) {
       result = result.filter(c => c.isActive);
     }
-    
+
     result = [...result].sort((a, b) => {
       const aVal = a[this.sortColumn as keyof Customer];
       const bVal = b[this.sortColumn as keyof Customer];
@@ -432,7 +432,7 @@ export class CustomersListComponent implements OnInit {
       }
       return 0;
     });
-    
+
     return result;
   });
 
@@ -521,7 +521,7 @@ export class CustomersListComponent implements OnInit {
   saveCustomer(): void {
     this.saving.set(true);
     const editing = this.editingCustomer();
-    
+
     if (editing) {
       this.customerService.update(editing.id, {
         name: this.formData.name,

@@ -2,12 +2,12 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
-import { 
-  Order, 
-  OrderSummary, 
-  CreateOrderDto, 
-  UpdateOrderDto, 
-  UpdateOrderStatusDto, 
+import {
+  Order,
+  OrderSummary,
+  CreateOrderDto,
+  UpdateOrderDto,
+  UpdateOrderStatusDto,
   UpdatePaymentStatusDto,
   OrderFilter,
   OrderStatus,
@@ -33,8 +33,8 @@ export class OrderService {
    * Get paginated list of orders with optional filtering
    */
   getOrders(
-    page: number = 1, 
-    pageSize: number = 10, 
+    page: number = 1,
+    pageSize: number = 10,
     filter?: OrderFilter
   ): Observable<PaginatedResult<OrderSummary>> {
     let params = new HttpParams()
@@ -179,9 +179,9 @@ export class OrderService {
       }
     }
 
-    return this.http.get(`${this.baseUrl}/export`, { 
-      params, 
-      responseType: 'blob' 
+    return this.http.get(`${this.baseUrl}/export`, {
+      params,
+      responseType: 'blob'
     });
   }
 
