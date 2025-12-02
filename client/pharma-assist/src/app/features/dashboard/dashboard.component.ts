@@ -1,31 +1,66 @@
 import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterModule } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 import { AuthStateService } from '../../core/state/auth-state.service';
 import { FeatureFlagService } from '../../core/state/feature-flag.service';
 import { FeatureKey } from '../../core/models/feature-flag.model';
 import { HasFeatureDirective } from '../../core/directives/feature.directive';
+import { TranslateModule } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [CommonModule, RouterModule, HasFeatureDirective],
+  imports: [CommonModule, RouterModule, HasFeatureDirective, TranslateModule],
   template: `
     <div class="dashboard">
       <!-- Page Header -->
       <div class="page-header">
         <div class="header-content">
-          <h1 class="page-title">Kontrolna ploča</h1>
-          <p class="page-subtitle">Dobro došli natrag, {{ user()?.firstName }}!</p>
+          <h1 class="page-title">{{ 'dashboard.title' | translate }}</h1>
+          <p class="page-subtitle">{{ 'dashboard.welcome' | translate }}, {{ user()?.firstName }}!</p>
         </div>
         <div class="header-actions">
-          <button class="btn btn-primary">
+          <button class="btn btn-primary" (click)="createNewOrder()">
             <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <path d="M5 12h14"/><path d="M12 5v14"/>
             </svg>
-            Nova narudžba
+            {{ 'dashboard.newOrder' | translate }}
           </button>
         </div>
+      </div>
+
+      <!-- Quick Actions -->
+      <div class="quick-actions">
+        <button class="quick-action-btn" (click)="navigateTo('/orders/new')">
+          <div class="action-icon action-icon-blue">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><line x1="9" y1="15" x2="15" y2="15"/></svg>
+          </div>
+          <span>{{ 'dashboard.actions.newOrder' | translate }}</span>
+        </button>
+        <button class="quick-action-btn" (click)="navigateTo('/products/new')">
+          <div class="action-icon action-icon-green">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m7.5 4.27 9 5.15"/><path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/><path d="m3.3 7 8.7 5 8.7-5"/><path d="M12 22V12"/></svg>
+          </div>
+          <span>{{ 'dashboard.actions.addProduct' | translate }}</span>
+        </button>
+        <button class="quick-action-btn" (click)="navigateTo('/customers')">
+          <div class="action-icon action-icon-purple">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+          </div>
+          <span>{{ 'dashboard.actions.customers' | translate }}</span>
+        </button>
+        <button class="quick-action-btn" (click)="navigateTo('/products/low-stock')">
+          <div class="action-icon action-icon-orange">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg>
+          </div>
+          <span>{{ 'dashboard.actions.lowStock' | translate }}</span>
+        </button>
+        <button class="quick-action-btn" (click)="navigateTo('/reports')">
+          <div class="action-icon action-icon-teal">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="m19 9-5 5-4-4-3 3"/></svg>
+          </div>
+          <span>{{ 'dashboard.actions.reports' | translate }}</span>
+        </button>
       </div>
 
       <!-- Quick Stats -->
@@ -320,6 +355,50 @@ import { HasFeatureDirective } from '../../core/directives/feature.directive';
       text-decoration: none;
     }
 
+    /* Quick Actions */
+    .quick-actions {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 32px;
+      flex-wrap: wrap;
+    }
+
+    .quick-action-btn {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 14px 20px;
+      background: #fff;
+      border: 1px solid #e5e7eb;
+      border-radius: 12px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--text-primary, #1e293b);
+    }
+
+    .quick-action-btn:hover {
+      border-color: var(--primary, #3b82f6);
+      box-shadow: 0 4px 12px rgba(59, 130, 246, 0.15);
+      transform: translateY(-2px);
+    }
+
+    .action-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .action-icon-blue { background: #eff6ff; color: #3b82f6; }
+    .action-icon-green { background: #f0fdf4; color: #10b981; }
+    .action-icon-purple { background: #f5f3ff; color: #8b5cf6; }
+    .action-icon-orange { background: #fff7ed; color: #f59e0b; }
+    .action-icon-teal { background: #f0fdfa; color: #14b8a6; }
+
     /* Dashboard Grid */
     .dashboard-grid {
       display: grid;
@@ -512,9 +591,18 @@ import { HasFeatureDirective } from '../../core/directives/feature.directive';
   `]
 })
 export class DashboardComponent {
+  private readonly router = inject(Router);
   private readonly authState = inject(AuthStateService);
   private readonly featureFlags = inject(FeatureFlagService);
 
   user = this.authState.user;
   advancedAnalyticsKey = FeatureKey.AdvancedAnalytics;
+
+  createNewOrder(): void {
+    this.router.navigate(['/orders/new']);
+  }
+
+  navigateTo(path: string): void {
+    this.router.navigate([path]);
+  }
 }
