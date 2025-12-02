@@ -2,7 +2,7 @@
 
 // CSS Custom Properties (Design Tokens)
 :root {
-  // Primary Colors - Professional pharmaceutical blue/green palette
+  // Primary Colors - Professional pharmaceutical green palette
   --primary-50: #e8f5e9;
   --primary-100: #c8e6c9;
   --primary-200: #a5d6a7;
@@ -13,6 +13,23 @@
   --primary-700: #388e3c;
   --primary-800: #2e7d32;
   --primary-900: #1b5e20;
+
+  // Pharma Teal Colors - inspired by zada.ba gradient
+  --pharma-teal-50: #e0f7f6;
+  --pharma-teal-100: #b3ece9;
+  --pharma-teal-200: #80e0db;
+  --pharma-teal-300: #4dd4cd;
+  --pharma-teal-400: #26c9c1;
+  --pharma-teal-500: #00bfb5;  // Main teal
+  --pharma-teal-600: #00aea4;
+  --pharma-teal-700: #009b91;
+  --pharma-teal-800: #00897e;
+  --pharma-teal-900: #006b5f;
+
+  // Pharma Gradients - inspired by zada.ba
+  --gradient-pharma: linear-gradient(135deg, #00bfb5 0%, #26c9c1 50%, #4dd4cd 100%);
+  --gradient-pharma-dark: linear-gradient(135deg, #009b91 0%, #00aea4 50%, #00bfb5 100%);
+  --gradient-pharma-light: linear-gradient(135deg, #80e0db 0%, #b3ece9 50%, #e0f7f6 100%);
 
   // Secondary Colors - Professional blue
   --secondary-50: #e3f2fd;

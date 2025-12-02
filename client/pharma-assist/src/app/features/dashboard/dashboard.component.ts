@@ -20,7 +20,9 @@ import { HasFeatureDirective } from '../../core/directives/feature.directive';
         </div>
         <div class="header-actions">
           <button class="btn btn-primary">
-            <i class="icon-plus"></i>
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M5 12h14"/><path d="M12 5v14"/>
+            </svg>
             Nova narudžba
           </button>
         </div>
@@ -30,49 +32,66 @@ import { HasFeatureDirective } from '../../core/directives/feature.directive';
       <div class="stats-grid">
         <div class="stat-card">
           <div class="stat-icon stat-icon-blue">
-            <i class="icon-shopping-cart"></i>
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="8" cy="21" r="1"/><circle cx="19" cy="21" r="1"/>
+              <path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"/>
+            </svg>
           </div>
           <div class="stat-content">
             <span class="stat-value">156</span>
             <span class="stat-label">Danas narudžbi</span>
           </div>
           <div class="stat-change positive">
-            <i class="icon-trending-up"></i>
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/>
+            </svg>
             +12%
           </div>
         </div>
 
         <div class="stat-card">
           <div class="stat-icon stat-icon-green">
-            <i class="icon-dollar-sign"></i>
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
+            </svg>
           </div>
           <div class="stat-content">
             <span class="stat-value">24,560 KM</span>
             <span class="stat-label">Dnevni promet</span>
           </div>
           <div class="stat-change positive">
-            <i class="icon-trending-up"></i>
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/>
+            </svg>
             +8%
           </div>
         </div>
 
         <div class="stat-card">
           <div class="stat-icon stat-icon-orange">
-            <i class="icon-package"></i>
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="m7.5 4.27 9 5.15"/><path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/>
+              <path d="m3.3 7 8.7 5 8.7-5"/><path d="M12 22V12"/>
+            </svg>
           </div>
           <div class="stat-content">
             <span class="stat-value">1,234</span>
             <span class="stat-label">Proizvodi na stanju</span>
           </div>
           <div class="stat-change negative">
-            <i class="icon-trending-down"></i>
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="22 17 13.5 8.5 8.5 13.5 2 7"/><polyline points="16 17 22 17 22 11"/>
+            </svg>
             -2%
           </div>
         </div>
 
         <div class="stat-card">
           <div class="stat-icon stat-icon-red">
-            <i class="icon-alert-triangle"></i>
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/>
+              <path d="M12 9v4"/><path d="M12 17h.01"/>
+            </svg>
           </div>
           <div class="stat-content">
             <span class="stat-value">12</span>
@@ -139,7 +158,10 @@ import { HasFeatureDirective } from '../../core/directives/feature.directive';
         <ng-template #upgradePrompt>
           <div class="dashboard-card upgrade-prompt-card">
             <div class="upgrade-content">
-              <i class="icon-lock"></i>
+              <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="upgrade-icon">
+                <rect width="18" height="11" x="3" y="11" rx="2" ry="2"/>
+                <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+              </svg>
               <h4>Napredna analitika</h4>
               <p>Nadogradite na Professional plan za pristup naprednim izvještajima i analitici.</p>
               <a routerLink="/upgrade" [queryParams]="{feature: 'advanced_analytics'}" class="btn btn-outline">

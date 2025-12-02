@@ -2,7 +2,7 @@ import { ApplicationConfig, provideBrowserGlobalErrorListeners, provideZoneChang
 import { provideRouter, withComponentInputBinding, withViewTransitions } from '@angular/router';
 import { provideHttpClient, withInterceptors, withFetch } from '@angular/common/http';
 import { provideAnimations } from '@angular/platform-browser/animations';
-import { provideTranslateService } from '@ngx-translate/core';
+import { provideTranslateService, TranslateService } from '@ngx-translate/core';
 import { provideTranslateHttpLoader } from '@ngx-translate/http-loader';
 
 import { routes } from './app.routes';
@@ -16,6 +16,18 @@ function initializeAuth(authService: AuthService) {
   return () => {
     authService.initializeAuth();
     return Promise.resolve();
+  };
+}
+
+/**
+ * Initialize translations on app startup
+ */
+function initializeTranslations(translate: TranslateService) {
+  return () => {
+    translate.addLangs(['en', 'bs']);
+    translate.setDefaultLang('en');
+    const savedLang = localStorage.getItem('pharma_language') || 'en';
+    return translate.use(savedLang).toPromise();
   };
 }
 
@@ -59,6 +71,14 @@ export const appConfig: ApplicationConfig = {
       useFactory: () => {
         const authService = inject(AuthService);
         return initializeAuth(authService);
+      },
+      multi: true
+    },
+    {
+      provide: APP_INITIALIZER,
+      useFactory: () => {
+        const translate = inject(TranslateService);
+        return initializeTranslations(translate);
       },
       multi: true
     }
