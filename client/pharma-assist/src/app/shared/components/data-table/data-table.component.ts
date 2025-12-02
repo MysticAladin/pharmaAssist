@@ -21,7 +21,7 @@ export interface SortEvent {
   standalone: true,
   imports: [CommonModule, TranslateModule],
   template: `
-    <div class="data-table-container">
+    <div class="data-table-container" [class.hoverable]="hoverable()" [class.striped]="striped()">
       <div class="table-wrapper">
         <table class="data-table">
           <thead>
@@ -227,10 +227,6 @@ export interface SortEvent {
         border-bottom: none;
       }
 
-      &:hover:not(.skeleton-row):not(.empty-row) {
-        background: var(--surface-hover, #f8fafc);
-      }
-
       &.selected {
         background: rgba(var(--primary-rgb), 0.08);
       }
@@ -238,6 +234,20 @@ export interface SortEvent {
       &.clickable {
         cursor: pointer;
       }
+    }
+
+    /* Hoverable rows */
+    .hoverable tbody tr:hover:not(.skeleton-row):not(.empty-row) {
+      background: var(--surface-hover, #f8fafc);
+    }
+
+    /* Striped rows */
+    .striped tbody tr:nth-child(even):not(.skeleton-row):not(.empty-row) {
+      background: var(--surface-alt, #fafafa);
+    }
+
+    .striped.hoverable tbody tr:hover:not(.skeleton-row):not(.empty-row) {
+      background: var(--surface-hover, #f1f5f9);
     }
 
     td {
@@ -304,15 +314,32 @@ export class DataTableComponent<T = any> {
   selectable = signal(false);
   showActions = signal(false);
   rowClickable = signal(false);
+  hoverable = signal(true);
+  striped = signal(false);
   trackByFn = signal<(item: T) => any>((item: any) => item.id);
 
+  // Support both naming conventions
+  @Input('columns') set columnsInput(value: TableColumn[]) { this.columns.set(value); }
   @Input() set columnDefs(value: TableColumn[]) { this.columns.set(value); }
+
+  @Input('data') set dataInput(value: T[]) { this.data.set(value); }
   @Input() set items(value: T[]) { this.data.set(value); }
+
+  @Input('loading') set loadingInput(value: boolean) { this.loading.set(value); }
   @Input() set isLoading(value: boolean) { this.loading.set(value); }
+
+  @Input('selectable') set selectableInput(value: boolean) { this.selectable.set(value); }
   @Input() set enableSelection(value: boolean) { this.selectable.set(value); }
+
+  @Input() set showActionsInput(value: boolean) { this.showActions.set(value); }
   @Input() set enableActions(value: boolean) { this.showActions.set(value); }
+
+  @Input('clickable') set clickableInput(value: boolean) { this.rowClickable.set(value); }
   @Input() set enableRowClick(value: boolean) { this.rowClickable.set(value); }
+
   @Input() set trackBy(value: (item: T) => any) { this.trackByFn.set(value); }
+  @Input('hoverable') set hoverableInput(value: boolean) { this.hoverable.set(value); }
+  @Input('striped') set stripedInput(value: boolean) { this.striped.set(value); }
   @Input() actionsTemplate!: TemplateRef<any>;
 
   @Output() sortChange = new EventEmitter<SortEvent>();

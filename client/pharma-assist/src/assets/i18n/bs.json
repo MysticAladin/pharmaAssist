@@ -27,15 +27,30 @@
     "more": "Više",
     "noData": "Nema dostupnih podataka",
     "noResults": "Nema rezultata",
+    "noSearchResults": "Nema rezultata",
+    "tryDifferentSearch": "Pokušajte prilagoditi pretragu ili filtere",
     "selectAll": "Odaberi sve",
     "clearAll": "Obriši sve",
+    "clearFilters": "Obriši filtere",
+    "clearSelection": "Poništi odabir",
+    "selected": "odabrano",
     "showing": "Prikazano",
     "of": "od",
     "perPage": "Po stranici",
+    "from": "Od",
+    "to": "Do",
+    "item": "stavka",
+    "items": "stavki",
     "confirmMessage": "Jeste li sigurni da želite nastaviti s ovom akcijom?",
     "view": "Pogledaj",
     "create": "Kreiraj",
-    "update": "Ažuriraj"
+    "update": "Ažuriraj",
+    "print": "Štampaj",
+    "goBack": "Nazad",
+    "active": "Aktivno",
+    "inactive": "Neaktivno",
+    "activeOnly": "Samo aktivno",
+    "unknown": "Nepoznato"
   },
   "auth": {
     "login": {
@@ -151,10 +166,34 @@
   },
   "products": {
     "title": "Proizvodi",
+    "subtitle": "Upravljajte katalogom farmaceutskih proizvoda",
     "addProduct": "Dodaj proizvod",
     "editProduct": "Uredi proizvod",
     "deleteProduct": "Obriši proizvod",
     "productDetails": "Detalji proizvoda",
+    "searchPlaceholder": "Pretraži proizvode...",
+    "allCategories": "Sve kategorije",
+    "allManufacturers": "Svi proizvođači",
+    "activeOnly": "Samo aktivni",
+    "noProducts": "Nema proizvoda",
+    "noProductsDescription": "Počnite dodavanjem prvog proizvoda u katalog",
+    "deleteConfirmation": "Jeste li sigurni da želite obrisati ovaj proizvod? Ova akcija se ne može poništiti.",
+    "columns": {
+      "name": "Naziv proizvoda",
+      "category": "Kategorija",
+      "manufacturer": "Proizvođač",
+      "price": "Cijena (BAM)",
+      "stock": "Zaliha",
+      "status": "Status"
+    },
+    "status": {
+      "active": "Aktivan",
+      "inactive": "Neaktivan"
+    },
+    "prescription": {
+      "required": "Potreban recept",
+      "notRequired": "Bezreceptni"
+    },
     "fields": {
       "name": "Naziv proizvoda",
       "sku": "SKU",
@@ -167,11 +206,160 @@
       "batchNumber": "Broj serije"
     }
   },
+  "categories": {
+    "title": "Kategorije",
+    "subtitle": "Upravljajte kategorijama i klasifikacijama proizvoda",
+    "addCategory": "Dodaj kategoriju",
+    "editCategory": "Uredi kategoriju",
+    "table": {
+      "name": "Naziv",
+      "parent": "Nadređena kategorija",
+      "sortOrder": "Redoslijed",
+      "products": "Proizvodi",
+      "status": "Status"
+    },
+    "form": {
+      "name": "Naziv kategorije",
+      "namePlaceholder": "Unesite naziv kategorije",
+      "nameLocal": "Lokalni naziv (bosanski)",
+      "nameLocalPlaceholder": "Unesite lokalni naziv",
+      "description": "Opis",
+      "descriptionPlaceholder": "Unesite opis kategorije",
+      "parent": "Nadređena kategorija",
+      "noParent": "Bez nadređene (najviši nivo)",
+      "sortOrder": "Redoslijed sortiranja",
+      "isActive": "Kategorija je aktivna"
+    },
+    "empty": {
+      "title": "Nema kategorija",
+      "description": "Počnite dodavanjem prve kategorije proizvoda"
+    },
+    "delete": {
+      "title": "Obriši kategoriju",
+      "message": "Jeste li sigurni da želite obrisati \"{{name}}\"? Ova akcija se ne može poništiti."
+    }
+  },
+  "manufacturers": {
+    "title": "Proizvođači",
+    "subtitle": "Upravljajte farmaceutskim proizvođačima i dobavljačima",
+    "addManufacturer": "Dodaj proizvođača",
+    "editManufacturer": "Uredi proizvođača",
+    "table": {
+      "name": "Naziv",
+      "country": "Država",
+      "contact": "Kontakt",
+      "website": "Web stranica",
+      "products": "Proizvodi",
+      "status": "Status"
+    },
+    "form": {
+      "basicInfo": "Osnovne informacije",
+      "contactInfo": "Kontakt informacije",
+      "name": "Naziv proizvođača",
+      "namePlaceholder": "Unesite naziv proizvođača",
+      "nameLocal": "Lokalni naziv (bosanski)",
+      "nameLocalPlaceholder": "Unesite lokalni naziv",
+      "country": "Država",
+      "countryPlaceholder": "npr. Njemačka",
+      "countryCode": "Šifra države",
+      "countryCodePlaceholder": "npr. DE",
+      "website": "Web stranica",
+      "websitePlaceholder": "https://primjer.com",
+      "email": "Email",
+      "emailPlaceholder": "kontakt@firma.com",
+      "phone": "Telefon",
+      "phonePlaceholder": "+387 33 123 456",
+      "isActive": "Proizvođač je aktivan"
+    },
+    "empty": {
+      "title": "Nema proizvođača",
+      "description": "Počnite dodavanjem prvog farmaceutskog proizvođača"
+    },
+    "delete": {
+      "title": "Obriši proizvođača",
+      "message": "Jeste li sigurni da želite obrisati \"{{name}}\"? Ova akcija se ne može poništiti."
+    }
+  },
+  "lowStock": {
+    "title": "Upozorenja o niskom stanju zaliha",
+    "description": "Proizvodi koje je potrebno naručiti",
+    "reorder": "Naruči",
+    "searchPlaceholder": "Pretraži proizvode...",
+    "threshold": "Prag",
+    "allSeverities": "Sva upozorenja",
+    "critical": "Kritično",
+    "warning": "Niska zaliha",
+    "pendingOrders": "Narudžbe na čekanju",
+    "totalItems": "Ukupno niskih zaliha",
+    "columns": {
+      "product": "Proizvod",
+      "sku": "SKU",
+      "category": "Kategorija",
+      "currentStock": "Trenutne zalihe",
+      "reorderLevel": "Nivo za narudžbu",
+      "status": "Status"
+    },
+    "empty": {
+      "title": "Nema proizvoda s niskim zalihama",
+      "description": "Svi proizvodi su iznad nivoa za narudžbu"
+    },
+    "showing": "Prikazano {{count}} od {{total}} proizvoda",
+    "estimatedReorderValue": "Procijenjena vrijednost narudžbe"
+  },
   "customers": {
     "title": "Kupci",
+    "subtitle": "Upravljanje apotekama, bolnicama i maloprodajnim kupcima",
     "addCustomer": "Dodaj kupca",
     "editCustomer": "Uredi kupca",
     "customerDetails": "Detalji kupca",
+    "searchPlaceholder": "Pretraži po imenu, šifri ili emailu...",
+    "allTypes": "Svi tipovi",
+    "allTiers": "Svi nivoi",
+    "activeOnly": "Samo aktivni",
+    "columns": {
+      "name": "Ime",
+      "code": "Šifra",
+      "type": "Tip",
+      "tier": "Nivo",
+      "contact": "Kontakt"
+    },
+    "stats": {
+      "total": "Ukupno kupaca",
+      "active": "Aktivni",
+      "premium": "Premium (Nivo A)",
+      "pharmacies": "Apoteke"
+    },
+    "types": {
+      "retail": "Maloprodaja",
+      "pharmacy": "Apoteka",
+      "hospital": "Bolnica",
+      "wholesale": "Veleprodaja",
+      "clinic": "Klinika",
+      "other": "Ostalo"
+    },
+    "tiers": {
+      "premium": "Premium",
+      "standard": "Standardni",
+      "basic": "Osnovni"
+    },
+    "form": {
+      "name": "Ime kupca",
+      "type": "Tip kupca",
+      "email": "Email",
+      "phone": "Telefon",
+      "contactPerson": "Kontakt osoba",
+      "tier": "Nivo kupca",
+      "taxId": "PDV broj",
+      "discount": "Popust"
+    },
+    "empty": {
+      "title": "Nema pronađenih kupaca",
+      "description": "Počnite dodavanjem prvog kupca"
+    },
+    "delete": {
+      "title": "Obriši kupca",
+      "message": "Jeste li sigurni da želite obrisati \"{{name}}\"? Ova akcija se ne može poništiti."
+    },
     "fields": {
       "name": "Ime",
       "email": "Email",
@@ -184,14 +372,97 @@
   },
   "orders": {
     "title": "Narudžbe",
+    "subtitle": "Upravljanje i praćenje narudžbi kupaca",
+    "newOrder": "Nova narudžba",
     "createOrder": "Kreiraj narudžbu",
     "orderDetails": "Detalji narudžbe",
-    "status": {
+    "orderNumber": "Narudžba #",
+    "customer": "Kupac",
+    "orderDate": "Datum narudžbe",
+    "totalAmount": "Ukupno",
+    "items": "Stavke",
+    "hasPrescription": "Ima priložen recept",
+    "searchPlaceholder": "Pretraži po broju narudžbe, kupcu...",
+    "allStatuses": "Svi statusi",
+    "allPaymentStatuses": "Svi statusi plaćanja",
+    "cancel": "Otkaži narudžbu",
+    "backToOrders": "Nazad na narudžbe",
+    "stats": {
       "pending": "Na čekanju",
       "processing": "U obradi",
       "shipped": "Poslano",
+      "delivered": "Isporučeno"
+    },
+    "status": {
+      "label": "Status",
+      "pending": "Na čekanju",
+      "confirmed": "Potvrđeno",
+      "processing": "U obradi",
+      "readyForShipment": "Spremno za slanje",
+      "shipped": "Poslano",
       "delivered": "Isporučeno",
-      "cancelled": "Otkazano"
+      "cancelled": "Otkazano",
+      "returned": "Vraćeno"
+    },
+    "paymentStatus": {
+      "label": "Plaćanje",
+      "pending": "Na čekanju",
+      "partiallyPaid": "Djelomično plaćeno",
+      "paid": "Plaćeno",
+      "refunded": "Refundirano",
+      "failed": "Neuspjelo"
+    },
+    "paymentMethod": {
+      "cash": "Gotovina",
+      "cashOnDelivery": "Pouzeće",
+      "bankTransfer": "Bankovni transfer",
+      "creditCard": "Kreditna kartica",
+      "invoice": "Faktura"
+    },
+    "empty": {
+      "title": "Nema narudžbi",
+      "description": "Narudžbe kupaca će se pojaviti ovdje"
+    },
+    "notFound": {
+      "title": "Narudžba nije pronađena",
+      "description": "Narudžba koju tražite ne postoji ili je uklonjena."
+    },
+    "cancelConfirm": {
+      "title": "Otkaži narudžbu",
+      "message": "Jeste li sigurni da želite otkazati ovu narudžbu? Ova akcija se ne može poništiti."
+    },
+    "detail": {
+      "items": "Stavke narudžbe",
+      "product": "Proizvod",
+      "quantity": "Kol.",
+      "unitPrice": "Jedinična cijena",
+      "discount": "Popust",
+      "lineTotal": "Ukupno",
+      "batch": "Serija",
+      "subtotal": "Međuzbroj",
+      "discountTotal": "Popust",
+      "tax": "PDV (17%)",
+      "shipping": "Dostava",
+      "total": "Ukupno",
+      "paid": "Plaćeno",
+      "due": "Za platiti",
+      "prescriptions": "Recepti",
+      "verified": "Verificirano",
+      "pendingVerification": "Čeka verifikaciju",
+      "doctor": "Doktor",
+      "patient": "Pacijent",
+      "issued": "Izdato",
+      "notes": "Napomene",
+      "customer": "Kupac",
+      "viewCustomer": "Pogledaj profil kupca",
+      "timeline": "Vremenska linija",
+      "created": "Narudžba kreirana",
+      "orderInfo": "Informacije o narudžbi",
+      "requiredDate": "Traženi datum",
+      "paymentMethod": "Način plaćanja",
+      "addresses": "Adrese",
+      "shippingAddress": "Adresa dostave",
+      "billingAddress": "Adresa za račun"
     }
   },
   "settings": {
@@ -203,6 +474,128 @@
     "preferences": "Preference",
     "language": "Jezik",
     "theme": "Tema"
+  },
+  "reports": {
+    "title": "Izvještaji i Analitika",
+    "description": "Poslovna inteligencija i izvještavanje",
+    "availableReports": "Dostupni Izvještaji",
+    "recentReports": "Nedavni Izvještaji",
+    "noRecentReports": "Još nema generiranih izvještaja",
+    "periods": {
+      "today": "Danas",
+      "week": "Ova Sedmica",
+      "month": "Ovaj Mjesec",
+      "year": "Ova Godina"
+    },
+    "stats": {
+      "totalRevenue": "Ukupan Prihod",
+      "ordersCount": "Ukupno Narudžbi",
+      "avgOrderValue": "Prosjek Narudžbe",
+      "topProduct": "Top Proizvod"
+    },
+    "types": {
+      "sales": {
+        "title": "Izvještaji Prodaje",
+        "description": "Prihodi, narudžbe i analitika kupaca"
+      },
+      "inventory": {
+        "title": "Izvještaji Zaliha",
+        "description": "Nivoi zaliha, kretanja i vrijednosti"
+      },
+      "analytics": {
+        "title": "Analitika",
+        "description": "Napredna poslovna inteligencija i trendovi"
+      },
+      "customers": {
+        "title": "Izvještaji Kupaca",
+        "description": "Analiza i segmentacija kupaca"
+      },
+      "prescriptions": {
+        "title": "Izvještaji Recepata",
+        "description": "Praćenje recepata i usklađenost"
+      },
+      "expiring": {
+        "title": "Proizvodi koji Ističu",
+        "description": "Proizvodi koji se približavaju roku trajanja"
+      }
+    },
+    "sales": {
+      "title": "Izvještaji Prodaje",
+      "subtitle": "Performanse prodaje i analiza prihoda",
+      "summary": "Pregled Prodaje",
+      "detailed": "Detaljna Prodaja",
+      "byCustomer": "Prodaja po Kupcu",
+      "byProduct": "Prodaja po Proizvodu",
+      "byPeriod": "Prodaja po Periodu",
+      "revenue": "Prihod",
+      "orders": "Narudžbe",
+      "avgOrderValue": "Prosjek Narudžbe",
+      "growth": "Rast",
+      "topProducts": "Top Proizvodi",
+      "topCustomers": "Top Kupci",
+      "dailySales": "Dnevna Prodaja",
+      "monthlySales": "Mjesečna Prodaja",
+      "yearlySales": "Godišnja Prodaja"
+    },
+    "inventory": {
+      "title": "Izvještaji Zaliha",
+      "subtitle": "Analiza zaliha i upravljanje inventarom",
+      "status": "Status Zaliha",
+      "movements": "Kretanja Zaliha",
+      "valuation": "Vrijednost Zaliha",
+      "expiring": "Proizvodi koji Ističu",
+      "lowStock": "Stavke Niskih Zaliha",
+      "totalItems": "Ukupno Stavki",
+      "totalValue": "Ukupna Vrijednost",
+      "stockIn": "Ulaz",
+      "stockOut": "Izlaz",
+      "turnover": "Koeficijent Obrta",
+      "byCategory": "Po Kategoriji",
+      "byManufacturer": "Po Proizvođaču"
+    },
+    "analytics": {
+      "title": "Analitička Kontrolna Ploča",
+      "subtitle": "Napredna poslovna inteligencija i trendovi",
+      "trends": "Trendovi",
+      "forecasting": "Prognoze",
+      "comparison": "Usporedba Perioda",
+      "kpis": "Ključni Pokazatelji Učinkovitosti",
+      "insights": "Uvidi",
+      "recommendations": "Preporuke"
+    },
+    "filters": {
+      "dateRange": "Raspon Datuma",
+      "startDate": "Početni Datum",
+      "endDate": "Krajnji Datum",
+      "today": "Danas",
+      "yesterday": "Jučer",
+      "last7Days": "Zadnjih 7 Dana",
+      "last30Days": "Zadnjih 30 Dana",
+      "thisMonth": "Ovaj Mjesec",
+      "lastMonth": "Prošli Mjesec",
+      "thisYear": "Ova Godina",
+      "custom": "Prilagođeni Raspon"
+    },
+    "actions": {
+      "generate": "Generiraj Izvještaj",
+      "export": "Izvezi",
+      "schedule": "Zakaži",
+      "download": "Preuzmi",
+      "print": "Štampaj",
+      "share": "Podijeli",
+      "refresh": "Osvježi Podatke"
+    },
+    "format": {
+      "pdf": "PDF",
+      "excel": "Excel",
+      "csv": "CSV",
+      "html": "HTML"
+    },
+    "empty": {
+      "title": "Nema Izvještaja",
+      "message": "Generirajte prvi izvještaj da vidite podatke ovdje",
+      "action": "Generiraj Izvještaj"
+    }
   },
   "errors": {
     "notFound": {

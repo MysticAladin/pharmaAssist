@@ -128,7 +128,7 @@ export class StatusBadgeComponent {
   @Input() set size(value: BadgeSize) { this._size.set(value); }
   @Input() set dot(value: boolean) { this.showDot.set(value); }
   @Input() set svgIcon(value: string) { this.icon.set(value); }
-  @Input() set translate(value: boolean) { this.translateLabel.set(value); }
+  @Input() set shouldTranslate(value: boolean) { this.translateLabel.set(value); }
 
   _variant = signal<BadgeVariant>('neutral');
   _size = signal<BadgeSize>('md');

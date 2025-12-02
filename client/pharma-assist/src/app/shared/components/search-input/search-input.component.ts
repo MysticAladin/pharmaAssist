@@ -97,6 +97,7 @@ import { Subject, debounceTime, distinctUntilChanged, takeUntil } from 'rxjs';
 export class SearchInputComponent implements OnInit, OnDestroy {
   @Input() placeholder = 'common.search';
   @Input() debounceMs = 300;
+  @Input() set debounceTime(val: number) { this.debounceMs = val; }
   @Input() set initialValue(val: string) { this.value.set(val); }
 
   @Output() searchChange = new EventEmitter<string>();

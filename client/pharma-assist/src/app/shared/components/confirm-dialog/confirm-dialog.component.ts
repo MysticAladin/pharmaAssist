@@ -182,14 +182,20 @@ export class ConfirmDialogComponent {
   @Input() title = 'common.confirm';
   @Input() message = 'common.confirmMessage';
   @Input() confirmText = 'common.confirm';
+  @Input('confirmLabel') set confirmLabelAlias(value: string) { this.confirmText = value; }
   @Input() cancelText = 'common.cancel';
+  @Input('cancelLabel') set cancelLabelAlias(value: string) { this.cancelText = value; }
+  @Input('isOpen') set isOpenInput(value: boolean) { this.isOpen.set(value); }
   @Input() set open(value: boolean) { this.isOpen.set(value); }
+  @Input('variant') set variantInput(value: ConfirmVariant) { this.variant.set(value); }
   @Input() set type(value: ConfirmVariant) { this.variant.set(value); }
   @Input() set isLoading(value: boolean) { this.loading.set(value); }
 
   @Output() openChange = new EventEmitter<boolean>();
   @Output() confirm = new EventEmitter<void>();
+  @Output() confirmed = new EventEmitter<void>();
   @Output() cancel = new EventEmitter<void>();
+  @Output() cancelled = new EventEmitter<void>();
 
   isOpen = signal(false);
   variant = signal<ConfirmVariant>('danger');
@@ -202,11 +208,13 @@ export class ConfirmDialogComponent {
 
   onConfirm(): void {
     this.confirm.emit();
+    this.confirmed.emit();
   }
 
   onCancel(): void {
     this.isOpen.set(false);
     this.openChange.emit(false);
     this.cancel.emit();
+    this.cancelled.emit();
   }
 }

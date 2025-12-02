@@ -27,15 +27,30 @@
     "more": "More",
     "noData": "No data available",
     "noResults": "No results found",
+    "noSearchResults": "No results found",
+    "tryDifferentSearch": "Try adjusting your search or filters",
     "selectAll": "Select All",
     "clearAll": "Clear All",
+    "clearFilters": "Clear Filters",
+    "clearSelection": "Clear Selection",
+    "selected": "selected",
     "showing": "Showing",
     "of": "of",
     "perPage": "Per page",
+    "from": "From",
+    "to": "To",
+    "item": "item",
+    "items": "items",
     "confirmMessage": "Are you sure you want to proceed with this action?",
     "view": "View",
     "create": "Create",
-    "update": "Update"
+    "update": "Update",
+    "print": "Print",
+    "goBack": "Go Back",
+    "active": "Active",
+    "inactive": "Inactive",
+    "activeOnly": "Active only",
+    "unknown": "Unknown"
   },
   "auth": {
     "login": {
@@ -151,10 +166,34 @@
   },
   "products": {
     "title": "Products",
+    "subtitle": "Manage your pharmaceutical product catalog",
     "addProduct": "Add Product",
     "editProduct": "Edit Product",
     "deleteProduct": "Delete Product",
     "productDetails": "Product Details",
+    "searchPlaceholder": "Search products...",
+    "allCategories": "All Categories",
+    "allManufacturers": "All Manufacturers",
+    "activeOnly": "Active only",
+    "noProducts": "No products found",
+    "noProductsDescription": "Start by adding your first product to the catalog",
+    "deleteConfirmation": "Are you sure you want to delete this product? This action cannot be undone.",
+    "columns": {
+      "name": "Product Name",
+      "category": "Category",
+      "manufacturer": "Manufacturer",
+      "price": "Price (BAM)",
+      "stock": "Stock",
+      "status": "Status"
+    },
+    "status": {
+      "active": "Active",
+      "inactive": "Inactive"
+    },
+    "prescription": {
+      "required": "Prescription Required",
+      "notRequired": "OTC"
+    },
     "fields": {
       "name": "Product Name",
       "sku": "SKU",
@@ -167,11 +206,160 @@
       "batchNumber": "Batch Number"
     }
   },
+  "categories": {
+    "title": "Categories",
+    "subtitle": "Manage product categories and classifications",
+    "addCategory": "Add Category",
+    "editCategory": "Edit Category",
+    "table": {
+      "name": "Name",
+      "parent": "Parent Category",
+      "sortOrder": "Order",
+      "products": "Products",
+      "status": "Status"
+    },
+    "form": {
+      "name": "Category Name",
+      "namePlaceholder": "Enter category name",
+      "nameLocal": "Local Name (Bosnian)",
+      "nameLocalPlaceholder": "Enter local name",
+      "description": "Description",
+      "descriptionPlaceholder": "Enter category description",
+      "parent": "Parent Category",
+      "noParent": "No parent (top-level)",
+      "sortOrder": "Sort Order",
+      "isActive": "Category is active"
+    },
+    "empty": {
+      "title": "No categories found",
+      "description": "Start by adding your first product category"
+    },
+    "delete": {
+      "title": "Delete Category",
+      "message": "Are you sure you want to delete \"{{name}}\"? This action cannot be undone."
+    }
+  },
+  "manufacturers": {
+    "title": "Manufacturers",
+    "subtitle": "Manage pharmaceutical manufacturers and suppliers",
+    "addManufacturer": "Add Manufacturer",
+    "editManufacturer": "Edit Manufacturer",
+    "table": {
+      "name": "Name",
+      "country": "Country",
+      "contact": "Contact",
+      "website": "Website",
+      "products": "Products",
+      "status": "Status"
+    },
+    "form": {
+      "basicInfo": "Basic Information",
+      "contactInfo": "Contact Information",
+      "name": "Manufacturer Name",
+      "namePlaceholder": "Enter manufacturer name",
+      "nameLocal": "Local Name (Bosnian)",
+      "nameLocalPlaceholder": "Enter local name",
+      "country": "Country",
+      "countryPlaceholder": "e.g., Germany",
+      "countryCode": "Country Code",
+      "countryCodePlaceholder": "e.g., DE",
+      "website": "Website",
+      "websitePlaceholder": "https://example.com",
+      "email": "Email",
+      "emailPlaceholder": "contact@company.com",
+      "phone": "Phone",
+      "phonePlaceholder": "+387 33 123 456",
+      "isActive": "Manufacturer is active"
+    },
+    "empty": {
+      "title": "No manufacturers found",
+      "description": "Start by adding your first pharmaceutical manufacturer"
+    },
+    "delete": {
+      "title": "Delete Manufacturer",
+      "message": "Are you sure you want to delete \"{{name}}\"? This action cannot be undone."
+    }
+  },
+  "lowStock": {
+    "title": "Low Stock Alerts",
+    "description": "Products that need to be reordered",
+    "reorder": "Reorder",
+    "searchPlaceholder": "Search products...",
+    "threshold": "Threshold",
+    "allSeverities": "All Severities",
+    "critical": "Critical",
+    "warning": "Low Stock",
+    "pendingOrders": "Pending Orders",
+    "totalItems": "Total Low Stock",
+    "columns": {
+      "product": "Product",
+      "sku": "SKU",
+      "category": "Category",
+      "currentStock": "Current Stock",
+      "reorderLevel": "Reorder Level",
+      "status": "Status"
+    },
+    "empty": {
+      "title": "No low stock products",
+      "description": "All products are above their reorder level"
+    },
+    "showing": "Showing {{count}} of {{total}} products",
+    "estimatedReorderValue": "Estimated Reorder Value"
+  },
   "customers": {
     "title": "Customers",
+    "subtitle": "Manage pharmacies, hospitals, and retail customers",
     "addCustomer": "Add Customer",
     "editCustomer": "Edit Customer",
     "customerDetails": "Customer Details",
+    "searchPlaceholder": "Search by name, code, or email...",
+    "allTypes": "All Types",
+    "allTiers": "All Tiers",
+    "activeOnly": "Active only",
+    "columns": {
+      "name": "Name",
+      "code": "Code",
+      "type": "Type",
+      "tier": "Tier",
+      "contact": "Contact"
+    },
+    "stats": {
+      "total": "Total Customers",
+      "active": "Active",
+      "premium": "Premium (Tier A)",
+      "pharmacies": "Pharmacies"
+    },
+    "types": {
+      "retail": "Retail",
+      "pharmacy": "Pharmacy",
+      "hospital": "Hospital",
+      "wholesale": "Wholesale",
+      "clinic": "Clinic",
+      "other": "Other"
+    },
+    "tiers": {
+      "premium": "Premium",
+      "standard": "Standard",
+      "basic": "Basic"
+    },
+    "form": {
+      "name": "Customer Name",
+      "type": "Customer Type",
+      "email": "Email",
+      "phone": "Phone",
+      "contactPerson": "Contact Person",
+      "tier": "Customer Tier",
+      "taxId": "Tax ID",
+      "discount": "Discount"
+    },
+    "empty": {
+      "title": "No customers found",
+      "description": "Start by adding your first customer"
+    },
+    "delete": {
+      "title": "Delete Customer",
+      "message": "Are you sure you want to delete \"{{name}}\"? This action cannot be undone."
+    },
     "fields": {
       "name": "Name",
       "email": "Email",
@@ -184,14 +372,97 @@
   },
   "orders": {
     "title": "Orders",
+    "subtitle": "Manage and track customer orders",
+    "newOrder": "New Order",
     "createOrder": "Create Order",
     "orderDetails": "Order Details",
-    "status": {
+    "orderNumber": "Order #",
+    "customer": "Customer",
+    "orderDate": "Order Date",
+    "totalAmount": "Total",
+    "items": "Items",
+    "hasPrescription": "Has prescription attached",
+    "searchPlaceholder": "Search by order #, customer...",
+    "allStatuses": "All Statuses",
+    "allPaymentStatuses": "All Payment Statuses",
+    "cancel": "Cancel Order",
+    "backToOrders": "Back to Orders",
+    "stats": {
       "pending": "Pending",
       "processing": "Processing",
       "shipped": "Shipped",
+      "delivered": "Delivered"
+    },
+    "status": {
+      "label": "Status",
+      "pending": "Pending",
+      "confirmed": "Confirmed",
+      "processing": "Processing",
+      "readyForShipment": "Ready for Shipment",
+      "shipped": "Shipped",
       "delivered": "Delivered",
-      "cancelled": "Cancelled"
+      "cancelled": "Cancelled",
+      "returned": "Returned"
+    },
+    "paymentStatus": {
+      "label": "Payment",
+      "pending": "Pending",
+      "partiallyPaid": "Partially Paid",
+      "paid": "Paid",
+      "refunded": "Refunded",
+      "failed": "Failed"
+    },
+    "paymentMethod": {
+      "cash": "Cash",
+      "cashOnDelivery": "Cash on Delivery",
+      "bankTransfer": "Bank Transfer",
+      "creditCard": "Credit Card",
+      "invoice": "Invoice"
+    },
+    "empty": {
+      "title": "No orders yet",
+      "description": "Orders from customers will appear here"
+    },
+    "notFound": {
+      "title": "Order not found",
+      "description": "The order you're looking for doesn't exist or has been removed."
+    },
+    "cancelConfirm": {
+      "title": "Cancel Order",
+      "message": "Are you sure you want to cancel this order? This action cannot be undone."
+    },
+    "detail": {
+      "items": "Order Items",
+      "product": "Product",
+      "quantity": "Qty",
+      "unitPrice": "Unit Price",
+      "discount": "Discount",
+      "lineTotal": "Total",
+      "batch": "Batch",
+      "subtotal": "Subtotal",
+      "discountTotal": "Discount",
+      "tax": "Tax (17%)",
+      "shipping": "Shipping",
+      "total": "Total",
+      "paid": "Paid",
+      "due": "Amount Due",
+      "prescriptions": "Prescriptions",
+      "verified": "Verified",
+      "pendingVerification": "Pending Verification",
+      "doctor": "Doctor",
+      "patient": "Patient",
+      "issued": "Issued",
+      "notes": "Notes",
+      "customer": "Customer",
+      "viewCustomer": "View Customer Profile",
+      "timeline": "Order Timeline",
+      "created": "Order Created",
+      "orderInfo": "Order Information",
+      "requiredDate": "Required Date",
+      "paymentMethod": "Payment Method",
+      "addresses": "Addresses",
+      "shippingAddress": "Shipping Address",
+      "billingAddress": "Billing Address"
     }
   },
   "settings": {
@@ -203,6 +474,128 @@
     "preferences": "Preferences",
     "language": "Language",
     "theme": "Theme"
+  },
+  "reports": {
+    "title": "Reports & Analytics",
+    "description": "Business intelligence and reporting dashboard",
+    "availableReports": "Available Reports",
+    "recentReports": "Recent Reports",
+    "noRecentReports": "No recent reports generated yet",
+    "periods": {
+      "today": "Today",
+      "week": "This Week",
+      "month": "This Month",
+      "year": "This Year"
+    },
+    "stats": {
+      "totalRevenue": "Total Revenue",
+      "ordersCount": "Total Orders",
+      "avgOrderValue": "Avg. Order Value",
+      "topProduct": "Top Product"
+    },
+    "types": {
+      "sales": {
+        "title": "Sales Reports",
+        "description": "Revenue, orders, and customer analytics"
+      },
+      "inventory": {
+        "title": "Inventory Reports",
+        "description": "Stock levels, movements, and valuations"
+      },
+      "analytics": {
+        "title": "Analytics",
+        "description": "Advanced business intelligence and trends"
+      },
+      "customers": {
+        "title": "Customer Reports",
+        "description": "Customer analysis and segmentation"
+      },
+      "prescriptions": {
+        "title": "Prescription Reports",
+        "description": "Prescription tracking and compliance"
+      },
+      "expiring": {
+        "title": "Expiring Products",
+        "description": "Products nearing expiration date"
+      }
+    },
+    "sales": {
+      "title": "Sales Reports",
+      "subtitle": "Sales performance and revenue analysis",
+      "summary": "Sales Summary",
+      "detailed": "Detailed Sales",
+      "byCustomer": "Sales by Customer",
+      "byProduct": "Sales by Product",
+      "byPeriod": "Sales by Period",
+      "revenue": "Revenue",
+      "orders": "Orders",
+      "avgOrderValue": "Avg. Order Value",
+      "growth": "Growth",
+      "topProducts": "Top Products",
+      "topCustomers": "Top Customers",
+      "dailySales": "Daily Sales",
+      "monthlySales": "Monthly Sales",
+      "yearlySales": "Yearly Sales"
+    },
+    "inventory": {
+      "title": "Inventory Reports",
+      "subtitle": "Stock analysis and inventory management",
+      "status": "Inventory Status",
+      "movements": "Stock Movements",
+      "valuation": "Inventory Valuation",
+      "expiring": "Expiring Products",
+      "lowStock": "Low Stock Items",
+      "totalItems": "Total Items",
+      "totalValue": "Total Value",
+      "stockIn": "Stock In",
+      "stockOut": "Stock Out",
+      "turnover": "Turnover Rate",
+      "byCategory": "By Category",
+      "byManufacturer": "By Manufacturer"
+    },
+    "analytics": {
+      "title": "Analytics Dashboard",
+      "subtitle": "Advanced business intelligence and trends",
+      "trends": "Trends",
+      "forecasting": "Forecasting",
+      "comparison": "Period Comparison",
+      "kpis": "Key Performance Indicators",
+      "insights": "Insights",
+      "recommendations": "Recommendations"
+    },
+    "filters": {
+      "dateRange": "Date Range",
+      "startDate": "Start Date",
+      "endDate": "End Date",
+      "today": "Today",
+      "yesterday": "Yesterday",
+      "last7Days": "Last 7 Days",
+      "last30Days": "Last 30 Days",
+      "thisMonth": "This Month",
+      "lastMonth": "Last Month",
+      "thisYear": "This Year",
+      "custom": "Custom Range"
+    },
+    "actions": {
+      "generate": "Generate Report",
+      "export": "Export",
+      "schedule": "Schedule",
+      "download": "Download",
+      "print": "Print",
+      "share": "Share",
+      "refresh": "Refresh Data"
+    },
+    "format": {
+      "pdf": "PDF",
+      "excel": "Excel",
+      "csv": "CSV",
+      "html": "HTML"
+    },
+    "empty": {
+      "title": "No Reports Yet",
+      "message": "Generate your first report to see data here",
+      "action": "Generate Report"
+    }
   },
   "errors": {
     "notFound": {
