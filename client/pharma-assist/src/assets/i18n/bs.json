@@ -7,7 +7,7 @@
     "delete": "Obriši",
     "edit": "Uredi",
     "add": "Dodaj",
-    "search": "Pretraži",
+    "search": "Pretraži...",
     "filter": "Filtriraj",
     "export": "Izvezi",
     "import": "Uvezi",
@@ -28,7 +28,14 @@
     "noData": "Nema dostupnih podataka",
     "noResults": "Nema rezultata",
     "selectAll": "Odaberi sve",
-    "clearAll": "Obriši sve"
+    "clearAll": "Obriši sve",
+    "showing": "Prikazano",
+    "of": "od",
+    "perPage": "Po stranici",
+    "confirmMessage": "Jeste li sigurni da želite nastaviti s ovom akcijom?",
+    "view": "Pogledaj",
+    "create": "Kreiraj",
+    "update": "Ažuriraj"
   },
   "auth": {
     "login": {

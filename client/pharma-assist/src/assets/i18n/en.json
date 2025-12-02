@@ -7,7 +7,7 @@
     "delete": "Delete",
     "edit": "Edit",
     "add": "Add",
-    "search": "Search",
+    "search": "Search...",
     "filter": "Filter",
     "export": "Export",
     "import": "Import",
@@ -28,7 +28,14 @@
     "noData": "No data available",
     "noResults": "No results found",
     "selectAll": "Select All",
-    "clearAll": "Clear All"
+    "clearAll": "Clear All",
+    "showing": "Showing",
+    "of": "of",
+    "perPage": "Per page",
+    "confirmMessage": "Are you sure you want to proceed with this action?",
+    "view": "View",
+    "create": "Create",
+    "update": "Update"
   },
   "auth": {
     "login": {
