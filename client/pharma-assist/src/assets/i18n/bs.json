@@ -51,7 +51,40 @@
     "inactive": "Neaktivno",
     "activeOnly": "Samo aktivno",
     "unknown": "Nepoznato",
-    "optional": "(opcionalno)"
+    "optional": "(opcionalno)",
+    "viewAll": "Pogledaj sve"
+  },
+  "notifications": {
+    "title": "Obavještenja",
+    "markAllRead": "Označi sve kao pročitano",
+    "clearAll": "Obriši sve",
+    "tabs": {
+      "all": "Sva",
+      "unread": "Nepročitana",
+      "alerts": "Upozorenja"
+    },
+    "empty": {
+      "title": "Nema obavještenja",
+      "message": "Sve je u redu! Nema novih obavještenja."
+    },
+    "settings": {
+      "title": "Postavke obavještenja",
+      "lowStockAlerts": "Upozorenja o niskim zalihama",
+      "expiringProductAlerts": "Upozorenja o isteku proizvoda",
+      "orderStatusAlerts": "Ažuriranja statusa narudžbi",
+      "prescriptionAlerts": "Obavještenja o receptima",
+      "paymentAlerts": "Obavještenja o plaćanjima",
+      "soundEnabled": "Zvučna obavještenja",
+      "desktopNotifications": "Desktop obavještenja"
+    },
+    "types": {
+      "lowStock": "Niske zalihe",
+      "expiring": "Istječe proizvod",
+      "orderStatus": "Ažuriranje narudžbe",
+      "prescription": "Recept",
+      "payment": "Plaćanje",
+      "system": "Sistem"
+    }
   },
   "auth": {
     "login": {
@@ -187,19 +220,21 @@
     "lightMode": "Svijetla tema",
     "darkMode": "Tamna tema"
   },
-  "notifications": {
-    "title": "Obavještenja",
-    "markAllRead": "Označi sve kao pročitano",
-    "clearAll": "Obriši sve",
-    "noNotifications": "Nema obavještenja",
-    "viewAll": "Pogledaj sva obavještenja"
-  },
   "dashboard": {
     "title": "Kontrolna tabla",
     "welcome": "Dobro došli",
     "newOrder": "Nova narudžba",
     "overview": "Pregled",
     "recentActivity": "Nedavna aktivnost",
+    "recentOrders": "Nedavne narudžbe",
+    "alerts": "Upozorenja",
+    "noRecentOrders": "Nema nedavnih narudžbi",
+    "createFirstOrder": "Kreiraj prvu narudžbu",
+    "noAlerts": "Sve je u redu! Trenutno nema upozorenja.",
+    "advancedAnalytics": "Napredna analitika",
+    "analyticsComingSoon": "Grafikoni i napredna analitika dolaze uskoro...",
+    "upgradeMessage": "Nadogradite na Professional plan za pristup naprednim izvještajima i analitici.",
+    "upgradePlan": "Nadogradi plan",
     "quickActions": "Brze akcije",
     "actions": {
       "newOrder": "Nova narudžba",
@@ -214,7 +249,11 @@
       "totalProducts": "Ukupno proizvoda",
       "totalCustomers": "Ukupno kupaca",
       "lowStockItems": "Proizvodi s niskim zalihama",
-      "pendingOrders": "Narudžbe na čekanju"
+      "pendingOrders": "Narudžbe na čekanju",
+      "todayOrders": "Današnje narudžbe",
+      "dailyRevenue": "Dnevni promet",
+      "pendingPrescriptions": "Recepti na čekanju",
+      "urgent": "hitno"
     }
   },
   "products": {
@@ -839,18 +878,73 @@
     "patientCounseling": "Lista za Savjetovanje Pacijenta",
     "counseling": {
       "dosageExplained": "Objašnjena doza i primjena",
+      "dosageExplainedDesc": "Objašnjen raspored doziranja i način primjene",
       "sideEffectsDiscussed": "Razmotreni mogući neželjeni efekti",
+      "sideEffectsDiscussedDesc": "Razmotreni uobičajeni i ozbiljni neželjeni efekti",
       "interactionsReviewed": "Pregledane interakcije lijekova",
+      "interactionsReviewedDesc": "Pregledane moguće interakcije s drugim lijekovima",
       "storageInstructionsGiven": "Date upute za čuvanje",
-      "patientQuestionsAnswered": "Odgovoreno na pitanja pacijenta"
+      "storageInstructionsGivenDesc": "Objašnjeni pravilni uslovi čuvanja lijekova",
+      "patientQuestionsAnswered": "Odgovoreno na pitanja pacijenta",
+      "patientQuestionsAnsweredDesc": "Odgovoreno na sve brige i pitanja pacijenta",
+      "controlledSubstanceWarning": "Dato upozorenje o kontroliranoj supstanci",
+      "controlledSubstanceWarningDesc": "Objašnjeni rizici, pravilna upotreba i zakonski zahtjevi"
     },
+    "steps": {
+      "verify": "Verifikuj",
+      "prepare": "Pripremi",
+      "counsel": "Savjetuj",
+      "confirm": "Potvrdi"
+    },
+    "verifyPrescription": "Verifikuj Recept",
+    "verifyInfo": "Provjerite detalje recepta prije izdavanja",
+    "verificationChecklist": "Lista za Verifikaciju",
+    "verify": {
+      "prescriptionValid": "Recept je validan i autentičan",
+      "patientIdentified": "Identitet pacijenta potvrđen",
+      "doctorVerified": "Doktor koji je propisao potvrđen",
+      "notExpired": "Recept nije istekao",
+      "controlledSubstanceCheck": "Provjereni zapisi o kontroliranim supstancama"
+    },
+    "paymentInfo": "Informacije o Plaćanju",
+    "paymentMethod": "Način Plaćanja",
+    "paymentTypes": {
+      "insurance": "Osiguranje",
+      "invoice": "Faktura (B2B)",
+      "bankTransfer": "Bankovni Transfer"
+    },
+    "prepareItems": "Pripremi Stavke",
+    "prepareInfo": "Provjerite dostupnost zaliha i pripremite stavke za izdavanje",
+    "checkStock": "Provjeri Dostupnost Zaliha",
+    "availableStock": "Dostupne Zalihe",
+    "inStock": "Na Zalihama",
+    "lowStock": "Niske Zalihe",
+    "selectBatch": "Odaberi seriju...",
+    "totalItems": "Ukupno Stavki",
+    "totalUnits": "Ukupno Jedinica",
+    "estimatedValue": "Procijenjena Vrijednost",
+    "counselingInfo": "Završite savjetovanje pacijenta prije izdavanja lijekova",
+    "confirmInfo": "Pregledajte sve informacije i potvrdite izdavanje",
+    "prescriptionDetails": "Detalji Recepta",
+    "pharmacistConfirmation": "Potvrda Farmaceuta",
+    "pharmacistConfirmText": "Potvrđujem da su svi lijekovi ispravni i pravilno pripremljeni",
+    "pharmacistConfirmDesc": "Označavanjem ove kućice potvrđujete da ste provjerili sve stavke",
+    "printLabel": "Ispiši naljepnice za lijekove",
+    "printReceipt": "Ispiši račun",
+    "completeDispense": "Završi Izdavanje",
+    "confirmDispenseTitle": "Potvrdi Izdavanje",
+    "confirmDispenseMessage": "Jeste li sigurni da želite završiti ovo izdavanje? Ova akcija će ažurirati inventar.",
+    "dispenseSuccess": "Izdavanje Završeno",
+    "dispenseSuccessMessage": "Lijekovi su uspješno izdani",
+    "dispenseError": "Nije uspjelo izdavanje lijekova. Pokušajte ponovo.",
+    "notFound": "Recept Nije Pronađen",
+    "notFoundMessage": "Recept koji tražite nije pronađen",
     "empty": {
       "title": "Nema pronađenih recepata",
       "description": "Recepti će se pojaviti ovdje kada budu poslani"
     },
     "prescriptionImage": "Slika Recepta",
     "noImageAvailable": "Slika nije dostupna",
-    "prescriptionDetails": "Detalji Recepta",
     "rxNumber": "Broj Recepta",
     "patientInfo": "Informacije o Pacijentu",
     "dateOfBirth": "Datum Rođenja",

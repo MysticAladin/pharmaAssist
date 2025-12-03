@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, signal, OnInit, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
 import { AuthStateService } from '../../core/state/auth-state.service';
@@ -6,6 +6,8 @@ import { FeatureFlagService } from '../../core/state/feature-flag.service';
 import { FeatureKey } from '../../core/models/feature-flag.model';
 import { HasFeatureDirective } from '../../core/directives/feature.directive';
 import { TranslateModule } from '@ngx-translate/core';
+import { DashboardService, DashboardData, DashboardAlert } from '../../core/services/dashboard.service';
+import { OrderSummary, OrderStatus, PaymentStatus } from '../../core/models/order.model';
 
 @Component({
   selector: 'app-dashboard',
@@ -20,6 +22,11 @@ import { TranslateModule } from '@ngx-translate/core';
           <p class="page-subtitle">{{ 'dashboard.welcome' | translate }}, {{ user()?.firstName }}!</p>
         </div>
         <div class="header-actions">
+          <button class="btn btn-icon btn-ghost" (click)="refreshData()" [disabled]="loading()">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" [class.spinning]="loading()">
+              <path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/><path d="M3 21v-5h5"/>
+            </svg>
+          </button>
           <button class="btn btn-primary" (click)="createNewOrder()">
             <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <path d="M5 12h14"/><path d="M12 5v14"/>
@@ -49,7 +56,7 @@ import { TranslateModule } from '@ngx-translate/core';
           </div>
           <span>{{ 'dashboard.actions.customers' | translate }}</span>
         </button>
-        <button class="quick-action-btn" (click)="navigateTo('/products/low-stock')">
+        <button class="quick-action-btn" (click)="navigateTo('/inventory')">
           <div class="action-icon action-icon-orange">
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg>
           </div>
@@ -65,7 +72,8 @@ import { TranslateModule } from '@ngx-translate/core';
 
       <!-- Quick Stats -->
       <div class="stats-grid">
-        <div class="stat-card">
+        <!-- Today's Orders -->
+        <div class="stat-card" [class.loading]="loading()">
           <div class="stat-icon stat-icon-blue">
             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <circle cx="8" cy="21" r="1"/><circle cx="19" cy="21" r="1"/>
@@ -73,26 +81,35 @@ import { TranslateModule } from '@ngx-translate/core';
             </svg>
           </div>
           <div class="stat-content">
-            <span class="stat-value">156</span>
-            <span class="stat-label">Danas narudžbi</span>
+            <span class="stat-value">{{ dashboardData()?.stats?.orders?.todayCount ?? 0 }}</span>
+            <span class="stat-label">{{ 'dashboard.stats.todayOrders' | translate }}</span>
           </div>
-          <div class="stat-change positive">
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/>
-            </svg>
-            +12%
-          </div>
+          @if (dashboardData()?.stats?.orders?.changePercent; as change) {
+            <div class="stat-change" [class.positive]="change >= 0" [class.negative]="change < 0">
+              @if (change >= 0) {
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/>
+                </svg>
+              } @else {
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <polyline points="22 17 13.5 8.5 8.5 13.5 2 7"/><polyline points="16 17 22 17 22 11"/>
+                </svg>
+              }
+              {{ change >= 0 ? '+' : '' }}{{ change }}%
+            </div>
+          }
         </div>
 
-        <div class="stat-card">
+        <!-- Daily Revenue -->
+        <div class="stat-card" [class.loading]="loading()">
           <div class="stat-icon stat-icon-green">
             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
             </svg>
           </div>
           <div class="stat-content">
-            <span class="stat-value">24,560 KM</span>
-            <span class="stat-label">Dnevni promet</span>
+            <span class="stat-value">{{ formatCurrency(dashboardData()?.stats?.orders?.todayRevenue ?? 0) }}</span>
+            <span class="stat-label">{{ 'dashboard.stats.dailyRevenue' | translate }}</span>
           </div>
           <div class="stat-change positive">
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -102,7 +119,8 @@ import { TranslateModule } from '@ngx-translate/core';
           </div>
         </div>
 
-        <div class="stat-card">
+        <!-- Low Stock Count -->
+        <div class="stat-card" [class.loading]="loading()" (click)="navigateTo('/inventory')">
           <div class="stat-icon stat-icon-orange">
             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <path d="m7.5 4.27 9 5.15"/><path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/>
@@ -110,18 +128,14 @@ import { TranslateModule } from '@ngx-translate/core';
             </svg>
           </div>
           <div class="stat-content">
-            <span class="stat-value">1,234</span>
-            <span class="stat-label">Proizvodi na stanju</span>
+            <span class="stat-value">{{ dashboardData()?.stats?.inventory?.lowStockCount ?? 0 }}</span>
+            <span class="stat-label">{{ 'dashboard.stats.lowStockItems' | translate }}</span>
           </div>
-          <div class="stat-change negative">
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <polyline points="22 17 13.5 8.5 8.5 13.5 2 7"/><polyline points="16 17 22 17 22 11"/>
-            </svg>
-            -2%
-          </div>
+          <a class="stat-link">{{ 'common.view' | translate }}</a>
         </div>
 
-        <div class="stat-card">
+        <!-- Pending Prescriptions -->
+        <div class="stat-card" [class.loading]="loading()" (click)="navigateTo('/prescriptions')">
           <div class="stat-icon stat-icon-red">
             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/>
@@ -129,10 +143,12 @@ import { TranslateModule } from '@ngx-translate/core';
             </svg>
           </div>
           <div class="stat-content">
-            <span class="stat-value">12</span>
-            <span class="stat-label">Nizak nivo zaliha</span>
+            <span class="stat-value">{{ dashboardData()?.stats?.prescriptions?.pendingCount ?? 0 }}</span>
+            <span class="stat-label">{{ 'dashboard.stats.pendingPrescriptions' | translate }}</span>
           </div>
-          <a routerLink="/products/low-stock" class="stat-link">Pogledaj</a>
+          @if (dashboardData()?.stats?.prescriptions?.urgentCount; as urgent) {
+            <span class="stat-badge urgent">{{ urgent }} {{ 'dashboard.stats.urgent' | translate }}</span>
+          }
         </div>
       </div>
 
@@ -141,51 +157,103 @@ import { TranslateModule } from '@ngx-translate/core';
         <!-- Recent Orders -->
         <div class="dashboard-card orders-card">
           <div class="card-header">
-            <h3 class="card-title">Nedavne narudžbe</h3>
-            <a routerLink="/orders" class="view-all-link">Pogledaj sve</a>
+            <h3 class="card-title">{{ 'dashboard.recentOrders' | translate }}</h3>
+            <a routerLink="/orders" class="view-all-link">{{ 'common.viewAll' | translate }}</a>
           </div>
-          <div class="orders-list">
-            <div class="order-item">
-              <div class="order-info">
-                <span class="order-id">#ORD-2024-0156</span>
-                <span class="order-customer">Apoteka Centar</span>
-              </div>
-              <div class="order-meta">
-                <span class="order-amount">1,250.00 KM</span>
-                <span class="order-status status-pending">Na čekanju</span>
-              </div>
+          
+          @if (loading()) {
+            <div class="orders-list">
+              @for (i of [1, 2, 3]; track i) {
+                <div class="order-item skeleton">
+                  <div class="skeleton-content"></div>
+                </div>
+              }
             </div>
-            <div class="order-item">
-              <div class="order-info">
-                <span class="order-id">#ORD-2024-0155</span>
-                <span class="order-customer">Farmacija Plus</span>
-              </div>
-              <div class="order-meta">
-                <span class="order-amount">890.50 KM</span>
-                <span class="order-status status-processing">U obradi</span>
-              </div>
+          } @else if (recentOrders().length === 0) {
+            <div class="empty-state">
+              <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/>
+              </svg>
+              <p>{{ 'dashboard.noRecentOrders' | translate }}</p>
+              <button class="btn btn-primary btn-sm" (click)="navigateTo('/orders/new')">
+                {{ 'dashboard.createFirstOrder' | translate }}
+              </button>
             </div>
-            <div class="order-item">
-              <div class="order-info">
-                <span class="order-id">#ORD-2024-0154</span>
-                <span class="order-customer">Zdravlje d.o.o.</span>
-              </div>
-              <div class="order-meta">
-                <span class="order-amount">2,340.00 KM</span>
-                <span class="order-status status-completed">Isporučeno</span>
-              </div>
+          } @else {
+            <div class="orders-list">
+              @for (order of recentOrders(); track order.id) {
+                <div class="order-item" (click)="navigateTo('/orders/' + order.id)">
+                  <div class="order-info">
+                    <span class="order-id">#{{ order.orderNumber || order.id }}</span>
+                    <span class="order-customer">{{ order.customerName || 'Unknown Customer' }}</span>
+                  </div>
+                  <div class="order-meta">
+                    <span class="order-amount">{{ formatCurrency(order.totalAmount) }}</span>
+                    <span class="order-status" [class]="'status-' + getStatusClass(order.status)">
+                      {{ getStatusLabel(order.status) | translate }}
+                    </span>
+                  </div>
+                </div>
+              }
             </div>
+          }
+        </div>
+
+        <!-- Alerts Section -->
+        <div class="dashboard-card alerts-card">
+          <div class="card-header">
+            <h3 class="card-title">{{ 'dashboard.alerts' | translate }}</h3>
+            @if (alerts().length > 0) {
+              <span class="alert-count">{{ alerts().length }}</span>
+            }
           </div>
+          
+          @if (loading()) {
+            <div class="alerts-list">
+              @for (i of [1, 2]; track i) {
+                <div class="alert-item skeleton">
+                  <div class="skeleton-content"></div>
+                </div>
+              }
+            </div>
+          } @else if (alerts().length === 0) {
+            <div class="empty-state small">
+              <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/>
+              </svg>
+              <p>{{ 'dashboard.noAlerts' | translate }}</p>
+            </div>
+          } @else {
+            <div class="alerts-list">
+              @for (alert of alerts(); track alert.id) {
+                <div class="alert-item" [class]="'alert-' + alert.type" (click)="alert.link && navigateTo(alert.link)">
+                  @if (alert.type === 'danger') {
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
+                    </svg>
+                  } @else {
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>
+                    </svg>
+                  }
+                  <div class="alert-content">
+                    <span class="alert-title">{{ alert.title }}</span>
+                    <span class="alert-desc">{{ alert.description }}</span>
+                  </div>
+                </div>
+              }
+            </div>
+          }
         </div>
 
         <!-- Advanced Analytics (Feature Gated) -->
         <ng-container *hasFeature="advancedAnalyticsKey; else upgradePrompt">
-          <div class="dashboard-card analytics-card">
+          <div class="dashboard-card analytics-card full-width">
             <div class="card-header">
-              <h3 class="card-title">Napredna analitika</h3>
+              <h3 class="card-title">{{ 'dashboard.advancedAnalytics' | translate }}</h3>
             </div>
             <div class="analytics-placeholder">
-              <p>Grafikoni i napredna analitika ovdje...</p>
+              <p>{{ 'dashboard.analyticsComingSoon' | translate }}</p>
             </div>
           </div>
         </ng-container>
@@ -197,37 +265,14 @@ import { TranslateModule } from '@ngx-translate/core';
                 <rect width="18" height="11" x="3" y="11" rx="2" ry="2"/>
                 <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
               </svg>
-              <h4>Napredna analitika</h4>
-              <p>Nadogradite na Professional plan za pristup naprednim izvještajima i analitici.</p>
+              <h4>{{ 'dashboard.advancedAnalytics' | translate }}</h4>
+              <p>{{ 'dashboard.upgradeMessage' | translate }}</p>
               <a routerLink="/upgrade" [queryParams]="{feature: 'advanced_analytics'}" class="btn btn-outline">
-                Nadogradi plan
+                {{ 'dashboard.upgradePlan' | translate }}
               </a>
             </div>
           </div>
         </ng-template>
-
-        <!-- Low Stock Alerts -->
-        <div class="dashboard-card alerts-card">
-          <div class="card-header">
-            <h3 class="card-title">Upozorenja o zalihama</h3>
-          </div>
-          <div class="alerts-list">
-            <div class="alert-item alert-warning">
-              <i class="icon-alert-triangle"></i>
-              <div class="alert-content">
-                <span class="alert-title">Paracetamol 500mg</span>
-                <span class="alert-desc">Samo 15 kutija na stanju</span>
-              </div>
-            </div>
-            <div class="alert-item alert-danger">
-              <i class="icon-alert-circle"></i>
-              <div class="alert-content">
-                <span class="alert-title">Brufen 400mg</span>
-                <span class="alert-desc">Ističe za 7 dana (LOT: 2024-08)</span>
-              </div>
-            </div>
-          </div>
-        </div>
       </div>
     </div>
   `,
@@ -239,6 +284,15 @@ import { TranslateModule } from '@ngx-translate/core';
     @keyframes fadeIn {
       from { opacity: 0; transform: translateY(10px); }
       to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes spin {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+
+    .spinning {
+      animation: spin 1s linear infinite;
     }
 
     /* Page Header */
@@ -261,6 +315,11 @@ import { TranslateModule } from '@ngx-translate/core';
       color: var(--text-muted, #64748b);
     }
 
+    .header-actions {
+      display: flex;
+      gap: 8px;
+    }
+
     .btn {
       display: inline-flex;
       align-items: center;
@@ -272,6 +331,11 @@ import { TranslateModule } from '@ngx-translate/core';
       cursor: pointer;
       transition: all 0.2s ease;
       border: none;
+    }
+
+    .btn-sm {
+      padding: 8px 16px;
+      font-size: 13px;
     }
 
     .btn-primary {
@@ -287,6 +351,26 @@ import { TranslateModule } from '@ngx-translate/core';
       background-color: transparent;
       border: 2px solid var(--primary);
       color: var(--primary);
+    }
+
+    .btn-icon {
+      padding: 10px;
+      border-radius: 10px;
+    }
+
+    .btn-ghost {
+      background: transparent;
+      color: var(--text-muted, #64748b);
+    }
+
+    .btn-ghost:hover {
+      background: #f1f5f9;
+      color: var(--text-primary, #1e293b);
+    }
+
+    .btn-ghost:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
     }
 
     /* Stats Grid */
@@ -305,6 +389,31 @@ import { TranslateModule } from '@ngx-translate/core';
       align-items: center;
       gap: 16px;
       box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .stat-card:hover {
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+      transform: translateY(-2px);
+    }
+
+    .stat-card.loading {
+      pointer-events: none;
+    }
+
+    .stat-card.loading .stat-value,
+    .stat-card.loading .stat-label {
+      background: linear-gradient(90deg, #f1f5f9 25%, #e2e8f0 50%, #f1f5f9 75%);
+      background-size: 200% 100%;
+      animation: shimmer 1.5s infinite;
+      border-radius: 4px;
+      color: transparent;
+    }
+
+    @keyframes shimmer {
+      0% { background-position: -200% 0; }
+      100% { background-position: 200% 0; }
     }
 
     .stat-icon {
@@ -315,6 +424,7 @@ import { TranslateModule } from '@ngx-translate/core';
       align-items: center;
       justify-content: center;
       font-size: 24px;
+      flex-shrink: 0;
     }
 
     .stat-icon-blue { background-color: #eff6ff; color: #3b82f6; }
@@ -324,6 +434,7 @@ import { TranslateModule } from '@ngx-translate/core';
 
     .stat-content {
       flex: 1;
+      min-width: 0;
     }
 
     .stat-value {
@@ -353,6 +464,18 @@ import { TranslateModule } from '@ngx-translate/core';
       font-size: 13px;
       color: var(--primary);
       text-decoration: none;
+    }
+
+    .stat-badge {
+      padding: 4px 8px;
+      border-radius: 20px;
+      font-size: 11px;
+      font-weight: 600;
+    }
+
+    .stat-badge.urgent {
+      background-color: #fef2f2;
+      color: #ef4444;
     }
 
     /* Quick Actions */
@@ -413,6 +536,10 @@ import { TranslateModule } from '@ngx-translate/core';
       box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
     }
 
+    .dashboard-card.full-width {
+      grid-column: 1 / -1;
+    }
+
     .card-header {
       display: flex;
       justify-content: space-between;
@@ -432,11 +559,20 @@ import { TranslateModule } from '@ngx-translate/core';
       text-decoration: none;
     }
 
+    .alert-count {
+      background-color: #ef4444;
+      color: white;
+      font-size: 12px;
+      font-weight: 600;
+      padding: 2px 8px;
+      border-radius: 20px;
+    }
+
     /* Orders List */
     .orders-list {
       display: flex;
       flex-direction: column;
-      gap: 16px;
+      gap: 12px;
     }
 
     .order-item {
@@ -445,6 +581,25 @@ import { TranslateModule } from '@ngx-translate/core';
       padding: 16px;
       background-color: #f8fafc;
       border-radius: 12px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .order-item:hover {
+      background-color: #f1f5f9;
+    }
+
+    .order-item.skeleton {
+      height: 72px;
+    }
+
+    .skeleton-content {
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, #f1f5f9 25%, #e2e8f0 50%, #f1f5f9 75%);
+      background-size: 200% 100%;
+      animation: shimmer 1.5s infinite;
+      border-radius: 8px;
     }
 
     .order-info {
@@ -486,6 +641,32 @@ import { TranslateModule } from '@ngx-translate/core';
     .status-pending { background-color: #fef3c7; color: #d97706; }
     .status-processing { background-color: #dbeafe; color: #2563eb; }
     .status-completed { background-color: #d1fae5; color: #059669; }
+    .status-cancelled { background-color: #fee2e2; color: #dc2626; }
+    .status-shipped { background-color: #e0e7ff; color: #4f46e5; }
+
+    /* Empty State */
+    .empty-state {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 40px 20px;
+      text-align: center;
+      color: var(--text-muted, #64748b);
+    }
+
+    .empty-state.small {
+      padding: 24px 16px;
+    }
+
+    .empty-state svg {
+      margin-bottom: 16px;
+      opacity: 0.5;
+    }
+
+    .empty-state p {
+      margin-bottom: 16px;
+    }
 
     /* Upgrade Prompt */
     .upgrade-prompt-card {
@@ -501,8 +682,7 @@ import { TranslateModule } from '@ngx-translate/core';
       padding: 20px;
     }
 
-    .upgrade-content i {
-      font-size: 40px;
+    .upgrade-content svg {
       color: #0ea5e9;
       margin-bottom: 16px;
     }
@@ -532,6 +712,16 @@ import { TranslateModule } from '@ngx-translate/core';
       gap: 12px;
       padding: 12px;
       border-radius: 10px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .alert-item:hover {
+      filter: brightness(0.97);
+    }
+
+    .alert-item.skeleton {
+      height: 60px;
     }
 
     .alert-warning {
@@ -539,22 +729,27 @@ import { TranslateModule } from '@ngx-translate/core';
       border-left: 4px solid #f59e0b;
     }
 
+    .alert-warning svg { color: #f59e0b; }
+
     .alert-danger {
       background-color: #fef2f2;
       border-left: 4px solid #ef4444;
     }
 
-    .alert-item i {
-      font-size: 20px;
+    .alert-danger svg { color: #ef4444; }
+
+    .alert-info {
+      background-color: #eff6ff;
+      border-left: 4px solid #3b82f6;
     }
 
-    .alert-warning i { color: #f59e0b; }
-    .alert-danger i { color: #ef4444; }
+    .alert-info svg { color: #3b82f6; }
 
     .alert-content {
       display: flex;
       flex-direction: column;
       gap: 2px;
+      flex: 1;
     }
 
     .alert-title {
@@ -564,6 +759,17 @@ import { TranslateModule } from '@ngx-translate/core';
 
     .alert-desc {
       font-size: 13px;
+      color: var(--text-muted);
+    }
+
+    /* Analytics Card */
+    .analytics-placeholder {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 200px;
+      background-color: #f8fafc;
+      border-radius: 12px;
       color: var(--text-muted);
     }
 
@@ -587,16 +793,58 @@ import { TranslateModule } from '@ngx-translate/core';
         flex-direction: column;
         gap: 16px;
       }
+
+      .quick-actions {
+        overflow-x: auto;
+        flex-wrap: nowrap;
+        padding-bottom: 8px;
+      }
+
+      .quick-action-btn {
+        flex-shrink: 0;
+      }
     }
   `]
 })
-export class DashboardComponent {
+export class DashboardComponent implements OnInit {
   private readonly router = inject(Router);
   private readonly authState = inject(AuthStateService);
   private readonly featureFlags = inject(FeatureFlagService);
+  private readonly dashboardService = inject(DashboardService);
 
   user = this.authState.user;
   advancedAnalyticsKey = FeatureKey.AdvancedAnalytics;
+
+  // Dashboard state
+  loading = signal(true);
+  dashboardData = signal<DashboardData | null>(null);
+
+  // Computed signals for template
+  recentOrders = computed(() => this.dashboardData()?.recentOrders ?? []);
+  alerts = computed(() => this.dashboardData()?.alerts ?? []);
+
+  ngOnInit(): void {
+    this.loadDashboardData();
+  }
+
+  loadDashboardData(): void {
+    this.loading.set(true);
+    this.dashboardService.getDashboardData().subscribe({
+      next: (data) => {
+        this.dashboardData.set(data);
+        this.loading.set(false);
+      },
+      error: () => {
+        this.loading.set(false);
+        // Show mock data on error for development
+        this.dashboardData.set(this.getMockData());
+      }
+    });
+  }
+
+  refreshData(): void {
+    this.loadDashboardData();
+  }
 
   createNewOrder(): void {
     this.router.navigate(['/orders/new']);
@@ -604,5 +852,119 @@ export class DashboardComponent {
 
   navigateTo(path: string): void {
     this.router.navigate([path]);
+  }
+
+  formatCurrency(value: number): string {
+    return new Intl.NumberFormat('bs-BA', {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2
+    }).format(value) + ' KM';
+  }
+
+  getStatusClass(status: OrderStatus): string {
+    const statusClasses: Record<OrderStatus, string> = {
+      [OrderStatus.Pending]: 'pending',
+      [OrderStatus.Confirmed]: 'processing',
+      [OrderStatus.Processing]: 'processing',
+      [OrderStatus.ReadyForShipment]: 'shipped',
+      [OrderStatus.Shipped]: 'shipped',
+      [OrderStatus.Delivered]: 'completed',
+      [OrderStatus.Cancelled]: 'cancelled',
+      [OrderStatus.Returned]: 'cancelled'
+    };
+    return statusClasses[status] || 'pending';
+  }
+
+  getStatusLabel(status: OrderStatus): string {
+    const statusLabels: Record<OrderStatus, string> = {
+      [OrderStatus.Pending]: 'orders.status.pending',
+      [OrderStatus.Confirmed]: 'orders.status.confirmed',
+      [OrderStatus.Processing]: 'orders.status.processing',
+      [OrderStatus.ReadyForShipment]: 'orders.status.readyForShipment',
+      [OrderStatus.Shipped]: 'orders.status.shipped',
+      [OrderStatus.Delivered]: 'orders.status.delivered',
+      [OrderStatus.Cancelled]: 'orders.status.cancelled',
+      [OrderStatus.Returned]: 'orders.status.returned'
+    };
+    return statusLabels[status] || 'orders.status.pending';
+  }
+
+  private getMockData(): DashboardData {
+    return {
+      stats: {
+        orders: {
+          todayCount: 156,
+          todayRevenue: 24560,
+          pendingCount: 23,
+          changePercent: 12
+        },
+        inventory: {
+          totalProducts: 1234,
+          lowStockCount: 12,
+          expiringCount: 8,
+          changePercent: -2
+        },
+        prescriptions: {
+          pendingCount: 15,
+          urgentCount: 3
+        }
+      },
+      recentOrders: [
+        {
+          id: '1',
+          orderNumber: 'ORD-2024-0156',
+          customerId: '1',
+          customerName: 'Apoteka Centar',
+          status: OrderStatus.Pending,
+          paymentStatus: PaymentStatus.Pending,
+          orderDate: new Date(),
+          totalAmount: 1250.00,
+          itemCount: 5,
+          hasPrescription: false
+        },
+        {
+          id: '2',
+          orderNumber: 'ORD-2024-0155',
+          customerId: '2',
+          customerName: 'Farmacija Plus',
+          status: OrderStatus.Processing,
+          paymentStatus: PaymentStatus.Pending,
+          orderDate: new Date(),
+          totalAmount: 890.50,
+          itemCount: 3,
+          hasPrescription: true
+        },
+        {
+          id: '3',
+          orderNumber: 'ORD-2024-0154',
+          customerId: '3',
+          customerName: 'Zdravlje d.o.o.',
+          status: OrderStatus.Delivered,
+          paymentStatus: PaymentStatus.Paid,
+          orderDate: new Date(),
+          totalAmount: 2340.00,
+          itemCount: 8,
+          hasPrescription: false
+        }
+      ],
+      alerts: [
+        {
+          id: 'low-stock-1',
+          type: 'warning',
+          title: 'Paracetamol 500mg',
+          description: 'Only 15 boxes in stock',
+          link: '/inventory'
+        },
+        {
+          id: 'expiring-1',
+          type: 'danger',
+          title: 'Brufen 400mg',
+          description: 'Expires in 7 days (Batch: 2024-08)',
+          link: '/reports/expiring'
+        }
+      ],
+      lowStockItems: [],
+      expiringItems: []
+    };
   }
 }

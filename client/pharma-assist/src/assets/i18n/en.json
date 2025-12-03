@@ -51,7 +51,40 @@
     "inactive": "Inactive",
     "activeOnly": "Active only",
     "unknown": "Unknown",
-    "optional": "(optional)"
+    "optional": "(optional)",
+    "viewAll": "View All"
+  },
+  "notifications": {
+    "title": "Notifications",
+    "markAllRead": "Mark all as read",
+    "clearAll": "Clear all",
+    "tabs": {
+      "all": "All",
+      "unread": "Unread",
+      "alerts": "Alerts"
+    },
+    "empty": {
+      "title": "No notifications",
+      "message": "You're all caught up! No new notifications."
+    },
+    "settings": {
+      "title": "Notification Settings",
+      "lowStockAlerts": "Low stock alerts",
+      "expiringProductAlerts": "Expiring product alerts",
+      "orderStatusAlerts": "Order status updates",
+      "prescriptionAlerts": "Prescription alerts",
+      "paymentAlerts": "Payment alerts",
+      "soundEnabled": "Sound notifications",
+      "desktopNotifications": "Desktop notifications"
+    },
+    "types": {
+      "lowStock": "Low Stock",
+      "expiring": "Expiring Product",
+      "orderStatus": "Order Update",
+      "prescription": "Prescription",
+      "payment": "Payment",
+      "system": "System"
+    }
   },
   "auth": {
     "login": {
@@ -187,19 +220,21 @@
     "lightMode": "Light Mode",
     "darkMode": "Dark Mode"
   },
-  "notifications": {
-    "title": "Notifications",
-    "markAllRead": "Mark all as read",
-    "clearAll": "Clear all",
-    "noNotifications": "No notifications",
-    "viewAll": "View all notifications"
-  },
   "dashboard": {
     "title": "Dashboard",
     "welcome": "Welcome back",
     "newOrder": "New Order",
     "overview": "Overview",
     "recentActivity": "Recent Activity",
+    "recentOrders": "Recent Orders",
+    "alerts": "Alerts",
+    "noRecentOrders": "No recent orders",
+    "createFirstOrder": "Create First Order",
+    "noAlerts": "All clear! No alerts at this time.",
+    "advancedAnalytics": "Advanced Analytics",
+    "analyticsComingSoon": "Charts and advanced analytics coming soon...",
+    "upgradeMessage": "Upgrade to Professional plan for access to advanced reports and analytics.",
+    "upgradePlan": "Upgrade Plan",
     "quickActions": "Quick Actions",
     "actions": {
       "newOrder": "New Order",
@@ -214,7 +249,11 @@
       "totalProducts": "Total Products",
       "totalCustomers": "Total Customers",
       "lowStockItems": "Low Stock Items",
-      "pendingOrders": "Pending Orders"
+      "pendingOrders": "Pending Orders",
+      "todayOrders": "Today's Orders",
+      "dailyRevenue": "Daily Revenue",
+      "pendingPrescriptions": "Pending Prescriptions",
+      "urgent": "urgent"
     }
   },
   "products": {
@@ -839,18 +878,73 @@
     "patientCounseling": "Patient Counseling Checklist",
     "counseling": {
       "dosageExplained": "Dosage and administration explained",
+      "dosageExplainedDesc": "Explained proper dosing schedule and administration method",
       "sideEffectsDiscussed": "Potential side effects discussed",
+      "sideEffectsDiscussedDesc": "Discussed common and serious side effects to watch for",
       "interactionsReviewed": "Drug interactions reviewed",
+      "interactionsReviewedDesc": "Reviewed potential interactions with other medications",
       "storageInstructionsGiven": "Storage instructions given",
-      "patientQuestionsAnswered": "Patient questions answered"
+      "storageInstructionsGivenDesc": "Explained proper storage conditions for medications",
+      "patientQuestionsAnswered": "Patient questions answered",
+      "patientQuestionsAnsweredDesc": "Addressed all patient concerns and questions",
+      "controlledSubstanceWarning": "Controlled substance warning given",
+      "controlledSubstanceWarningDesc": "Explained risks, proper use, and legal requirements"
     },
+    "steps": {
+      "verify": "Verify",
+      "prepare": "Prepare",
+      "counsel": "Counsel",
+      "confirm": "Confirm"
+    },
+    "verifyPrescription": "Verify Prescription",
+    "verifyInfo": "Verify prescription details before proceeding to dispense",
+    "verificationChecklist": "Verification Checklist",
+    "verify": {
+      "prescriptionValid": "Prescription is valid and authentic",
+      "patientIdentified": "Patient identity verified",
+      "doctorVerified": "Prescribing doctor verified",
+      "notExpired": "Prescription is not expired",
+      "controlledSubstanceCheck": "Controlled substance records checked"
+    },
+    "paymentInfo": "Payment Information",
+    "paymentMethod": "Payment Method",
+    "paymentTypes": {
+      "insurance": "Insurance",
+      "invoice": "Invoice (B2B)",
+      "bankTransfer": "Bank Transfer"
+    },
+    "prepareItems": "Prepare Items",
+    "prepareInfo": "Check stock availability and prepare items for dispensing",
+    "checkStock": "Check Stock Availability",
+    "availableStock": "Available Stock",
+    "inStock": "In Stock",
+    "lowStock": "Low Stock",
+    "selectBatch": "Select batch...",
+    "totalItems": "Total Items",
+    "totalUnits": "Total Units",
+    "estimatedValue": "Estimated Value",
+    "counselingInfo": "Complete patient counseling before dispensing medications",
+    "confirmInfo": "Review all information and confirm the dispense",
+    "prescriptionDetails": "Prescription Details",
+    "pharmacistConfirmation": "Pharmacist Confirmation",
+    "pharmacistConfirmText": "I confirm all medications are correct and properly prepared",
+    "pharmacistConfirmDesc": "By checking this box, you certify that you have verified all items",
+    "printLabel": "Print medication labels",
+    "printReceipt": "Print receipt",
+    "completeDispense": "Complete Dispense",
+    "confirmDispenseTitle": "Confirm Dispensing",
+    "confirmDispenseMessage": "Are you sure you want to complete this dispense? This action will update inventory.",
+    "dispenseSuccess": "Dispense Completed",
+    "dispenseSuccessMessage": "Medications have been successfully dispensed",
+    "dispenseError": "Failed to dispense medications. Please try again.",
+    "notFound": "Prescription Not Found",
+    "notFoundMessage": "The prescription you are looking for could not be found",
     "empty": {
       "title": "No prescriptions found",
       "description": "Prescriptions will appear here when submitted"
     },
     "prescriptionImage": "Prescription Image",
     "noImageAvailable": "No image available",
-    "prescriptionDetails": "Prescription Details",
     "rxNumber": "Rx Number",
     "patientInfo": "Patient Information",
     "dateOfBirth": "Date of Birth",
