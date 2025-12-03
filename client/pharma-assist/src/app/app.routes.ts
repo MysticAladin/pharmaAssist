@@ -11,6 +11,15 @@ export const routes: Routes = [
     loadChildren: () => import('./features/auth/auth.routes').then(m => m.AUTH_ROUTES)
   },
 
+  // E-Pharmacy Portal (customer-facing)
+  {
+    path: 'portal',
+    canActivate: [authGuard],
+    loadComponent: () => import('./features/portal/components/layout/portal-layout.component')
+      .then(m => m.PortalLayoutComponent),
+    loadChildren: () => import('./features/portal/portal.routes').then(m => m.PORTAL_ROUTES)
+  },
+
   // Main application routes (require auth)
   {
     path: '',
