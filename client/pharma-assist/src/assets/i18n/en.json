@@ -54,6 +54,43 @@
     "optional": "(optional)",
     "viewAll": "View All"
   },
+  "bulk": {
+    "selectedItems": "{{count}} item(s) selected",
+    "clearSelection": "Clear Selection",
+    "selectAll": "Select All",
+    "deselectAll": "Deselect All",
+    "activate": "Activate",
+    "deactivate": "Deactivate",
+    "delete": "Delete",
+    "exportSelected": "Export Selected",
+    "updatePrice": "Update Price",
+    "confirmDelete": "Delete Selected Items",
+    "confirmDeleteMessage": "Are you sure you want to delete {{count}} selected item(s)? This action cannot be undone.",
+    "confirmActivate": "Are you sure you want to activate {{count}} selected item(s)?",
+    "confirmDeactivate": "Are you sure you want to deactivate {{count}} selected item(s)?",
+    "priceUpdate": {
+      "title": "Bulk Price Update",
+      "action": "Action",
+      "increase": "Increase",
+      "decrease": "Decrease",
+      "set": "Set to",
+      "type": "Type",
+      "percentage": "Percentage",
+      "fixed": "Fixed Amount",
+      "value": "Value",
+      "preview": "Preview changes"
+    },
+    "success": {
+      "activated": "{{count}} item(s) activated successfully",
+      "deactivated": "{{count}} item(s) deactivated successfully",
+      "deleted": "{{count}} item(s) deleted successfully",
+      "priceUpdated": "Prices updated for {{count}} item(s)"
+    },
+    "error": {
+      "noSelection": "No items selected",
+      "operationFailed": "Bulk operation failed"
+    }
+  },
   "notifications": {
     "title": "Notifications",
     "markAllRead": "Mark all as read",
@@ -63,7 +100,16 @@
       "unread": "Unread",
       "alerts": "Alerts"
     },
-    "empty": {
+    "categories": {
+      "all": "All",
+      "stock": "Stock",
+      "order": "Orders",
+      "expiry": "Expiry",
+      "prescription": "Prescriptions",
+      "system": "System"
+    },
+    "empty": "No notifications",
+    "emptyState": {
       "title": "No notifications",
       "message": "You're all caught up! No new notifications."
     },
@@ -83,6 +129,63 @@
       "orderStatus": "Order Update",
       "prescription": "Prescription",
       "payment": "Payment",
+      "system": "System"
+    }
+  },
+  "audit": {
+    "title": "Audit Logs",
+    "subtitle": "Track and review all system activities and user actions",
+    "exportCSV": "Export CSV",
+    "exportJSON": "Export JSON",
+    "totalActions": "Total Actions",
+    "criticalEvents": "Critical Events",
+    "failedOperations": "Failed Operations",
+    "activeUsers": "Active Users",
+    "searchPlaceholder": "Search logs...",
+    "allActions": "All Actions",
+    "allEntities": "All Entities",
+    "allSeverities": "All Severities",
+    "noLogs": "No audit logs found",
+    "noLogsMessage": "Try adjusting your filters or date range",
+    "logDetails": "Audit Log Details",
+    "success": "Success",
+    "failed": "Failed",
+    "errorMessage": "Error Message",
+    "additionalDetails": "Additional Details",
+    "columns": {
+      "timestamp": "Timestamp",
+      "user": "User",
+      "action": "Action",
+      "entity": "Entity",
+      "description": "Description",
+      "severity": "Severity",
+      "status": "Status"
+    },
+    "actions": {
+      "create": "Created",
+      "update": "Updated",
+      "delete": "Deleted",
+      "view": "Viewed",
+      "login": "Login",
+      "logout": "Logout",
+      "export": "Exported",
+      "import": "Imported",
+      "print": "Printed",
+      "status_change": "Status Changed",
+      "bulk_operation": "Bulk Operation",
+      "permission_change": "Permission Changed",
+      "setting_change": "Setting Changed"
+    },
+    "entities": {
+      "product": "Product",
+      "order": "Order",
+      "customer": "Customer",
+      "prescription": "Prescription",
+      "user": "User",
+      "setting": "Setting",
+      "manufacturer": "Manufacturer",
+      "category": "Category",
+      "batch": "Batch",
       "system": "System"
     }
   },
@@ -228,7 +331,9 @@
     "recentActivity": "Recent Activity",
     "recentOrders": "Recent Orders",
     "alerts": "Alerts",
+    "today": "today",
     "noRecentOrders": "No recent orders",
+    "noRecentActivity": "No recent activity to show",
     "createFirstOrder": "Create First Order",
     "noAlerts": "All clear! No alerts at this time.",
     "advancedAnalytics": "Advanced Analytics",
@@ -1100,7 +1205,11 @@
       "today": "Today",
       "week": "This Week",
       "month": "This Month",
-      "year": "This Year"
+      "year": "This Year",
+      "thisMonth": "This Month",
+      "lastMonth": "Last Month",
+      "thisQuarter": "This Quarter",
+      "thisYear": "This Year"
     },
     "stats": {
       "totalRevenue": "Total Revenue",
@@ -1231,6 +1340,41 @@
         "fileName": "expiring-products-report"
       }
     },
+    "financial": {
+      "title": "Financial Report",
+      "subtitle": "Revenue, expenses, and profit analysis",
+      "grossRevenue": "Gross Revenue",
+      "netRevenue": "Net Revenue",
+      "costOfGoods": "Cost of Goods Sold",
+      "grossProfit": "Gross Profit",
+      "grossMargin": "Gross Margin",
+      "taxCollected": "Tax Collected",
+      "pendingPayments": "Pending Payments",
+      "overduePayments": "Overdue Payments",
+      "byPaymentMethod": "By Payment Method",
+      "profitTrends": "Profit Trends",
+      "revenueBreakdown": "Revenue Breakdown",
+      "revenueVsCost": "Revenue vs Cost",
+      "monthlyTrend": "Monthly Trend",
+      "paymentMethod": "Payment Method",
+      "count": "Count"
+    },
+    "customers": {
+      "title": "Customer Report",
+      "subtitle": "Customer analytics and segmentation",
+      "totalCustomers": "Total Customers",
+      "activeCustomers": "Active Customers",
+      "newCustomers": "New Customers",
+      "repeatRate": "Repeat Rate",
+      "avgLifetimeValue": "Average Lifetime Value",
+      "bySegment": "By Segment",
+      "growth": "Customer Growth",
+      "topCustomers": "Top Customers",
+      "customers": "customers"
+    },
+    "orders": "Orders",
+    "totalSpent": "Total Spent",
+    "percentage": "Percentage",
     "filters": {
       "dateRange": "Date Range",
       "startDate": "Start Date",

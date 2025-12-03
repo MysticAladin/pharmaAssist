@@ -264,6 +264,68 @@ import { ConfirmDialogComponent } from '../../shared/components/confirm-dialog';
         </div>
       }
 
+      <!-- Bulk Actions Bar -->
+      @if (selectedCount() > 0) {
+        <div class="bulk-actions-bar">
+          <div class="bulk-info">
+            <button class="btn-checkbox" (click)="clearSelection()">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <line x1="18" y1="6" x2="6" y2="18"/>
+                <line x1="6" y1="6" x2="18" y2="18"/>
+              </svg>
+            </button>
+            <span>{{ selectedCount() }} {{ 'bulk.selected' | translate }}</span>
+          </div>
+          <div class="bulk-buttons">
+            <button class="btn btn-bulk" (click)="bulkToggleStatus(true)" [disabled]="bulkActionLoading()">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+                <polyline points="22 4 12 14.01 9 11.01"/>
+              </svg>
+              {{ 'bulk.activate' | translate }}
+            </button>
+            <button class="btn btn-bulk" (click)="bulkToggleStatus(false)" [disabled]="bulkActionLoading()">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10"/>
+                <line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/>
+              </svg>
+              {{ 'bulk.deactivate' | translate }}
+            </button>
+            <button class="btn btn-bulk" (click)="openBulkPriceDialog()" [disabled]="bulkActionLoading()">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <line x1="12" y1="1" x2="12" y2="23"/>
+                <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
+              </svg>
+              {{ 'bulk.updatePrices' | translate }}
+            </button>
+            <div class="bulk-export-dropdown">
+              <button class="btn btn-bulk" (click)="toggleBulkExportDropdown()">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                  <polyline points="7 10 12 15 17 10"/>
+                  <line x1="12" y1="15" x2="12" y2="3"/>
+                </svg>
+                {{ 'bulk.exportSelected' | translate }}
+              </button>
+              @if (showBulkExportDropdown()) {
+                <div class="bulk-export-menu">
+                  <button (click)="exportSelected('csv')">CSV</button>
+                  <button (click)="exportSelected('excel')">Excel</button>
+                  <button (click)="exportSelected('pdf')">PDF</button>
+                </div>
+              }
+            </div>
+            <button class="btn btn-bulk btn-danger" (click)="openBulkDeleteDialog()" [disabled]="bulkActionLoading()">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="3 6 5 6 21 6"/>
+                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+              </svg>
+              {{ 'bulk.delete' | translate }}
+            </button>
+          </div>
+        </div>
+      }
+
       <!-- Data Table -->
       <app-data-table
         [columnDefs]="columns"
@@ -724,6 +786,33 @@ export class ProductsListComponent implements OnInit {
     activeOnly: true
   });
 
+  // Bulk selection
+  selectedProducts = signal<Set<number>>(new Set());
+  showBulkActions = signal(false);
+  showBulkExportDropdown = signal(false);
+  bulkActionLoading = signal(false);
+  showBulkDeleteDialog = signal(false);
+  showBulkPriceDialog = signal(false);
+  bulkPriceAction = signal<'increase' | 'decrease' | 'set'>('increase');
+  bulkPriceValue = signal<number>(0);
+  bulkPriceType = signal<'percentage' | 'fixed'>('percentage');
+
+  // Computed for bulk selection
+  allSelected = computed(() => {
+    const products = this.products();
+    const selected = this.selectedProducts();
+    return products.length > 0 && products.every(p => selected.has(p.id));
+  });
+
+  someSelected = computed(() => {
+    const products = this.products();
+    const selected = this.selectedProducts();
+    const selectedCount = products.filter(p => selected.has(p.id)).length;
+    return selectedCount > 0 && selectedCount < products.length;
+  });
+
+  selectedCount = computed(() => this.selectedProducts().size);
+
   // Advanced filters
   showAdvancedFilters = signal(false);
 
@@ -1005,6 +1094,178 @@ export class ProductsListComponent implements OnInit {
         subtitle: this.translateService.instant('products.subtitle')
       }
     );
+  }
+
+  // ========== BULK OPERATIONS ==========
+
+  toggleSelectAll(): void {
+    const products = this.products();
+
+    if (this.allSelected()) {
+      // Deselect all
+      this.selectedProducts.set(new Set());
+    } else {
+      // Select all on current page
+      this.selectedProducts.set(new Set(products.map(p => p.id)));
+    }
+  }
+
+  toggleProductSelection(productId: number): void {
+    const selected = new Set(this.selectedProducts());
+    if (selected.has(productId)) {
+      selected.delete(productId);
+    } else {
+      selected.add(productId);
+    }
+    this.selectedProducts.set(selected);
+  }
+
+  isProductSelected(productId: number): boolean {
+    return this.selectedProducts().has(productId);
+  }
+
+  clearSelection(): void {
+    this.selectedProducts.set(new Set());
+  }
+
+  toggleBulkExportDropdown(): void {
+    this.showBulkExportDropdown.update(v => !v);
+  }
+
+  // Bulk Delete
+  openBulkDeleteDialog(): void {
+    if (this.selectedCount() > 0) {
+      this.showBulkDeleteDialog.set(true);
+    }
+  }
+
+  closeBulkDeleteDialog(): void {
+    this.showBulkDeleteDialog.set(false);
+  }
+
+  async confirmBulkDelete(): Promise<void> {
+    this.bulkActionLoading.set(true);
+    const selectedIds = Array.from(this.selectedProducts());
+
+    try {
+      // Delete each selected product
+      for (const id of selectedIds) {
+        await this.productService.delete(id).toPromise();
+      }
+
+      // Refresh and clear selection
+      this.loadProducts();
+      this.clearSelection();
+      this.showBulkDeleteDialog.set(false);
+    } catch (error) {
+      console.error('Bulk delete failed:', error);
+    } finally {
+      this.bulkActionLoading.set(false);
+    }
+  }
+
+  // Bulk Status Toggle
+  async bulkToggleStatus(activate: boolean): Promise<void> {
+    this.bulkActionLoading.set(true);
+    const selectedIds = Array.from(this.selectedProducts());
+
+    try {
+      for (const id of selectedIds) {
+        if (activate) {
+          await this.productService.activate(id).toPromise();
+        } else {
+          await this.productService.deactivate(id).toPromise();
+        }
+      }
+
+      this.loadProducts();
+      this.clearSelection();
+    } catch (error) {
+      console.error('Bulk status update failed:', error);
+    } finally {
+      this.bulkActionLoading.set(false);
+    }
+  }
+
+  // Bulk Price Update
+  openBulkPriceDialog(): void {
+    if (this.selectedCount() > 0) {
+      this.bulkPriceAction.set('increase');
+      this.bulkPriceValue.set(0);
+      this.bulkPriceType.set('percentage');
+      this.showBulkPriceDialog.set(true);
+    }
+  }
+
+  closeBulkPriceDialog(): void {
+    this.showBulkPriceDialog.set(false);
+  }
+
+  async confirmBulkPriceUpdate(): Promise<void> {
+    this.bulkActionLoading.set(true);
+    const selectedIds = Array.from(this.selectedProducts());
+    const action = this.bulkPriceAction();
+    const value = this.bulkPriceValue();
+    const type = this.bulkPriceType();
+
+    try {
+      for (const id of selectedIds) {
+        const product = this.products().find(p => p.id === id);
+        if (!product) continue;
+
+        let newPrice = product.unitPrice;
+
+        if (action === 'set') {
+          newPrice = value;
+        } else if (type === 'percentage') {
+          const change = product.unitPrice * (value / 100);
+          newPrice = action === 'increase'
+            ? product.unitPrice + change
+            : product.unitPrice - change;
+        } else {
+          newPrice = action === 'increase'
+            ? product.unitPrice + value
+            : product.unitPrice - value;
+        }
+
+        // Ensure price doesn't go negative
+        newPrice = Math.max(0, Math.round(newPrice * 100) / 100);
+
+        await this.productService.partialUpdate(id, { unitPrice: newPrice }).toPromise();
+      }
+
+      this.loadProducts();
+      this.clearSelection();
+      this.showBulkPriceDialog.set(false);
+    } catch (error) {
+      console.error('Bulk price update failed:', error);
+    } finally {
+      this.bulkActionLoading.set(false);
+    }
+  }
+
+  // Export selected products
+  exportSelected(format: 'csv' | 'excel' | 'pdf'): void {
+    this.showBulkExportDropdown.set(false);
+    const selectedProducts = this.products().filter(p => this.selectedProducts().has(p.id));
+    const columns = this.getExportColumns();
+    const filename = `products-selected-${new Date().toISOString().split('T')[0]}`;
+
+    switch (format) {
+      case 'csv':
+        this.exportService.exportToCSV(selectedProducts, columns, { filename });
+        break;
+      case 'excel':
+        this.exportService.exportToExcel(selectedProducts, columns, { filename });
+        break;
+      case 'pdf':
+        this.exportService.exportToPDF(selectedProducts, columns, {
+          filename,
+          title: this.translateService.instant('products.title'),
+          subtitle: `${selectedProducts.length} selected products`
+        });
+        break;
+    }
   }
 }
 

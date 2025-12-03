@@ -54,6 +54,43 @@
     "optional": "(opcionalno)",
     "viewAll": "Pogledaj sve"
   },
+  "bulk": {
+    "selectedItems": "{{count}} stavka(e) odabrano",
+    "clearSelection": "Poništi odabir",
+    "selectAll": "Odaberi sve",
+    "deselectAll": "Poništi sve",
+    "activate": "Aktiviraj",
+    "deactivate": "Deaktiviraj",
+    "delete": "Obriši",
+    "exportSelected": "Izvezi odabrano",
+    "updatePrice": "Ažuriraj cijenu",
+    "confirmDelete": "Obriši odabrane stavke",
+    "confirmDeleteMessage": "Da li ste sigurni da želite obrisati {{count}} odabranu(e) stavku(e)? Ova akcija se ne može poništiti.",
+    "confirmActivate": "Da li ste sigurni da želite aktivirati {{count}} odabranu(e) stavku(e)?",
+    "confirmDeactivate": "Da li ste sigurni da želite deaktivirati {{count}} odabranu(e) stavku(e)?",
+    "priceUpdate": {
+      "title": "Grupno ažuriranje cijena",
+      "action": "Akcija",
+      "increase": "Povećaj",
+      "decrease": "Smanji",
+      "set": "Postavi na",
+      "type": "Tip",
+      "percentage": "Postotak",
+      "fixed": "Fiksni iznos",
+      "value": "Vrijednost",
+      "preview": "Pregledaj promjene"
+    },
+    "success": {
+      "activated": "{{count}} stavka(e) uspješno aktivirano",
+      "deactivated": "{{count}} stavka(e) uspješno deaktivirano",
+      "deleted": "{{count}} stavka(e) uspješno obrisano",
+      "priceUpdated": "Cijene ažurirane za {{count}} stavku(e)"
+    },
+    "error": {
+      "noSelection": "Nema odabranih stavki",
+      "operationFailed": "Grupna operacija nije uspjela"
+    }
+  },
   "notifications": {
     "title": "Obavještenja",
     "markAllRead": "Označi sve kao pročitano",
@@ -63,7 +100,16 @@
       "unread": "Nepročitana",
       "alerts": "Upozorenja"
     },
-    "empty": {
+    "categories": {
+      "all": "Sva",
+      "stock": "Zalihe",
+      "order": "Narudžbe",
+      "expiry": "Istek",
+      "prescription": "Recepti",
+      "system": "Sistem"
+    },
+    "empty": "Nema obavještenja",
+    "emptyState": {
       "title": "Nema obavještenja",
       "message": "Sve je u redu! Nema novih obavještenja."
     },
@@ -83,6 +129,63 @@
       "orderStatus": "Ažuriranje narudžbe",
       "prescription": "Recept",
       "payment": "Plaćanje",
+      "system": "Sistem"
+    }
+  },
+  "audit": {
+    "title": "Revizijski zapisi",
+    "subtitle": "Pratite i pregledajte sve sistemske aktivnosti i korisničke radnje",
+    "exportCSV": "Izvezi CSV",
+    "exportJSON": "Izvezi JSON",
+    "totalActions": "Ukupno akcija",
+    "criticalEvents": "Kritični događaji",
+    "failedOperations": "Neuspjele operacije",
+    "activeUsers": "Aktivni korisnici",
+    "searchPlaceholder": "Pretraži zapise...",
+    "allActions": "Sve akcije",
+    "allEntities": "Svi entiteti",
+    "allSeverities": "Sve ozbiljnosti",
+    "noLogs": "Nema revizijskih zapisa",
+    "noLogsMessage": "Pokušajte prilagoditi filtere ili datumski raspon",
+    "logDetails": "Detalji revizijskog zapisa",
+    "success": "Uspjeh",
+    "failed": "Neuspjelo",
+    "errorMessage": "Poruka o grešci",
+    "additionalDetails": "Dodatni detalji",
+    "columns": {
+      "timestamp": "Vrijeme",
+      "user": "Korisnik",
+      "action": "Akcija",
+      "entity": "Entitet",
+      "description": "Opis",
+      "severity": "Ozbiljnost",
+      "status": "Status"
+    },
+    "actions": {
+      "create": "Kreirano",
+      "update": "Ažurirano",
+      "delete": "Obrisano",
+      "view": "Pregledano",
+      "login": "Prijava",
+      "logout": "Odjava",
+      "export": "Izvezeno",
+      "import": "Uvezeno",
+      "print": "Štampano",
+      "status_change": "Status promijenjen",
+      "bulk_operation": "Grupna operacija",
+      "permission_change": "Dozvola promijenjena",
+      "setting_change": "Postavka promijenjena"
+    },
+    "entities": {
+      "product": "Proizvod",
+      "order": "Narudžba",
+      "customer": "Kupac",
+      "prescription": "Recept",
+      "user": "Korisnik",
+      "setting": "Postavka",
+      "manufacturer": "Proizvođač",
+      "category": "Kategorija",
+      "batch": "Serija",
       "system": "Sistem"
     }
   },
@@ -228,7 +331,9 @@
     "recentActivity": "Nedavna aktivnost",
     "recentOrders": "Nedavne narudžbe",
     "alerts": "Upozorenja",
+    "today": "danas",
     "noRecentOrders": "Nema nedavnih narudžbi",
+    "noRecentActivity": "Nema nedavne aktivnosti",
     "createFirstOrder": "Kreiraj prvu narudžbu",
     "noAlerts": "Sve je u redu! Trenutno nema upozorenja.",
     "advancedAnalytics": "Napredna analitika",
@@ -1100,7 +1205,11 @@
       "today": "Danas",
       "week": "Ova Sedmica",
       "month": "Ovaj Mjesec",
-      "year": "Ova Godina"
+      "year": "Ova Godina",
+      "thisMonth": "Ovaj Mjesec",
+      "lastMonth": "Prošli Mjesec",
+      "thisQuarter": "Ovaj Kvartal",
+      "thisYear": "Ova Godina"
     },
     "stats": {
       "totalRevenue": "Ukupan Prihod",
@@ -1231,6 +1340,41 @@
         "fileName": "izvjestaj-proizvoda-koji-isticu"
       }
     },
+    "financial": {
+      "title": "Finansijski Izvještaj",
+      "subtitle": "Analiza prihoda, rashoda i profita",
+      "grossRevenue": "Bruto Prihod",
+      "netRevenue": "Neto Prihod",
+      "costOfGoods": "Trošak Prodane Robe",
+      "grossProfit": "Bruto Profit",
+      "grossMargin": "Bruto Marža",
+      "taxCollected": "Naplaćeni Porez",
+      "pendingPayments": "Plaćanja na Čekanju",
+      "overduePayments": "Zakasnela Plaćanja",
+      "byPaymentMethod": "Po Načinu Plaćanja",
+      "profitTrends": "Trend Profita",
+      "revenueBreakdown": "Raspodjela Prihoda",
+      "revenueVsCost": "Prihod vs Troškovi",
+      "monthlyTrend": "Mjesečni Trend",
+      "paymentMethod": "Način Plaćanja",
+      "count": "Broj"
+    },
+    "customers": {
+      "title": "Izvještaj o Kupcima",
+      "subtitle": "Analitika i segmentacija kupaca",
+      "totalCustomers": "Ukupno Kupaca",
+      "activeCustomers": "Aktivni Kupci",
+      "newCustomers": "Novi Kupci",
+      "repeatRate": "Stopa Ponovljenih Kupovina",
+      "avgLifetimeValue": "Prosječna Vrijednost Kupca",
+      "bySegment": "Po Segmentu",
+      "growth": "Rast Kupaca",
+      "topCustomers": "Najbolji Kupci",
+      "customers": "kupaca"
+    },
+    "orders": "Narudžbe",
+    "totalSpent": "Ukupna Potrošnja",
+    "percentage": "Postotak",
     "filters": {
       "dateRange": "Raspon Datuma",
       "startDate": "Početni Datum",

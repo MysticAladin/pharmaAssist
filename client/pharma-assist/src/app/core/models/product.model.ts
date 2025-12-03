@@ -81,6 +81,9 @@ export interface UpdateProductRequest extends CreateProductRequest {
   isActive: boolean;
 }
 
+// For partial updates (e.g., bulk price changes)
+export type PartialProductUpdate = Partial<UpdateProductRequest>;
+
 export interface ProductBatch {
   id: number;
   productId: number;

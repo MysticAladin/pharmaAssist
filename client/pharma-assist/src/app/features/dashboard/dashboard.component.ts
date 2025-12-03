@@ -9,12 +9,13 @@ import { TranslateModule } from '@ngx-translate/core';
 import { DashboardService, DashboardData, DashboardAlert } from '../../core/services/dashboard.service';
 import { OrderSummary, OrderStatus, PaymentStatus } from '../../core/models/order.model';
 import { BarcodeScannerComponent } from '../../shared/components/barcode-scanner/barcode-scanner.component';
+import { ActivityFeedComponent } from '../../shared/components/activity-feed/activity-feed.component';
 import { Product } from '../../core/models/product.model';
 
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [CommonModule, RouterModule, HasFeatureDirective, TranslateModule, BarcodeScannerComponent],
+  imports: [CommonModule, RouterModule, HasFeatureDirective, TranslateModule, BarcodeScannerComponent, ActivityFeedComponent],
   template: `
     <div class="dashboard">
       <!-- Page Header -->
@@ -272,6 +273,11 @@ import { Product } from '../../core/models/product.model';
               }
             </div>
           }
+        </div>
+
+        <!-- Activity Feed -->
+        <div class="dashboard-card activity-card">
+          <app-activity-feed />
         </div>
 
         <!-- Advanced Analytics (Feature Gated) -->
@@ -556,8 +562,20 @@ import { Product } from '../../core/models/product.model';
     /* Dashboard Grid */
     .dashboard-grid {
       display: grid;
-      grid-template-columns: 2fr 1fr;
+      grid-template-columns: 1fr 1fr 1fr;
       gap: 20px;
+    }
+
+    .orders-card {
+      grid-column: span 1;
+    }
+
+    .alerts-card {
+      grid-column: span 1;
+    }
+
+    .activity-card {
+      grid-column: span 1;
     }
 
     .dashboard-card {
@@ -569,6 +587,16 @@ import { Product } from '../../core/models/product.model';
 
     .dashboard-card.full-width {
       grid-column: 1 / -1;
+    }
+
+    .activity-card {
+      padding: 0;
+    }
+
+    .activity-card ::ng-deep .activity-feed {
+      border: none;
+      box-shadow: none;
+      border-radius: 16px;
     }
 
     .card-header {

@@ -2,7 +2,7 @@ import { Component, inject, signal, computed, OnDestroy, input, output, effect }
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
-import { NotificationService, Notification } from '../../../core/services/notification.service';
+import { NotificationService } from '../../../core/services/notification.service';
 import { DashboardService, DashboardAlert, DashboardData } from '../../../core/services/dashboard.service';
 import { Subject, takeUntil, timer } from 'rxjs';
 

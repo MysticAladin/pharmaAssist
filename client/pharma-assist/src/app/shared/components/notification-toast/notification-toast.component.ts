@@ -1,6 +1,6 @@
 import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { NotificationService, Notification } from '../../../core/services/notification.service';
+import { NotificationService, ToastNotification } from '../../../core/services/notification.service';
 
 @Component({
   selector: 'app-notification-toast',
@@ -47,7 +47,7 @@ import { NotificationService, Notification } from '../../../core/services/notifi
               <p class="toast-message">{{ notification.message }}</p>
             }
           </div>
-          @if (notification.dismissible) {
+          @if (notification.dismissible !== false) {
             <button class="toast-close" (click)="dismiss(notification.id)">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
@@ -162,7 +162,7 @@ import { NotificationService, Notification } from '../../../core/services/notifi
 export class NotificationToastComponent {
   private readonly notificationService = inject(NotificationService);
 
-  notifications = this.notificationService.notifications;
+  notifications = this.notificationService.toasts;
 
   dismiss(id: string): void {
     this.notificationService.dismiss(id);

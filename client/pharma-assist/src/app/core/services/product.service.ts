@@ -7,6 +7,7 @@ import {
   ProductSummary,
   CreateProductRequest,
   UpdateProductRequest,
+  PartialProductUpdate,
   ApiResponse,
   PagedResponse,
   ProductFilters
@@ -99,6 +100,13 @@ export class ProductService {
    */
   update(id: number, product: UpdateProductRequest): Observable<ApiResponse<Product>> {
     return this.http.put<ApiResponse<Product>>(`${this.apiUrl}/${id}`, product);
+  }
+
+  /**
+   * Partially update a product (for bulk operations)
+   */
+  partialUpdate(id: number, updates: PartialProductUpdate): Observable<ApiResponse<Product>> {
+    return this.http.patch<ApiResponse<Product>>(`${this.apiUrl}/${id}`, updates);
   }
 
   /**
