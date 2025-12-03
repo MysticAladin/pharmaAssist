@@ -354,6 +354,36 @@
       "inhaler": "Inhaler",
       "powder": "Powder",
       "suppository": "Suppository"
+    },
+    "filters": {
+      "advanced": "Filters",
+      "priceRange": "Price Range",
+      "minPrice": "Min",
+      "maxPrice": "Max",
+      "stockStatus": "Stock Status",
+      "stockAll": "All Stock Levels",
+      "stockInStock": "In Stock",
+      "stockLow": "Low Stock",
+      "stockOut": "Out of Stock",
+      "prescriptionRequired": "Prescription",
+      "prescriptionAll": "All Products",
+      "prescriptionYes": "Prescription Required",
+      "prescriptionNo": "Over-the-Counter",
+      "barcode": "Barcode Status",
+      "barcodeAll": "All Products",
+      "barcodeYes": "Has Barcode",
+      "barcodeNo": "No Barcode",
+      "expiryStatus": "Expiry Status",
+      "expiryAll": "All Products",
+      "expiryValid": "Valid",
+      "expiringSoon": "Expiring Soon",
+      "expiryExpired": "Expired",
+      "sortBy": "Sort By",
+      "sortAsc": "Ascending",
+      "sortDesc": "Descending",
+      "dateAdded": "Date Added",
+      "clearAll": "Clear Filters",
+      "apply": "Apply Filters"
     }
   },
   "categories": {
@@ -1499,5 +1529,66 @@
     "noProductForBarcode": "No product found for barcode",
     "tryAgain": "Try Again",
     "recentScans": "Recent Scans"
+  },
+  "keyboard": {
+    "title": "Keyboard Shortcuts",
+    "pressEscToClose": "Press Esc to close",
+    "categories": {
+      "navigation": "Navigation",
+      "actions": "Quick Actions",
+      "general": "General"
+    },
+    "shortcuts": {
+      "dashboard": "Go to Dashboard",
+      "products": "Go to Products",
+      "orders": "Go to Orders",
+      "customers": "Go to Customers",
+      "prescriptions": "Go to Prescriptions",
+      "inventory": "Go to Inventory",
+      "newOrder": "Create New Order",
+      "newProduct": "Create New Product",
+      "dispense": "Dispense Prescription",
+      "search": "Focus Search",
+      "help": "Show Keyboard Shortcuts",
+      "escape": "Close Modal / Clear Focus",
+      "back": "Go Back",
+      "forward": "Go Forward"
+    }
+  },
+  "print": {
+    "order": {
+      "title": "Order Invoice",
+      "number": "Order #",
+      "date": "Date",
+      "billTo": "Bill To",
+      "product": "Product",
+      "quantity": "Qty",
+      "unitPrice": "Unit Price",
+      "total": "Total",
+      "subtotal": "Subtotal",
+      "discount": "Discount",
+      "tax": "Tax (17% VAT)",
+      "grandTotal": "Grand Total",
+      "paymentStatus": "Payment Status",
+      "notes": "Notes"
+    },
+    "prescription": {
+      "title": "Prescription",
+      "number": "Rx #",
+      "date": "Date",
+      "validUntil": "Valid Until",
+      "patient": "Patient Information",
+      "dob": "Date of Birth",
+      "insurance": "Insurance #",
+      "prescriber": "Prescriber",
+      "license": "License #",
+      "medication": "Medication",
+      "quantity": "Qty",
+      "instructions": "Instructions",
+      "dispensed": "Dispensed",
+      "notes": "Special Instructions",
+      "pharmacistSignature": "Pharmacist Signature",
+      "dateDispensed": "Date Dispensed"
+    }
   }
 }

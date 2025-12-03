@@ -1,9 +1,10 @@
 import { Component, OnInit, inject, signal, computed } from '@angular/core';
 import { CommonModule, DatePipe, CurrencyPipe } from '@angular/common';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
 import { OrderService } from '../../core/services/order.service';
+import { PrintService, OrderPrintData } from '../../core/services/print.service';
 import {
   Order,
   OrderItem,
@@ -530,6 +531,8 @@ import { ConfirmDialogComponent } from '../../shared/components/confirm-dialog';
 })
 export class OrderDetailComponent implements OnInit {
   private readonly orderService = inject(OrderService);
+  private readonly printService = inject(PrintService);
+  private readonly translateService = inject(TranslateService);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
 
@@ -679,7 +682,45 @@ export class OrderDetailComponent implements OnInit {
   }
 
   printOrder(): void {
-    window.print();
+    const order = this.order();
+    if (!order) return;
+
+    const printData: OrderPrintData = {
+      orderNumber: order.orderNumber,
+      orderDate: new Date(order.createdAt).toLocaleDateString('bs-BA'),
+      customer: {
+        name: order.customerName || 'N/A',
+        address: order.shippingAddress ? this.formatAddress(order.shippingAddress) : undefined,
+        email: order.customerEmail,
+        phone: order.customerPhone
+      },
+      items: order.items.map(item => ({
+        name: item.productName,
+        sku: item.sku || '',
+        quantity: item.quantity,
+        unitPrice: item.unitPrice,
+        total: item.lineTotal
+      })),
+      subtotal: order.subtotal,
+      taxAmount: order.taxAmount,
+      discount: order.discountAmount || undefined,
+      total: order.totalAmount,
+      paymentStatus: this.translateService.instant(this.getPaymentStatusLabel(order.paymentStatus)),
+      notes: order.notes
+    };
+
+    this.printService.printOrder(printData, {
+      title: `Order ${order.orderNumber}`
+    });
+  }
+
+  private formatAddress(address: any): string {
+    const parts = [];
+    if (address.street) parts.push(address.street);
+    if (address.city) parts.push(address.city);
+    if (address.postalCode) parts.push(address.postalCode);
+    if (address.country) parts.push(address.country);
+    return parts.join(', ');
   }
 
   // Permission checks

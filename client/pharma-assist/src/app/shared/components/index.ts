@@ -7,3 +7,4 @@ export * from './status-badge';
 export * from './empty-state';
 export * from './loading-skeleton';
 export * from './confirm-dialog';
+export * from './keyboard-shortcuts-help/keyboard-shortcuts-help.component';

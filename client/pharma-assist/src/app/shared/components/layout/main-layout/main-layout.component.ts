@@ -8,9 +8,11 @@ import { SidebarComponent } from '../sidebar/sidebar.component';
 import { FooterComponent } from '../footer/footer.component';
 import { NotificationsComponent } from '../notifications/notifications.component';
 import { LoadingOverlayComponent } from '../loading-overlay/loading-overlay.component';
+import { KeyboardShortcutsHelpComponent } from '../../keyboard-shortcuts-help/keyboard-shortcuts-help.component';
 
 import { UIStateService } from '../../../../core/state/ui-state.service';
 import { AuthStateService } from '../../../../core/state/auth-state.service';
+import { KeyboardService } from '../../../../core/services/keyboard.service';
 
 @Component({
   selector: 'app-main-layout',
@@ -22,7 +24,8 @@ import { AuthStateService } from '../../../../core/state/auth-state.service';
     SidebarComponent,
     FooterComponent,
     NotificationsComponent,
-    LoadingOverlayComponent
+    LoadingOverlayComponent,
+    KeyboardShortcutsHelpComponent
   ],
   template: `
     <div class="app-container" [class.sidebar-collapsed]="uiState.sidebarCollapsed()">
@@ -31,6 +34,9 @@ import { AuthStateService } from '../../../../core/state/auth-state.service';
 
       <!-- Notifications Toast Container -->
       <app-notifications />
+
+      <!-- Keyboard Shortcuts Help -->
+      <app-keyboard-shortcuts-help />
 
       <!-- Mobile Sidebar Overlay -->
       @if (uiState.sidebarMobileOpen()) {
@@ -120,6 +126,7 @@ export class MainLayoutComponent {
   readonly uiState = inject(UIStateService);
   private readonly authState = inject(AuthStateService);
   private readonly router = inject(Router);
+  private readonly keyboardService = inject(KeyboardService); // Initialize keyboard shortcuts
 
   @HostBinding('class.dark')
   get isDarkMode(): boolean {

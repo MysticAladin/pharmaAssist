@@ -8,6 +8,7 @@ import { PrescriptionService } from '../../core/services/prescription.service';
 import { InventoryService } from '../../core/services/inventory.service';
 import { NotificationService } from '../../core/services/notification.service';
 import { ConfirmationService } from '../../core/services/confirmation.service';
+import { PrintService, PrescriptionPrintData } from '../../core/services/print.service';
 import { Prescription, PrescriptionItem, DispenseItem, PrescriptionStatus } from '../../core/models/prescription.model';
 import { StatusBadgeComponent, BadgeVariant } from '../../shared/components/status-badge';
 
@@ -504,6 +505,7 @@ export class PrescriptionDispenseComponent implements OnInit {
   private readonly notificationService = inject(NotificationService);
   private readonly confirmationService = inject(ConfirmationService);
   private readonly translateService = inject(TranslateService);
+  private readonly printService = inject(PrintService);
 
   // State signals
   loading = signal(true);
@@ -711,6 +713,11 @@ export class PrescriptionDispenseComponent implements OnInit {
       notes: this.notes || undefined
     }).subscribe({
       next: () => {
+        // Print receipt if selected
+        if (this.printReceipt) {
+          this.printPrescriptionReceipt();
+        }
+
         this.notificationService.success(
           this.translateService.instant('prescriptions.dispenseSuccess'),
           this.translateService.instant('prescriptions.dispenseSuccessMessage')
@@ -724,6 +731,39 @@ export class PrescriptionDispenseComponent implements OnInit {
         );
         this.submitting.set(false);
       }
+    });
+  }
+
+  private printPrescriptionReceipt(): void {
+    const rx = this.prescription();
+    if (!rx) return;
+
+    const printData: PrescriptionPrintData = {
+      prescriptionNumber: rx.prescriptionNumber,
+      date: new Date(rx.issueDate).toLocaleDateString('bs-BA'),
+      validUntil: rx.expiryDate ? new Date(rx.expiryDate).toLocaleDateString('bs-BA') : undefined,
+      patient: {
+        name: rx.patientName,
+        dateOfBirth: undefined,
+        insuranceNumber: undefined
+      },
+      prescriber: {
+        name: rx.doctorName || 'N/A',
+        license: undefined,
+        institution: undefined
+      },
+      items: this.dispenseFormItems().map(item => ({
+        medication: item.productName,
+        dosage: item.dosage,
+        quantity: item.quantityDispensed,
+        instructions: item.instructions,
+        dispensed: true
+      })),
+      notes: this.notes || undefined
+    };
+
+    this.printService.printPrescription(printData, {
+      title: `Prescription ${rx.prescriptionNumber}`
     });
   }
 

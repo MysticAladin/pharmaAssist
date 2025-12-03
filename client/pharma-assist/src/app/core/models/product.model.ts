@@ -122,4 +122,13 @@ export interface ProductFilters {
   activeOnly?: boolean;
   page: number;
   pageSize: number;
+  // Advanced filters
+  minPrice?: number;
+  maxPrice?: number;
+  stockStatus?: 'all' | 'inStock' | 'lowStock' | 'outOfStock';
+  requiresPrescription?: boolean | null;
+  hasBarcode?: boolean | null;
+  expiryStatus?: 'all' | 'expiringSoon' | 'expired' | 'valid';
+  sortBy?: string;
+  sortDirection?: 'asc' | 'desc';
 }

@@ -1,11 +1,12 @@
-import { Component, OnInit, inject, signal, TemplateRef, ViewChild } from '@angular/core';
+import { Component, OnInit, inject, signal, TemplateRef, ViewChild, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
 import { ProductService } from '../../core/services/product.service';
 import { CatalogService } from '../../core/services/catalog.service';
+import { ExportService, ExportColumn } from '../../core/services/export.service';
 import { ProductSummary, ProductFilters } from '../../core/models/product.model';
 import { Category, Manufacturer } from '../../core/models/catalog.model';
 
@@ -36,12 +37,49 @@ import { ConfirmDialogComponent } from '../../shared/components/confirm-dialog';
           <h1 class="page-title">{{ 'products.title' | translate }}</h1>
           <p class="page-subtitle">{{ 'products.subtitle' | translate }}</p>
         </div>
-        <button class="btn btn-primary" (click)="createProduct()">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M12 5v14M5 12h14"/>
-          </svg>
-          {{ 'products.addProduct' | translate }}
-        </button>
+        <div class="header-actions">
+          <div class="export-dropdown" [class.open]="showExportMenu()">
+            <button class="btn btn-secondary" (click)="toggleExportMenu()">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                <polyline points="7 10 12 15 17 10"/>
+                <line x1="12" y1="15" x2="12" y2="3"/>
+              </svg>
+              {{ 'common.export' | translate }}
+            </button>
+            @if (showExportMenu()) {
+              <div class="export-menu">
+                <button (click)="exportToCSV()">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                    <polyline points="14 2 14 8 20 8"/>
+                  </svg>
+                  CSV
+                </button>
+                <button (click)="exportToExcel()">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                    <polyline points="14 2 14 8 20 8"/>
+                  </svg>
+                  Excel
+                </button>
+                <button (click)="exportToPDF()">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                    <polyline points="14 2 14 8 20 8"/>
+                  </svg>
+                  PDF
+                </button>
+              </div>
+            }
+          </div>
+          <button class="btn btn-primary" (click)="createProduct()">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M12 5v14M5 12h14"/>
+            </svg>
+            {{ 'products.addProduct' | translate }}
+          </button>
+        </div>
       </div>
 
       <!-- Filters Bar -->
@@ -82,8 +120,149 @@ import { ConfirmDialogComponent } from '../../shared/components/confirm-dialog';
             />
             <span>{{ 'products.activeOnly' | translate }}</span>
           </label>
+
+          <button class="btn btn-filter" [class.active]="showAdvancedFilters()" (click)="toggleAdvancedFilters()">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/>
+            </svg>
+            {{ 'products.filters.advanced' | translate }}
+            @if (activeFilterCount() > 0) {
+              <span class="filter-badge">{{ activeFilterCount() }}</span>
+            }
+          </button>
         </div>
       </div>
+
+      <!-- Advanced Filters Panel -->
+      @if (showAdvancedFilters()) {
+        <div class="advanced-filters-panel" @slideDown>
+          <div class="filters-grid">
+            <!-- Price Range -->
+            <div class="filter-section">
+              <label class="filter-label">{{ 'products.filters.priceRange' | translate }}</label>
+              <div class="price-range">
+                <input
+                  type="number"
+                  class="filter-input"
+                  [placeholder]="'products.filters.minPrice' | translate"
+                  [ngModel]="filters().minPrice"
+                  (ngModelChange)="onMinPriceChange($event)"
+                  min="0"
+                  step="0.01"
+                />
+                <span class="range-separator">—</span>
+                <input
+                  type="number"
+                  class="filter-input"
+                  [placeholder]="'products.filters.maxPrice' | translate"
+                  [ngModel]="filters().maxPrice"
+                  (ngModelChange)="onMaxPriceChange($event)"
+                  min="0"
+                  step="0.01"
+                />
+              </div>
+            </div>
+
+            <!-- Stock Status -->
+            <div class="filter-section">
+              <label class="filter-label">{{ 'products.filters.stockStatus' | translate }}</label>
+              <select
+                class="filter-select full-width"
+                [ngModel]="filters().stockStatus || 'all'"
+                (ngModelChange)="onStockStatusChange($event)"
+              >
+                <option value="all">{{ 'products.filters.stockAll' | translate }}</option>
+                <option value="inStock">{{ 'products.filters.stockInStock' | translate }}</option>
+                <option value="lowStock">{{ 'products.filters.stockLow' | translate }}</option>
+                <option value="outOfStock">{{ 'products.filters.stockOut' | translate }}</option>
+              </select>
+            </div>
+
+            <!-- Prescription Required -->
+            <div class="filter-section">
+              <label class="filter-label">{{ 'products.filters.prescriptionRequired' | translate }}</label>
+              <select
+                class="filter-select full-width"
+                [ngModel]="prescriptionFilterValue()"
+                (ngModelChange)="onPrescriptionChange($event)"
+              >
+                <option value="all">{{ 'products.filters.prescriptionAll' | translate }}</option>
+                <option value="yes">{{ 'products.filters.prescriptionYes' | translate }}</option>
+                <option value="no">{{ 'products.filters.prescriptionNo' | translate }}</option>
+              </select>
+            </div>
+
+            <!-- Barcode Status -->
+            <div class="filter-section">
+              <label class="filter-label">{{ 'products.filters.barcode' | translate }}</label>
+              <select
+                class="filter-select full-width"
+                [ngModel]="barcodeFilterValue()"
+                (ngModelChange)="onBarcodeChange($event)"
+              >
+                <option value="all">{{ 'products.filters.barcodeAll' | translate }}</option>
+                <option value="yes">{{ 'products.filters.barcodeYes' | translate }}</option>
+                <option value="no">{{ 'products.filters.barcodeNo' | translate }}</option>
+              </select>
+            </div>
+
+            <!-- Expiry Status -->
+            <div class="filter-section">
+              <label class="filter-label">{{ 'products.filters.expiryStatus' | translate }}</label>
+              <select
+                class="filter-select full-width"
+                [ngModel]="filters().expiryStatus || 'all'"
+                (ngModelChange)="onExpiryStatusChange($event)"
+              >
+                <option value="all">{{ 'products.filters.expiryAll' | translate }}</option>
+                <option value="valid">{{ 'products.filters.expiryValid' | translate }}</option>
+                <option value="expiringSoon">{{ 'products.filters.expiringSoon' | translate }}</option>
+                <option value="expired">{{ 'products.filters.expiryExpired' | translate }}</option>
+              </select>
+            </div>
+
+            <!-- Sort By -->
+            <div class="filter-section">
+              <label class="filter-label">{{ 'products.filters.sortBy' | translate }}</label>
+              <div class="sort-controls">
+                <select
+                  class="filter-select"
+                  [ngModel]="filters().sortBy || 'name'"
+                  (ngModelChange)="onSortByChange($event)"
+                >
+                  <option value="name">{{ 'products.columns.name' | translate }}</option>
+                  <option value="unitPrice">{{ 'products.columns.price' | translate }}</option>
+                  <option value="stockQuantity">{{ 'products.columns.stock' | translate }}</option>
+                  <option value="createdAt">{{ 'products.filters.dateAdded' | translate }}</option>
+                </select>
+                <button
+                  class="sort-direction-btn"
+                  [class.desc]="filters().sortDirection === 'desc'"
+                  (click)="toggleSortDirection()"
+                  [title]="(filters().sortDirection === 'desc' ? 'products.filters.sortDesc' : 'products.filters.sortAsc') | translate"
+                >
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M12 5v14M5 12l7-7 7 7"/>
+                  </svg>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Filter Actions -->
+          <div class="filter-actions">
+            <button class="btn btn-ghost" (click)="clearAdvancedFilters()">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M18 6L6 18M6 6l12 12"/>
+              </svg>
+              {{ 'products.filters.clearAll' | translate }}
+            </button>
+            <button class="btn btn-primary" (click)="applyFilters()">
+              {{ 'products.filters.apply' | translate }}
+            </button>
+          </div>
+        </div>
+      }
 
       <!-- Data Table -->
       <app-data-table
@@ -301,11 +480,235 @@ import { ConfirmDialogComponent } from '../../shared/components/confirm-dialog';
         color: #dc2626;
       }
     }
+
+    .btn-filter {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 14px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background: var(--surface);
+      color: var(--text-secondary);
+      font-size: 13px;
+      cursor: pointer;
+      transition: all 0.15s;
+
+      &:hover {
+        border-color: var(--primary);
+        color: var(--primary);
+      }
+
+      &.active {
+        background: var(--primary);
+        color: white;
+        border-color: var(--primary);
+      }
+    }
+
+    .filter-badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 18px;
+      height: 18px;
+      padding: 0 5px;
+      background: white;
+      color: var(--primary);
+      border-radius: 9px;
+      font-size: 11px;
+      font-weight: 600;
+    }
+
+    .advanced-filters-panel {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 20px;
+      margin-bottom: 16px;
+    }
+
+    .filters-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 20px;
+      margin-bottom: 20px;
+    }
+
+    .filter-section {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .filter-label {
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text);
+    }
+
+    .filter-input {
+      padding: 10px 12px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background: var(--bg);
+      color: var(--text);
+      font-size: 14px;
+      width: 100%;
+
+      &:focus {
+        outline: none;
+        border-color: var(--primary);
+        box-shadow: 0 0 0 3px rgba(var(--primary-rgb), 0.1);
+      }
+
+      &::placeholder {
+        color: var(--text-secondary);
+      }
+    }
+
+    .filter-select.full-width {
+      width: 100%;
+    }
+
+    .price-range {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .range-separator {
+      color: var(--text-secondary);
+      flex-shrink: 0;
+    }
+
+    .sort-controls {
+      display: flex;
+      gap: 8px;
+    }
+
+    .sort-controls .filter-select {
+      flex: 1;
+    }
+
+    .sort-direction-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 40px;
+      height: 40px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background: var(--surface);
+      color: var(--text-secondary);
+      cursor: pointer;
+      transition: all 0.15s;
+
+      svg {
+        transition: transform 0.2s;
+      }
+
+      &:hover {
+        border-color: var(--primary);
+        color: var(--primary);
+      }
+
+      &.desc svg {
+        transform: rotate(180deg);
+      }
+    }
+
+    .filter-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 12px;
+      padding-top: 16px;
+      border-top: 1px solid var(--border);
+    }
+
+    .btn-ghost {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 10px 16px;
+      border: none;
+      background: transparent;
+      color: var(--text-secondary);
+      font-size: 14px;
+      font-weight: 500;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.15s;
+
+      &:hover {
+        background: var(--surface-hover, #f1f5f9);
+        color: var(--text);
+      }
+    }
+
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .btn-secondary {
+      background: var(--surface);
+      color: var(--text);
+      border: 1px solid var(--border);
+
+      &:hover {
+        background: var(--surface-hover, #f1f5f9);
+        border-color: var(--border-hover);
+      }
+    }
+
+    .export-dropdown {
+      position: relative;
+    }
+
+    .export-menu {
+      position: absolute;
+      top: 100%;
+      right: 0;
+      margin-top: 4px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+      min-width: 140px;
+      z-index: 50;
+      overflow: hidden;
+
+      button {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        width: 100%;
+        padding: 10px 14px;
+        border: none;
+        background: transparent;
+        color: var(--text);
+        font-size: 14px;
+        cursor: pointer;
+        transition: all 0.15s;
+
+        &:hover {
+          background: var(--surface-hover, #f1f5f9);
+        }
+
+        svg {
+          color: var(--text-secondary);
+        }
+      }
+    }
   `]
 })
 export class ProductsListComponent implements OnInit {
   private readonly productService = inject(ProductService);
   private readonly catalogService = inject(CatalogService);
+  private readonly exportService = inject(ExportService);
+  private readonly translateService = inject(TranslateService);
   private readonly router = inject(Router);
 
   // Signals
@@ -314,10 +717,43 @@ export class ProductsListComponent implements OnInit {
   manufacturers = signal<Manufacturer[]>([]);
   loading = signal(false);
   totalItems = signal(0);
+  showExportMenu = signal(false);
   filters = signal<ProductFilters>({
     page: 1,
     pageSize: 10,
     activeOnly: true
+  });
+
+  // Advanced filters
+  showAdvancedFilters = signal(false);
+
+  // Computed signals for filter values
+  prescriptionFilterValue = computed(() => {
+    const val = this.filters().requiresPrescription;
+    if (val === true) return 'yes';
+    if (val === false) return 'no';
+    return 'all';
+  });
+
+  barcodeFilterValue = computed(() => {
+    const val = this.filters().hasBarcode;
+    if (val === true) return 'yes';
+    if (val === false) return 'no';
+    return 'all';
+  });
+
+  // Count of active advanced filters
+  activeFilterCount = computed(() => {
+    const f = this.filters();
+    let count = 0;
+    if (f.minPrice !== undefined && f.minPrice !== null) count++;
+    if (f.maxPrice !== undefined && f.maxPrice !== null) count++;
+    if (f.stockStatus && f.stockStatus !== 'all') count++;
+    if (f.requiresPrescription !== undefined && f.requiresPrescription !== null) count++;
+    if (f.hasBarcode !== undefined && f.hasBarcode !== null) count++;
+    if (f.expiryStatus && f.expiryStatus !== 'all') count++;
+    if (f.sortBy && f.sortBy !== 'name') count++;
+    return count;
   });
 
   // Delete dialog
@@ -435,6 +871,140 @@ export class ProductsListComponent implements OnInit {
         this.deleting.set(false);
       }
     });
+  }
+
+  // Advanced filter methods
+  toggleAdvancedFilters(): void {
+    this.showAdvancedFilters.update(v => !v);
+  }
+
+  onMinPriceChange(value: number | null): void {
+    this.filters.update(f => ({ ...f, minPrice: value ?? undefined }));
+  }
+
+  onMaxPriceChange(value: number | null): void {
+    this.filters.update(f => ({ ...f, maxPrice: value ?? undefined }));
+  }
+
+  onStockStatusChange(status: 'all' | 'inStock' | 'lowStock' | 'outOfStock'): void {
+    this.filters.update(f => ({
+      ...f,
+      stockStatus: status === 'all' ? undefined : status
+    }));
+  }
+
+  onPrescriptionChange(value: 'all' | 'yes' | 'no'): void {
+    let prescriptionValue: boolean | null = null;
+    if (value === 'yes') prescriptionValue = true;
+    else if (value === 'no') prescriptionValue = false;
+    this.filters.update(f => ({ ...f, requiresPrescription: prescriptionValue ?? undefined }));
+  }
+
+  onBarcodeChange(value: 'all' | 'yes' | 'no'): void {
+    let barcodeValue: boolean | null = null;
+    if (value === 'yes') barcodeValue = true;
+    else if (value === 'no') barcodeValue = false;
+    this.filters.update(f => ({ ...f, hasBarcode: barcodeValue ?? undefined }));
+  }
+
+  onExpiryStatusChange(status: 'all' | 'expiringSoon' | 'expired' | 'valid'): void {
+    this.filters.update(f => ({
+      ...f,
+      expiryStatus: status === 'all' ? undefined : status
+    }));
+  }
+
+  onSortByChange(sortBy: string): void {
+    this.filters.update(f => ({ ...f, sortBy }));
+  }
+
+  toggleSortDirection(): void {
+    this.filters.update(f => ({
+      ...f,
+      sortDirection: f.sortDirection === 'desc' ? 'asc' : 'desc'
+    }));
+  }
+
+  clearAdvancedFilters(): void {
+    this.filters.update(f => ({
+      ...f,
+      minPrice: undefined,
+      maxPrice: undefined,
+      stockStatus: undefined,
+      requiresPrescription: undefined,
+      hasBarcode: undefined,
+      expiryStatus: undefined,
+      sortBy: undefined,
+      sortDirection: undefined,
+      page: 1
+    }));
+    this.loadProducts();
+  }
+
+  applyFilters(): void {
+    this.filters.update(f => ({ ...f, page: 1 }));
+    this.loadProducts();
+  }
+
+  // Export functionality
+  toggleExportMenu(): void {
+    this.showExportMenu.update(v => !v);
+  }
+
+  private getExportColumns(): ExportColumn<ProductSummary>[] {
+    return [
+      { key: 'name', header: this.translateService.instant('products.columns.name') },
+      { key: 'sku', header: 'SKU' },
+      { key: 'categoryName', header: this.translateService.instant('products.columns.category') },
+      { key: 'manufacturerName', header: this.translateService.instant('products.columns.manufacturer') },
+      {
+        key: 'unitPrice',
+        header: this.translateService.instant('products.columns.price'),
+        format: (value) => value?.toFixed(2) + ' BAM' || ''
+      },
+      { key: 'stockQuantity', header: this.translateService.instant('products.columns.stock') },
+      {
+        key: 'requiresPrescription',
+        header: this.translateService.instant('products.form.requiresPrescription'),
+        format: (value) => value ? this.translateService.instant('common.yes') : this.translateService.instant('common.no')
+      },
+      {
+        key: 'isActive',
+        header: this.translateService.instant('products.columns.status'),
+        format: (value) => value ? this.translateService.instant('products.status.active') : this.translateService.instant('products.status.inactive')
+      }
+    ];
+  }
+
+  exportToCSV(): void {
+    this.showExportMenu.set(false);
+    this.exportService.exportToCSV(
+      this.products(),
+      this.getExportColumns(),
+      { filename: `products-${new Date().toISOString().split('T')[0]}` }
+    );
+  }
+
+  exportToExcel(): void {
+    this.showExportMenu.set(false);
+    this.exportService.exportToExcel(
+      this.products(),
+      this.getExportColumns(),
+      { filename: `products-${new Date().toISOString().split('T')[0]}` }
+    );
+  }
+
+  exportToPDF(): void {
+    this.showExportMenu.set(false);
+    this.exportService.exportToPDF(
+      this.products(),
+      this.getExportColumns(),
+      {
+        filename: `products-${new Date().toISOString().split('T')[0]}`,
+        title: this.translateService.instant('products.title'),
+        subtitle: this.translateService.instant('products.subtitle')
+      }
+    );
   }
 }
 

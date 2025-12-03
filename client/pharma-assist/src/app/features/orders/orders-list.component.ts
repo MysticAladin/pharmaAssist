@@ -5,6 +5,7 @@ import { Router } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
 import { OrderService, PaginatedResult } from '../../core/services/order.service';
+import { ExportService, ExportColumn } from '../../core/services/export.service';
 import {
   OrderSummary,
   OrderStatus,
@@ -47,12 +48,52 @@ import { ConfirmDialogComponent } from '../../shared/components/confirm-dialog';
           <h1 class="page-title">{{ 'orders.title' | translate }}</h1>
           <p class="page-subtitle">{{ 'orders.subtitle' | translate }}</p>
         </div>
-        <button class="btn btn-primary" (click)="createNewOrder()">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M12 5v14M5 12h14"/>
-          </svg>
-          {{ 'orders.newOrder' | translate }}
-        </button>
+        <div class="header-actions">
+          <div class="export-dropdown" [class.open]="showExportMenu()">
+            <button class="btn btn-secondary" (click)="toggleExportMenu()">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                <polyline points="7 10 12 15 17 10"/>
+                <line x1="12" y1="15" x2="12" y2="3"/>
+              </svg>
+              {{ 'common.export' | translate }}
+            </button>
+            <div class="export-menu">
+              <button class="export-menu-item" (click)="exportToCSV()">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                  <polyline points="14 2 14 8 20 8"/>
+                  <line x1="16" y1="13" x2="8" y2="13"/>
+                  <line x1="16" y1="17" x2="8" y2="17"/>
+                </svg>
+                CSV
+              </button>
+              <button class="export-menu-item" (click)="exportToExcel()">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                  <polyline points="14 2 14 8 20 8"/>
+                  <rect x="8" y="12" width="8" height="6"/>
+                </svg>
+                Excel
+              </button>
+              <button class="export-menu-item" (click)="exportToPDF()">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                  <polyline points="14 2 14 8 20 8"/>
+                  <path d="M10 12h4"/>
+                  <path d="M10 16h4"/>
+                </svg>
+                PDF
+              </button>
+            </div>
+          </div>
+          <button class="btn btn-primary" (click)="createNewOrder()">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M12 5v14M5 12h14"/>
+            </svg>
+            {{ 'orders.newOrder' | translate }}
+          </button>
+        </div>
       </div>
 
       <!-- Stats Cards -->
@@ -691,6 +732,64 @@ import { ConfirmDialogComponent } from '../../shared/components/confirm-dialog';
       color: var(--text-primary, #1a1a2e);
     }
 
+    /* Export Dropdown */
+    .export-dropdown {
+      position: relative;
+    }
+
+    .export-menu {
+      position: absolute;
+      top: 100%;
+      right: 0;
+      margin-top: 0.5rem;
+      background: white;
+      border: 1px solid var(--border-color, #e5e7eb);
+      border-radius: 8px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+      min-width: 160px;
+      z-index: 100;
+      opacity: 0;
+      visibility: hidden;
+      transform: translateY(-8px);
+      transition: all 0.2s ease;
+    }
+
+    .export-dropdown.open .export-menu {
+      opacity: 1;
+      visibility: visible;
+      transform: translateY(0);
+    }
+
+    .export-menu-item {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      width: 100%;
+      padding: 0.75rem 1rem;
+      border: none;
+      background: none;
+      font-size: 0.875rem;
+      color: var(--text-primary, #1a1a2e);
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+
+    .export-menu-item:first-child {
+      border-radius: 8px 8px 0 0;
+    }
+
+    .export-menu-item:last-child {
+      border-radius: 0 0 8px 8px;
+    }
+
+    .export-menu-item:hover {
+      background: var(--bg-hover, #f3f4f6);
+    }
+
+    .export-menu-item lucide-icon {
+      color: var(--text-secondary, #6b7280);
+    }
+
     /* Responsive */
     @media (max-width: 768px) {
       .orders-page {
@@ -732,6 +831,7 @@ import { ConfirmDialogComponent } from '../../shared/components/confirm-dialog';
 })
 export class OrdersListComponent implements OnInit {
   private readonly orderService = inject(OrderService);
+  private readonly exportService = inject(ExportService);
   private readonly router = inject(Router);
   private readonly translateService = inject(TranslateService);
 
@@ -753,6 +853,7 @@ export class OrdersListComponent implements OnInit {
   totalPages = signal(1);
   totalItems = signal(0);
   pageSize = 10;
+  showExportMenu = signal(false);
 
   // Stats
   pendingCount = signal(0);
@@ -1104,5 +1205,72 @@ export class OrdersListComponent implements OnInit {
   getPaymentStatusBadgeVariant(status: PaymentStatus): 'success' | 'warning' | 'danger' | 'info' | 'neutral' {
     const color = getPaymentStatusColor(status);
     return color === 'default' ? 'neutral' : color;
+  }
+
+  // Export functionality
+  toggleExportMenu(): void {
+    this.showExportMenu.update(v => !v);
+  }
+
+  private getExportColumns(): ExportColumn<OrderSummary>[] {
+    return [
+      { key: 'orderNumber', header: this.translateService.instant('orders.columns.orderNumber') },
+      { key: 'customerName', header: this.translateService.instant('orders.columns.customer') },
+      {
+        key: 'orderDate',
+        header: this.translateService.instant('orders.columns.date'),
+        format: (value) => value ? new Date(value).toLocaleDateString('bs-BA') : ''
+      },
+      {
+        key: 'status',
+        header: this.translateService.instant('orders.columns.status'),
+        format: (value) => this.translateService.instant(getOrderStatusLabel(value))
+      },
+      {
+        key: 'paymentStatus',
+        header: this.translateService.instant('orders.columns.paymentStatus'),
+        format: (value) => this.translateService.instant(getPaymentStatusLabel(value))
+      },
+      { key: 'itemCount', header: this.translateService.instant('orders.columns.items') },
+      {
+        key: 'totalAmount',
+        header: this.translateService.instant('orders.columns.total'),
+        format: (value) => value?.toFixed(2) + ' BAM' || ''
+      }
+    ];
+  }
+
+  exportToCSV(): void {
+    this.showExportMenu.set(false);
+    const data = this.selectedOrders().length > 0 ? this.selectedOrders() : this.orders();
+    this.exportService.exportToCSV(
+      data,
+      this.getExportColumns(),
+      { filename: `orders-${new Date().toISOString().split('T')[0]}` }
+    );
+  }
+
+  exportToExcel(): void {
+    this.showExportMenu.set(false);
+    const data = this.selectedOrders().length > 0 ? this.selectedOrders() : this.orders();
+    this.exportService.exportToExcel(
+      data,
+      this.getExportColumns(),
+      { filename: `orders-${new Date().toISOString().split('T')[0]}` }
+    );
+  }
+
+  exportToPDF(): void {
+    this.showExportMenu.set(false);
+    const data = this.selectedOrders().length > 0 ? this.selectedOrders() : this.orders();
+    this.exportService.exportToPDF(
+      data,
+      this.getExportColumns(),
+      {
+        filename: `orders-${new Date().toISOString().split('T')[0]}`,
+        title: this.translateService.instant('orders.title'),
+        subtitle: this.translateService.instant('orders.subtitle')
+      }
+    );
   }
 }

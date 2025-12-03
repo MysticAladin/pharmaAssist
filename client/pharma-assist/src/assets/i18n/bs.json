@@ -354,6 +354,36 @@
       "inhaler": "Inhalator",
       "powder": "Prašak",
       "suppository": "Supozitorij"
+    },
+    "filters": {
+      "advanced": "Filteri",
+      "priceRange": "Raspon Cijena",
+      "minPrice": "Min",
+      "maxPrice": "Max",
+      "stockStatus": "Status Zaliha",
+      "stockAll": "Svi Nivoi Zaliha",
+      "stockInStock": "Na Lageru",
+      "stockLow": "Niska Zaliha",
+      "stockOut": "Nema na Lageru",
+      "prescriptionRequired": "Recept",
+      "prescriptionAll": "Svi Proizvodi",
+      "prescriptionYes": "Potreban Recept",
+      "prescriptionNo": "Bez Recepta",
+      "barcode": "Status Barkoda",
+      "barcodeAll": "Svi Proizvodi",
+      "barcodeYes": "Ima Barkod",
+      "barcodeNo": "Nema Barkod",
+      "expiryStatus": "Status Isteka",
+      "expiryAll": "Svi Proizvodi",
+      "expiryValid": "Važeći",
+      "expiringSoon": "Uskoro Ističe",
+      "expiryExpired": "Istekao",
+      "sortBy": "Sortiraj Po",
+      "sortAsc": "Uzlazno",
+      "sortDesc": "Silazno",
+      "dateAdded": "Datum Dodavanja",
+      "clearAll": "Očisti Filtere",
+      "apply": "Primijeni Filtere"
     }
   },
   "categories": {
@@ -1499,5 +1529,66 @@
     "noProductForBarcode": "Nije pronađen proizvod za barkod",
     "tryAgain": "Pokušaj Ponovo",
     "recentScans": "Nedavna Skeniranja"
+  },
+  "keyboard": {
+    "title": "Prečice na Tastaturi",
+    "pressEscToClose": "Pritisnite Esc za zatvaranje",
+    "categories": {
+      "navigation": "Navigacija",
+      "actions": "Brze Akcije",
+      "general": "Opšte"
+    },
+    "shortcuts": {
+      "dashboard": "Idi na Kontrolnu Tablu",
+      "products": "Idi na Proizvode",
+      "orders": "Idi na Narudžbe",
+      "customers": "Idi na Kupce",
+      "prescriptions": "Idi na Recepte",
+      "inventory": "Idi na Inventar",
+      "newOrder": "Kreiraj Novu Narudžbu",
+      "newProduct": "Kreiraj Novi Proizvod",
+      "dispense": "Izdaj Recept",
+      "search": "Fokusiraj Pretragu",
+      "help": "Prikaži Prečice",
+      "escape": "Zatvori Modal / Ukloni Fokus",
+      "back": "Idi Nazad",
+      "forward": "Idi Naprijed"
+    }
+  },
+  "print": {
+    "order": {
+      "title": "Faktura Narudžbe",
+      "number": "Narudžba #",
+      "date": "Datum",
+      "billTo": "Kupac",
+      "product": "Proizvod",
+      "quantity": "Kol",
+      "unitPrice": "Jedinična Cijena",
+      "total": "Ukupno",
+      "subtotal": "Međuzbir",
+      "discount": "Popust",
+      "tax": "PDV (17%)",
+      "grandTotal": "Ukupno za Platiti",
+      "paymentStatus": "Status Plaćanja",
+      "notes": "Napomene"
+    },
+    "prescription": {
+      "title": "Recept",
+      "number": "Rx #",
+      "date": "Datum",
+      "validUntil": "Važi Do",
+      "patient": "Podaci o Pacijentu",
+      "dob": "Datum Rođenja",
+      "insurance": "Broj Osiguranja",
+      "prescriber": "Liječnik",
+      "license": "Licenca #",
+      "medication": "Lijek",
+      "quantity": "Kol",
+      "instructions": "Upute",
+      "dispensed": "Izdato",
+      "notes": "Posebne Napomene",
+      "pharmacistSignature": "Potpis Farmaceuta",
+      "dateDispensed": "Datum Izdavanja"
+    }
   }
 }
