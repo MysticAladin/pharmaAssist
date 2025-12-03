@@ -54,6 +54,167 @@
     "optional": "(optional)",
     "viewAll": "View All"
   },
+  "commands": {
+    "searchPlaceholder": "Search commands...",
+    "noResults": "No commands found",
+    "categories": {
+      "navigation": "Navigation",
+      "actions": "Quick Actions",
+      "settings": "Settings",
+      "help": "Help",
+      "recent": "Recent"
+    },
+    "hints": {
+      "navigate": "to navigate",
+      "select": "to select",
+      "close": "to close"
+    }
+  },
+  "preferences": {
+    "title": "Preferences",
+    "reset": "Reset to Defaults",
+    "export": "Export Settings",
+    "import": "Import Settings",
+    "appearance": {
+      "title": "Appearance",
+      "theme": "Theme",
+      "themeDesc": "Choose your preferred color theme",
+      "language": "Language",
+      "languageDesc": "Select your preferred language",
+      "fontSize": "Font Size",
+      "fontSizeDesc": "Adjust the text size",
+      "compactMode": "Compact Mode",
+      "compactModeDesc": "Reduce spacing for more content"
+    },
+    "theme": {
+      "light": "Light",
+      "dark": "Dark",
+      "system": "System"
+    },
+    "fontSize": {
+      "small": "Small",
+      "medium": "Medium",
+      "large": "Large"
+    },
+    "notifications": {
+      "title": "Notifications",
+      "email": "Email Notifications",
+      "emailDesc": "Receive notifications via email",
+      "push": "Push Notifications",
+      "pushDesc": "Receive browser push notifications",
+      "sound": "Sound",
+      "soundDesc": "Play sound for new notifications",
+      "categories": "Notification Categories",
+      "cat": {
+        "stock": "Stock Alerts",
+        "orders": "Order Updates",
+        "expiry": "Expiry Warnings",
+        "prescriptions": "Prescription Alerts",
+        "system": "System Messages"
+      }
+    },
+    "tables": {
+      "title": "Tables & Lists",
+      "pageSize": "Default Page Size",
+      "pageSizeDesc": "Number of items shown per page",
+      "striped": "Striped Rows",
+      "compact": "Compact Tables"
+    },
+    "accessibility": {
+      "title": "Accessibility",
+      "reduceMotion": "Reduce Motion",
+      "reduceMotionDesc": "Minimize animations and transitions",
+      "highContrast": "High Contrast",
+      "highContrastDesc": "Increase visual contrast",
+      "keyboardNav": "Keyboard Navigation",
+      "keyboardNavDesc": "Enhanced keyboard navigation support"
+    }
+  },
+  "help": {
+    "title": "Help & Support",
+    "quickTips": "Quick Tips",
+    "guidedTours": "Guided Tours",
+    "documentation": "Documentation",
+    "keyboardShortcuts": "Keyboard Shortcuts",
+    "startTour": "Start Tour",
+    "resumeTour": "Resume Tour",
+    "skipTour": "Skip Tour",
+    "endTour": "End Tour",
+    "nextStep": "Next",
+    "previousStep": "Previous",
+    "stepOf": "Step {{current}} of {{total}}",
+    "tourComplete": "Tour Complete!",
+    "tourCompleteMessage": "You've completed the {{tourName}} tour. You can restart it anytime from the Help panel.",
+    "contextualHelp": "Contextual Help",
+    "noTipsAvailable": "No tips available for this page",
+    "tours": {
+      "dashboard": {
+        "title": "Dashboard Tour",
+        "description": "Learn about the dashboard features and widgets",
+        "welcome": {
+          "title": "Welcome to PharmaAssist",
+          "content": "This guided tour will show you around the main dashboard features."
+        },
+        "stats": {
+          "title": "Statistics Overview",
+          "content": "View key metrics like total products, low stock items, and daily orders at a glance."
+        },
+        "quickActions": {
+          "title": "Quick Actions",
+          "content": "Access frequently used actions like creating new products or orders quickly."
+        },
+        "charts": {
+          "title": "Analytics Charts",
+          "content": "Monitor sales trends and inventory levels with interactive charts."
+        },
+        "notifications": {
+          "title": "Notifications",
+          "content": "Stay updated with important alerts and system notifications."
+        }
+      },
+      "products": {
+        "title": "Product Management Tour",
+        "description": "Learn how to manage products effectively",
+        "list": {
+          "title": "Product List",
+          "content": "View and manage all your pharmacy products in this table."
+        },
+        "search": {
+          "title": "Search & Filter",
+          "content": "Use the search bar and filters to find products quickly."
+        },
+        "actions": {
+          "title": "Product Actions",
+          "content": "Edit, delete, or manage stock for individual products."
+        }
+      }
+    },
+    "tips": {
+      "search": "Use Ctrl+K to open the command palette for quick navigation",
+      "keyboard": "Press ? to view all keyboard shortcuts",
+      "bulk": "Select multiple items with Shift+Click for bulk actions",
+      "filters": "Use filters to narrow down large lists quickly",
+      "export": "Export data to CSV or PDF for reporting"
+    },
+    "articles": {
+      "gettingStarted": {
+        "title": "Getting Started",
+        "description": "Learn the basics of PharmaAssist"
+      },
+      "inventory": {
+        "title": "Managing Inventory",
+        "description": "How to track and manage stock levels"
+      },
+      "orders": {
+        "title": "Processing Orders",
+        "description": "Guide to order management workflow"
+      },
+      "reports": {
+        "title": "Generating Reports",
+        "description": "Create and customize business reports"
+      }
+    }
+  },
   "bulk": {
     "selectedItems": "{{count}} item(s) selected",
     "clearSelection": "Clear Selection",
@@ -1693,6 +1854,7 @@
       "newProduct": "Create New Product",
       "dispense": "Dispense Prescription",
       "search": "Focus Search",
+      "commandPalette": "Open Command Palette",
       "help": "Show Keyboard Shortcuts",
       "escape": "Close Modal / Clear Focus",
       "back": "Go Back",

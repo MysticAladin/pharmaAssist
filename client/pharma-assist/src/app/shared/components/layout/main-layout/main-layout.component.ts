@@ -1,4 +1,4 @@
-import { Component, inject, HostBinding } from '@angular/core';
+import { Component, inject, HostBinding, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule, Router, NavigationEnd } from '@angular/router';
 import { filter } from 'rxjs';
@@ -9,10 +9,15 @@ import { FooterComponent } from '../footer/footer.component';
 import { NotificationsComponent } from '../notifications/notifications.component';
 import { LoadingOverlayComponent } from '../loading-overlay/loading-overlay.component';
 import { KeyboardShortcutsHelpComponent } from '../../keyboard-shortcuts-help/keyboard-shortcuts-help.component';
+import { CommandPaletteComponent } from '../../command-palette/command-palette.component';
+import { TourOverlayComponent } from '../../tour-overlay/tour-overlay.component';
+import { HelpPanelComponent } from '../../help-panel/help-panel.component';
 
 import { UIStateService } from '../../../../core/state/ui-state.service';
 import { AuthStateService } from '../../../../core/state/auth-state.service';
-import { KeyboardService } from '../../../../core/services/keyboard.service';
+import { KeyboardService, setCommandPaletteService } from '../../../../core/services/keyboard.service';
+import { CommandPaletteService } from '../../../../core/services/command-palette.service';
+import { HelpService } from '../../../../core/services/help.service';
 
 @Component({
   selector: 'app-main-layout',
@@ -25,7 +30,10 @@ import { KeyboardService } from '../../../../core/services/keyboard.service';
     FooterComponent,
     NotificationsComponent,
     LoadingOverlayComponent,
-    KeyboardShortcutsHelpComponent
+    KeyboardShortcutsHelpComponent,
+    CommandPaletteComponent,
+    TourOverlayComponent,
+    HelpPanelComponent
   ],
   template: `
     <div class="app-container" [class.sidebar-collapsed]="uiState.sidebarCollapsed()">
@@ -37,6 +45,15 @@ import { KeyboardService } from '../../../../core/services/keyboard.service';
 
       <!-- Keyboard Shortcuts Help -->
       <app-keyboard-shortcuts-help />
+
+      <!-- Command Palette -->
+      <app-command-palette />
+
+      <!-- Tour Overlay -->
+      <app-tour-overlay />
+
+      <!-- Help Panel -->
+      <app-help-panel />
 
       <!-- Mobile Sidebar Overlay -->
       @if (uiState.sidebarMobileOpen()) {
@@ -122,15 +139,21 @@ import { KeyboardService } from '../../../../core/services/keyboard.service';
     }
   `]
 })
-export class MainLayoutComponent {
+export class MainLayoutComponent implements OnInit {
   readonly uiState = inject(UIStateService);
   private readonly authState = inject(AuthStateService);
   private readonly router = inject(Router);
-  private readonly keyboardService = inject(KeyboardService); // Initialize keyboard shortcuts
+  private readonly keyboardService = inject(KeyboardService);
+  private readonly commandPaletteService = inject(CommandPaletteService);
 
   @HostBinding('class.dark')
   get isDarkMode(): boolean {
     return this.uiState.darkMode();
+  }
+
+  ngOnInit(): void {
+    // Connect command palette service to keyboard service
+    setCommandPaletteService(this.commandPaletteService);
   }
 
   constructor() {

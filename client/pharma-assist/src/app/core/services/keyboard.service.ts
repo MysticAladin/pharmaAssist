@@ -1,4 +1,4 @@
-import { Injectable, inject, signal, computed, OnDestroy } from '@angular/core';
+import { Injectable, inject, signal, computed, OnDestroy, Injector, runInInjectionContext } from '@angular/core';
 import { Router } from '@angular/router';
 import { DOCUMENT } from '@angular/common';
 import { Subject, fromEvent, filter, takeUntil } from 'rxjs';
@@ -15,6 +15,13 @@ export interface KeyboardShortcut {
 export interface ShortcutGroup {
   category: string;
   shortcuts: KeyboardShortcut[];
+}
+
+// Forward declaration to avoid circular dependency
+let commandPaletteServiceInstance: { toggle: () => void } | null = null;
+
+export function setCommandPaletteService(service: { toggle: () => void }): void {
+  commandPaletteServiceInstance = service;
 }
 
 @Injectable({
@@ -193,9 +200,9 @@ export class KeyboardService implements OnDestroy {
     this.register({
       id: 'action-search',
       keys: 'ctrl+k',
-      description: 'keyboard.shortcuts.search',
+      description: 'keyboard.shortcuts.commandPalette',
       category: 'actions',
-      action: () => this.focusSearch()
+      action: () => this.openCommandPalette()
     });
 
     // General shortcuts
@@ -274,6 +281,12 @@ export class KeyboardService implements OnDestroy {
 
   toggleHelp(): void {
     this.showHelp.update(v => !v);
+  }
+
+  private openCommandPalette(): void {
+    if (commandPaletteServiceInstance) {
+      commandPaletteServiceInstance.toggle();
+    }
   }
 
   private focusSearch(): void {

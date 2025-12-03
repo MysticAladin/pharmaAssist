@@ -54,6 +54,167 @@
     "optional": "(opcionalno)",
     "viewAll": "Pogledaj sve"
   },
+  "commands": {
+    "searchPlaceholder": "Pretraži komande...",
+    "noResults": "Komande nisu pronađene",
+    "categories": {
+      "navigation": "Navigacija",
+      "actions": "Brze Akcije",
+      "settings": "Postavke",
+      "help": "Pomoć",
+      "recent": "Nedavno"
+    },
+    "hints": {
+      "navigate": "za navigaciju",
+      "select": "za odabir",
+      "close": "za zatvaranje"
+    }
+  },
+  "preferences": {
+    "title": "Postavke",
+    "reset": "Vrati na Zadano",
+    "export": "Izvezi Postavke",
+    "import": "Uvezi Postavke",
+    "appearance": {
+      "title": "Izgled",
+      "theme": "Tema",
+      "themeDesc": "Odaberite željenu temu boja",
+      "language": "Jezik",
+      "languageDesc": "Odaberite željeni jezik",
+      "fontSize": "Veličina Fonta",
+      "fontSizeDesc": "Prilagodite veličinu teksta",
+      "compactMode": "Kompaktni Režim",
+      "compactModeDesc": "Smanjite razmake za više sadržaja"
+    },
+    "theme": {
+      "light": "Svijetla",
+      "dark": "Tamna",
+      "system": "Sistemska"
+    },
+    "fontSize": {
+      "small": "Mala",
+      "medium": "Srednja",
+      "large": "Velika"
+    },
+    "notifications": {
+      "title": "Obavijesti",
+      "email": "Email Obavijesti",
+      "emailDesc": "Primajte obavijesti putem emaila",
+      "push": "Push Obavijesti",
+      "pushDesc": "Primajte push obavijesti u pregledniku",
+      "sound": "Zvuk",
+      "soundDesc": "Reproduciraj zvuk za nove obavijesti",
+      "categories": "Kategorije Obavijesti",
+      "cat": {
+        "stock": "Upozorenja o Zalihama",
+        "orders": "Ažuriranja Narudžbi",
+        "expiry": "Upozorenja o Isteku",
+        "prescriptions": "Upozorenja o Receptima",
+        "system": "Sistemske Poruke"
+      }
+    },
+    "tables": {
+      "title": "Tabele i Liste",
+      "pageSize": "Zadani Broj Stavki",
+      "pageSizeDesc": "Broj stavki prikazanih po stranici",
+      "striped": "Prugasti Redovi",
+      "compact": "Kompaktne Tabele"
+    },
+    "accessibility": {
+      "title": "Pristupačnost",
+      "reduceMotion": "Smanji Kretanje",
+      "reduceMotionDesc": "Minimizirajte animacije i prijelaze",
+      "highContrast": "Visoki Kontrast",
+      "highContrastDesc": "Povećajte vizualni kontrast",
+      "keyboardNav": "Navigacija Tastaturom",
+      "keyboardNavDesc": "Poboljšana podrška za navigaciju tastaturom"
+    }
+  },
+  "help": {
+    "title": "Pomoć i Podrška",
+    "quickTips": "Brzi Savjeti",
+    "guidedTours": "Vođeni Obilasci",
+    "documentation": "Dokumentacija",
+    "keyboardShortcuts": "Prečice na Tastaturi",
+    "startTour": "Započni Obilazak",
+    "resumeTour": "Nastavi Obilazak",
+    "skipTour": "Preskoči Obilazak",
+    "endTour": "Završi Obilazak",
+    "nextStep": "Dalje",
+    "previousStep": "Nazad",
+    "stepOf": "Korak {{current}} od {{total}}",
+    "tourComplete": "Obilazak Završen!",
+    "tourCompleteMessage": "Završili ste obilazak {{tourName}}. Možete ga ponovo pokrenuti bilo kada iz panela Pomoć.",
+    "contextualHelp": "Kontekstualna Pomoć",
+    "noTipsAvailable": "Nema dostupnih savjeta za ovu stranicu",
+    "tours": {
+      "dashboard": {
+        "title": "Obilazak Kontrolne Ploče",
+        "description": "Naučite o funkcijama i widgetima kontrolne ploče",
+        "welcome": {
+          "title": "Dobrodošli u PharmaAssist",
+          "content": "Ovaj vođeni obilazak će vam pokazati glavne funkcije kontrolne ploče."
+        },
+        "stats": {
+          "title": "Pregled Statistike",
+          "content": "Pregledajte ključne metrike kao što su ukupni proizvodi, niske zalihe i dnevne narudžbe na prvi pogled."
+        },
+        "quickActions": {
+          "title": "Brze Akcije",
+          "content": "Pristupite često korištenim akcijama kao što su kreiranje novih proizvoda ili narudžbi brzo."
+        },
+        "charts": {
+          "title": "Analitički Grafikoni",
+          "content": "Pratite trendove prodaje i nivoe zaliha sa interaktivnim grafikonima."
+        },
+        "notifications": {
+          "title": "Obavještenja",
+          "content": "Budite u toku sa važnim upozorenjima i sistemskim obavještenjima."
+        }
+      },
+      "products": {
+        "title": "Obilazak Upravljanja Proizvodima",
+        "description": "Naučite kako efikasno upravljati proizvodima",
+        "list": {
+          "title": "Lista Proizvoda",
+          "content": "Pregledajte i upravljajte svim proizvodima apoteke u ovoj tabeli."
+        },
+        "search": {
+          "title": "Pretraga i Filter",
+          "content": "Koristite traku za pretragu i filtere za brzo pronalaženje proizvoda."
+        },
+        "actions": {
+          "title": "Akcije Proizvoda",
+          "content": "Uredite, obrišite ili upravljajte zalihama za pojedinačne proizvode."
+        }
+      }
+    },
+    "tips": {
+      "search": "Koristite Ctrl+K za otvaranje palete komandi za brzu navigaciju",
+      "keyboard": "Pritisnite ? za pregled svih prečica na tastaturi",
+      "bulk": "Odaberite više stavki sa Shift+Klik za grupne akcije",
+      "filters": "Koristite filtere za brzo sužavanje velikih lista",
+      "export": "Izvezite podatke u CSV ili PDF za izvještavanje"
+    },
+    "articles": {
+      "gettingStarted": {
+        "title": "Početak",
+        "description": "Naučite osnove PharmaAssist-a"
+      },
+      "inventory": {
+        "title": "Upravljanje Zalihama",
+        "description": "Kako pratiti i upravljati nivoima zaliha"
+      },
+      "orders": {
+        "title": "Obrada Narudžbi",
+        "description": "Vodič za radni tok upravljanja narudžbama"
+      },
+      "reports": {
+        "title": "Generiranje Izvještaja",
+        "description": "Kreiranje i prilagođavanje poslovnih izvještaja"
+      }
+    }
+  },
   "bulk": {
     "selectedItems": "{{count}} stavka(e) odabrano",
     "clearSelection": "Poništi odabir",
@@ -1693,6 +1854,7 @@
       "newProduct": "Kreiraj Novi Proizvod",
       "dispense": "Izdaj Recept",
       "search": "Fokusiraj Pretragu",
+      "commandPalette": "Otvori Paletu Komandi",
       "help": "Prikaži Prečice",
       "escape": "Zatvori Modal / Ukloni Fokus",
       "back": "Idi Nazad",
