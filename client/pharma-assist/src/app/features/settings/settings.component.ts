@@ -5,11 +5,24 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { TranslationService } from '../../core/services/translation.service';
 
 interface NotificationSettings {
+  // Email Settings
   emailNotifications: boolean;
   orderAlerts: boolean;
   lowStockAlerts: boolean;
   marketingEmails: boolean;
   weeklyDigest: boolean;
+  // Push Notifications
+  pushNotifications: boolean;
+  // Alert Types
+  expiryAlerts: boolean;
+  expiryAlertDays: number;
+  prescriptionAlerts: boolean;
+  paymentAlerts: boolean;
+  systemAlerts: boolean;
+  // Quiet Hours
+  quietHoursEnabled: boolean;
+  quietHoursStart: string;
+  quietHoursEnd: string;
 }
 
 @Component({
@@ -155,7 +168,28 @@ interface NotificationSettings {
               <h2 class="section-title">{{ 'settings.notificationSettings' | translate }}</h2>
               <p class="section-desc">{{ 'settings.notificationDesc' | translate }}</p>
 
+              <!-- Push Notifications -->
               <div class="settings-group">
+                <h4 class="group-title">{{ 'settings.pushNotificationsSection' | translate }}</h4>
+
+                <div class="setting-item">
+                  <div class="setting-info">
+                    <h3>{{ 'settings.pushNotifications' | translate }}</h3>
+                    <p>{{ 'settings.pushNotificationsDesc' | translate }}</p>
+                  </div>
+                  <div class="setting-control">
+                    <label class="toggle">
+                      <input type="checkbox" [(ngModel)]="notifications.pushNotifications">
+                      <span class="toggle-slider"></span>
+                    </label>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Email Notifications -->
+              <div class="settings-group">
+                <h4 class="group-title">{{ 'settings.emailSection' | translate }}</h4>
+
                 <div class="setting-item">
                   <div class="setting-info">
                     <h3>{{ 'settings.emailNotifications' | translate }}</h3>
@@ -168,6 +202,24 @@ interface NotificationSettings {
                     </label>
                   </div>
                 </div>
+
+                <div class="setting-item">
+                  <div class="setting-info">
+                    <h3>{{ 'settings.weeklyDigest' | translate }}</h3>
+                    <p>{{ 'settings.weeklyDigestDesc' | translate }}</p>
+                  </div>
+                  <div class="setting-control">
+                    <label class="toggle">
+                      <input type="checkbox" [(ngModel)]="notifications.weeklyDigest">
+                      <span class="toggle-slider"></span>
+                    </label>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Alert Types -->
+              <div class="settings-group">
+                <h4 class="group-title">{{ 'settings.alertTypes' | translate }}</h4>
 
                 <div class="setting-item">
                   <div class="setting-info">
@@ -197,16 +249,99 @@ interface NotificationSettings {
 
                 <div class="setting-item">
                   <div class="setting-info">
-                    <h3>{{ 'settings.weeklyDigest' | translate }}</h3>
-                    <p>{{ 'settings.weeklyDigestDesc' | translate }}</p>
+                    <h3>{{ 'settings.expiryAlerts' | translate }}</h3>
+                    <p>{{ 'settings.expiryAlertsDesc' | translate }}</p>
+                  </div>
+                  <div class="setting-control horizontal">
+                    <label class="toggle">
+                      <input type="checkbox" [(ngModel)]="notifications.expiryAlerts">
+                      <span class="toggle-slider"></span>
+                    </label>
+                    @if (notifications.expiryAlerts) {
+                      <div class="inline-input">
+                        <input type="number" class="input small" [(ngModel)]="notifications.expiryAlertDays" min="7" max="180">
+                        <span class="input-label">{{ 'settings.daysBeforeExpiry' | translate }}</span>
+                      </div>
+                    }
+                  </div>
+                </div>
+
+                <div class="setting-item">
+                  <div class="setting-info">
+                    <h3>{{ 'settings.prescriptionAlerts' | translate }}</h3>
+                    <p>{{ 'settings.prescriptionAlertsDesc' | translate }}</p>
                   </div>
                   <div class="setting-control">
                     <label class="toggle">
-                      <input type="checkbox" [(ngModel)]="notifications.weeklyDigest">
+                      <input type="checkbox" [(ngModel)]="notifications.prescriptionAlerts">
                       <span class="toggle-slider"></span>
                     </label>
                   </div>
                 </div>
+
+                <div class="setting-item">
+                  <div class="setting-info">
+                    <h3>{{ 'settings.paymentAlerts' | translate }}</h3>
+                    <p>{{ 'settings.paymentAlertsDesc' | translate }}</p>
+                  </div>
+                  <div class="setting-control">
+                    <label class="toggle">
+                      <input type="checkbox" [(ngModel)]="notifications.paymentAlerts">
+                      <span class="toggle-slider"></span>
+                    </label>
+                  </div>
+                </div>
+
+                <div class="setting-item">
+                  <div class="setting-info">
+                    <h3>{{ 'settings.systemAlerts' | translate }}</h3>
+                    <p>{{ 'settings.systemAlertsDesc' | translate }}</p>
+                  </div>
+                  <div class="setting-control">
+                    <label class="toggle">
+                      <input type="checkbox" [(ngModel)]="notifications.systemAlerts">
+                      <span class="toggle-slider"></span>
+                    </label>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Quiet Hours -->
+              <div class="settings-group">
+                <h4 class="group-title">{{ 'settings.quietHours' | translate }}</h4>
+
+                <div class="setting-item">
+                  <div class="setting-info">
+                    <h3>{{ 'settings.quietHoursEnabled' | translate }}</h3>
+                    <p>{{ 'settings.quietHoursDesc' | translate }}</p>
+                  </div>
+                  <div class="setting-control">
+                    <label class="toggle">
+                      <input type="checkbox" [(ngModel)]="notifications.quietHoursEnabled">
+                      <span class="toggle-slider"></span>
+                    </label>
+                  </div>
+                </div>
+
+                @if (notifications.quietHoursEnabled) {
+                  <div class="setting-item">
+                    <div class="setting-info">
+                      <h3>{{ 'settings.quietHoursTime' | translate }}</h3>
+                      <p>{{ 'settings.quietHoursTimeDesc' | translate }}</p>
+                    </div>
+                    <div class="setting-control time-range">
+                      <div class="time-input">
+                        <label>{{ 'settings.from' | translate }}</label>
+                        <input type="time" class="input" [(ngModel)]="notifications.quietHoursStart">
+                      </div>
+                      <span class="time-separator">–</span>
+                      <div class="time-input">
+                        <label>{{ 'settings.to' | translate }}</label>
+                        <input type="time" class="input" [(ngModel)]="notifications.quietHoursEnd">
+                      </div>
+                    </div>
+                  </div>
+                }
               </div>
             </div>
           }
@@ -340,7 +475,8 @@ interface NotificationSettings {
     .settings-section{margin-bottom:2rem}
     .section-title{font-size:1.125rem;font-weight:600;color:var(--c1);margin:0 0 .25rem}
     .section-desc{color:var(--c2);margin:0 0 1.5rem;font-size:.875rem}
-    .settings-group{display:flex;flex-direction:column;gap:1rem}
+    .settings-group{display:flex;flex-direction:column;gap:1rem;margin-bottom:1.5rem}
+    .group-title{font-size:.8rem;font-weight:600;color:var(--c5);text-transform:uppercase;letter-spacing:.5px;margin:0 0 .5rem;padding-bottom:.5rem;border-bottom:1px solid var(--c3)}
     .setting-item{display:flex;justify-content:space-between;align-items:flex-start;padding:1rem;background:var(--c4);border-radius:10px;gap:1rem}
     @media(max-width:600px){.setting-item{flex-direction:column}}
     .setting-item.danger{background:#fef2f2;border:1px solid #fecaca}
@@ -349,12 +485,21 @@ interface NotificationSettings {
     .setting-info p{font-size:.8rem;color:var(--c2);margin:0}
     .setting-item.danger .setting-info h3{color:var(--c6)}
     .setting-control{flex-shrink:0;min-width:200px}
+    .setting-control.horizontal{display:flex;align-items:center;gap:1rem}
+    .setting-control.time-range{display:flex;align-items:center;gap:.5rem}
     @media(max-width:600px){.setting-control{min-width:100%;width:100%}}
     .input,.select{width:100%;padding:.625rem .875rem;border:1px solid var(--c3);border-radius:8px;font-size:.875rem;transition:border-color .2s}
+    .input.small{width:70px;text-align:center}
     .input:focus,.select:focus{outline:none;border-color:var(--c5)}
     .input-group{display:flex;align-items:center}
     .input-group .input{border-radius:8px 0 0 8px;text-align:right}
     .input-suffix{padding:.625rem .875rem;background:var(--c4);border:1px solid var(--c3);border-left:none;border-radius:0 8px 8px 0;color:var(--c2);font-size:.875rem}
+    .inline-input{display:flex;align-items:center;gap:.5rem}
+    .inline-input .input-label{font-size:.8rem;color:var(--c2)}
+    .time-input{display:flex;flex-direction:column;gap:.25rem}
+    .time-input label{font-size:.75rem;color:var(--c2)}
+    .time-input .input{width:100px}
+    .time-separator{color:var(--c2);font-weight:600}
     .theme-options{display:flex;gap:.5rem;flex-wrap:wrap}
     .theme-btn{display:flex;align-items:center;gap:.5rem;padding:.625rem 1rem;border:1px solid var(--c3);background:#fff;border-radius:8px;cursor:pointer;font-size:.8rem;color:var(--c2);transition:all .2s}
     .theme-btn:hover{border-color:var(--c5);color:var(--c5)}
@@ -392,11 +537,24 @@ export class SettingsComponent implements OnInit {
 
   // Notification settings
   notifications: NotificationSettings = {
+    // Email Settings
     emailNotifications: true,
     orderAlerts: true,
     lowStockAlerts: true,
     marketingEmails: false,
-    weeklyDigest: true
+    weeklyDigest: true,
+    // Push Notifications
+    pushNotifications: true,
+    // Alert Types
+    expiryAlerts: true,
+    expiryAlertDays: 30,
+    prescriptionAlerts: true,
+    paymentAlerts: true,
+    systemAlerts: true,
+    // Quiet Hours
+    quietHoursEnabled: false,
+    quietHoursStart: '22:00',
+    quietHoursEnd: '08:00'
   };
 
   // Regional settings

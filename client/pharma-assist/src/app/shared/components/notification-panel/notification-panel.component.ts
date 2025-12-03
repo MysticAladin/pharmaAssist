@@ -1,4 +1,4 @@
-import { Component, inject, signal, computed, OnDestroy } from '@angular/core';
+import { Component, inject, signal, computed, OnDestroy, input, output, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
@@ -41,8 +41,8 @@ interface AlertNotification {
 
       <!-- Tabs -->
       <div class="panel-tabs">
-        <button 
-          class="tab" 
+        <button
+          class="tab"
           [class.active]="activeTab() === 'all'"
           (click)="setTab('all')">
           {{ 'notifications.tabs.all' | translate }}
@@ -50,8 +50,8 @@ interface AlertNotification {
             <span class="tab-badge">{{ totalCount() }}</span>
           }
         </button>
-        <button 
-          class="tab" 
+        <button
+          class="tab"
           [class.active]="activeTab() === 'unread'"
           (click)="setTab('unread')">
           {{ 'notifications.tabs.unread' | translate }}
@@ -59,8 +59,8 @@ interface AlertNotification {
             <span class="tab-badge urgent">{{ unreadCount() }}</span>
           }
         </button>
-        <button 
-          class="tab" 
+        <button
+          class="tab"
           [class.active]="activeTab() === 'alerts'"
           (click)="setTab('alerts')">
           {{ 'notifications.tabs.alerts' | translate }}
@@ -88,12 +88,12 @@ interface AlertNotification {
         } @else {
           <div class="notification-list">
             @for (notification of filteredNotifications(); track notification.id) {
-              <div 
-                class="notification-item" 
+              <div
+                class="notification-item"
                 [class.unread]="!notification.read"
                 [class]="'notification-' + notification.type"
                 (click)="handleClick(notification)">
-                
+
                 <div class="notification-icon">
                   @switch (notification.type) {
                     @case ('success') {
@@ -462,12 +462,28 @@ export class NotificationPanelComponent implements OnDestroy {
   private readonly dashboardService = inject(DashboardService);
   private readonly destroy$ = new Subject<void>();
 
+  // Input/Output for external control
+  isOpenInput = input(false, { alias: 'isOpen' });
+  closed = output<void>();
+
   // State
   isOpen = signal(false);
   loading = signal(false);
   activeTab = signal<'all' | 'unread' | 'alerts'>('all');
   notifications = signal<AlertNotification[]>([]);
   alerts = signal<DashboardAlert[]>([]);
+
+  constructor() {
+    // Sync input to internal signal
+    effect(() => {
+      const open = this.isOpenInput();
+      if (open && !this.isOpen()) {
+        this.open();
+      } else if (!open && this.isOpen()) {
+        this.isOpen.set(false);
+      }
+    });
+  }
 
   // Computed
   unreadCount = computed(() => this.notifications().filter(n => !n.read).length);
@@ -500,6 +516,7 @@ export class NotificationPanelComponent implements OnDestroy {
 
   close(): void {
     this.isOpen.set(false);
+    this.closed.emit();
   }
 
   toggle(): void {

@@ -7,11 +7,12 @@ import { UIStateService } from '../../../../core/state/ui-state.service';
 import { AuthStateService } from '../../../../core/state/auth-state.service';
 import { AuthService } from '../../../../core/services/auth.service';
 import { TranslationService } from '../../../../core/services/translation.service';
+import { NotificationPanelComponent } from '../../../components/notification-panel/notification-panel.component';
 
 @Component({
   selector: 'app-header',
   standalone: true,
-  imports: [CommonModule, RouterModule, TranslateModule],
+  imports: [CommonModule, RouterModule, TranslateModule, NotificationPanelComponent],
   template: `
     <header class="header">
       <!-- Mobile Menu Toggle -->
@@ -97,6 +98,12 @@ import { TranslationService } from '../../../../core/services/translation.servic
         </div>
       </div>
     </header>
+
+    <!-- Notification Panel -->
+    <app-notification-panel
+      [isOpen]="isNotificationsOpen"
+      (closed)="isNotificationsOpen = false">
+    </app-notification-panel>
   `,
   styles: [`
     .header {

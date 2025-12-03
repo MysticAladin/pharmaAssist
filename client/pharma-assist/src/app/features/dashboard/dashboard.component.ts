@@ -8,11 +8,13 @@ import { HasFeatureDirective } from '../../core/directives/feature.directive';
 import { TranslateModule } from '@ngx-translate/core';
 import { DashboardService, DashboardData, DashboardAlert } from '../../core/services/dashboard.service';
 import { OrderSummary, OrderStatus, PaymentStatus } from '../../core/models/order.model';
+import { BarcodeScannerComponent } from '../../shared/components/barcode-scanner/barcode-scanner.component';
+import { Product } from '../../core/models/product.model';
 
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [CommonModule, RouterModule, HasFeatureDirective, TranslateModule],
+  imports: [CommonModule, RouterModule, HasFeatureDirective, TranslateModule, BarcodeScannerComponent],
   template: `
     <div class="dashboard">
       <!-- Page Header -->
@@ -44,6 +46,12 @@ import { OrderSummary, OrderStatus, PaymentStatus } from '../../core/models/orde
           </div>
           <span>{{ 'dashboard.actions.newOrder' | translate }}</span>
         </button>
+        <button class="quick-action-btn" (click)="navigateTo('/prescriptions')">
+          <div class="action-icon action-icon-red">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/><path d="M9 14h.01"/><path d="M13 14h2"/><path d="M9 17h.01"/><path d="M13 17h2"/></svg>
+          </div>
+          <span>{{ 'dashboard.actions.prescriptions' | translate }}</span>
+        </button>
         <button class="quick-action-btn" (click)="navigateTo('/products/new')">
           <div class="action-icon action-icon-green">
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m7.5 4.27 9 5.15"/><path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/><path d="m3.3 7 8.7 5 8.7-5"/><path d="M12 22V12"/></svg>
@@ -62,13 +70,33 @@ import { OrderSummary, OrderStatus, PaymentStatus } from '../../core/models/orde
           </div>
           <span>{{ 'dashboard.actions.lowStock' | translate }}</span>
         </button>
+        <button class="quick-action-btn" (click)="navigateTo('/reports/expiring-products')">
+          <div class="action-icon action-icon-yellow">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+          </div>
+          <span>{{ 'dashboard.actions.expiringProducts' | translate }}</span>
+        </button>
         <button class="quick-action-btn" (click)="navigateTo('/reports')">
           <div class="action-icon action-icon-teal">
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="m19 9-5 5-4-4-3 3"/></svg>
           </div>
           <span>{{ 'dashboard.actions.reports' | translate }}</span>
         </button>
+        <button class="quick-action-btn" (click)="openBarcodeScanner()">
+          <div class="action-icon action-icon-indigo">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 5v14"/><path d="M21 5v14"/><path d="M6 5v14"/><path d="M18 5v14"/><path d="M10 5v14"/><path d="M14 5v14"/></svg>
+          </div>
+          <span>{{ 'dashboard.actions.scanBarcode' | translate }}</span>
+        </button>
       </div>
+
+      <!-- Barcode Scanner Modal -->
+      @if (showBarcodeScanner()) {
+        <app-barcode-scanner
+          (closed)="showBarcodeScanner.set(false)"
+          (productSelected)="onBarcodeProductSelected($event)">
+        </app-barcode-scanner>
+      }
 
       <!-- Quick Stats -->
       <div class="stats-grid">
@@ -160,7 +188,7 @@ import { OrderSummary, OrderStatus, PaymentStatus } from '../../core/models/orde
             <h3 class="card-title">{{ 'dashboard.recentOrders' | translate }}</h3>
             <a routerLink="/orders" class="view-all-link">{{ 'common.viewAll' | translate }}</a>
           </div>
-          
+
           @if (loading()) {
             <div class="orders-list">
               @for (i of [1, 2, 3]; track i) {
@@ -207,7 +235,7 @@ import { OrderSummary, OrderStatus, PaymentStatus } from '../../core/models/orde
               <span class="alert-count">{{ alerts().length }}</span>
             }
           </div>
-          
+
           @if (loading()) {
             <div class="alerts-list">
               @for (i of [1, 2]; track i) {
@@ -521,6 +549,9 @@ import { OrderSummary, OrderStatus, PaymentStatus } from '../../core/models/orde
     .action-icon-purple { background: #f5f3ff; color: #8b5cf6; }
     .action-icon-orange { background: #fff7ed; color: #f59e0b; }
     .action-icon-teal { background: #f0fdfa; color: #14b8a6; }
+    .action-icon-red { background: #fef2f2; color: #ef4444; }
+    .action-icon-yellow { background: #fffbeb; color: #eab308; }
+    .action-icon-indigo { background: #eef2ff; color: #6366f1; }
 
     /* Dashboard Grid */
     .dashboard-grid {
@@ -818,6 +849,7 @@ export class DashboardComponent implements OnInit {
   // Dashboard state
   loading = signal(true);
   dashboardData = signal<DashboardData | null>(null);
+  showBarcodeScanner = signal(false);
 
   // Computed signals for template
   recentOrders = computed(() => this.dashboardData()?.recentOrders ?? []);
@@ -848,6 +880,15 @@ export class DashboardComponent implements OnInit {
 
   createNewOrder(): void {
     this.router.navigate(['/orders/new']);
+  }
+
+  openBarcodeScanner(): void {
+    this.showBarcodeScanner.set(true);
+  }
+
+  onBarcodeProductSelected(product: Product): void {
+    // Navigate to product detail page
+    this.router.navigate(['/products', product.id]);
   }
 
   navigateTo(path: string): void {

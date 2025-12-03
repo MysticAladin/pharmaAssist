@@ -539,11 +539,11 @@ export class PrescriptionDispenseComponent implements OnInit {
   };
 
   // Computed
-  totalUnitsToDispense = computed(() => 
+  totalUnitsToDispense = computed(() =>
     this.dispenseFormItems().reduce((sum, item) => sum + item.quantityDispensed, 0)
   );
 
-  estimatedValue = computed(() => 
+  estimatedValue = computed(() =>
     this.dispenseFormItems().reduce((sum, item) => sum + (item.quantityDispensed * item.unitPrice), 0)
   );
 
@@ -660,14 +660,14 @@ export class PrescriptionDispenseComponent implements OnInit {
 
   isPrepareComplete(): boolean {
     if (!this.stockChecked()) return false;
-    return this.dispenseFormItems().every(item => 
+    return this.dispenseFormItems().every(item =>
       item.quantityDispensed > 0 && item.quantityDispensed <= item.availableStock && item.batchNumber
     );
   }
 
   isCounselingComplete(): boolean {
     const c = this.counseling;
-    const basic = c.dosageExplained && c.sideEffectsDiscussed && c.interactionsReviewed && 
+    const basic = c.dosageExplained && c.sideEffectsDiscussed && c.interactionsReviewed &&
                   c.storageInstructionsGiven && c.patientQuestionsAnswered;
     return this.prescription()?.isControlled ? basic && c.controlledSubstanceWarning : basic;
   }
