@@ -37,10 +37,14 @@ export interface Customer {
   tierName: string;
   discountPercentage: number;
   creditLimit: number;
+  currentBalance: number;
   paymentTermDays: number;
   isActive: boolean;
   createdAt: string;
   addresses: CustomerAddress[];
+  // B2B payment methods
+  acceptsInvoice: boolean;
+  acceptsBankTransfer: boolean;
 }
 
 export interface CustomerSummary {

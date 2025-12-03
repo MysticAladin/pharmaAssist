@@ -12,6 +12,28 @@ import {
   CustomerFilters
 } from '../models/customer.model';
 
+export type { Customer, CustomerSummary, CreateCustomerRequest, UpdateCustomerRequest };
+
+export interface CustomerNote {
+  id: string;
+  customerId: string;
+  content: string;
+  createdAt: Date;
+  createdBy: string;
+  createdByName: string;
+}
+
+export interface AddNoteRequest {
+  content: string;
+}
+
+export interface CustomerStats {
+  totalOrders: number;
+  totalRevenue: number;
+  averageOrderValue: number;
+  lastOrderDate: Date | null;
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -54,6 +76,13 @@ export class CustomerService {
    * Get customer by ID
    */
   getById(id: number): Observable<ApiResponse<Customer>> {
+    return this.http.get<ApiResponse<Customer>>(`${this.apiUrl}/${id}`);
+  }
+
+  /**
+   * Get customer by ID (string version for routes)
+   */
+  getCustomer(id: string): Observable<ApiResponse<Customer>> {
     return this.http.get<ApiResponse<Customer>>(`${this.apiUrl}/${id}`);
   }
 
@@ -111,5 +140,33 @@ export class CustomerService {
    */
   getOrderHistory(id: number): Observable<ApiResponse<any[]>> {
     return this.http.get<ApiResponse<any[]>>(`${this.apiUrl}/${id}/orders`);
+  }
+
+  /**
+   * Get customer notes
+   */
+  getCustomerNotes(customerId: string): Observable<ApiResponse<CustomerNote[]>> {
+    return this.http.get<ApiResponse<CustomerNote[]>>(`${this.apiUrl}/${customerId}/notes`);
+  }
+
+  /**
+   * Add note to customer
+   */
+  addCustomerNote(customerId: string, request: AddNoteRequest): Observable<ApiResponse<CustomerNote>> {
+    return this.http.post<ApiResponse<CustomerNote>>(`${this.apiUrl}/${customerId}/notes`, request);
+  }
+
+  /**
+   * Delete customer note
+   */
+  deleteCustomerNote(customerId: string, noteId: string): Observable<ApiResponse<void>> {
+    return this.http.delete<ApiResponse<void>>(`${this.apiUrl}/${customerId}/notes/${noteId}`);
+  }
+
+  /**
+   * Get customer statistics
+   */
+  getCustomerStats(customerId: string): Observable<ApiResponse<CustomerStats>> {
+    return this.http.get<ApiResponse<CustomerStats>>(`${this.apiUrl}/${customerId}/stats`);
   }
 }
