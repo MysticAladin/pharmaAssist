@@ -139,3 +139,39 @@ public enum StorageCondition
     ProtectFromLight = 4,
     ControlledRoom = 5    // 20-25°C
 }
+
+/// <summary>
+/// Feature flag scope - determines where the flag applies
+/// </summary>
+public enum FlagScope
+{
+    System = 1,     // Global system-wide flag
+    Client = 2      // Client/pharmacy-specific override
+}
+
+/// <summary>
+/// Feature flag value type
+/// </summary>
+public enum FlagType
+{
+    Boolean = 1,     // True/False toggle
+    String = 2,      // String value
+    Number = 3,      // Numeric value
+    Json = 4,        // Complex JSON object
+    Percentage = 5   // Percentage rollout (0-100)
+}
+
+/// <summary>
+/// Feature flag category for organization
+/// </summary>
+public enum FlagCategory
+{
+    Portal = 1,       // Customer portal features
+    Billing = 2,      // Billing and invoicing features
+    Inventory = 3,    // Inventory management features
+    Orders = 4,       // Order processing features
+    Reports = 5,      // Reporting features
+    Integration = 6,  // Third-party integrations
+    UI = 7,           // User interface features
+    Experimental = 8  // Experimental/beta features
+}

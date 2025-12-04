@@ -86,6 +86,7 @@ public static class DependencyInjection
         services.AddScoped<IOrderRepository, OrderRepository>();
         services.AddScoped<IBiHLocationRepository, BiHLocationRepository>();
         services.AddScoped<IInventoryRepository, InventoryRepository>();
+        services.AddScoped<IFeatureFlagRepository, FeatureFlagRepository>();
         services.AddScoped<IUnitOfWork, UnitOfWork>();
 
         // Add Identity Services
@@ -104,6 +105,7 @@ public static class DependencyInjection
         services.AddScoped<IFileService, FileService>();
         services.AddScoped<IEmailService, EmailService>();
         services.AddScoped<IReportService, ReportService>();
+        services.AddScoped<IPdfService, PdfService>();
 
         return services;
     }

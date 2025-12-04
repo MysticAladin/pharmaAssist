@@ -199,7 +199,7 @@
                   }
                 </td>
                 <td>
-                  <span class="date-display">{{ formatDate(flag.updatedAt) }}</span>
+                  <span class="date-display">{{ formatDate(flag.updatedAt || flag.createdAt) }}</span>
                 </td>
                 <td>
                   <div class="action-buttons">
@@ -281,19 +281,19 @@
                     <span class="label">{{ 'common.value' | translate }}:</span>
                     <span class="value">{{ flag.value }}</span>
                   </div>
-                  @if (flag.overrideReason) {
+                  @if (flag.reason) {
                     <div class="flag-reason">
                       <span class="label">{{ 'common.reason' | translate }}:</span>
-                      <span class="value">{{ flag.overrideReason }}</span>
+                      <span class="value">{{ flag.reason }}</span>
                     </div>
                   }
                   <div class="flag-meta">
-                    <span>{{ formatDate(flag.updatedAt) }}</span>
-                    <span>{{ flag.updatedBy }}</span>
+                    <span>{{ flag.updatedAt ? formatDate(flag.updatedAt) : formatDate(flag.createdAt) }}</span>
+                    <span>{{ flag.updatedBy || flag.createdBy }}</span>
                   </div>
                   <button
                     class="btn btn-sm btn-danger"
-                    (click)="removeClientOverride(flag.clientId, flag.flagKey)">
+                    (click)="removeClientOverride(flag)">
                     <span class="material-symbols-rounded">delete</span>
                     {{ 'common.remove' | translate }}
                   </button>

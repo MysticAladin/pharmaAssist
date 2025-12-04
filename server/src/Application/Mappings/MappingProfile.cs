@@ -1,6 +1,7 @@
 using Application.DTOs.Categories;
 using Application.DTOs.Common;
 using Application.DTOs.Customers;
+using Application.DTOs.FeatureFlags;
 using Application.DTOs.Inventory;
 using Application.DTOs.Locations;
 using Application.DTOs.Manufacturers;
@@ -39,6 +40,9 @@ public class MappingProfile : Profile
         
         // Inventory mappings
         CreateInventoryMappings();
+        
+        // Feature flag mappings
+        CreateFeatureFlagMappings();
     }
 
     private void CreateProductMappings()
@@ -491,5 +495,50 @@ public class MappingProfile : Profile
             parts.Add(address.Canton.Name);
         
         return string.Join(", ", parts);
+    }
+
+    private void CreateFeatureFlagMappings()
+    {
+        // System Feature Flag mappings
+        CreateMap<SystemFeatureFlag, SystemFeatureFlagDto>()
+            .ForMember(d => d.ClientOverrideCount, opt => opt.Ignore()); // Set in service
+
+        CreateMap<CreateSystemFlagDto, SystemFeatureFlag>()
+            .ForMember(d => d.Id, opt => opt.Ignore())
+            .ForMember(d => d.ClientOverrides, opt => opt.Ignore())
+            .ForMember(d => d.CreatedAt, opt => opt.MapFrom(s => DateTime.UtcNow))
+            .ForMember(d => d.UpdatedAt, opt => opt.Ignore())
+            .ForMember(d => d.CreatedBy, opt => opt.Ignore())
+            .ForMember(d => d.UpdatedBy, opt => opt.Ignore())
+            .ForMember(d => d.IsDeleted, opt => opt.MapFrom(s => false));
+
+        // Client Feature Flag mappings
+        CreateMap<ClientFeatureFlag, ClientFeatureFlagDto>()
+            .ForMember(d => d.CustomerName, opt => opt.MapFrom(s => s.Customer != null 
+                ? (!string.IsNullOrEmpty(s.Customer.CompanyName) 
+                    ? s.Customer.CompanyName 
+                    : $"{s.Customer.FirstName} {s.Customer.LastName}")
+                : null))
+            .ForMember(d => d.FlagKey, opt => opt.MapFrom(s => s.SystemFlag != null ? s.SystemFlag.Key : null))
+            .ForMember(d => d.FlagName, opt => opt.MapFrom(s => s.SystemFlag != null ? s.SystemFlag.Name : null));
+
+        CreateMap<SetClientOverrideDto, ClientFeatureFlag>()
+            .ForMember(d => d.Id, opt => opt.Ignore())
+            .ForMember(d => d.Customer, opt => opt.Ignore())
+            .ForMember(d => d.SystemFlag, opt => opt.Ignore())
+            .ForMember(d => d.CreatedAt, opt => opt.MapFrom(s => DateTime.UtcNow))
+            .ForMember(d => d.UpdatedAt, opt => opt.Ignore())
+            .ForMember(d => d.CreatedBy, opt => opt.Ignore())
+            .ForMember(d => d.UpdatedBy, opt => opt.Ignore())
+            .ForMember(d => d.IsDeleted, opt => opt.MapFrom(s => false));
+
+        // Feature Flag History mappings
+        CreateMap<FeatureFlagHistory, FeatureFlagHistoryDto>()
+            .ForMember(d => d.SystemFlagKey, opt => opt.MapFrom(s => s.SystemFlag != null ? s.SystemFlag.Key : null))
+            .ForMember(d => d.CustomerName, opt => opt.MapFrom(s => s.Customer != null 
+                ? (!string.IsNullOrEmpty(s.Customer.CompanyName) 
+                    ? s.Customer.CompanyName 
+                    : $"{s.Customer.FirstName} {s.Customer.LastName}")
+                : null));
     }
 }

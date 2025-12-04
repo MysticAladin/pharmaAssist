@@ -76,9 +76,10 @@ export interface SystemFeatureFlag {
   currentValue: unknown;
   enabled: boolean;
   allowClientOverride: boolean; // Can clients override this flag?
+  environment?: string;
   metadata?: Record<string, unknown>;
   createdAt: Date;
-  updatedAt: Date;
+  updatedAt?: Date;
   createdBy?: string;
   updatedBy?: string;
 }
@@ -89,15 +90,17 @@ export interface SystemFeatureFlag {
  */
 export interface ClientFeatureFlag {
   id: string;
-  clientId: string; // Pharmacy ID
-  clientName?: string;
+  customerId: string; // Customer ID (pharmacy)
+  customerName?: string;
+  systemFlagId: string; // Reference to SystemFeatureFlag
   flagKey: string;
-  flagId: string; // Reference to SystemFeatureFlag
+  flagName?: string;
   value: unknown;
   enabled: boolean;
-  overrideReason?: string; // Why was this overridden?
+  reason?: string; // Why was this overridden?
+  expiresAt?: Date;
   createdAt: Date;
-  updatedAt: Date;
+  updatedAt?: Date;
   createdBy?: string;
   updatedBy?: string;
 }
@@ -139,11 +142,12 @@ export interface SystemFlagRequest {
  * Request to create or update a client flag override
  */
 export interface ClientFlagRequest {
-  clientId: string;
-  flagKey: string;
-  value: unknown;
-  enabled: boolean;
-  overrideReason?: string;
+  customerId: number;
+  systemFlagId: number;
+  value: string;
+  isEnabled: boolean;
+  reason?: string;
+  expiresAt?: string;
 }
 
 /**

@@ -25,6 +25,14 @@ import { CacheService } from './cache.service';
 const CACHE_KEY = 'feature_flags';
 const CACHE_TTL = 5 * 60 * 1000; // 5 minutes
 
+/** API Response wrapper from backend */
+interface ApiResponse<T> {
+  success: boolean;
+  message?: string;
+  data?: T;
+  errors?: string[];
+}
+
 /**
  * Database-backed Feature Flag Service
  * Manages feature flags at system and client levels
@@ -38,7 +46,7 @@ export class DbFeatureFlagService {
   private readonly authState = inject(AuthStateService);
   private readonly cacheService = inject(CacheService);
 
-  private readonly apiUrl = `${environment.apiUrl}/feature-flags`;
+  private readonly apiUrl = `${environment.apiUrl}/featureflags`;
 
   // State signals
   private readonly _systemFlags = signal<SystemFeatureFlag[]>([]);
@@ -64,7 +72,7 @@ export class DbFeatureFlagService {
     const flagMap = new Map<string, EvaluatedFlag>();
 
     for (const sysFlag of system) {
-      const clientOverride = client.find(c => c.flagKey === sysFlag.key);
+      const clientOverride = client.find(c => c.systemFlagId === sysFlag.id || c.flagKey === sysFlag.key);
 
       const evaluated: EvaluatedFlag = {
         key: sysFlag.key,
@@ -149,13 +157,17 @@ export class DbFeatureFlagService {
 
     return combineLatest([systemFlags$, clientFlags$]).pipe(
       tap(([system, client]) => {
-        this._systemFlags.set(system);
-        this._clientFlags.set(client);
+        // Map backend DTOs to frontend models
+        const mappedSystem = system.map(s => this.mapSystemFlag(s));
+        const mappedClient = client.map(c => this.mapClientFlag(c));
+
+        this._systemFlags.set(mappedSystem);
+        this._clientFlags.set(mappedClient);
 
         // Cache the results
-        this.cacheService.set(`${CACHE_KEY}_${clientId || 'system'}`, { system, client }, { ttl: CACHE_TTL });
+        this.cacheService.set(`${CACHE_KEY}_${clientId || 'system'}`, { system: mappedSystem, client: mappedClient }, { ttl: CACHE_TTL });
       }),
-      map(([system, client]) => ({ system, client })),
+      map(([system, client]) => ({ system: system.map(s => this.mapSystemFlag(s)), client: client.map(c => this.mapClientFlag(c)) })),
       catchError(error => {
         console.error('Error loading feature flags:', error);
         this._error.set('Failed to load feature flags');
@@ -166,6 +178,68 @@ export class DbFeatureFlagService {
       }),
       tap(() => this._loading.set(false))
     );
+  }
+
+  /**
+   * Map backend SystemFeatureFlagDto to frontend SystemFeatureFlag
+   */
+  private mapSystemFlag(dto: any): SystemFeatureFlag {
+    return {
+      id: String(dto.id),
+      key: dto.key,
+      name: dto.name,
+      description: dto.description,
+      category: dto.category,
+      type: dto.type,
+      defaultValue: this.parseValue(dto.defaultValue, dto.type),
+      currentValue: this.parseValue(dto.value, dto.type),
+      enabled: dto.isEnabled,
+      allowClientOverride: dto.allowClientOverride,
+      environment: dto.environment,
+      createdAt: new Date(dto.createdAt),
+      updatedAt: dto.updatedAt ? new Date(dto.updatedAt) : undefined
+    };
+  }
+
+  /**
+   * Map backend ClientFeatureFlagDto to frontend ClientFeatureFlag
+   */
+  private mapClientFlag(dto: any): ClientFeatureFlag {
+    return {
+      id: String(dto.id),
+      customerId: String(dto.customerId),
+      customerName: dto.customerName,
+      systemFlagId: String(dto.systemFlagId),
+      flagKey: dto.flagKey,
+      flagName: dto.flagName,
+      value: dto.value,
+      enabled: dto.isEnabled,
+      reason: dto.reason,
+      expiresAt: dto.expiresAt ? new Date(dto.expiresAt) : undefined,
+      createdAt: new Date(dto.createdAt),
+      updatedAt: dto.updatedAt ? new Date(dto.updatedAt) : undefined
+    };
+  }
+
+  /**
+   * Parse flag value based on type
+   */
+  private parseValue(value: string, type: FlagType): unknown {
+    switch (type) {
+      case FlagType.Boolean:
+        return value === 'true';
+      case FlagType.Number:
+      case FlagType.Percentage:
+        return Number(value);
+      case FlagType.Json:
+        try {
+          return JSON.parse(value);
+        } catch {
+          return value;
+        }
+      default:
+        return value;
+    }
   }
 
   /**
@@ -253,7 +327,8 @@ export class DbFeatureFlagService {
     if (options?.sortBy) params = params.set('sortBy', options.sortBy);
     if (options?.sortOrder) params = params.set('sortOrder', options.sortOrder);
 
-    return this.http.get<SystemFeatureFlag[]>(`${this.apiUrl}/system`, { params }).pipe(
+    return this.http.get<ApiResponse<SystemFeatureFlag[]>>(`${this.apiUrl}/system`, { params }).pipe(
+      map(response => response.data || []),
       catchError(() => of(this.getDefaultFlags()))
     );
   }
@@ -276,17 +351,29 @@ export class DbFeatureFlagService {
   }
 
   /**
+   * Get a single system flag by ID
+   */
+  getSystemFlagById(id: number): Observable<SystemFeatureFlag | null> {
+    return this.http.get<ApiResponse<SystemFeatureFlag>>(`${this.apiUrl}/system/${id}`).pipe(
+      map(response => response.data || null)
+    );
+  }
+
+  /**
    * Get a single system flag by key
    */
-  getSystemFlag(key: string): Observable<SystemFeatureFlag> {
-    return this.http.get<SystemFeatureFlag>(`${this.apiUrl}/system/${key}`);
+  getSystemFlag(key: string): Observable<SystemFeatureFlag | null> {
+    return this.http.get<ApiResponse<SystemFeatureFlag>>(`${this.apiUrl}/system/key/${key}`).pipe(
+      map(response => response.data || null)
+    );
   }
 
   /**
    * Create a new system flag (admin)
    */
-  createSystemFlag(request: SystemFlagRequest): Observable<SystemFeatureFlag> {
-    return this.http.post<SystemFeatureFlag>(`${this.apiUrl}/system`, request).pipe(
+  createSystemFlag(request: SystemFlagRequest): Observable<SystemFeatureFlag | null> {
+    return this.http.post<ApiResponse<SystemFeatureFlag>>(`${this.apiUrl}/system`, request).pipe(
+      map(response => response.data || null),
       tap(() => this.refresh())
     );
   }
@@ -294,8 +381,9 @@ export class DbFeatureFlagService {
   /**
    * Update a system flag (admin)
    */
-  updateSystemFlag(key: string, request: Partial<SystemFlagRequest>): Observable<SystemFeatureFlag> {
-    return this.http.put<SystemFeatureFlag>(`${this.apiUrl}/system/${key}`, request).pipe(
+  updateSystemFlag(id: number, request: Partial<SystemFlagRequest>): Observable<SystemFeatureFlag | null> {
+    return this.http.put<ApiResponse<SystemFeatureFlag>>(`${this.apiUrl}/system/${id}`, request).pipe(
+      map(response => response.data || null),
       tap(() => this.refresh())
     );
   }
@@ -303,8 +391,9 @@ export class DbFeatureFlagService {
   /**
    * Toggle a system flag's enabled state (admin)
    */
-  toggleSystemFlag(key: string): Observable<SystemFeatureFlag> {
-    return this.http.post<SystemFeatureFlag>(`${this.apiUrl}/system/${key}/toggle`, {}).pipe(
+  toggleSystemFlag(id: number): Observable<boolean> {
+    return this.http.post<ApiResponse<boolean>>(`${this.apiUrl}/system/${id}/toggle`, {}).pipe(
+      map(response => response.data ?? false),
       tap(() => this.refresh())
     );
   }
@@ -312,17 +401,29 @@ export class DbFeatureFlagService {
   /**
    * Delete a system flag (admin)
    */
-  deleteSystemFlag(key: string): Observable<void> {
-    return this.http.delete<void>(`${this.apiUrl}/system/${key}`).pipe(
+  deleteSystemFlag(id: number): Observable<boolean> {
+    return this.http.delete<ApiResponse<boolean>>(`${this.apiUrl}/system/${id}`).pipe(
+      map(response => response.data ?? false),
       tap(() => this.refresh())
     );
   }
 
   /**
-   * Get all client flags for a specific client
+   * Get all client flags for a specific customer
    */
-  getClientFlags(clientId: string): Observable<ClientFeatureFlag[]> {
-    return this.http.get<ClientFeatureFlag[]>(`${this.apiUrl}/client/${clientId}`).pipe(
+  getClientFlags(customerId: number | string): Observable<ClientFeatureFlag[]> {
+    return this.http.get<ApiResponse<ClientFeatureFlag[]>>(`${this.apiUrl}/client/customer/${customerId}`).pipe(
+      map(response => response.data || []),
+      catchError(() => of([]))
+    );
+  }
+
+  /**
+   * Get all client overrides (admin)
+   */
+  getAllClientOverrides(): Observable<ClientFeatureFlag[]> {
+    return this.http.get<ApiResponse<ClientFeatureFlag[]>>(`${this.apiUrl}/client`).pipe(
+      map(response => response.data || []),
       catchError(() => of([]))
     );
   }
@@ -330,75 +431,120 @@ export class DbFeatureFlagService {
   /**
    * Get all clients that have overrides for a specific flag
    */
-  getClientOverridesForFlag(flagKey: string): Observable<ClientFeatureFlag[]> {
-    return this.http.get<ClientFeatureFlag[]>(`${this.apiUrl}/system/${flagKey}/overrides`);
+  getClientOverridesForFlag(systemFlagId: number): Observable<ClientFeatureFlag[]> {
+    return this.http.get<ApiResponse<ClientFeatureFlag[]>>(`${this.apiUrl}/client/flag/${systemFlagId}`).pipe(
+      map(response => response.data || [])
+    );
   }
 
   /**
    * Create or update a client flag override
    */
-  setClientFlag(clientId: string, request: ClientFlagRequest): Observable<ClientFeatureFlag> {
-    return this.http.put<ClientFeatureFlag>(`${this.apiUrl}/client/${clientId}/${request.flagKey}`, request).pipe(
+  setClientFlag(request: ClientFlagRequest): Observable<ClientFeatureFlag | null> {
+    return this.http.post<ApiResponse<ClientFeatureFlag>>(`${this.apiUrl}/client`, request).pipe(
+      map(response => response.data || null),
       tap(() => this.refresh())
     );
   }
 
   /**
-   * Delete a client flag override (revert to system default)
+   * Delete a client flag override by ID
    */
-  deleteClientFlag(clientId: string, flagKey: string): Observable<void> {
-    return this.http.delete<void>(`${this.apiUrl}/client/${clientId}/${flagKey}`).pipe(
+  deleteClientFlag(id: number): Observable<boolean> {
+    return this.http.delete<ApiResponse<boolean>>(`${this.apiUrl}/client/${id}`).pipe(
+      map(response => response.data ?? false),
       tap(() => this.refresh())
     );
   }
 
   /**
-   * Delete all client overrides for a client
+   * Delete a client override by customer and system flag IDs
    */
-  deleteAllClientFlags(clientId: string): Observable<void> {
-    return this.http.delete<void>(`${this.apiUrl}/client/${clientId}`).pipe(
+  deleteClientFlagByCustomerAndFlag(customerId: number, systemFlagId: number): Observable<boolean> {
+    return this.http.delete<ApiResponse<boolean>>(`${this.apiUrl}/client/customer/${customerId}/flag/${systemFlagId}`).pipe(
+      map(response => response.data ?? false),
       tap(() => this.refresh())
     );
   }
 
   /**
-   * Bulk update flags (admin)
+   * Cleanup expired client overrides (admin)
    */
-  bulkUpdate(request: BulkFlagUpdateRequest): Observable<void> {
-    return this.http.post<void>(`${this.apiUrl}/bulk-update`, request).pipe(
-      tap(() => this.refresh())
+  cleanupExpiredOverrides(): Observable<number> {
+    return this.http.post<ApiResponse<number>>(`${this.apiUrl}/client/cleanup`, {}).pipe(
+      map(response => response.data ?? 0)
+    );
+  }
+
+  /**
+   * Evaluate a single flag for optional customer
+   */
+  evaluateFlag(key: string, customerId?: number): Observable<EvaluatedFlag | null> {
+    let params = new HttpParams();
+    if (customerId) params = params.set('customerId', customerId.toString());
+
+    return this.http.get<ApiResponse<EvaluatedFlag>>(`${this.apiUrl}/evaluate/${key}`, { params }).pipe(
+      map(response => response.data || null)
+    );
+  }
+
+  /**
+   * Check if a flag is enabled (API call)
+   */
+  isFlagEnabledApi(key: string, customerId?: number): Observable<boolean> {
+    let params = new HttpParams();
+    if (customerId) params = params.set('customerId', customerId.toString());
+
+    return this.http.get<ApiResponse<boolean>>(`${this.apiUrl}/enabled/${key}`, { params }).pipe(
+      map(response => response.data ?? false)
+    );
+  }
+
+  /**
+   * Get flag value from API
+   */
+  getFlagValueApi(key: string, customerId?: number): Observable<string | null> {
+    let params = new HttpParams();
+    if (customerId) params = params.set('customerId', customerId.toString());
+
+    return this.http.get<ApiResponse<string>>(`${this.apiUrl}/value/${key}`, { params }).pipe(
+      map(response => response.data || null)
     );
   }
 
   /**
    * Get flag history/audit log
    */
-  getFlagHistory(key: string, options?: { page?: number, pageSize?: number }): Observable<FlagListResponse<FlagHistoryEntry>> {
+  getFlagHistory(systemFlagId?: number, take = 50): Observable<FlagHistoryEntry[]> {
     let params = new HttpParams();
-    if (options?.page) params = params.set('page', options.page.toString());
-    if (options?.pageSize) params = params.set('pageSize', options.pageSize.toString());
+    if (systemFlagId) params = params.set('systemFlagId', systemFlagId.toString());
+    params = params.set('take', take.toString());
 
-    return this.http.get<FlagListResponse<FlagHistoryEntry>>(`${this.apiUrl}/history/${key}`, { params });
+    return this.http.get<ApiResponse<FlagHistoryEntry[]>>(`${this.apiUrl}/history`, { params }).pipe(
+      map(response => response.data || [])
+    );
   }
 
   /**
-   * Export flags to JSON (admin)
+   * Get flag statistics
    */
-  exportFlags(): Observable<Blob> {
-    return this.http.get(`${this.apiUrl}/export`, {
-      responseType: 'blob'
-    });
-  }
-
-  /**
-   * Import flags from JSON (admin)
-   */
-  importFlags(file: File): Observable<{ imported: number, errors: string[] }> {
-    const formData = new FormData();
-    formData.append('file', file);
-
-    return this.http.post<{ imported: number, errors: string[] }>(`${this.apiUrl}/import`, formData).pipe(
-      tap(() => this.refresh())
+  getStatistics(): Observable<{
+    totalSystemFlags: number;
+    enabledSystemFlags: number;
+    disabledSystemFlags: number;
+    totalClientOverrides: number;
+    activeClientOverrides: number;
+    flagsByCategory: Record<FlagCategory, number>;
+  } | null> {
+    return this.http.get<ApiResponse<{
+      totalSystemFlags: number;
+      enabledSystemFlags: number;
+      disabledSystemFlags: number;
+      totalClientOverrides: number;
+      activeClientOverrides: number;
+      flagsByCategory: Record<FlagCategory, number>;
+    }>>(`${this.apiUrl}/statistics`).pipe(
+      map(response => response.data || null)
     );
   }
 
@@ -406,9 +552,10 @@ export class DbFeatureFlagService {
   // Private Methods
   // ===========================
 
-  private getCurrentClientId(): string | null {
+  private getCurrentClientId(): number | null {
     const user = this.authState.currentUser();
-    return (user as any)?.clientId || null;
+    const clientId = (user as any)?.customerId || (user as any)?.clientId;
+    return clientId ? Number(clientId) : null;
   }
 
   /**

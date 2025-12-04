@@ -1,4 +1,5 @@
 using Domain.Entities;
+using Domain.Enums;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
@@ -32,6 +33,9 @@ public static class DatabaseSeeder
 
             // Seed Cantons (Bosnia and Herzegovina)
             await SeedCantonsAsync(context, logger);
+
+            // Seed Feature Flags
+            await SeedFeatureFlagsAsync(context, logger);
 
             logger.LogInformation("Database seeding completed successfully");
         }
@@ -159,5 +163,272 @@ public static class DatabaseSeeder
         context.Cantons.AddRange(cantons);
         await context.SaveChangesAsync();
         logger.LogInformation("Seeded {Count} cantons", cantons.Length);
+    }
+
+    private static async Task SeedFeatureFlagsAsync(ApplicationDbContext context, ILogger logger)
+    {
+        if (await context.SystemFeatureFlags.AnyAsync())
+        {
+            return; // Feature flags already seeded
+        }
+
+        var flags = new[]
+        {
+            // Portal Features
+            new SystemFeatureFlag
+            {
+                Key = "portal.splitinvoice",
+                Name = "Split Invoice",
+                Description = "Enable splitting invoices for Commercial vs Essential medicines during checkout",
+                Category = FlagCategory.Portal,
+                Type = FlagType.Boolean,
+                Value = "true",
+                DefaultValue = "true",
+                IsEnabled = true,
+                AllowClientOverride = true,
+                CreatedBy = "system",
+                CreatedAt = DateTime.UtcNow
+            },
+            new SystemFeatureFlag
+            {
+                Key = "portal.quickorder",
+                Name = "Quick Order",
+                Description = "Enable quick order functionality for repeat orders",
+                Category = FlagCategory.Portal,
+                Type = FlagType.Boolean,
+                Value = "true",
+                DefaultValue = "true",
+                IsEnabled = true,
+                AllowClientOverride = true,
+                CreatedBy = "system",
+                CreatedAt = DateTime.UtcNow
+            },
+            new SystemFeatureFlag
+            {
+                Key = "portal.favoriteproducts",
+                Name = "Favorite Products",
+                Description = "Enable favorites/wishlist functionality",
+                Category = FlagCategory.Portal,
+                Type = FlagType.Boolean,
+                Value = "true",
+                DefaultValue = "true",
+                IsEnabled = true,
+                AllowClientOverride = false,
+                CreatedBy = "system",
+                CreatedAt = DateTime.UtcNow
+            },
+            new SystemFeatureFlag
+            {
+                Key = "portal.ordertracking",
+                Name = "Order Tracking",
+                Description = "Enable real-time order tracking",
+                Category = FlagCategory.Portal,
+                Type = FlagType.Boolean,
+                Value = "true",
+                DefaultValue = "true",
+                IsEnabled = true,
+                AllowClientOverride = false,
+                CreatedBy = "system",
+                CreatedAt = DateTime.UtcNow
+            },
+            new SystemFeatureFlag
+            {
+                Key = "portal.productrecommendations",
+                Name = "Product Recommendations",
+                Description = "Show AI-powered product recommendations",
+                Category = FlagCategory.Portal,
+                Type = FlagType.Boolean,
+                Value = "false",
+                DefaultValue = "false",
+                IsEnabled = false,
+                AllowClientOverride = true,
+                CreatedBy = "system",
+                CreatedAt = DateTime.UtcNow
+            },
+
+            // Billing Features
+            new SystemFeatureFlag
+            {
+                Key = "billing.creditlimit",
+                Name = "Credit Limit Enforcement",
+                Description = "Enforce customer credit limits during checkout",
+                Category = FlagCategory.Billing,
+                Type = FlagType.Boolean,
+                Value = "true",
+                DefaultValue = "true",
+                IsEnabled = true,
+                AllowClientOverride = true,
+                CreatedBy = "system",
+                CreatedAt = DateTime.UtcNow
+            },
+            new SystemFeatureFlag
+            {
+                Key = "billing.autoinvoice",
+                Name = "Auto Invoice Generation",
+                Description = "Automatically generate invoices upon order confirmation",
+                Category = FlagCategory.Billing,
+                Type = FlagType.Boolean,
+                Value = "true",
+                DefaultValue = "true",
+                IsEnabled = true,
+                AllowClientOverride = true,
+                CreatedBy = "system",
+                CreatedAt = DateTime.UtcNow
+            },
+
+            // Orders Features
+            new SystemFeatureFlag
+            {
+                Key = "orders.prescriptionupload",
+                Name = "Prescription Upload",
+                Description = "Allow uploading prescriptions with orders",
+                Category = FlagCategory.Orders,
+                Type = FlagType.Boolean,
+                Value = "true",
+                DefaultValue = "true",
+                IsEnabled = true,
+                AllowClientOverride = false,
+                CreatedBy = "system",
+                CreatedAt = DateTime.UtcNow
+            },
+            new SystemFeatureFlag
+            {
+                Key = "orders.minimumorder",
+                Name = "Minimum Order Amount",
+                Description = "The minimum order amount in KM",
+                Category = FlagCategory.Orders,
+                Type = FlagType.Number,
+                Value = "50",
+                DefaultValue = "50",
+                IsEnabled = true,
+                AllowClientOverride = true,
+                CreatedBy = "system",
+                CreatedAt = DateTime.UtcNow
+            },
+
+            // Inventory Features
+            new SystemFeatureFlag
+            {
+                Key = "inventory.lowstockalerts",
+                Name = "Low Stock Alerts",
+                Description = "Send notifications when stock falls below threshold",
+                Category = FlagCategory.Inventory,
+                Type = FlagType.Boolean,
+                Value = "true",
+                DefaultValue = "true",
+                IsEnabled = true,
+                AllowClientOverride = false,
+                CreatedBy = "system",
+                CreatedAt = DateTime.UtcNow
+            },
+            new SystemFeatureFlag
+            {
+                Key = "inventory.expiryalerts",
+                Name = "Expiry Alerts",
+                Description = "Send notifications for products nearing expiry",
+                Category = FlagCategory.Inventory,
+                Type = FlagType.Boolean,
+                Value = "true",
+                DefaultValue = "true",
+                IsEnabled = true,
+                AllowClientOverride = false,
+                CreatedBy = "system",
+                CreatedAt = DateTime.UtcNow
+            },
+
+            // Reports Features
+            new SystemFeatureFlag
+            {
+                Key = "reports.pdfexport",
+                Name = "PDF Export",
+                Description = "Enable PDF export for reports",
+                Category = FlagCategory.Reports,
+                Type = FlagType.Boolean,
+                Value = "true",
+                DefaultValue = "true",
+                IsEnabled = true,
+                AllowClientOverride = false,
+                CreatedBy = "system",
+                CreatedAt = DateTime.UtcNow
+            },
+            new SystemFeatureFlag
+            {
+                Key = "reports.excelexport",
+                Name = "Excel Export",
+                Description = "Enable Excel export for reports",
+                Category = FlagCategory.Reports,
+                Type = FlagType.Boolean,
+                Value = "true",
+                DefaultValue = "true",
+                IsEnabled = true,
+                AllowClientOverride = false,
+                CreatedBy = "system",
+                CreatedAt = DateTime.UtcNow
+            },
+
+            // UI Features
+            new SystemFeatureFlag
+            {
+                Key = "ui.darkmode",
+                Name = "Dark Mode",
+                Description = "Enable dark mode theme option",
+                Category = FlagCategory.UI,
+                Type = FlagType.Boolean,
+                Value = "true",
+                DefaultValue = "true",
+                IsEnabled = true,
+                AllowClientOverride = true,
+                CreatedBy = "system",
+                CreatedAt = DateTime.UtcNow
+            },
+            new SystemFeatureFlag
+            {
+                Key = "ui.compactview",
+                Name = "Compact View",
+                Description = "Enable compact view option for data tables",
+                Category = FlagCategory.UI,
+                Type = FlagType.Boolean,
+                Value = "true",
+                DefaultValue = "true",
+                IsEnabled = true,
+                AllowClientOverride = true,
+                CreatedBy = "system",
+                CreatedAt = DateTime.UtcNow
+            },
+
+            // Experimental Features
+            new SystemFeatureFlag
+            {
+                Key = "experimental.aichatbot",
+                Name = "AI Chatbot",
+                Description = "Enable AI-powered customer support chatbot",
+                Category = FlagCategory.Experimental,
+                Type = FlagType.Boolean,
+                Value = "false",
+                DefaultValue = "false",
+                IsEnabled = false,
+                AllowClientOverride = true,
+                CreatedBy = "system",
+                CreatedAt = DateTime.UtcNow
+            },
+            new SystemFeatureFlag
+            {
+                Key = "experimental.voiceordering",
+                Name = "Voice Ordering",
+                Description = "Enable voice-based ordering (experimental)",
+                Category = FlagCategory.Experimental,
+                Type = FlagType.Boolean,
+                Value = "false",
+                DefaultValue = "false",
+                IsEnabled = false,
+                AllowClientOverride = false,
+                CreatedBy = "system",
+                CreatedAt = DateTime.UtcNow
+            }
+        };
+
+        context.SystemFeatureFlags.AddRange(flags);
+        await context.SaveChangesAsync();
+        logger.LogInformation("Seeded {Count} feature flags", flags.Length);
     }
 }

@@ -126,11 +126,12 @@ export class FeatureFlagsComponent implements OnInit {
 
   // Toggle Flag
   toggleFlag(flag: SystemFeatureFlag): void {
-    this.featureFlagService.toggleSystemFlag(flag.key).subscribe({
+    const flagId = parseInt(flag.id, 10);
+    this.featureFlagService.toggleSystemFlag(flagId).subscribe({
       next: () => {
         // Flag will be updated via refresh
       },
-      error: (err) => {
+      error: (err: Error) => {
         console.error('Failed to toggle flag:', err);
       }
     });
@@ -165,7 +166,7 @@ export class FeatureFlagsComponent implements OnInit {
       next: () => {
         this.showCreateModal.set(false);
       },
-      error: (err) => {
+      error: (err: Error) => {
         console.error('Failed to create flag:', err);
       }
     });
@@ -191,7 +192,8 @@ export class FeatureFlagsComponent implements OnInit {
     if (this.flagForm.invalid || !this.selectedFlag()) return;
 
     const formValue = this.flagForm.value;
-    this.featureFlagService.updateSystemFlag(this.selectedFlag()!.key, {
+    const flagId = parseInt(this.selectedFlag()!.id, 10);
+    this.featureFlagService.updateSystemFlag(flagId, {
       name: formValue.name,
       description: formValue.description,
       category: formValue.category,
@@ -204,7 +206,7 @@ export class FeatureFlagsComponent implements OnInit {
         this.showEditModal.set(false);
         this.selectedFlag.set(null);
       },
-      error: (err) => {
+      error: (err: Error) => {
         console.error('Failed to update flag:', err);
       }
     });
@@ -216,8 +218,9 @@ export class FeatureFlagsComponent implements OnInit {
       return;
     }
 
-    this.featureFlagService.deleteSystemFlag(flag.key).subscribe({
-      error: (err) => {
+    const flagId = parseInt(flag.id, 10);
+    this.featureFlagService.deleteSystemFlag(flagId).subscribe({
+      error: (err: Error) => {
         console.error('Failed to delete flag:', err);
       }
     });
@@ -237,10 +240,10 @@ export class FeatureFlagsComponent implements OnInit {
   selectClient(clientId: string): void {
     this.selectedClientId.set(clientId);
     this.featureFlagService.getClientFlags(clientId).subscribe({
-      next: (flags) => {
+      next: (flags: ClientFeatureFlag[]) => {
         this.clientFlags.set(flags);
       },
-      error: (err) => {
+      error: (err: Error) => {
         console.error('Failed to load client flags:', err);
       }
     });
@@ -250,6 +253,7 @@ export class FeatureFlagsComponent implements OnInit {
     this.selectedFlag.set(flag);
     this.clientFlagForm.patchValue({
       flagKey: flag.key,
+      systemFlagId: flag.id,
       value: flag.currentValue,
       enabled: flag.enabled
     });
@@ -257,35 +261,39 @@ export class FeatureFlagsComponent implements OnInit {
   }
 
   saveClientOverride(): void {
-    if (this.clientFlagForm.invalid) return;
+    if (this.clientFlagForm.invalid || !this.selectedFlag()) return;
 
     const formValue = this.clientFlagForm.value;
-    this.featureFlagService.setClientFlag(formValue.clientId, {
-      clientId: formValue.clientId,
-      flagKey: formValue.flagKey,
-      value: formValue.value,
-      enabled: formValue.enabled,
-      overrideReason: formValue.overrideReason
+    const selectedFlagId = parseInt(this.selectedFlag()!.id, 10);
+    const customerId = parseInt(formValue.clientId, 10);
+
+    this.featureFlagService.setClientFlag({
+      customerId: customerId,
+      systemFlagId: selectedFlagId,
+      value: String(formValue.value),
+      isEnabled: formValue.enabled,
+      reason: formValue.overrideReason
     }).subscribe({
       next: () => {
         this.showClientModal.set(false);
       },
-      error: (err) => {
+      error: (err: Error) => {
         console.error('Failed to save client override:', err);
       }
     });
   }
 
-  removeClientOverride(clientId: string, flagKey: string): void {
+  removeClientOverride(clientFlag: ClientFeatureFlag): void {
     if (!confirm('Remove this client override? The flag will revert to the system default.')) {
       return;
     }
 
-    this.featureFlagService.deleteClientFlag(clientId, flagKey).subscribe({
+    const overrideId = parseInt(clientFlag.id, 10);
+    this.featureFlagService.deleteClientFlag(overrideId).subscribe({
       next: () => {
-        this.selectClient(clientId); // Refresh
+        this.selectClient(clientFlag.customerId); // Refresh
       },
-      error: (err) => {
+      error: (err: Error) => {
         console.error('Failed to remove client override:', err);
       }
     });
@@ -299,21 +307,18 @@ export class FeatureFlagsComponent implements OnInit {
     this.selectedFlag.set(null);
   }
 
-  // Export/Import
+  // Export/Import - TODO: Implement backend endpoints for these features
   exportFlags(): void {
-    this.featureFlagService.exportFlags().subscribe({
-      next: (blob) => {
-        const url = window.URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = `feature-flags-${new Date().toISOString().split('T')[0]}.json`;
-        a.click();
-        window.URL.revokeObjectURL(url);
-      },
-      error: (err) => {
-        console.error('Failed to export flags:', err);
-      }
-    });
+    // Export all system flags as JSON for backup/transfer
+    const flags = this.systemFlags();
+    const jsonData = JSON.stringify(flags, null, 2);
+    const blob = new Blob([jsonData], { type: 'application/json' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `feature-flags-${new Date().toISOString().split('T')[0]}.json`;
+    a.click();
+    window.URL.revokeObjectURL(url);
   }
 
   importFlags(event: Event): void {
@@ -321,14 +326,21 @@ export class FeatureFlagsComponent implements OnInit {
     const file = input.files?.[0];
     if (!file) return;
 
-    this.featureFlagService.importFlags(file).subscribe({
-      next: (result) => {
-        alert(`Imported ${result.imported} flags.${result.errors.length ? '\nErrors: ' + result.errors.join(', ') : ''}`);
-      },
-      error: (err) => {
-        console.error('Failed to import flags:', err);
+    // TODO: Implement bulk import API endpoint
+    // For now, read and validate the file
+    const reader = new FileReader();
+    reader.onload = (e: ProgressEvent<FileReader>) => {
+      try {
+        const content = e.target?.result as string;
+        const flags = JSON.parse(content);
+        console.log('Parsed flags for import:', flags);
+        alert(`Import functionality is not yet implemented. ${flags.length} flags parsed from file.`);
+      } catch (error) {
+        console.error('Failed to parse import file:', error);
+        alert('Failed to parse import file. Please ensure it is valid JSON.');
       }
-    });
+    };
+    reader.readAsText(file);
   }
 
   // Helpers
