@@ -1,6 +1,7 @@
 /**
  * Feature Flags Model
- * Used for upselling and feature gating
+ * Used for upselling, feature gating, and runtime configuration
+ * Supports both system-level and client-level flags stored in database
  */
 
 export interface IFeatureFlag {
@@ -21,6 +22,238 @@ export enum FeatureTier {
   Professional = 'professional',
   Enterprise = 'enterprise'
 }
+
+// ============================================
+// Database-backed Feature Flag System
+// ============================================
+
+/**
+ * Scope of a feature flag
+ * - System: Global flag affecting all clients
+ * - Client: Per-client override (pharmacy-specific)
+ */
+export enum FlagScope {
+  System = 'system',
+  Client = 'client'
+}
+
+/**
+ * Type of the flag value
+ */
+export enum FlagType {
+  Boolean = 'boolean',
+  String = 'string',
+  Number = 'number',
+  Json = 'json',
+  Percentage = 'percentage' // For gradual rollouts
+}
+
+/**
+ * Category for organizing flags in the admin UI
+ */
+export enum FlagCategory {
+  Portal = 'portal',
+  Billing = 'billing',
+  Inventory = 'inventory',
+  Orders = 'orders',
+  Reports = 'reports',
+  Integration = 'integration',
+  UI = 'ui',
+  Experimental = 'experimental'
+}
+
+/**
+ * System-level feature flag stored in database
+ */
+export interface SystemFeatureFlag {
+  id: string;
+  key: string;
+  name: string;
+  description: string;
+  category: FlagCategory;
+  type: FlagType;
+  defaultValue: unknown;
+  currentValue: unknown;
+  enabled: boolean;
+  allowClientOverride: boolean; // Can clients override this flag?
+  metadata?: Record<string, unknown>;
+  createdAt: Date;
+  updatedAt: Date;
+  createdBy?: string;
+  updatedBy?: string;
+}
+
+/**
+ * Client-level feature flag override
+ * References a system flag and provides client-specific value
+ */
+export interface ClientFeatureFlag {
+  id: string;
+  clientId: string; // Pharmacy ID
+  clientName?: string;
+  flagKey: string;
+  flagId: string; // Reference to SystemFeatureFlag
+  value: unknown;
+  enabled: boolean;
+  overrideReason?: string; // Why was this overridden?
+  createdAt: Date;
+  updatedAt: Date;
+  createdBy?: string;
+  updatedBy?: string;
+}
+
+/**
+ * Combined view of a flag for a specific client
+ * Used for flag evaluation
+ */
+export interface EvaluatedFlag {
+  key: string;
+  name: string;
+  description: string;
+  category: FlagCategory;
+  type: FlagType;
+  value: unknown;
+  enabled: boolean;
+  source: FlagScope; // Where did the value come from?
+  systemValue: unknown;
+  clientOverride?: unknown;
+  allowClientOverride: boolean;
+}
+
+/**
+ * Request to create or update a system flag
+ */
+export interface SystemFlagRequest {
+  key: string;
+  name: string;
+  description: string;
+  category: FlagCategory;
+  type: FlagType;
+  defaultValue: unknown;
+  enabled: boolean;
+  allowClientOverride: boolean;
+  metadata?: Record<string, unknown>;
+}
+
+/**
+ * Request to create or update a client flag override
+ */
+export interface ClientFlagRequest {
+  clientId: string;
+  flagKey: string;
+  value: unknown;
+  enabled: boolean;
+  overrideReason?: string;
+}
+
+/**
+ * Bulk update request for multiple flags
+ */
+export interface BulkFlagUpdateRequest {
+  scope: FlagScope;
+  updates: Array<{
+    key: string;
+    enabled?: boolean;
+    value?: unknown;
+  }>;
+  clientId?: string; // Required for client scope
+}
+
+/**
+ * History entry for flag changes (audit log)
+ */
+export interface FlagHistoryEntry {
+  id: string;
+  flagKey: string;
+  scope: FlagScope;
+  clientId?: string;
+  previousValue: unknown;
+  newValue: unknown;
+  previousEnabled: boolean;
+  newEnabled: boolean;
+  changedBy: string;
+  changedAt: Date;
+  reason?: string;
+}
+
+/**
+ * Response for paginated flag lists
+ */
+export interface FlagListResponse<T> {
+  items: T[];
+  total: number;
+  page: number;
+  pageSize: number;
+  totalPages: number;
+}
+
+/**
+ * Filter options for querying flags
+ */
+export interface FlagFilterOptions {
+  category?: FlagCategory;
+  enabled?: boolean;
+  search?: string;
+  page?: number;
+  pageSize?: number;
+  sortBy?: 'key' | 'name' | 'category' | 'updatedAt';
+  sortOrder?: 'asc' | 'desc';
+}
+
+/**
+ * Predefined flag keys for type safety
+ */
+export const SYSTEM_FLAGS = {
+  // Portal Features
+  PORTAL_ENABLED: 'portal.enabled',
+  PORTAL_SPLIT_INVOICE: 'portal.split_invoice',
+  PORTAL_PRESCRIPTION_UPLOAD: 'portal.prescription_upload',
+  PORTAL_FAVORITES: 'portal.favorites',
+  PORTAL_QUICK_ORDER: 'portal.quick_order',
+  PORTAL_ORDER_HISTORY: 'portal.order_history',
+  PORTAL_ACCOUNT_SETTINGS: 'portal.account_settings',
+
+  // Billing Features
+  BILLING_CREDIT_TERMS: 'billing.credit_terms',
+  BILLING_INVOICE_PDF: 'billing.invoice_pdf',
+  BILLING_PAYMENT_REMINDER: 'billing.payment_reminder',
+  BILLING_AUTO_INVOICE: 'billing.auto_invoice',
+
+  // Inventory Features
+  INVENTORY_LOW_STOCK_ALERT: 'inventory.low_stock_alert',
+  INVENTORY_EXPIRY_ALERT: 'inventory.expiry_alert',
+  INVENTORY_AUTO_REORDER: 'inventory.auto_reorder',
+  INVENTORY_BATCH_TRACKING: 'inventory.batch_tracking',
+
+  // Order Features
+  ORDERS_BULK_IMPORT: 'orders.bulk_import',
+  ORDERS_RECURRING: 'orders.recurring',
+  ORDERS_APPROVAL_WORKFLOW: 'orders.approval_workflow',
+  ORDERS_DELIVERY_TRACKING: 'orders.delivery_tracking',
+
+  // Report Features
+  REPORTS_PDF_EXPORT: 'reports.pdf_export',
+  REPORTS_EXCEL_EXPORT: 'reports.excel_export',
+  REPORTS_SCHEDULED: 'reports.scheduled',
+  REPORTS_CUSTOM: 'reports.custom',
+
+  // Integration Features
+  INTEGRATION_API_ACCESS: 'integration.api_access',
+  INTEGRATION_WEBHOOK: 'integration.webhook',
+  INTEGRATION_SSO: 'integration.sso',
+
+  // UI Features
+  UI_DARK_MODE: 'ui.dark_mode',
+  UI_COMPACT_VIEW: 'ui.compact_view',
+  UI_ADVANCED_FILTERS: 'ui.advanced_filters',
+
+  // Experimental Features
+  EXPERIMENTAL_AI_SEARCH: 'experimental.ai_search',
+  EXPERIMENTAL_VOICE_ORDER: 'experimental.voice_order',
+  EXPERIMENTAL_CHAT_SUPPORT: 'experimental.chat_support'
+} as const;
+
+export type SystemFlagKey = typeof SYSTEM_FLAGS[keyof typeof SYSTEM_FLAGS];
 
 /**
  * Feature Keys - all available features

@@ -4,8 +4,10 @@ import { RouterModule, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
 import { CartService } from '../../services/cart.service';
-import { DeliveryAddress, DeliveryOption, PaymentMethod, DELIVERY_OPTIONS, CheckoutData } from '../../models/portal.model';
+import { DeliveryAddress, DeliveryOption, PaymentMethod, DELIVERY_OPTIONS, CheckoutData, PriceType } from '../../models/portal.model';
 import { AuthService } from '../../../../core/services/auth.service';
+import { DbFeatureFlagService } from '../../../../core/services/db-feature-flag.service';
+import { SYSTEM_FLAGS } from '../../../../core/models/feature-flag.model';
 
 @Component({
   selector: 'app-checkout',
@@ -134,6 +136,37 @@ import { AuthService } from '../../../../core/services/auth.service';
                     </div>
                   </label>
                 </div>
+
+                <!-- Split Invoice Option - Feature Flagged -->
+                @if (hasMixedPriceTypes() && splitInvoiceEnabled()) {
+                  <div class="split-invoice-option">
+                    <label class="checkbox-label">
+                      <input type="checkbox" [(ngModel)]="splitInvoice" />
+                      <span class="checkmark"></span>
+                      <div class="checkbox-content">
+                        <span class="checkbox-title">{{ 'portal.checkout.splitInvoice' | translate }}</span>
+                        <span class="checkbox-desc">{{ 'portal.checkout.splitInvoiceDesc' | translate }}</span>
+                      </div>
+                    </label>
+                    @if (splitInvoice) {
+                      <div class="split-preview">
+                        <div class="split-invoice-summary">
+                          <div class="invoice-type">
+                            <span class="type-badge commercial">{{ 'portal.checkout.commercialList' | translate }}</span>
+                            <span class="item-count">{{ commercialItemCount() }} {{ 'portal.checkout.items' | translate }}</span>
+                            <span class="type-total">{{ commercialTotal() | currency:'BAM':'symbol':'1.2-2' }}</span>
+                          </div>
+                          <div class="invoice-type">
+                            <span class="type-badge essential">{{ 'portal.checkout.essentialList' | translate }}</span>
+                            <span class="item-count">{{ essentialItemCount() }} {{ 'portal.checkout.items' | translate }}</span>
+                            <span class="type-total">{{ essentialTotal() | currency:'BAM':'symbol':'1.2-2' }}</span>
+                          </div>
+                        </div>
+                      </div>
+                    }
+                  </div>
+                }
+
                 <div class="form-group">
                   <label>{{ 'portal.checkout.poNumber' | translate }}</label>
                   <input type="text" [(ngModel)]="purchaseOrderNumber" [placeholder]="'portal.checkout.poNumberPlaceholder' | translate" />
@@ -169,6 +202,12 @@ import { AuthService } from '../../../../core/services/auth.service';
                 <div class="review-section">
                   <h4>{{ 'portal.checkout.payment' | translate }}</h4>
                   <p>{{ paymentMethod === 'invoice' ? 'Invoice' : 'Bank Transfer' }}</p>
+                  @if (splitInvoice && hasMixedPriceTypes()) {
+                    <p class="split-invoice-note">
+                      <span class="badge">{{ 'portal.checkout.splitInvoice' | translate }}</span>
+                      {{ 'portal.checkout.splitInvoiceReviewNote' | translate }}
+                    </p>
+                  }
                 </div>
                 <div class="step-actions">
                   <button class="btn btn-secondary" (click)="prevStep()">{{ 'common.back' | translate }}</button>
@@ -188,15 +227,38 @@ import { AuthService } from '../../../../core/services/auth.service';
             @for (item of cartItems(); track item.productId) {
               <div class="summary-item">
                 <span class="item-qty">{{ item.quantity }}x</span>
-                <span class="item-name">{{ item.productName }}</span>
+                <span class="item-name">
+                  {{ item.productName }}
+                  <span class="price-type-indicator" [class.essential]="item.priceType === 'essential'" [class.commercial]="item.priceType === 'commercial'">
+                    {{ item.priceType === 'essential' ? 'E' : 'C' }}
+                  </span>
+                </span>
                 <span class="item-price">{{ item.subtotal | currency:'BAM':'symbol':'1.2-2' }}</span>
               </div>
             }
           </div>
-          <div class="summary-row"><span>{{ 'portal.cart.subtotal' | translate }}</span><span>{{ subtotal() | currency:'BAM':'symbol':'1.2-2' }}</span></div>
-          <div class="summary-row"><span>{{ 'portal.cart.delivery' | translate }}</span><span>{{ (selectedDelivery?.price ?? 0) | currency:'BAM':'symbol':'1.2-2' }}</span></div>
-          <div class="summary-row"><span>{{ 'portal.cart.tax' | translate }}</span><span>{{ tax() | currency:'BAM':'symbol':'1.2-2' }}</span></div>
-          <div class="summary-row total"><span>{{ 'portal.cart.total' | translate }}</span><span>{{ grandTotal() | currency:'BAM':'symbol':'1.2-2' }}</span></div>
+
+          @if (splitInvoice && hasMixedPriceTypes()) {
+            <!-- Split Invoice View -->
+            <div class="split-summary">
+              <div class="split-group commercial">
+                <span class="split-label">{{ 'portal.checkout.commercialList' | translate }}</span>
+                <span class="split-value">{{ commercialTotal() | currency:'BAM':'symbol':'1.2-2' }}</span>
+              </div>
+              <div class="split-group essential">
+                <span class="split-label">{{ 'portal.checkout.essentialList' | translate }}</span>
+                <span class="split-value">{{ essentialTotal() | currency:'BAM':'symbol':'1.2-2' }}</span>
+              </div>
+            </div>
+            <div class="summary-row"><span>{{ 'portal.cart.delivery' | translate }}</span><span>{{ (selectedDelivery?.price ?? 0) | currency:'BAM':'symbol':'1.2-2' }}</span></div>
+            <div class="summary-row total"><span>{{ 'portal.cart.total' | translate }}</span><span>{{ grandTotal() | currency:'BAM':'symbol':'1.2-2' }}</span></div>
+          } @else {
+            <!-- Standard View -->
+            <div class="summary-row"><span>{{ 'portal.cart.subtotal' | translate }}</span><span>{{ subtotal() | currency:'BAM':'symbol':'1.2-2' }}</span></div>
+            <div class="summary-row"><span>{{ 'portal.cart.delivery' | translate }}</span><span>{{ (selectedDelivery?.price ?? 0) | currency:'BAM':'symbol':'1.2-2' }}</span></div>
+            <div class="summary-row"><span>{{ 'portal.cart.tax' | translate }}</span><span>{{ tax() | currency:'BAM':'symbol':'1.2-2' }}</span></div>
+            <div class="summary-row total"><span>{{ 'portal.cart.total' | translate }}</span><span>{{ grandTotal() | currency:'BAM':'symbol':'1.2-2' }}</span></div>
+          }
         </div>
       </div>
     </div>
@@ -234,7 +296,7 @@ import { AuthService } from '../../../../core/services/auth.service';
     .summary-items { margin-bottom: 1rem; max-height: 200px; overflow-y: auto; }
     .summary-item { display: flex; gap: 0.5rem; margin-bottom: 0.5rem; font-size: 0.875rem; }
     .item-qty { color: var(--text-secondary); min-width: 30px; }
-    .item-name { flex: 1; }
+    .item-name { flex: 1; display: flex; align-items: center; gap: 0.25rem; }
     .item-price { font-weight: 500; }
     .summary-row { display: flex; justify-content: space-between; margin-bottom: 0.5rem; }
     .summary-row.total { font-size: 1.25rem; font-weight: 700; padding-top: 1rem; margin-top: 1rem; border-top: 1px solid var(--border-color); }
@@ -243,12 +305,42 @@ import { AuthService } from '../../../../core/services/auth.service';
     .btn-secondary { background: var(--surface-ground); color: var(--text-color); }
     .btn-lg { padding: 1rem 2rem; }
     .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    /* Split Invoice Styles */
+    .split-invoice-option { margin: 1.5rem 0; padding: 1rem; background: var(--surface-ground); border-radius: 8px; }
+    .checkbox-label { display: flex; align-items: flex-start; gap: 0.75rem; cursor: pointer; }
+    .checkbox-label input[type="checkbox"] { width: 20px; height: 20px; margin-top: 2px; accent-color: var(--primary-color); }
+    .checkbox-content { flex: 1; }
+    .checkbox-title { display: block; font-weight: 600; margin-bottom: 0.25rem; }
+    .checkbox-desc { font-size: 0.875rem; color: var(--text-secondary); }
+    .split-preview { margin-top: 1rem; padding-top: 1rem; border-top: 1px dashed var(--border-color); }
+    .split-invoice-summary { display: flex; flex-direction: column; gap: 0.75rem; }
+    .invoice-type { display: flex; align-items: center; gap: 0.75rem; padding: 0.5rem; background: white; border-radius: 6px; }
+    .type-badge { padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.75rem; font-weight: 600; }
+    .type-badge.commercial { background: #dbeafe; color: #1d4ed8; }
+    .type-badge.essential { background: #dcfce7; color: #15803d; }
+    .item-count { flex: 1; font-size: 0.875rem; color: var(--text-secondary); }
+    .type-total { font-weight: 600; }
+    .price-type-indicator { width: 16px; height: 16px; border-radius: 50%; font-size: 0.625rem; display: inline-flex; align-items: center; justify-content: center; font-weight: 700; }
+    .price-type-indicator.commercial { background: #dbeafe; color: #1d4ed8; }
+    .price-type-indicator.essential { background: #dcfce7; color: #15803d; }
+    .split-summary { margin-bottom: 1rem; padding: 0.75rem; background: var(--surface-ground); border-radius: 8px; }
+    .split-group { display: flex; justify-content: space-between; padding: 0.5rem 0; }
+    .split-group:not(:last-child) { border-bottom: 1px dashed var(--border-color); }
+    .split-label { font-size: 0.875rem; display: flex; align-items: center; gap: 0.5rem; }
+    .split-group.commercial .split-label::before { content: ''; width: 8px; height: 8px; border-radius: 50%; background: #3b82f6; }
+    .split-group.essential .split-label::before { content: ''; width: 8px; height: 8px; border-radius: 50%; background: #22c55e; }
+    .split-value { font-weight: 600; }
+    .split-invoice-note { margin-top: 0.5rem; font-size: 0.875rem; }
+    .split-invoice-note .badge { display: inline-block; padding: 0.25rem 0.5rem; background: var(--primary-color); color: white; border-radius: 4px; font-size: 0.75rem; margin-right: 0.5rem; }
+
     @media (max-width: 1024px) { .checkout-content { grid-template-columns: 1fr; } .order-summary { position: static; } }
   `]
 })
 export class CheckoutComponent implements OnInit {
   private cartService = inject(CartService);
   private router = inject(Router);
+  private featureFlagService = inject(DbFeatureFlagService);
 
   currentStep = signal(1);
   isSubmitting = signal(false);
@@ -259,11 +351,24 @@ export class CheckoutComponent implements OnInit {
   paymentMethod: PaymentMethod = PaymentMethod.Invoice;
   purchaseOrderNumber = '';
   notes = '';
+  splitInvoice = false;
 
   cartItems = computed(() => this.cartService.cart().items);
   subtotal = computed(() => this.cartService.cart().subtotal);
   tax = computed(() => this.cartService.cart().tax);
   grandTotal = computed(() => this.cartService.cart().total + (this.selectedDelivery?.price ?? 0));
+
+  // Split invoice feature flag
+  splitInvoiceEnabled = this.featureFlagService.createFlagSignal(SYSTEM_FLAGS.PORTAL_SPLIT_INVOICE);
+
+  // Split invoice computed values
+  hasMixedPriceTypes = computed(() => this.cartService.hasMixedPriceTypes());
+  commercialItems = computed(() => this.cartService.commercialItems());
+  essentialItems = computed(() => this.cartService.essentialItems());
+  commercialItemCount = computed(() => this.commercialItems().length);
+  essentialItemCount = computed(() => this.essentialItems().length);
+  commercialTotal = computed(() => this.cartService.cart().commercialTotal);
+  essentialTotal = computed(() => this.cartService.cart().essentialTotal);
 
   ngOnInit() {
     if (this.cartService.isEmpty()) {
@@ -285,6 +390,16 @@ export class CheckoutComponent implements OnInit {
     // Simulate API call
     setTimeout(() => {
       const orderId = 'ORD-' + Date.now();
+      // Store order data in sessionStorage for confirmation page
+      const orderData = {
+        splitInvoice: this.splitInvoice && this.hasMixedPriceTypes() && this.splitInvoiceEnabled(),
+        commercialTotal: this.commercialTotal(),
+        essentialTotal: this.essentialTotal(),
+        commercialItemCount: this.commercialItemCount(),
+        essentialItemCount: this.essentialItemCount(),
+        total: this.grandTotal()
+      };
+      sessionStorage.setItem('lastOrderData', JSON.stringify(orderData));
       this.cartService.clearCart();
       this.router.navigate(['/portal/order-confirmation', orderId]);
     }, 1500);

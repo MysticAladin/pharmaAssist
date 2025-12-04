@@ -8,6 +8,12 @@ export const ADMIN_ROUTES: Routes = [
   { path: 'settings', loadComponent: () => import('./settings/settings.component').then(m => m.SettingsComponent) },
   { path: 'audit-logs', loadComponent: () => import('./audit-logs/audit-logs.component').then(m => m.AuditLogsComponent) },
   {
+    path: 'feature-flags',
+    canActivate: [roleGuard],
+    data: { roles: [UserRole.SuperAdmin, UserRole.Admin] },
+    loadComponent: () => import('./feature-flags/feature-flags.component').then(m => m.FeatureFlagsComponent)
+  },
+  {
     path: 'integrations',
     canActivate: [roleGuard],
     data: { roles: [UserRole.SuperAdmin] },

@@ -52,7 +52,13 @@
     "activeOnly": "Active only",
     "unknown": "Unknown",
     "optional": "(optional)",
-    "viewAll": "View All"
+    "viewAll": "View All",
+    "all": "All",
+    "allowed": "Allowed",
+    "locked": "Locked",
+    "value": "Value",
+    "reason": "Reason",
+    "remove": "Remove"
   },
   "commands": {
     "searchPlaceholder": "Search commands...",
@@ -1986,7 +1992,9 @@
       "tax": "Tax (17% VAT)",
       "grandTotal": "Grand Total",
       "proceedToCheckout": "Proceed to Checkout",
-      "itemsInCart": "items in cart"
+      "itemsInCart": "items in cart",
+      "items": "items",
+      "splitInvoiceHint": "You can split invoices during checkout"
     },
     "checkout": {
       "title": "Checkout",
@@ -2012,7 +2020,13 @@
       "continue": "Continue",
       "reviewOrder": "Review Order",
       "review": "Review & Confirm",
-      "placeOrder": "Place Order"
+      "placeOrder": "Place Order",
+      "splitInvoice": "Split Invoice",
+      "splitInvoiceDesc": "Create separate invoices for Commercial and Essential medicines",
+      "commercialList": "Commercial",
+      "essentialList": "Essential",
+      "items": "items",
+      "splitInvoiceReviewNote": "Two separate invoices will be generated"
     },
     "orderConfirmation": {
       "title": "Order Confirmed!",
@@ -2023,6 +2037,9 @@
       "nextSteps": "What's Next?",
       "emailConfirmation": "You'll receive an email confirmation shortly",
       "invoiceSent": "Invoice will be sent within 24 hours",
+      "invoicesSent": "Two invoices (Commercial & Essential) will be sent within 24 hours",
+      "invoiceDetails": "Invoice Details",
+      "splitInvoiceNote": "Your order will be invoiced separately for Commercial and Essential medicines",
       "trackingInfo": "Tracking information will be emailed when shipped",
       "viewOrders": "View My Orders",
       "continueShopping": "Continue Shopping",
@@ -2119,5 +2136,66 @@
       "defaultView": "Default Catalog View",
       "itemsPerPage": "Items Per Page"
     }
+  },
+  "admin": {
+    "featureFlags": {
+      "title": "Feature Flags",
+      "subtitle": "Manage feature flags at system and client levels",
+      "createFlag": "Create Flag",
+      "editFlag": "Edit Flag",
+      "stats": {
+        "total": "Total Flags",
+        "enabled": "Enabled",
+        "disabled": "Disabled",
+        "clientOverridable": "Client Overridable"
+      },
+      "tabs": {
+        "system": "System Flags",
+        "client": "Client Overrides"
+      },
+      "table": {
+        "status": "Status",
+        "flag": "Flag",
+        "category": "Category",
+        "type": "Type",
+        "value": "Value",
+        "override": "Override",
+        "updated": "Last Updated"
+      },
+      "empty": {
+        "title": "No Feature Flags",
+        "description": "Create your first feature flag to control functionality across the application."
+      },
+      "form": {
+        "key": "Flag Key",
+        "keyHint": "Use format: category.feature_name (e.g., portal.split_invoice)",
+        "name": "Display Name",
+        "description": "Description",
+        "category": "Category",
+        "type": "Value Type",
+        "defaultValue": "Default Value",
+        "enabled": "Enabled",
+        "allowClientOverride": "Allow client-level override"
+      },
+      "clientList": {
+        "title": "Clients with Overrides",
+        "empty": "No clients have custom overrides"
+      },
+      "clientFlags": {
+        "title": "Client Overrides",
+        "selectClient": "Select a client to view their flag overrides",
+        "noOverrides": "This client has no custom overrides"
+      },
+      "clientOverride": {
+        "title": "Add Client Override",
+        "client": "Select Client",
+        "selectClient": "Choose a client...",
+        "value": "Override Value",
+        "reason": "Override Reason",
+        "reasonPlaceholder": "Why is this flag being overridden for this client?"
+      },
+      "addClientOverride": "Add Client Override"
+    }
   }
 }
+

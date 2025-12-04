@@ -1,0 +1,469 @@
+<div class="feature-flags-page">
+  <!-- Header -->
+  <header class="page-header">
+    <div class="header-content">
+      <h1>
+        <span class="material-symbols-rounded">flag</span>
+        {{ 'admin.featureFlags.title' | translate }}
+      </h1>
+      <p class="subtitle">{{ 'admin.featureFlags.subtitle' | translate }}</p>
+    </div>
+
+    <div class="header-actions">
+      <button class="btn btn-secondary" (click)="exportFlags()">
+        <span class="material-symbols-rounded">download</span>
+        {{ 'common.export' | translate }}
+      </button>
+      <label class="btn btn-secondary">
+        <span class="material-symbols-rounded">upload</span>
+        {{ 'common.import' | translate }}
+        <input type="file" accept=".json" (change)="importFlags($event)" hidden>
+      </label>
+      <button class="btn btn-primary" (click)="openCreateModal()">
+        <span class="material-symbols-rounded">add</span>
+        {{ 'admin.featureFlags.createFlag' | translate }}
+      </button>
+    </div>
+  </header>
+
+  <!-- Stats Cards -->
+  <div class="stats-grid">
+    <div class="stat-card">
+      <span class="stat-icon total">
+        <span class="material-symbols-rounded">flag</span>
+      </span>
+      <div class="stat-content">
+        <span class="stat-value">{{ stats().total }}</span>
+        <span class="stat-label">{{ 'admin.featureFlags.stats.total' | translate }}</span>
+      </div>
+    </div>
+    <div class="stat-card">
+      <span class="stat-icon enabled">
+        <span class="material-symbols-rounded">check_circle</span>
+      </span>
+      <div class="stat-content">
+        <span class="stat-value">{{ stats().enabled }}</span>
+        <span class="stat-label">{{ 'admin.featureFlags.stats.enabled' | translate }}</span>
+      </div>
+    </div>
+    <div class="stat-card">
+      <span class="stat-icon disabled">
+        <span class="material-symbols-rounded">cancel</span>
+      </span>
+      <div class="stat-content">
+        <span class="stat-value">{{ stats().disabled }}</span>
+        <span class="stat-label">{{ 'admin.featureFlags.stats.disabled' | translate }}</span>
+      </div>
+    </div>
+    <div class="stat-card">
+      <span class="stat-icon overridable">
+        <span class="material-symbols-rounded">tune</span>
+      </span>
+      <div class="stat-content">
+        <span class="stat-value">{{ stats().clientOverridable }}</span>
+        <span class="stat-label">{{ 'admin.featureFlags.stats.clientOverridable' | translate }}</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tabs -->
+  <div class="tabs">
+    <button
+      class="tab"
+      [class.active]="activeTab() === 'system'"
+      (click)="setActiveTab('system')">
+      <span class="material-symbols-rounded">settings</span>
+      {{ 'admin.featureFlags.tabs.system' | translate }}
+    </button>
+    <button
+      class="tab"
+      [class.active]="activeTab() === 'client'"
+      (click)="setActiveTab('client')">
+      <span class="material-symbols-rounded">business</span>
+      {{ 'admin.featureFlags.tabs.client' | translate }}
+    </button>
+  </div>
+
+  <!-- System Flags Tab -->
+  @if (activeTab() === 'system') {
+    <div class="filters-bar">
+      <div class="search-box">
+        <span class="material-symbols-rounded">search</span>
+        <input
+          type="text"
+          [placeholder]="'common.search' | translate"
+          [value]="searchQuery()"
+          (input)="onSearch($event)">
+      </div>
+
+      <div class="category-filter">
+        <button
+          class="filter-chip"
+          [class.active]="selectedCategory() === 'all'"
+          (click)="setCategory('all')">
+          {{ 'common.all' | translate }}
+        </button>
+        @for (category of categories; track category) {
+          <button
+            class="filter-chip"
+            [class.active]="selectedCategory() === category"
+            [style.--chip-color]="getCategoryColor(category)"
+            (click)="setCategory(category)">
+            <span class="material-symbols-rounded">{{ getCategoryIcon(category) }}</span>
+            {{ category }}
+          </button>
+        }
+      </div>
+    </div>
+
+    <!-- Flags Table -->
+    @if (loading()) {
+      <div class="loading-state">
+        <div class="spinner"></div>
+        <p>{{ 'common.loading' | translate }}</p>
+      </div>
+    } @else if (filteredFlags().length === 0) {
+      <div class="empty-state">
+        <span class="material-symbols-rounded">flag_off</span>
+        <h3>{{ 'admin.featureFlags.empty.title' | translate }}</h3>
+        <p>{{ 'admin.featureFlags.empty.description' | translate }}</p>
+        <button class="btn btn-primary" (click)="openCreateModal()">
+          {{ 'admin.featureFlags.createFlag' | translate }}
+        </button>
+      </div>
+    } @else {
+      <div class="flags-table-container">
+        <table class="flags-table">
+          <thead>
+            <tr>
+              <th>{{ 'admin.featureFlags.table.status' | translate }}</th>
+              <th>{{ 'admin.featureFlags.table.flag' | translate }}</th>
+              <th>{{ 'admin.featureFlags.table.category' | translate }}</th>
+              <th>{{ 'admin.featureFlags.table.type' | translate }}</th>
+              <th>{{ 'admin.featureFlags.table.value' | translate }}</th>
+              <th>{{ 'admin.featureFlags.table.override' | translate }}</th>
+              <th>{{ 'admin.featureFlags.table.updated' | translate }}</th>
+              <th>{{ 'common.actions' | translate }}</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (flag of filteredFlags(); track flag.key) {
+              <tr [class.disabled]="!flag.enabled">
+                <td>
+                  <label class="toggle-switch">
+                    <input
+                      type="checkbox"
+                      [checked]="flag.enabled"
+                      (change)="toggleFlag(flag)">
+                    <span class="slider"></span>
+                  </label>
+                </td>
+                <td>
+                  <div class="flag-info">
+                    <span class="flag-key">{{ flag.key }}</span>
+                    <span class="flag-name">{{ flag.name }}</span>
+                    <span class="flag-desc">{{ flag.description }}</span>
+                  </div>
+                </td>
+                <td>
+                  <span class="category-badge" [style.--badge-color]="getCategoryColor(flag.category)">
+                    <span class="material-symbols-rounded">{{ getCategoryIcon(flag.category) }}</span>
+                    {{ flag.category }}
+                  </span>
+                </td>
+                <td>
+                  <span class="type-badge">{{ flag.type }}</span>
+                </td>
+                <td>
+                  <span class="value-display">
+                    @if (flag.type === FlagType.Boolean) {
+                      <span class="bool-value" [class.true]="flag.currentValue">
+                        {{ flag.currentValue ? 'TRUE' : 'FALSE' }}
+                      </span>
+                    } @else {
+                      {{ flag.currentValue }}
+                    }
+                  </span>
+                </td>
+                <td>
+                  @if (flag.allowClientOverride) {
+                    <span class="override-badge allowed">
+                      <span class="material-symbols-rounded">check</span>
+                      {{ 'common.allowed' | translate }}
+                    </span>
+                  } @else {
+                    <span class="override-badge locked">
+                      <span class="material-symbols-rounded">lock</span>
+                      {{ 'common.locked' | translate }}
+                    </span>
+                  }
+                </td>
+                <td>
+                  <span class="date-display">{{ formatDate(flag.updatedAt) }}</span>
+                </td>
+                <td>
+                  <div class="action-buttons">
+                    <button
+                      class="btn-icon"
+                      title="{{ 'common.edit' | translate }}"
+                      (click)="openEditModal(flag)">
+                      <span class="material-symbols-rounded">edit</span>
+                    </button>
+                    @if (flag.allowClientOverride) {
+                      <button
+                        class="btn-icon"
+                        title="{{ 'admin.featureFlags.addClientOverride' | translate }}"
+                        (click)="openClientOverrideModal(flag)">
+                        <span class="material-symbols-rounded">business</span>
+                      </button>
+                    }
+                    <button
+                      class="btn-icon danger"
+                      title="{{ 'common.delete' | translate }}"
+                      (click)="deleteFlag(flag)">
+                      <span class="material-symbols-rounded">delete</span>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    }
+  }
+
+  <!-- Client Overrides Tab -->
+  @if (activeTab() === 'client') {
+    <div class="client-overrides-container">
+      <div class="client-list">
+        <h3>{{ 'admin.featureFlags.clientList.title' | translate }}</h3>
+        @if (clientsWithOverrides().length === 0) {
+          <p class="no-clients">{{ 'admin.featureFlags.clientList.empty' | translate }}</p>
+        } @else {
+          @for (client of clientsWithOverrides(); track client.id) {
+            <button
+              class="client-item"
+              [class.active]="selectedClientId() === client.id"
+              (click)="selectClient(client.id)">
+              <span class="client-name">{{ client.name }}</span>
+              <span class="override-count">{{ client.overrideCount }}</span>
+            </button>
+          }
+        }
+      </div>
+
+      <div class="client-flags">
+        @if (!selectedClientId()) {
+          <div class="select-client-prompt">
+            <span class="material-symbols-rounded">arrow_back</span>
+            <p>{{ 'admin.featureFlags.clientFlags.selectClient' | translate }}</p>
+          </div>
+        } @else {
+          <h3>{{ 'admin.featureFlags.clientFlags.title' | translate }}</h3>
+          @if (clientFlags().length === 0) {
+            <div class="no-overrides">
+              <span class="material-symbols-rounded">tune</span>
+              <p>{{ 'admin.featureFlags.clientFlags.noOverrides' | translate }}</p>
+            </div>
+          } @else {
+            <div class="client-flags-list">
+              @for (flag of clientFlags(); track flag.id) {
+                <div class="client-flag-card">
+                  <div class="flag-header">
+                    <span class="flag-key">{{ flag.flagKey }}</span>
+                    <label class="toggle-switch small">
+                      <input type="checkbox" [checked]="flag.enabled" disabled>
+                      <span class="slider"></span>
+                    </label>
+                  </div>
+                  <div class="flag-value">
+                    <span class="label">{{ 'common.value' | translate }}:</span>
+                    <span class="value">{{ flag.value }}</span>
+                  </div>
+                  @if (flag.overrideReason) {
+                    <div class="flag-reason">
+                      <span class="label">{{ 'common.reason' | translate }}:</span>
+                      <span class="value">{{ flag.overrideReason }}</span>
+                    </div>
+                  }
+                  <div class="flag-meta">
+                    <span>{{ formatDate(flag.updatedAt) }}</span>
+                    <span>{{ flag.updatedBy }}</span>
+                  </div>
+                  <button
+                    class="btn btn-sm btn-danger"
+                    (click)="removeClientOverride(flag.clientId, flag.flagKey)">
+                    <span class="material-symbols-rounded">delete</span>
+                    {{ 'common.remove' | translate }}
+                  </button>
+                </div>
+              }
+            </div>
+          }
+        }
+      </div>
+    </div>
+  }
+</div>
+
+<!-- Create/Edit Modal -->
+@if (showCreateModal() || showEditModal()) {
+  <div class="modal-overlay" (click)="closeModals()">
+    <div class="modal" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h2>
+          {{ (showCreateModal() ? 'admin.featureFlags.createFlag' : 'admin.featureFlags.editFlag') | translate }}
+        </h2>
+        <button class="btn-icon" (click)="closeModals()">
+          <span class="material-symbols-rounded">close</span>
+        </button>
+      </div>
+
+      <form [formGroup]="flagForm" (ngSubmit)="showCreateModal() ? createFlag() : updateFlag()">
+        <div class="modal-body">
+          <div class="form-group">
+            <label for="key">{{ 'admin.featureFlags.form.key' | translate }}</label>
+            <input
+              type="text"
+              id="key"
+              formControlName="key"
+              [readonly]="showEditModal()"
+              placeholder="category.feature_name">
+            <small class="hint">{{ 'admin.featureFlags.form.keyHint' | translate }}</small>
+          </div>
+
+          <div class="form-group">
+            <label for="name">{{ 'admin.featureFlags.form.name' | translate }}</label>
+            <input type="text" id="name" formControlName="name">
+          </div>
+
+          <div class="form-group">
+            <label for="description">{{ 'admin.featureFlags.form.description' | translate }}</label>
+            <textarea id="description" formControlName="description" rows="3"></textarea>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="category">{{ 'admin.featureFlags.form.category' | translate }}</label>
+              <select id="category" formControlName="category">
+                @for (cat of categories; track cat) {
+                  <option [value]="cat">{{ cat }}</option>
+                }
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label for="type">{{ 'admin.featureFlags.form.type' | translate }}</label>
+              <select id="type" formControlName="type">
+                @for (t of types; track t) {
+                  <option [value]="t">{{ t }}</option>
+                }
+              </select>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="defaultValue">{{ 'admin.featureFlags.form.defaultValue' | translate }}</label>
+            @if (flagForm.get('type')?.value === 'boolean') {
+              <label class="toggle-switch">
+                <input type="checkbox" formControlName="defaultValue">
+                <span class="slider"></span>
+              </label>
+            } @else {
+              <input type="text" id="defaultValue" formControlName="defaultValue">
+            }
+          </div>
+
+          <div class="form-row checkboxes">
+            <label class="checkbox-label">
+              <input type="checkbox" formControlName="enabled">
+              {{ 'admin.featureFlags.form.enabled' | translate }}
+            </label>
+
+            <label class="checkbox-label">
+              <input type="checkbox" formControlName="allowClientOverride">
+              {{ 'admin.featureFlags.form.allowClientOverride' | translate }}
+            </label>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" (click)="closeModals()">
+            {{ 'common.cancel' | translate }}
+          </button>
+          <button type="submit" class="btn btn-primary" [disabled]="flagForm.invalid">
+            {{ (showCreateModal() ? 'common.create' : 'common.save') | translate }}
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+}
+
+<!-- Client Override Modal -->
+@if (showClientModal()) {
+  <div class="modal-overlay" (click)="closeModals()">
+    <div class="modal" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h2>{{ 'admin.featureFlags.clientOverride.title' | translate }}</h2>
+        <button class="btn-icon" (click)="closeModals()">
+          <span class="material-symbols-rounded">close</span>
+        </button>
+      </div>
+
+      <form [formGroup]="clientFlagForm" (ngSubmit)="saveClientOverride()">
+        <div class="modal-body">
+          @if (selectedFlag()) {
+            <div class="flag-preview">
+              <span class="flag-key">{{ selectedFlag()?.key }}</span>
+              <span class="flag-name">{{ selectedFlag()?.name }}</span>
+            </div>
+          }
+
+          <div class="form-group">
+            <label for="clientId">{{ 'admin.featureFlags.clientOverride.client' | translate }}</label>
+            <select id="clientId" formControlName="clientId">
+              <option value="">{{ 'admin.featureFlags.clientOverride.selectClient' | translate }}</option>
+              @for (client of clientsWithOverrides(); track client.id) {
+                <option [value]="client.id">{{ client.name }}</option>
+              }
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="overrideValue">{{ 'admin.featureFlags.clientOverride.value' | translate }}</label>
+            @if (selectedFlag()?.type === 'boolean') {
+              <label class="toggle-switch">
+                <input type="checkbox" formControlName="value">
+                <span class="slider"></span>
+              </label>
+            } @else {
+              <input type="text" id="overrideValue" formControlName="value">
+            }
+          </div>
+
+          <label class="checkbox-label">
+            <input type="checkbox" formControlName="enabled">
+            {{ 'admin.featureFlags.form.enabled' | translate }}
+          </label>
+
+          <div class="form-group">
+            <label for="reason">{{ 'admin.featureFlags.clientOverride.reason' | translate }}</label>
+            <textarea id="reason" formControlName="overrideReason" rows="2"
+                      [placeholder]="'admin.featureFlags.clientOverride.reasonPlaceholder' | translate"></textarea>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" (click)="closeModals()">
+            {{ 'common.cancel' | translate }}
+          </button>
+          <button type="submit" class="btn btn-primary" [disabled]="clientFlagForm.invalid">
+            {{ 'common.save' | translate }}
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+}

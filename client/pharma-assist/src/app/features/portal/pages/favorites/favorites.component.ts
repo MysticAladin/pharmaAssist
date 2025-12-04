@@ -4,7 +4,7 @@ import { RouterModule } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 import { CatalogService } from '../../services/catalog.service';
 import { CartService } from '../../services/cart.service';
-import { Favorite, ProductCatalogItem } from '../../models/portal.model';
+import { Favorite, ProductCatalogItem, PriceType } from '../../models/portal.model';
 
 @Component({
   selector: 'app-favorites',
@@ -147,7 +147,8 @@ export class FavoritesComponent implements OnInit {
       quantity: 1,
       maxQuantity: product.stockQuantity,
       subtotal: product.unitPrice,
-      imageUrl: product.imageUrl
+      imageUrl: product.imageUrl,
+      priceType: product.priceType || PriceType.Commercial
     });
   }
 }

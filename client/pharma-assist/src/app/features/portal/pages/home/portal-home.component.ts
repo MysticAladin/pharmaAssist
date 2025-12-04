@@ -4,7 +4,7 @@ import { RouterModule } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 import { CatalogService } from '../../services/catalog.service';
 import { CartService } from '../../services/cart.service';
-import { ProductCatalogItem, ReorderSuggestion } from '../../models/portal.model';
+import { ProductCatalogItem, ReorderSuggestion, PriceType } from '../../models/portal.model';
 
 @Component({
   selector: 'app-portal-home',
@@ -619,7 +619,8 @@ export class PortalHomeComponent implements OnInit {
         unitPrice: 8.50,
         stockQuantity: 150,
         isAvailable: true,
-        requiresPrescription: false
+        requiresPrescription: false,
+        priceType: PriceType.Commercial
       },
       {
         id: '2',
@@ -632,7 +633,8 @@ export class PortalHomeComponent implements OnInit {
         unitPrice: 12.00,
         stockQuantity: 200,
         isAvailable: true,
-        requiresPrescription: false
+        requiresPrescription: false,
+        priceType: PriceType.Essential
       },
       {
         id: '3',
@@ -645,7 +647,8 @@ export class PortalHomeComponent implements OnInit {
         unitPrice: 25.00,
         stockQuantity: 75,
         isAvailable: true,
-        requiresPrescription: true
+        requiresPrescription: true,
+        priceType: PriceType.Essential
       },
       {
         id: '4',
@@ -658,7 +661,8 @@ export class PortalHomeComponent implements OnInit {
         unitPrice: 15.50,
         stockQuantity: 300,
         isAvailable: true,
-        requiresPrescription: false
+        requiresPrescription: false,
+        priceType: PriceType.Commercial
       }
     ];
   }

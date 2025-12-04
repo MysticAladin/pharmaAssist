@@ -1,5 +1,5 @@
 import { Injectable, signal, computed, effect } from '@angular/core';
-import { CartItem, ShoppingCart, ProductCatalogItem } from '../models/portal.model';
+import { CartItem, ShoppingCart, ProductCatalogItem, PriceType } from '../models/portal.model';
 
 const CART_STORAGE_KEY = 'pharma_cart';
 
@@ -17,13 +17,25 @@ export class CartService {
   // Tax rate (could be configurable)
   private taxRate = 0.17; // 17% VAT
 
-  // Computed cart summary
+  // Computed cart summary with split invoice calculations
   cart = computed<ShoppingCart>(() => {
     const items = this.cartItems();
     const subtotal = items.reduce((sum, item) => sum + item.subtotal, 0);
     const tax = subtotal * this.taxRate;
     const discount = 0; // Could be applied based on promotions
     const total = subtotal + tax - discount;
+
+    // Calculate split invoice totals
+    const commercialItems = items.filter(item => item.priceType === PriceType.Commercial);
+    const essentialItems = items.filter(item => item.priceType === PriceType.Essential);
+
+    const commercialSubtotal = commercialItems.reduce((sum, item) => sum + item.subtotal, 0);
+    const commercialTax = commercialSubtotal * this.taxRate;
+    const commercialTotal = commercialSubtotal + commercialTax;
+
+    const essentialSubtotal = essentialItems.reduce((sum, item) => sum + item.subtotal, 0);
+    const essentialTax = essentialSubtotal * this.taxRate;
+    const essentialTotal = essentialSubtotal + essentialTax;
 
     return {
       items,
@@ -32,7 +44,13 @@ export class CartService {
       discount,
       total,
       itemCount: items.reduce((sum, item) => sum + item.quantity, 0),
-      lastUpdated: new Date()
+      lastUpdated: new Date(),
+      commercialSubtotal,
+      commercialTax,
+      commercialTotal,
+      essentialSubtotal,
+      essentialTax,
+      essentialTotal
     };
   });
 
@@ -41,6 +59,13 @@ export class CartService {
   isEmpty = computed(() => this.cartItems().length === 0);
   subtotal = computed(() => this.cart().subtotal);
   total = computed(() => this.cart().total);
+
+  // Split invoice computed values
+  commercialItems = computed(() => this.cartItems().filter(item => item.priceType === PriceType.Commercial));
+  essentialItems = computed(() => this.cartItems().filter(item => item.priceType === PriceType.Essential));
+  hasCommercialItems = computed(() => this.commercialItems().length > 0);
+  hasEssentialItems = computed(() => this.essentialItems().length > 0);
+  hasMixedPriceTypes = computed(() => this.hasCommercialItems() && this.hasEssentialItems());
 
   constructor() {
     // Load cart from localStorage
@@ -78,7 +103,8 @@ export class CartService {
         newItem = {
           ...cartItem,
           quantity: cartItem.quantity || quantity,
-          subtotal: cartItem.unitPrice * (cartItem.quantity || quantity)
+          subtotal: cartItem.unitPrice * (cartItem.quantity || quantity),
+          priceType: cartItem.priceType || PriceType.Commercial
         };
       } else {
         const catalogItem = product as ProductCatalogItem;
@@ -91,7 +117,8 @@ export class CartService {
           quantity: Math.min(quantity, catalogItem.stockQuantity),
           maxQuantity: catalogItem.stockQuantity,
           imageUrl: catalogItem.imageUrl,
-          subtotal: (catalogItem.customerPrice ?? catalogItem.unitPrice) * quantity
+          subtotal: (catalogItem.customerPrice ?? catalogItem.unitPrice) * quantity,
+          priceType: catalogItem.priceType || PriceType.Commercial
         };
       }
 

@@ -6,7 +6,7 @@ import { TranslateModule } from '@ngx-translate/core';
 import { Subject, debounceTime, distinctUntilChanged, takeUntil } from 'rxjs';
 import { CatalogService, PaginatedResult, PaginationParams } from '../../services/catalog.service';
 import { CartService } from '../../services/cart.service';
-import { ProductCatalogItem, ProductFilter, CategoryNode } from '../../models/portal.model';
+import { ProductCatalogItem, ProductFilter, CategoryNode, PriceType } from '../../models/portal.model';
 
 @Component({
   selector: 'app-product-catalog',
@@ -164,9 +164,16 @@ import { ProductCatalogItem, ProductFilter, CategoryNode } from '../../models/po
           <div class="product-container" [class.list-view]="viewMode() === 'list'">
             @for (product of products(); track product.id) {
               <div class="product-card" [routerLink]="['/portal/product', product.id]">
-                @if (product.requiresPrescription) {
-                  <div class="product-badge rx">Rx</div>
-                }
+                <div class="product-badges">
+                  @if (product.requiresPrescription) {
+                    <span class="product-badge rx">Rx</span>
+                  }
+                  @if (product.priceType) {
+                    <span class="product-badge price-type" [class.essential]="product.priceType === 'essential'" [class.commercial]="product.priceType === 'commercial'">
+                      {{ product.priceType === 'essential' ? 'E' : 'C' }}
+                    </span>
+                  }
+                </div>
                 <div class="product-image">
                   @if (product.imageUrl) {
                     <img [src]="product.imageUrl" [alt]="product.name" />
@@ -484,20 +491,46 @@ import { ProductCatalogItem, ProductFilter, CategoryNode } from '../../models/po
       box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
     }
 
-    .product-badge {
+    .product-badges {
       position: absolute;
       top: 8px;
       left: 8px;
+      display: flex;
+      gap: 4px;
+      z-index: 1;
+    }
+
+    .product-badge {
       padding: 0.25rem 0.5rem;
       border-radius: 4px;
       font-size: 0.75rem;
       font-weight: 600;
-      z-index: 1;
     }
 
     .product-badge.rx {
       background: #f59e0b;
       color: white;
+    }
+
+    .product-badge.price-type {
+      width: 22px;
+      height: 22px;
+      padding: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50%;
+      font-size: 0.625rem;
+    }
+
+    .product-badge.price-type.commercial {
+      background: #dbeafe;
+      color: #1d4ed8;
+    }
+
+    .product-badge.price-type.essential {
+      background: #dcfce7;
+      color: #15803d;
     }
 
     .product-image {
@@ -1012,12 +1045,12 @@ export class ProductCatalogComponent implements OnInit, OnDestroy {
 
   private getMockProducts(): ProductCatalogItem[] {
     return [
-      { id: '1', code: 'MED-001', name: 'Aspirin 500mg', manufacturer: 'Bayer', manufacturerId: '1', category: 'Pain Relief', categoryId: '1', unitPrice: 8.50, stockQuantity: 150, isAvailable: true, requiresPrescription: false },
-      { id: '2', code: 'MED-002', name: 'Ibuprofen 400mg', manufacturer: 'Hemofarm', manufacturerId: '2', category: 'Pain Relief', categoryId: '1', unitPrice: 12.00, stockQuantity: 200, isAvailable: true, requiresPrescription: false },
-      { id: '3', code: 'MED-003', name: 'Amoxicillin 500mg', manufacturer: 'Bosnalijek', manufacturerId: '3', category: 'Antibiotics', categoryId: '2', unitPrice: 25.00, stockQuantity: 75, isAvailable: true, requiresPrescription: true },
-      { id: '4', code: 'MED-004', name: 'Vitamin C 1000mg', manufacturer: 'Pliva', manufacturerId: '4', category: 'Vitamins', categoryId: '3', unitPrice: 15.50, stockQuantity: 300, isAvailable: true, requiresPrescription: false },
-      { id: '5', code: 'MED-005', name: 'Paracetamol 500mg', manufacturer: 'Bayer', manufacturerId: '1', category: 'Pain Relief', categoryId: '1', unitPrice: 6.00, stockQuantity: 0, isAvailable: false, requiresPrescription: false },
-      { id: '6', code: 'MED-006', name: 'Omeprazole 20mg', manufacturer: 'Hemofarm', manufacturerId: '2', category: 'Digestive', categoryId: '4', unitPrice: 18.00, stockQuantity: 120, isAvailable: true, requiresPrescription: true },
+      { id: '1', code: 'MED-001', name: 'Aspirin 500mg', manufacturer: 'Bayer', manufacturerId: '1', category: 'Pain Relief', categoryId: '1', unitPrice: 8.50, stockQuantity: 150, isAvailable: true, requiresPrescription: false, priceType: PriceType.Commercial },
+      { id: '2', code: 'MED-002', name: 'Ibuprofen 400mg', manufacturer: 'Hemofarm', manufacturerId: '2', category: 'Pain Relief', categoryId: '1', unitPrice: 12.00, stockQuantity: 200, isAvailable: true, requiresPrescription: false, priceType: PriceType.Essential },
+      { id: '3', code: 'MED-003', name: 'Amoxicillin 500mg', manufacturer: 'Bosnalijek', manufacturerId: '3', category: 'Antibiotics', categoryId: '2', unitPrice: 25.00, stockQuantity: 75, isAvailable: true, requiresPrescription: true, priceType: PriceType.Essential },
+      { id: '4', code: 'MED-004', name: 'Vitamin C 1000mg', manufacturer: 'Pliva', manufacturerId: '4', category: 'Vitamins', categoryId: '3', unitPrice: 15.50, stockQuantity: 300, isAvailable: true, requiresPrescription: false, priceType: PriceType.Commercial },
+      { id: '5', code: 'MED-005', name: 'Paracetamol 500mg', manufacturer: 'Bayer', manufacturerId: '1', category: 'Pain Relief', categoryId: '1', unitPrice: 6.00, stockQuantity: 0, isAvailable: false, requiresPrescription: false, priceType: PriceType.Commercial },
+      { id: '6', code: 'MED-006', name: 'Omeprazole 20mg', manufacturer: 'Hemofarm', manufacturerId: '2', category: 'Digestive', categoryId: '4', unitPrice: 18.00, stockQuantity: 120, isAvailable: true, requiresPrescription: true, priceType: PriceType.Essential },
     ];
   }
 

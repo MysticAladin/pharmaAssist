@@ -1,6 +1,16 @@
 // Portal Models
 // Models specific to the e-pharmacy customer portal
 
+/**
+ * Price classification for medicines
+ * Commercial - standard commercial pricing
+ * Essential - essential medicines list (often with regulated pricing)
+ */
+export enum PriceType {
+  Commercial = 'commercial',
+  Essential = 'essential'
+}
+
 export interface CartItem {
   productId: string;
   productName: string;
@@ -11,6 +21,7 @@ export interface CartItem {
   maxQuantity: number; // Available stock
   imageUrl?: string;
   subtotal: number;
+  priceType: PriceType; // Commercial or Essential classification
 }
 
 export interface ShoppingCart {
@@ -21,6 +32,13 @@ export interface ShoppingCart {
   total: number;
   itemCount: number;
   lastUpdated: Date;
+  // Split invoice calculations
+  commercialSubtotal: number;
+  commercialTax: number;
+  commercialTotal: number;
+  essentialSubtotal: number;
+  essentialTax: number;
+  essentialTotal: number;
 }
 
 export interface DeliveryAddress {
@@ -81,6 +99,17 @@ export interface PaymentInfo {
   method: PaymentMethod;
   purchaseOrderNumber?: string;
   notes?: string;
+  splitInvoice: boolean; // Option to split invoice by price type
+}
+
+export interface InvoiceSummary {
+  invoiceNumber?: string;
+  priceType: PriceType;
+  items: CartItem[];
+  subtotal: number;
+  tax: number;
+  total: number;
+  invoiceUrl?: string;
 }
 
 export interface CheckoutData {
@@ -89,6 +118,7 @@ export interface CheckoutData {
   payment: PaymentInfo;
   cart: ShoppingCart;
   specialInstructions?: string;
+  splitInvoice: boolean;
 }
 
 export interface PortalOrder {
@@ -108,6 +138,9 @@ export interface PortalOrder {
   actualDelivery?: Date;
   trackingNumber?: string;
   invoiceUrl?: string;
+  // Split invoice support
+  splitInvoice: boolean;
+  invoices?: InvoiceSummary[]; // When splitInvoice is true, contains Commercial and Essential invoices
 }
 
 export enum PortalOrderStatus {
@@ -148,6 +181,7 @@ export interface ProductCatalogItem {
   categoryId: string;
   description?: string;
   unitPrice: number;
+  priceType: PriceType; // Commercial or Essential classification
   customerPrice?: number; // Customer-specific pricing
   stockQuantity: number;
   isAvailable: boolean;
@@ -184,6 +218,7 @@ export interface QuickOrderItem {
   unitPrice?: number;
   inStock?: boolean;
   error?: string;
+  priceType?: PriceType;
 }
 
 export interface Favorite {

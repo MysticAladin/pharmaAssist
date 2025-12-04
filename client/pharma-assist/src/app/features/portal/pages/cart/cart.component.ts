@@ -4,7 +4,7 @@ import { RouterModule, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
 import { CartService } from '../../services/cart.service';
-import { CartItem } from '../../models/portal.model';
+import { CartItem, PriceType } from '../../models/portal.model';
 
 @Component({
   selector: 'app-cart',
@@ -48,6 +48,9 @@ import { CartItem } from '../../models/portal.model';
                   <div class="product-info">
                     <a [routerLink]="['/portal/product', item.productId]" class="product-name">
                       {{ item.productName }}
+                      <span class="price-type-badge" [class.essential]="item.priceType === 'essential'" [class.commercial]="item.priceType === 'commercial'">
+                        {{ item.priceType === 'essential' ? 'E' : 'C' }}
+                      </span>
                     </a>
                     <p class="product-code">{{ item.productCode }}</p>
                     <p class="product-manufacturer">{{ item.manufacturer }}</p>
@@ -105,6 +108,20 @@ import { CartItem } from '../../models/portal.model';
               <span>{{ 'portal.cart.subtotal' | translate }} ({{ itemCount() }} {{ 'portal.cart.items' | translate }})</span>
               <span>{{ subtotal() | currency:'BAM':'symbol':'1.2-2' }}</span>
             </div>
+
+            @if (hasMixedPriceTypes()) {
+              <div class="price-breakdown">
+                <div class="breakdown-row commercial">
+                  <span>{{ 'portal.checkout.commercialList' | translate }}</span>
+                  <span>{{ commercialTotal() | currency:'BAM':'symbol':'1.2-2' }}</span>
+                </div>
+                <div class="breakdown-row essential">
+                  <span>{{ 'portal.checkout.essentialList' | translate }}</span>
+                  <span>{{ essentialTotal() | currency:'BAM':'symbol':'1.2-2' }}</span>
+                </div>
+                <p class="split-hint">{{ 'portal.cart.splitInvoiceHint' | translate }}</p>
+              </div>
+            }
 
             <div class="summary-row">
               <span>{{ 'portal.cart.tax' | translate }} (17% PDV)</span>
@@ -440,6 +457,72 @@ import { CartItem } from '../../models/portal.model';
       }
     }
 
+    /* Price Type Badge */
+    .price-type-badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      font-size: 0.625rem;
+      font-weight: 700;
+      margin-left: 0.5rem;
+      vertical-align: middle;
+    }
+
+    .price-type-badge.commercial {
+      background: #dbeafe;
+      color: #1d4ed8;
+    }
+
+    .price-type-badge.essential {
+      background: #dcfce7;
+      color: #15803d;
+    }
+
+    /* Price Breakdown */
+    .price-breakdown {
+      margin: 0.75rem 0;
+      padding: 0.75rem;
+      background: var(--surface-ground, #f5f5f5);
+      border-radius: 8px;
+    }
+
+    .breakdown-row {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.875rem;
+      padding: 0.25rem 0;
+    }
+
+    .breakdown-row.commercial span:first-child::before {
+      content: '';
+      display: inline-block;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #3b82f6;
+      margin-right: 0.5rem;
+    }
+
+    .breakdown-row.essential span:first-child::before {
+      content: '';
+      display: inline-block;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #22c55e;
+      margin-right: 0.5rem;
+    }
+
+    .split-hint {
+      font-size: 0.75rem;
+      color: var(--text-secondary);
+      margin-top: 0.5rem;
+      font-style: italic;
+    }
+
     @media (max-width: 768px) {
       .cart-header {
         display: none;
@@ -473,6 +556,11 @@ export class CartComponent {
   tax = computed(() => this.cartService.cart().tax);
   discount = computed(() => this.cartService.cart().discount);
   total = computed(() => this.cartService.cart().total);
+
+  // Split invoice computed values
+  hasMixedPriceTypes = computed(() => this.cartService.hasMixedPriceTypes());
+  commercialTotal = computed(() => this.cartService.cart().commercialTotal);
+  essentialTotal = computed(() => this.cartService.cart().essentialTotal);
 
   incrementQuantity(productId: string) {
     this.cartService.incrementQuantity(productId);

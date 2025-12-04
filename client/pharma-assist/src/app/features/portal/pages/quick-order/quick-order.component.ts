@@ -5,7 +5,7 @@ import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
 import { CartService } from '../../services/cart.service';
 import { CatalogService } from '../../services/catalog.service';
-import { QuickOrderItem } from '../../models/portal.model';
+import { QuickOrderItem, PriceType } from '../../models/portal.model';
 
 @Component({
   selector: 'app-quick-order',
@@ -306,7 +306,8 @@ export class QuickOrderComponent {
           unitPrice: item.unitPrice ?? 0,
           quantity: item.quantity,
           maxQuantity: 999,
-          subtotal: (item.unitPrice ?? 0) * item.quantity
+          subtotal: (item.unitPrice ?? 0) * item.quantity,
+          priceType: item.priceType ?? PriceType.Commercial
         });
       }
     }

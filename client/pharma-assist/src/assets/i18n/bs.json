@@ -52,7 +52,13 @@
     "activeOnly": "Samo aktivno",
     "unknown": "Nepoznato",
     "optional": "(opcionalno)",
-    "viewAll": "Pogledaj sve"
+    "viewAll": "Pogledaj sve",
+    "all": "Sve",
+    "allowed": "Dozvoljeno",
+    "locked": "Zaključano",
+    "value": "Vrijednost",
+    "reason": "Razlog",
+    "remove": "Ukloni"
   },
   "commands": {
     "searchPlaceholder": "Pretraži komande...",
@@ -1986,7 +1992,9 @@
       "tax": "PDV (17%)",
       "grandTotal": "Ukupno za Platiti",
       "proceedToCheckout": "Nastavi na Plaćanje",
-      "itemsInCart": "proizvoda u košarici"
+      "itemsInCart": "proizvoda u košarici",
+      "items": "stavki",
+      "splitInvoiceHint": "Možete podijeliti fakture prilikom narudžbe"
     },
     "checkout": {
       "title": "Završi Narudžbu",
@@ -2012,7 +2020,13 @@
       "continue": "Nastavi",
       "reviewOrder": "Pregled Narudžbe",
       "review": "Pregled i Potvrda",
-      "placeOrder": "Potvrdi Narudžbu"
+      "placeOrder": "Potvrdi Narudžbu",
+      "splitInvoice": "Podijeli Fakturu",
+      "splitInvoiceDesc": "Kreiraj odvojene fakture za lijekove sa Komercijalne i Esencijalne liste",
+      "commercialList": "Komercijalna",
+      "essentialList": "Esencijalna",
+      "items": "stavki",
+      "splitInvoiceReviewNote": "Bit će generirane dvije odvojene fakture"
     },
     "orderConfirmation": {
       "title": "Narudžba Potvrđena!",
@@ -2023,6 +2037,9 @@
       "nextSteps": "Sljedeći Koraci",
       "emailConfirmation": "Uskoro ćete primiti email potvrdu",
       "invoiceSent": "Faktura će biti poslana u roku 24 sata",
+      "invoicesSent": "Dvije fakture (Komercijalna i Esencijalna) bit će poslane u roku 24 sata",
+      "invoiceDetails": "Detalji Faktura",
+      "splitInvoiceNote": "Vaša narudžba će biti fakturirana odvojeno za lijekove sa Komercijalne i Esencijalne liste",
       "trackingInfo": "Informacije o praćenju bit će poslane emailom",
       "viewOrders": "Pogledaj Moje Narudžbe",
       "continueShopping": "Nastavi Kupovinu",
@@ -2118,6 +2135,66 @@
       "displayPrefs": "Postavke Prikaza",
       "defaultView": "Zadani Prikaz Kataloga",
       "itemsPerPage": "Proizvoda po Stranici"
+    }
+  },
+  "admin": {
+    "featureFlags": {
+      "title": "Oznake Funkcionalnosti",
+      "subtitle": "Upravljajte oznakama funkcionalnosti na sistemskom i klijentskom nivou",
+      "createFlag": "Kreiraj Oznaku",
+      "editFlag": "Uredi Oznaku",
+      "stats": {
+        "total": "Ukupno Oznaka",
+        "enabled": "Aktivne",
+        "disabled": "Neaktivne",
+        "clientOverridable": "Klijent Može Promijeniti"
+      },
+      "tabs": {
+        "system": "Sistemske Oznake",
+        "client": "Klijentske Izmjene"
+      },
+      "table": {
+        "status": "Status",
+        "flag": "Oznaka",
+        "category": "Kategorija",
+        "type": "Tip",
+        "value": "Vrijednost",
+        "override": "Izmjena",
+        "updated": "Zadnja Izmjena"
+      },
+      "empty": {
+        "title": "Nema Oznaka Funkcionalnosti",
+        "description": "Kreirajte prvu oznaku funkcionalnosti za kontrolu funkcionalnosti u aplikaciji."
+      },
+      "form": {
+        "key": "Ključ Oznake",
+        "keyHint": "Format: kategorija.naziv_funkcije (npr. portal.podijeljena_faktura)",
+        "name": "Naziv za Prikaz",
+        "description": "Opis",
+        "category": "Kategorija",
+        "type": "Tip Vrijednosti",
+        "defaultValue": "Zadana Vrijednost",
+        "enabled": "Aktivno",
+        "allowClientOverride": "Dozvoli izmjenu na klijentskom nivou"
+      },
+      "clientList": {
+        "title": "Klijenti sa Izmjenama",
+        "empty": "Nijedan klijent nema prilagođene izmjene"
+      },
+      "clientFlags": {
+        "title": "Klijentske Izmjene",
+        "selectClient": "Odaberite klijenta za pregled njihovih izmjena",
+        "noOverrides": "Ovaj klijent nema prilagođenih izmjena"
+      },
+      "clientOverride": {
+        "title": "Dodaj Klijentsku Izmjenu",
+        "client": "Odaberi Klijenta",
+        "selectClient": "Izaberite klijenta...",
+        "value": "Vrijednost Izmjene",
+        "reason": "Razlog Izmjene",
+        "reasonPlaceholder": "Zašto se ova oznaka mijenja za ovog klijenta?"
+      },
+      "addClientOverride": "Dodaj Klijentsku Izmjenu"
     }
   }
 }
