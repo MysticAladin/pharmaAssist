@@ -508,6 +508,18 @@ export class SidebarComponent {
       roles: [UserRole.SuperAdmin, UserRole.Admin]
     },
     {
+      labelKey: 'nav.pricing',
+      icon: 'icon-tag',
+      route: '/admin/pricing',
+      roles: [UserRole.SuperAdmin, UserRole.Admin]
+    },
+    {
+      labelKey: 'nav.targets',
+      icon: 'icon-target',
+      route: '/admin/targets',
+      roles: [UserRole.SuperAdmin, UserRole.Admin, UserRole.Manager]
+    },
+    {
       labelKey: 'nav.settings',
       icon: 'icon-settings',
       route: '/admin/settings',

@@ -110,6 +110,9 @@ public static class DependencyInjection
         // Add Claims Service
         services.AddScoped<IClaimService, ClaimService>();
 
+        // Add Pricing Service
+        services.AddScoped<IPricingService, PricingService>();
+
         return services;
     }
 }

@@ -53,6 +53,19 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser, Applicati
     public DbSet<ClientFeatureFlag> ClientFeatureFlags { get; set; } = null!;
     public DbSet<FeatureFlagHistory> FeatureFlagHistory { get; set; } = null!;
 
+    // Pricing & Promotions
+    public DbSet<PriceRule> PriceRules { get; set; } = null!;
+    public DbSet<Promotion> Promotions { get; set; } = null!;
+    public DbSet<PromotionProduct> PromotionProducts { get; set; } = null!;
+    public DbSet<PromotionCategory> PromotionCategories { get; set; } = null!;
+    public DbSet<PromotionUsage> PromotionUsages { get; set; } = null!;
+
+    // Sales Targets & Budgets
+    public DbSet<SalesTarget> SalesTargets { get; set; } = null!;
+    public DbSet<SalesTargetProgress> SalesTargetProgress { get; set; } = null!;
+    public DbSet<Budget> Budgets { get; set; } = null!;
+    public DbSet<BudgetExpense> BudgetExpenses { get; set; } = null!;
+
     protected override void OnModelCreating(ModelBuilder builder)
     {
         base.OnModelCreating(builder);
