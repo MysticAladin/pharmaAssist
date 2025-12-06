@@ -31,6 +31,9 @@ public static class DatabaseSeeder
             // Seed Admin User
             await SeedAdminUserAsync(userManager, logger);
 
+            // Seed Customer Portal User
+            await SeedCustomerUserAsync(userManager, context, logger);
+
             // Seed Cantons (Bosnia and Herzegovina)
             await SeedCantonsAsync(context, logger);
 
@@ -56,6 +59,7 @@ public static class DatabaseSeeder
             new ApplicationRole { Name = "PharmacyTechnician", Description = "Pharmacy technician" },
             new ApplicationRole { Name = "WarehouseManager", Description = "Warehouse operations manager" },
             new ApplicationRole { Name = "SalesRepresentative", Description = "Sales and customer relations" },
+            new ApplicationRole { Name = "Customer", Description = "Customer portal user" },
             new ApplicationRole { Name = "User", Description = "Standard user with limited access" }
         };
 
@@ -98,6 +102,97 @@ public static class DatabaseSeeder
             else
             {
                 logger.LogError("Failed to create admin user: {Errors}", 
+                    string.Join(", ", result.Errors.Select(e => e.Description)));
+            }
+        }
+    }
+
+    private static async Task SeedCustomerUserAsync(
+        UserManager<ApplicationUser> userManager, 
+        ApplicationDbContext context, 
+        ILogger logger)
+    {
+        const string customerEmail = "customer@apoteka-sarajevo.ba";
+        const string customerPassword = "Customer@123!";
+
+        var customerUser = await userManager.FindByEmailAsync(customerEmail);
+        if (customerUser == null)
+        {
+            customerUser = new ApplicationUser
+            {
+                UserName = customerEmail,
+                Email = customerEmail,
+                FirstName = "Emir",
+                LastName = "Hodžić",
+                EmailConfirmed = true,
+                IsActive = true,
+                CreatedAt = DateTime.UtcNow
+            };
+
+            var result = await userManager.CreateAsync(customerUser, customerPassword);
+            if (result.Succeeded)
+            {
+                await userManager.AddToRoleAsync(customerUser, "Customer");
+                logger.LogInformation("Created customer user: {Email}", customerEmail);
+
+                // Create associated Customer entity
+                var existingCustomer = await context.Customers
+                    .FirstOrDefaultAsync(c => c.UserId == customerUser.Id);
+                
+                if (existingCustomer == null)
+                {
+                    var customer = new Customer
+                    {
+                        UserId = customerUser.Id,
+                        CustomerCode = "CUST-001",
+                        CustomerType = CustomerType.Pharmacy,
+                        FirstName = customerUser.FirstName,
+                        LastName = customerUser.LastName,
+                        CompanyName = "Apoteka Sarajevo",
+                        Email = customerUser.Email,
+                        Phone = "+387 33 555 123",
+                        MobilePhone = "+387 61 123 456",
+                        TaxId = "200123456789",
+                        RegistrationNumber = "4200123456789",
+                        CreditLimit = 50000,
+                        PaymentTermsDays = 30,
+                        Tier = CustomerTier.A,
+                        IsActive = true,
+                        IsVerified = true,
+                        VerifiedAt = DateTime.UtcNow,
+                        VerifiedBy = "system",
+                        CreatedAt = DateTime.UtcNow,
+                        CreatedBy = "system"
+                    };
+
+                    context.Customers.Add(customer);
+                    await context.SaveChangesAsync();
+
+                    // Add default address
+                    var address = new CustomerAddress
+                    {
+                        CustomerId = customer.Id,
+                        AddressType = AddressType.Both,
+                        Street = "Maršala Tita 9a",
+                        City = "Sarajevo",
+                        PostalCode = "71000",
+                        ContactName = "Emir Hodžić",
+                        ContactPhone = "+387 61 123 456",
+                        IsDefault = true,
+                        IsActive = true,
+                        CreatedAt = DateTime.UtcNow,
+                        CreatedBy = "system"
+                    };
+
+                    context.CustomerAddresses.Add(address);
+                    await context.SaveChangesAsync();
+
+                    logger.LogInformation("Created customer entity for: {CustomerName}", customer.FullName);
+                }
+            }
+            else
+            {
+                logger.LogError("Failed to create customer user: {Errors}", 
                     string.Join(", ", result.Errors.Select(e => e.Description)));
             }
         }

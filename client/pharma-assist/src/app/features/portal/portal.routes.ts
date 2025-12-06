@@ -60,5 +60,10 @@ export const PORTAL_ROUTES: Routes = [
     path: 'account',
     loadComponent: () => import('./pages/account/account.component')
       .then(m => m.AccountComponent)
+  },
+  {
+    path: 'claims',
+    loadComponent: () => import('./pages/claims/portal-claims.component')
+      .then(m => m.PortalClaimsComponent)
   }
 ];

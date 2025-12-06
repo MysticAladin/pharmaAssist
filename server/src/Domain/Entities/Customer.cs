@@ -11,6 +11,11 @@ public class Customer : BaseEntity
     public string CustomerCode { get; set; } = string.Empty;
     public CustomerType CustomerType { get; set; } = CustomerType.Retail;
     
+    // Parent-Child Relationship (for pharmacy chains like "Apoteke Sarajevo")
+    public int? ParentCustomerId { get; set; }
+    public string? BranchCode { get; set; } // e.g., "AS-01", "AS-02" for individual branches
+    public bool IsHeadquarters { get; set; } = false; // True for main/parent company
+    
     // Personal/Company info
     public string FirstName { get; set; } = string.Empty;
     public string LastName { get; set; } = string.Empty;
@@ -44,6 +49,8 @@ public class Customer : BaseEntity
 
     // Navigation properties
     public virtual ApplicationUser? User { get; set; }
+    public virtual Customer? ParentCustomer { get; set; }
+    public virtual ICollection<Customer> ChildCustomers { get; set; } = new List<Customer>();
     public virtual ICollection<CustomerAddress> Addresses { get; set; } = new List<CustomerAddress>();
     public virtual ICollection<Order> Orders { get; set; } = new List<Order>();
     public virtual ICollection<Prescription> Prescriptions { get; set; } = new List<Prescription>();

@@ -55,6 +55,9 @@ public class CustomerConfiguration : IEntityTypeConfiguration<Customer>
         builder.Property(e => e.VerifiedBy)
             .HasMaxLength(200);
 
+        builder.Property(e => e.BranchCode)
+            .HasMaxLength(20);
+
         // Ignore computed property
         builder.Ignore(e => e.FullName);
 
@@ -65,11 +68,19 @@ public class CustomerConfiguration : IEntityTypeConfiguration<Customer>
 
         builder.HasIndex(e => e.Email);
 
+        builder.HasIndex(e => e.ParentCustomerId);
+
         // Relationship with ApplicationUser (optional)
         builder.HasOne(e => e.User)
             .WithMany()
             .HasForeignKey(e => e.UserId)
             .OnDelete(DeleteBehavior.SetNull);
+
+        // Parent-Child relationship (pharmacy chains)
+        builder.HasOne(e => e.ParentCustomer)
+            .WithMany(e => e.ChildCustomers)
+            .HasForeignKey(e => e.ParentCustomerId)
+            .OnDelete(DeleteBehavior.Restrict);
 
         builder.HasMany(e => e.Addresses)
             .WithOne(a => a.Customer)

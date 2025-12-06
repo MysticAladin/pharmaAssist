@@ -5,7 +5,8 @@ import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angula
 import { TranslateModule } from '@ngx-translate/core';
 import { AuthService } from '../../../core/services/auth.service';
 import { UIStateService } from '../../../core/state/ui-state.service';
-import { ILoginRequest, ILoginResponse } from '../../../core/models/user.model';
+import { AuthStateService } from '../../../core/state/auth-state.service';
+import { ILoginRequest, ILoginResponse, UserRole } from '../../../core/models/user.model';
 import { HttpErrorResponse } from '@angular/common/http';
 
 @Component({
@@ -365,6 +366,7 @@ import { HttpErrorResponse } from '@angular/common/http';
 export class LoginComponent {
   private readonly fb = inject(FormBuilder);
   private readonly authService = inject(AuthService);
+  private readonly authState = inject(AuthStateService);
   private readonly uiState = inject(UIStateService);
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
@@ -399,9 +401,17 @@ export class LoginComponent {
       next: (response: ILoginResponse) => {
         this.isLoading.set(false);
         if (response.succeeded) {
-          // Navigate to return URL or dashboard
-          const returnUrl = this.route.snapshot.queryParams['returnUrl'] || '/dashboard';
-          this.router.navigateByUrl(returnUrl);
+          // Determine redirect URL based on user role
+          const returnUrl = this.route.snapshot.queryParams['returnUrl'];
+          let targetUrl = returnUrl || '/dashboard';
+
+          // If no explicit return URL, redirect customers to portal
+          if (!returnUrl && this.authState.hasRole(UserRole.Customer) &&
+              !this.authState.hasAnyRole([UserRole.Admin, UserRole.Manager])) {
+            targetUrl = '/portal';
+          }
+
+          this.router.navigateByUrl(targetUrl);
           this.uiState.showSuccess('Dobro došli!', 'Uspješno ste se prijavili.');
         } else {
           this.error.set(response.message || 'Prijava nije uspjela');

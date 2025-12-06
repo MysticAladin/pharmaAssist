@@ -3,16 +3,7 @@ import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
-
-interface Order {
-  id: string;
-  orderNumber: string;
-  date: Date;
-  status: 'pending' | 'processing' | 'shipped' | 'delivered' | 'cancelled';
-  itemCount: number;
-  total: number;
-  trackingNumber?: string;
-}
+import { PortalOrdersService, PortalOrder, OrderStatus } from '../../services/portal-orders.service';
 
 @Component({
   selector: 'app-portal-orders',
@@ -23,18 +14,16 @@ interface Order {
       <div class="page-header">
         <h1>{{ 'portal.orders.title' | translate }}</h1>
         <div class="filters">
-          <select [(ngModel)]="statusFilter" (change)="applyFilters()">
-            <option value="">{{ 'portal.orders.allStatuses' | translate }}</option>
-            <option value="pending">{{ 'portal.orders.pending' | translate }}</option>
-            <option value="processing">{{ 'portal.orders.processing' | translate }}</option>
-            <option value="shipped">{{ 'portal.orders.shipped' | translate }}</option>
-            <option value="delivered">{{ 'portal.orders.delivered' | translate }}</option>
-            <option value="cancelled">{{ 'portal.orders.cancelled' | translate }}</option>
+          <select [(ngModel)]="statusFilter" (ngModelChange)="loadOrders()">
+            <option [ngValue]="undefined">{{ 'portal.orders.allStatuses' | translate }}</option>
+            @for (status of statusOptions; track status.value) {
+              <option [ngValue]="status.value">{{ status.label }}</option>
+            }
           </select>
           <input
             type="text"
             [(ngModel)]="searchQuery"
-            (input)="applyFilters()"
+            (input)="applySearch()"
             [placeholder]="'portal.orders.searchPlaceholder' | translate"
           />
         </div>
@@ -45,7 +34,7 @@ interface Order {
           <div class="spinner"></div>
           <p>{{ 'common.loading' | translate }}</p>
         </div>
-      } @else if (filteredOrders().length === 0) {
+      } @else if (orders().length === 0) {
         <div class="empty-state">
           <span class="icon">📦</span>
           <h3>{{ 'portal.orders.noOrders' | translate }}</h3>
@@ -54,21 +43,21 @@ interface Order {
         </div>
       } @else {
         <div class="orders-list">
-          @for (order of filteredOrders(); track order.id) {
+          @for (order of orders(); track order.id) {
             <div class="order-card" [routerLink]="['/portal/orders', order.id]">
               <div class="order-header">
                 <div class="order-number">
                   <span class="label">{{ 'portal.orders.order' | translate }}</span>
                   <span class="value">#{{ order.orderNumber }}</span>
                 </div>
-                <span class="status" [class]="'status-' + order.status">
-                  {{ 'portal.orders.' + order.status | translate }}
+                <span class="status" [class]="getStatusClass(order.status)">
+                  {{ getStatusName(order.status) }}
                 </span>
               </div>
               <div class="order-body">
                 <div class="info-group">
                   <span class="label">{{ 'portal.orders.orderDate' | translate }}</span>
-                  <span class="value">{{ order.date | date:'mediumDate' }}</span>
+                  <span class="value">{{ order.orderDate | date:'mediumDate' }}</span>
                 </div>
                 <div class="info-group">
                   <span class="label">{{ 'portal.orders.items' | translate }}</span>
@@ -76,17 +65,9 @@ interface Order {
                 </div>
                 <div class="info-group">
                   <span class="label">{{ 'portal.orders.total' | translate }}</span>
-                  <span class="value total">{{ order.total | currency:'BAM':'symbol':'1.2-2' }}</span>
+                  <span class="value total">{{ order.totalAmount | currency:'BAM':'symbol':'1.2-2' }}</span>
                 </div>
               </div>
-              @if (order.trackingNumber) {
-                <div class="order-footer">
-                  <span class="tracking">
-                    <span class="tracking-label">{{ 'portal.orders.tracking' | translate }}:</span>
-                    {{ order.trackingNumber }}
-                  </span>
-                </div>
-              }
               <div class="order-arrow">→</div>
             </div>
           }
@@ -159,45 +140,73 @@ interface Order {
   `]
 })
 export class PortalOrdersComponent implements OnInit {
+  private readonly ordersService = inject(PortalOrdersService);
+
   loading = signal(true);
-  orders = signal<Order[]>([]);
+  orders = signal<PortalOrder[]>([]);
   currentPage = signal(1);
+  totalPages = signal(1);
   pageSize = 10;
 
-  statusFilter = '';
+  statusFilter: OrderStatus | undefined = undefined;
   searchQuery = '';
 
-  filteredOrders = computed(() => {
-    let result = this.orders();
-    if (this.statusFilter) result = result.filter(o => o.status === this.statusFilter);
-    if (this.searchQuery) {
-      const q = this.searchQuery.toLowerCase();
-      result = result.filter(o => o.orderNumber.toLowerCase().includes(q) || o.trackingNumber?.toLowerCase().includes(q));
-    }
-    const start = (this.currentPage() - 1) * this.pageSize;
-    return result.slice(start, start + this.pageSize);
-  });
-
-  totalPages = computed(() => Math.ceil(this.orders().length / this.pageSize) || 1);
+  statusOptions: { value: OrderStatus; label: string }[] = [
+    { value: OrderStatus.Pending, label: 'Na čekanju' },
+    { value: OrderStatus.Confirmed, label: 'Potvrđeno' },
+    { value: OrderStatus.Processing, label: 'U obradi' },
+    { value: OrderStatus.Shipped, label: 'Poslano' },
+    { value: OrderStatus.Delivered, label: 'Dostavljeno' },
+    { value: OrderStatus.Cancelled, label: 'Otkazano' }
+  ];
 
   ngOnInit() {
-    // Simulate loading orders
-    setTimeout(() => {
-      this.orders.set([
-        { id: '1', orderNumber: 'ORD-2024-001', date: new Date('2024-01-15'), status: 'delivered', itemCount: 5, total: 1250.00, trackingNumber: 'BA123456789' },
-        { id: '2', orderNumber: 'ORD-2024-002', date: new Date('2024-01-20'), status: 'shipped', itemCount: 3, total: 890.50, trackingNumber: 'BA987654321' },
-        { id: '3', orderNumber: 'ORD-2024-003', date: new Date('2024-01-25'), status: 'processing', itemCount: 8, total: 2340.00 },
-        { id: '4', orderNumber: 'ORD-2024-004', date: new Date('2024-01-28'), status: 'pending', itemCount: 2, total: 450.00 },
-      ]);
-      this.loading.set(false);
-    }, 500);
+    this.loadOrders();
   }
 
-  applyFilters() {
+  loadOrders() {
+    this.loading.set(true);
+    this.ordersService.getMyOrders(this.currentPage(), this.pageSize, this.statusFilter).subscribe({
+      next: (response) => {
+        if (response.success) {
+          this.orders.set(response.data);
+          this.totalPages.set(response.totalPages);
+        }
+        this.loading.set(false);
+      },
+      error: () => {
+        this.loading.set(false);
+      }
+    });
+  }
+
+  applySearch() {
+    // For now, search is client-side after loading
+    // Could be enhanced to server-side search
     this.currentPage.set(1);
+    this.loadOrders();
+  }
+
+  getStatusClass(status: OrderStatus): string {
+    const statusClasses: Record<OrderStatus, string> = {
+      [OrderStatus.Pending]: 'status-pending',
+      [OrderStatus.Confirmed]: 'status-confirmed',
+      [OrderStatus.Processing]: 'status-processing',
+      [OrderStatus.ReadyForShipment]: 'status-ready',
+      [OrderStatus.Shipped]: 'status-shipped',
+      [OrderStatus.Delivered]: 'status-delivered',
+      [OrderStatus.Cancelled]: 'status-cancelled',
+      [OrderStatus.Returned]: 'status-returned'
+    };
+    return statusClasses[status] || 'status-pending';
+  }
+
+  getStatusName(status: OrderStatus): string {
+    return this.ordersService.getStatusDisplayName(status);
   }
 
   goToPage(page: number) {
     this.currentPage.set(page);
+    this.loadOrders();
   }
 }

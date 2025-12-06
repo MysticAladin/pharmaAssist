@@ -129,3 +129,149 @@ public class CustomerOrderSummaryDto
     public int ItemCount { get; set; }
     public decimal Total { get; set; }
 }
+
+#region Customer/Drugstore Sales Reports
+
+/// <summary>
+/// Sales report per customer (drugstore) with breakdowns
+/// </summary>
+public class CustomerSalesReportDto
+{
+    public DateTime ReportDate { get; set; } = DateTime.UtcNow;
+    public DateTime StartDate { get; set; }
+    public DateTime EndDate { get; set; }
+    public int? CustomerId { get; set; }
+    public string? CustomerName { get; set; }
+    public bool IncludeChildBranches { get; set; } = false;
+    
+    // Summary
+    public int TotalOrders { get; set; }
+    public int TotalProducts { get; set; }
+    public int TotalQuantity { get; set; }
+    public decimal TotalRevenue { get; set; }
+    public decimal TotalDiscount { get; set; }
+    public decimal NetRevenue { get; set; }
+    public decimal AverageOrderValue { get; set; }
+    
+    // Breakdowns
+    public List<CustomerSalesItemDto> SalesByCustomer { get; set; } = [];
+    public List<ProductSalesItemDto> SalesByProduct { get; set; } = [];
+    public List<CategorySalesItemDto> SalesByCategory { get; set; } = [];
+    public List<ManufacturerSalesItemDto> SalesByManufacturer { get; set; } = [];
+    public List<DailySalesDto> DailySales { get; set; } = [];
+}
+
+/// <summary>
+/// Sales per customer/branch
+/// </summary>
+public class CustomerSalesItemDto
+{
+    public int CustomerId { get; set; }
+    public string CustomerCode { get; set; } = string.Empty;
+    public string CustomerName { get; set; } = string.Empty;
+    public string? BranchCode { get; set; }
+    public bool IsHeadquarters { get; set; }
+    public int? ParentCustomerId { get; set; }
+    public string? ParentCustomerName { get; set; }
+    public int OrderCount { get; set; }
+    public int TotalQuantity { get; set; }
+    public decimal TotalRevenue { get; set; }
+    public decimal TotalDiscount { get; set; }
+    public decimal NetRevenue { get; set; }
+}
+
+/// <summary>
+/// Sales per product
+/// </summary>
+public class ProductSalesItemDto
+{
+    public int ProductId { get; set; }
+    public string ProductName { get; set; } = string.Empty;
+    public string SKU { get; set; } = string.Empty;
+    public string? CategoryName { get; set; }
+    public string? ManufacturerName { get; set; }
+    public int QuantitySold { get; set; }
+    public decimal UnitPrice { get; set; }
+    public decimal TotalRevenue { get; set; }
+    public decimal TotalDiscount { get; set; }
+    public decimal NetRevenue { get; set; }
+    public int OrderCount { get; set; }
+}
+
+/// <summary>
+/// Sales per category
+/// </summary>
+public class CategorySalesItemDto
+{
+    public int CategoryId { get; set; }
+    public string CategoryName { get; set; } = string.Empty;
+    public int ProductCount { get; set; }
+    public int QuantitySold { get; set; }
+    public decimal TotalRevenue { get; set; }
+    public decimal TotalDiscount { get; set; }
+    public decimal NetRevenue { get; set; }
+    public decimal PercentageOfTotal { get; set; }
+}
+
+/// <summary>
+/// Sales per manufacturer
+/// </summary>
+public class ManufacturerSalesItemDto
+{
+    public int ManufacturerId { get; set; }
+    public string ManufacturerName { get; set; } = string.Empty;
+    public int ProductCount { get; set; }
+    public int QuantitySold { get; set; }
+    public decimal TotalRevenue { get; set; }
+    public decimal TotalDiscount { get; set; }
+    public decimal NetRevenue { get; set; }
+    public decimal PercentageOfTotal { get; set; }
+}
+
+/// <summary>
+/// Request for customer sales report
+/// </summary>
+public class CustomerSalesReportRequestDto
+{
+    public DateTime StartDate { get; set; }
+    public DateTime EndDate { get; set; }
+    public int? CustomerId { get; set; } // Specific customer or null for all
+    public bool IncludeChildBranches { get; set; } = true; // Include branches for parent customers
+    public bool GroupByCategory { get; set; } = true;
+    public bool GroupByManufacturer { get; set; } = true;
+    public bool GroupByProduct { get; set; } = true;
+}
+
+/// <summary>
+/// Consolidated report for pharmacy chains (parent + all children)
+/// </summary>
+public class ChainSalesReportDto
+{
+    public DateTime ReportDate { get; set; } = DateTime.UtcNow;
+    public DateTime StartDate { get; set; }
+    public DateTime EndDate { get; set; }
+    
+    public int ParentCustomerId { get; set; }
+    public string ParentCustomerName { get; set; } = string.Empty;
+    public string ParentCustomerCode { get; set; } = string.Empty;
+    public int BranchCount { get; set; }
+    
+    // Consolidated totals
+    public int TotalOrders { get; set; }
+    public int TotalQuantity { get; set; }
+    public decimal TotalRevenue { get; set; }
+    public decimal TotalDiscount { get; set; }
+    public decimal NetRevenue { get; set; }
+    public decimal AverageOrderValue { get; set; }
+    
+    // Per-branch breakdown
+    public List<CustomerSalesItemDto> BranchSales { get; set; } = [];
+    
+    // Top products across chain
+    public List<ProductSalesItemDto> TopProducts { get; set; } = [];
+    
+    // Category breakdown
+    public List<CategorySalesItemDto> SalesByCategory { get; set; } = [];
+}
+
+#endregion

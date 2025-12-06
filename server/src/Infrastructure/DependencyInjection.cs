@@ -107,6 +107,9 @@ public static class DependencyInjection
         services.AddScoped<IReportService, ReportService>();
         services.AddScoped<IPdfService, PdfService>();
 
+        // Add Claims Service
+        services.AddScoped<IClaimService, ClaimService>();
+
         return services;
     }
 }

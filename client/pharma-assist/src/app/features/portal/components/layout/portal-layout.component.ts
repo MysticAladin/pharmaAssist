@@ -75,6 +75,9 @@ import { CartService } from '../../services/cart.service';
                   <a routerLink="/portal/orders" class="dropdown-item" (click)="showUserMenu.set(false)">
                     <span>📦</span> {{ 'portal.orders.title' | translate }}
                   </a>
+                  <a routerLink="/portal/claims" class="dropdown-item" (click)="showUserMenu.set(false)">
+                    <span>📋</span> {{ 'portal.claims.title' | translate }}
+                  </a>
                   <a routerLink="/portal/favorites" class="dropdown-item" (click)="showUserMenu.set(false)">
                     <span>❤️</span> {{ 'portal.favorites.title' | translate }}
                   </a>

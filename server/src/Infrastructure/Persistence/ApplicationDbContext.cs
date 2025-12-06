@@ -31,6 +31,7 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser, Applicati
     public DbSet<Order> Orders { get; set; } = null!;
     public DbSet<OrderItem> OrderItems { get; set; } = null!;
     public DbSet<Prescription> Prescriptions { get; set; } = null!;
+    public DbSet<Claim> Claims { get; set; } = null!;
 
     // Inventory Management
     public DbSet<Warehouse> Warehouses { get; set; } = null!;

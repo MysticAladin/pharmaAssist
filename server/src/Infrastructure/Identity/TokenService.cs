@@ -10,6 +10,9 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 
+// Alias to resolve conflict with Domain.Entities.Claim
+using SecurityClaim = System.Security.Claims.Claim;
+
 namespace Infrastructure.Identity;
 
 /// <summary>
@@ -66,7 +69,7 @@ public class TokenService : ITokenService
         var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwtSettings.SecretKey));
         var credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
-        var claims = new List<Claim>
+        var claims = new List<SecurityClaim>
         {
             new(JwtRegisteredClaimNames.Sub, userId),
             new(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
@@ -75,7 +78,7 @@ public class TokenService : ITokenService
 
         foreach (var role in roles)
         {
-            claims.Add(new Claim(ClaimTypes.Role, role));
+            claims.Add(new SecurityClaim(ClaimTypes.Role, role));
         }
 
         var token = new JwtSecurityToken(

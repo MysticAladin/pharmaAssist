@@ -141,6 +141,35 @@ public enum StorageCondition
 }
 
 /// <summary>
+/// Claim/Return type
+/// </summary>
+public enum ClaimType
+{
+    Return = 1,           // Full return of product
+    Exchange = 2,         // Exchange for another product
+    Refund = 3,           // Monetary refund
+    Damaged = 4,          // Damaged product claim
+    WrongProduct = 5,     // Wrong product received
+    Expired = 6,          // Expired product received
+    QualityIssue = 7      // Quality problem
+}
+
+/// <summary>
+/// Claim status
+/// </summary>
+public enum ClaimStatus
+{
+    Submitted = 1,
+    UnderReview = 2,
+    Approved = 3,
+    Rejected = 4,
+    AwaitingReturn = 5,
+    ReturnReceived = 6,
+    Resolved = 7,
+    Cancelled = 8
+}
+
+/// <summary>
 /// Feature flag scope - determines where the flag applies
 /// </summary>
 public enum FlagScope

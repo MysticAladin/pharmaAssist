@@ -232,6 +232,95 @@ public class ReportsController : ControllerBase
         // Placeholder - would return actual customer data
         return await Task.FromResult(new List<object>());
     }
+
+    #region Customer/Drugstore Sales Reports
+
+    /// <summary>
+    /// Get sales report for all customers/drugstores
+    /// </summary>
+    [HttpGet("customer-sales")]
+    public async Task<ActionResult<CustomerSalesReportDto>> GetCustomerSalesReport(
+        [FromQuery] DateTime? startDate,
+        [FromQuery] DateTime? endDate,
+        [FromQuery] int? customerId = null,
+        [FromQuery] bool includeChildBranches = true,
+        [FromQuery] bool groupByCategory = true,
+        [FromQuery] bool groupByManufacturer = true,
+        [FromQuery] bool groupByProduct = true,
+        CancellationToken cancellationToken = default)
+    {
+        var request = new CustomerSalesReportRequestDto
+        {
+            StartDate = startDate ?? DateTime.UtcNow.AddMonths(-1),
+            EndDate = endDate ?? DateTime.UtcNow,
+            CustomerId = customerId,
+            IncludeChildBranches = includeChildBranches,
+            GroupByCategory = groupByCategory,
+            GroupByManufacturer = groupByManufacturer,
+            GroupByProduct = groupByProduct
+        };
+
+        var data = await _reportService.GetCustomerSalesReportAsync(request, cancellationToken);
+        return Ok(data);
+    }
+
+    /// <summary>
+    /// Get sales report for a specific customer/drugstore
+    /// </summary>
+    [HttpGet("customer/{customerId}/sales")]
+    public async Task<ActionResult<CustomerSalesReportDto>> GetSingleCustomerSalesReport(
+        int customerId,
+        [FromQuery] DateTime? startDate,
+        [FromQuery] DateTime? endDate,
+        [FromQuery] bool includeChildBranches = true,
+        CancellationToken cancellationToken = default)
+    {
+        var request = new CustomerSalesReportRequestDto
+        {
+            StartDate = startDate ?? DateTime.UtcNow.AddMonths(-1),
+            EndDate = endDate ?? DateTime.UtcNow,
+            CustomerId = customerId,
+            IncludeChildBranches = includeChildBranches
+        };
+
+        var data = await _reportService.GetCustomerSalesReportAsync(request, cancellationToken);
+        return Ok(data);
+    }
+
+    /// <summary>
+    /// Get consolidated sales report for a pharmacy chain (parent + all branches)
+    /// </summary>
+    [HttpGet("chain/{parentCustomerId}/sales")]
+    public async Task<ActionResult<ChainSalesReportDto>> GetChainSalesReport(
+        int parentCustomerId,
+        [FromQuery] DateTime? startDate,
+        [FromQuery] DateTime? endDate,
+        CancellationToken cancellationToken = default)
+    {
+        var start = startDate ?? DateTime.UtcNow.AddMonths(-1);
+        var end = endDate ?? DateTime.UtcNow;
+
+        var data = await _reportService.GetChainSalesReportAsync(parentCustomerId, start, end, cancellationToken);
+        return Ok(data);
+    }
+
+    /// <summary>
+    /// Get sales breakdown by all customers (drugstores)
+    /// </summary>
+    [HttpGet("sales-by-customer")]
+    public async Task<ActionResult<List<CustomerSalesItemDto>>> GetSalesByCustomer(
+        [FromQuery] DateTime? startDate,
+        [FromQuery] DateTime? endDate,
+        CancellationToken cancellationToken = default)
+    {
+        var start = startDate ?? DateTime.UtcNow.AddMonths(-1);
+        var end = endDate ?? DateTime.UtcNow;
+
+        var data = await _reportService.GetSalesByCustomerAsync(start, end, cancellationToken);
+        return Ok(data);
+    }
+
+    #endregion
 }
 
 public class ExportRequest

@@ -567,4 +567,323 @@ public class ReportService : IReportService
         sb.AppendLine("</tbody></table></body></html>");
         return sb.ToString();
     }
+
+    #region Customer/Drugstore Sales Reports
+
+    public async Task<CustomerSalesReportDto> GetCustomerSalesReportAsync(
+        CustomerSalesReportRequestDto request, 
+        CancellationToken cancellationToken = default)
+    {
+        var startDate = request.StartDate.Date;
+        var endDate = request.EndDate.Date.AddDays(1).AddTicks(-1);
+
+        // Build base query
+        var ordersQuery = _context.Orders
+            .Include(o => o.Customer)
+                .ThenInclude(c => c.ParentCustomer)
+            .Include(o => o.OrderItems)
+                .ThenInclude(oi => oi.Product)
+                    .ThenInclude(p => p.Category)
+            .Include(o => o.OrderItems)
+                .ThenInclude(oi => oi.Product)
+                    .ThenInclude(p => p.Manufacturer)
+            .Where(o => o.OrderDate >= startDate && o.OrderDate <= endDate)
+            .Where(o => o.Status != OrderStatus.Cancelled)
+            .AsQueryable();
+
+        // Filter by customer if specified
+        if (request.CustomerId.HasValue)
+        {
+            var customerId = request.CustomerId.Value;
+            
+            if (request.IncludeChildBranches)
+            {
+                // Get all child customer IDs
+                var childIds = await _context.Customers
+                    .Where(c => c.ParentCustomerId == customerId)
+                    .Select(c => c.Id)
+                    .ToListAsync(cancellationToken);
+                
+                childIds.Add(customerId);
+                ordersQuery = ordersQuery.Where(o => childIds.Contains(o.CustomerId));
+            }
+            else
+            {
+                ordersQuery = ordersQuery.Where(o => o.CustomerId == customerId);
+            }
+        }
+
+        var orders = await ordersQuery.ToListAsync(cancellationToken);
+        var orderItems = orders.SelectMany(o => o.OrderItems).ToList();
+
+        var report = new CustomerSalesReportDto
+        {
+            StartDate = startDate,
+            EndDate = endDate,
+            CustomerId = request.CustomerId,
+            IncludeChildBranches = request.IncludeChildBranches,
+            TotalOrders = orders.Count,
+            TotalProducts = orderItems.Select(oi => oi.ProductId).Distinct().Count(),
+            TotalQuantity = orderItems.Sum(oi => oi.Quantity),
+            TotalRevenue = orders.Sum(o => o.TotalAmount),
+            TotalDiscount = orders.Sum(o => o.DiscountAmount),
+            NetRevenue = orders.Sum(o => o.TotalAmount - o.DiscountAmount),
+            AverageOrderValue = orders.Count > 0 ? orders.Average(o => o.TotalAmount) : 0
+        };
+
+        if (request.CustomerId.HasValue)
+        {
+            var customer = await _context.Customers.FindAsync([request.CustomerId.Value], cancellationToken);
+            report.CustomerName = customer?.FullName;
+        }
+
+        // Sales by customer/drugstore
+        report.SalesByCustomer = orders
+            .GroupBy(o => o.Customer)
+            .Select(g => new CustomerSalesItemDto
+            {
+                CustomerId = g.Key.Id,
+                CustomerCode = g.Key.CustomerCode ?? string.Empty,
+                CustomerName = g.Key.FullName,
+                IsHeadquarters = !g.Key.ParentCustomerId.HasValue && g.Key.ChildCustomers?.Count > 0,
+                ParentCustomerId = g.Key.ParentCustomerId,
+                ParentCustomerName = g.Key.ParentCustomer?.FullName,
+                OrderCount = g.Count(),
+                TotalQuantity = g.SelectMany(o => o.OrderItems).Sum(oi => oi.Quantity),
+                TotalRevenue = g.Sum(o => o.TotalAmount),
+                TotalDiscount = g.Sum(o => o.DiscountAmount),
+                NetRevenue = g.Sum(o => o.TotalAmount - o.DiscountAmount)
+            })
+            .OrderByDescending(c => c.TotalRevenue)
+            .ToList();
+
+        // Sales by product
+        if (request.GroupByProduct)
+        {
+            report.SalesByProduct = orderItems
+                .GroupBy(oi => new { oi.ProductId, oi.Product.Name, oi.Product.SKU, 
+                    CategoryName = oi.Product.Category?.Name, 
+                    ManufacturerName = oi.Product.Manufacturer?.Name })
+                .Select(g => new ProductSalesItemDto
+                {
+                    ProductId = g.Key.ProductId,
+                    ProductName = g.Key.Name,
+                    SKU = g.Key.SKU,
+                    CategoryName = g.Key.CategoryName,
+                    ManufacturerName = g.Key.ManufacturerName,
+                    QuantitySold = g.Sum(oi => oi.Quantity),
+                    UnitPrice = g.Average(oi => oi.UnitPrice),
+                    TotalRevenue = g.Sum(oi => oi.LineTotal),
+                    TotalDiscount = g.Sum(oi => oi.LineTotal * oi.DiscountPercent / 100),
+                    NetRevenue = g.Sum(oi => oi.LineTotal * (1 - oi.DiscountPercent / 100)),
+                    OrderCount = g.Select(oi => oi.OrderId).Distinct().Count()
+                })
+                .OrderByDescending(p => p.TotalRevenue)
+                .ToList();
+        }
+
+        // Sales by category
+        if (request.GroupByCategory)
+        {
+            var totalRevenue = report.TotalRevenue > 0 ? report.TotalRevenue : 1;
+            report.SalesByCategory = orderItems
+                .Where(oi => oi.Product.Category != null)
+                .GroupBy(oi => new { oi.Product.Category!.Id, oi.Product.Category.Name })
+                .Select(g => new CategorySalesItemDto
+                {
+                    CategoryId = g.Key.Id,
+                    CategoryName = g.Key.Name,
+                    ProductCount = g.Select(oi => oi.ProductId).Distinct().Count(),
+                    QuantitySold = g.Sum(oi => oi.Quantity),
+                    TotalRevenue = g.Sum(oi => oi.LineTotal),
+                    TotalDiscount = g.Sum(oi => oi.LineTotal * oi.DiscountPercent / 100),
+                    NetRevenue = g.Sum(oi => oi.LineTotal * (1 - oi.DiscountPercent / 100)),
+                    PercentageOfTotal = (g.Sum(oi => oi.LineTotal) / totalRevenue) * 100
+                })
+                .OrderByDescending(c => c.TotalRevenue)
+                .ToList();
+        }
+
+        // Sales by manufacturer
+        if (request.GroupByManufacturer)
+        {
+            var totalRevenue = report.TotalRevenue > 0 ? report.TotalRevenue : 1;
+            report.SalesByManufacturer = orderItems
+                .Where(oi => oi.Product.Manufacturer != null)
+                .GroupBy(oi => new { oi.Product.Manufacturer!.Id, oi.Product.Manufacturer.Name })
+                .Select(g => new ManufacturerSalesItemDto
+                {
+                    ManufacturerId = g.Key.Id,
+                    ManufacturerName = g.Key.Name,
+                    ProductCount = g.Select(oi => oi.ProductId).Distinct().Count(),
+                    QuantitySold = g.Sum(oi => oi.Quantity),
+                    TotalRevenue = g.Sum(oi => oi.LineTotal),
+                    TotalDiscount = g.Sum(oi => oi.LineTotal * oi.DiscountPercent / 100),
+                    NetRevenue = g.Sum(oi => oi.LineTotal * (1 - oi.DiscountPercent / 100)),
+                    PercentageOfTotal = (g.Sum(oi => oi.LineTotal) / totalRevenue) * 100
+                })
+                .OrderByDescending(m => m.TotalRevenue)
+                .ToList();
+        }
+
+        // Daily sales
+        report.DailySales = orders
+            .GroupBy(o => o.OrderDate.Date)
+            .Select(g => new DailySalesDto
+            {
+                Date = g.Key,
+                OrderCount = g.Count(),
+                Revenue = g.Sum(o => o.TotalAmount)
+            })
+            .OrderBy(d => d.Date)
+            .ToList();
+
+        return report;
+    }
+
+    public async Task<ChainSalesReportDto> GetChainSalesReportAsync(
+        int parentCustomerId, 
+        DateTime startDate, 
+        DateTime endDate,
+        CancellationToken cancellationToken = default)
+    {
+        var start = startDate.Date;
+        var end = endDate.Date.AddDays(1).AddTicks(-1);
+
+        // Get parent customer with children
+        var parentCustomer = await _context.Customers
+            .Include(c => c.ChildCustomers)
+            .FirstOrDefaultAsync(c => c.Id == parentCustomerId, cancellationToken);
+
+        if (parentCustomer == null)
+        {
+            return new ChainSalesReportDto { StartDate = start, EndDate = end };
+        }
+
+        var allCustomerIds = new List<int> { parentCustomerId };
+        allCustomerIds.AddRange(parentCustomer.ChildCustomers.Select(c => c.Id));
+
+        var orders = await _context.Orders
+            .Include(o => o.Customer)
+            .Include(o => o.OrderItems)
+                .ThenInclude(oi => oi.Product)
+                    .ThenInclude(p => p.Category)
+            .Where(o => allCustomerIds.Contains(o.CustomerId))
+            .Where(o => o.OrderDate >= start && o.OrderDate <= end)
+            .Where(o => o.Status != OrderStatus.Cancelled)
+            .ToListAsync(cancellationToken);
+
+        var orderItems = orders.SelectMany(o => o.OrderItems).ToList();
+        var totalRevenue = orders.Sum(o => o.TotalAmount);
+
+        var report = new ChainSalesReportDto
+        {
+            StartDate = start,
+            EndDate = end,
+            ParentCustomerId = parentCustomer.Id,
+            ParentCustomerName = parentCustomer.FullName,
+            ParentCustomerCode = parentCustomer.CustomerCode ?? string.Empty,
+            BranchCount = parentCustomer.ChildCustomers.Count,
+            TotalOrders = orders.Count,
+            TotalQuantity = orderItems.Sum(oi => oi.Quantity),
+            TotalRevenue = totalRevenue,
+            TotalDiscount = orders.Sum(o => o.DiscountAmount),
+            NetRevenue = orders.Sum(o => o.TotalAmount - o.DiscountAmount),
+            AverageOrderValue = orders.Count > 0 ? orders.Average(o => o.TotalAmount) : 0
+        };
+
+        // Per-branch breakdown
+        report.BranchSales = orders
+            .GroupBy(o => o.Customer)
+            .Select(g => new CustomerSalesItemDto
+            {
+                CustomerId = g.Key.Id,
+                CustomerCode = g.Key.CustomerCode ?? string.Empty,
+                CustomerName = g.Key.FullName,
+                IsHeadquarters = g.Key.Id == parentCustomerId,
+                ParentCustomerId = g.Key.ParentCustomerId,
+                OrderCount = g.Count(),
+                TotalQuantity = g.SelectMany(o => o.OrderItems).Sum(oi => oi.Quantity),
+                TotalRevenue = g.Sum(o => o.TotalAmount),
+                TotalDiscount = g.Sum(o => o.DiscountAmount),
+                NetRevenue = g.Sum(o => o.TotalAmount - o.DiscountAmount)
+            })
+            .OrderByDescending(b => b.TotalRevenue)
+            .ToList();
+
+        // Top products across chain
+        report.TopProducts = orderItems
+            .GroupBy(oi => new { oi.ProductId, oi.Product.Name, oi.Product.SKU,
+                CategoryName = oi.Product.Category?.Name })
+            .Select(g => new ProductSalesItemDto
+            {
+                ProductId = g.Key.ProductId,
+                ProductName = g.Key.Name,
+                SKU = g.Key.SKU,
+                CategoryName = g.Key.CategoryName,
+                QuantitySold = g.Sum(oi => oi.Quantity),
+                UnitPrice = g.Average(oi => oi.UnitPrice),
+                TotalRevenue = g.Sum(oi => oi.LineTotal),
+                OrderCount = g.Select(oi => oi.OrderId).Distinct().Count()
+            })
+            .OrderByDescending(p => p.TotalRevenue)
+            .Take(20)
+            .ToList();
+
+        // Category breakdown
+        var totalRev = totalRevenue > 0 ? totalRevenue : 1;
+        report.SalesByCategory = orderItems
+            .Where(oi => oi.Product.Category != null)
+            .GroupBy(oi => new { oi.Product.Category!.Id, oi.Product.Category.Name })
+            .Select(g => new CategorySalesItemDto
+            {
+                CategoryId = g.Key.Id,
+                CategoryName = g.Key.Name,
+                ProductCount = g.Select(oi => oi.ProductId).Distinct().Count(),
+                QuantitySold = g.Sum(oi => oi.Quantity),
+                TotalRevenue = g.Sum(oi => oi.LineTotal),
+                PercentageOfTotal = (g.Sum(oi => oi.LineTotal) / totalRev) * 100
+            })
+            .OrderByDescending(c => c.TotalRevenue)
+            .ToList();
+
+        return report;
+    }
+
+    public async Task<List<CustomerSalesItemDto>> GetSalesByCustomerAsync(
+        DateTime startDate, 
+        DateTime endDate,
+        CancellationToken cancellationToken = default)
+    {
+        var start = startDate.Date;
+        var end = endDate.Date.AddDays(1).AddTicks(-1);
+
+        var sales = await _context.Orders
+            .Include(o => o.Customer)
+                .ThenInclude(c => c.ParentCustomer)
+            .Include(o => o.OrderItems)
+            .Where(o => o.OrderDate >= start && o.OrderDate <= end)
+            .Where(o => o.Status != OrderStatus.Cancelled)
+            .GroupBy(o => o.Customer)
+            .Select(g => new CustomerSalesItemDto
+            {
+                CustomerId = g.Key.Id,
+                CustomerCode = g.Key.CustomerCode ?? string.Empty,
+                CustomerName = g.Key.FullName,
+                IsHeadquarters = !g.Key.ParentCustomerId.HasValue,
+                ParentCustomerId = g.Key.ParentCustomerId,
+                ParentCustomerName = g.Key.ParentCustomer != null ? g.Key.ParentCustomer.FullName : null,
+                OrderCount = g.Count(),
+                TotalQuantity = g.SelectMany(o => o.OrderItems).Sum(oi => oi.Quantity),
+                TotalRevenue = g.Sum(o => o.TotalAmount),
+                TotalDiscount = g.Sum(o => o.DiscountAmount),
+                NetRevenue = g.Sum(o => o.TotalAmount - o.DiscountAmount)
+            })
+            .OrderByDescending(c => c.TotalRevenue)
+            .ToListAsync(cancellationToken);
+
+        return sales;
+    }
+
+    #endregion
 }

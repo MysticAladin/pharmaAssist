@@ -1,5 +1,5 @@
 import { Routes } from '@angular/router';
-import { authGuard, noAuthGuard, adminGuard, featureGuard } from './core/guards';
+import { authGuard, noAuthGuard, adminGuard, featureGuard, customerGuard } from './core/guards';
 import { FeatureKey } from './core/models/feature-flag.model';
 import { UserRole } from './core/models/user.model';
 
@@ -14,7 +14,7 @@ export const routes: Routes = [
   // E-Pharmacy Portal (customer-facing)
   {
     path: 'portal',
-    canActivate: [authGuard],
+    canActivate: [customerGuard],
     loadComponent: () => import('./features/portal/components/layout/portal-layout.component')
       .then(m => m.PortalLayoutComponent),
     loadChildren: () => import('./features/portal/portal.routes').then(m => m.PORTAL_ROUTES)

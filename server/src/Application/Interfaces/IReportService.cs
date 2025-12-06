@@ -13,4 +13,9 @@ public interface IReportService
     Task<byte[]> GenerateCustomerPdfAsync(CustomerReportDto data);
     Task<byte[]> ExportToExcelAsync<T>(IEnumerable<T> data, string sheetName);
     Task<byte[]> ExportToCsvAsync<T>(IEnumerable<T> data);
+    
+    // Customer/Drugstore Sales Reports
+    Task<CustomerSalesReportDto> GetCustomerSalesReportAsync(CustomerSalesReportRequestDto request, CancellationToken cancellationToken = default);
+    Task<ChainSalesReportDto> GetChainSalesReportAsync(int parentCustomerId, DateTime startDate, DateTime endDate, CancellationToken cancellationToken = default);
+    Task<List<CustomerSalesItemDto>> GetSalesByCustomerAsync(DateTime startDate, DateTime endDate, CancellationToken cancellationToken = default);
 }
