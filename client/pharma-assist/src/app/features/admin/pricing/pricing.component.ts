@@ -13,6 +13,7 @@ import {
   CustomerTier,
   PromotionType
 } from '../../../core/services/pricing.service';
+import { CustomerService, Customer } from '../../../core/services/customer.service';
 import { NotificationService } from '../../../core/services/notification.service';
 import { ConfirmationService } from '../../../core/services/confirmation.service';
 import { StatusBadgeComponent } from '../../../shared/components/status-badge/status-badge.component';
@@ -446,6 +447,29 @@ import { EmptyStateComponent } from '../../../shared/components/empty-state/empt
               <div class="form-group">
                 <label>{{ 'pricing.endDate' | translate }} *</label>
                 <input type="date" class="form-control" [(ngModel)]="promotionForm.endDate" required>
+              </div>
+            </div>
+            <!-- Customer Targeting -->
+            <div class="form-section">
+              <h3 class="section-title">{{ 'pricing.customerTargeting' | translate }}</h3>
+              <div class="form-row">
+                <div class="form-group flex-2">
+                  <label>{{ 'pricing.targetCustomer' | translate }}</label>
+                  <select class="form-select" [(ngModel)]="promotionForm.customerId">
+                    <option [ngValue]="undefined">{{ 'pricing.allCustomers' | translate }}</option>
+                    @for (customer of customers(); track customer.id) {
+                      <option [ngValue]="customer.id">{{ customer.name }}</option>
+                    }
+                  </select>
+                </div>
+                <div class="form-group flex-1 align-bottom">
+                  @if (promotionForm.customerId) {
+                    <label class="checkbox-label">
+                      <input type="checkbox" [(ngModel)]="promotionForm.applyToChildCustomers">
+                      {{ 'pricing.applyToChildBranches' | translate }}
+                    </label>
+                  }
+                </div>
               </div>
             </div>
             <div class="form-group checkbox-group">
@@ -970,6 +994,7 @@ import { EmptyStateComponent } from '../../../shared/components/empty-state/empt
 })
 export class PricingComponent implements OnInit {
   readonly pricingService = inject(PricingService);
+  private readonly customerService = inject(CustomerService);
   private readonly notification = inject(NotificationService);
   private readonly confirmation = inject(ConfirmationService);
   private readonly translate = inject(TranslateService);
@@ -986,6 +1011,7 @@ export class PricingComponent implements OnInit {
   loadingPromotions = signal(false);
   priceRules = signal<PriceRule[]>([]);
   promotions = signal<Promotion[]>([]);
+  customers = signal<Customer[]>([]);
 
   // Rule modal
   showRuleModal = signal(false);
@@ -1002,10 +1028,23 @@ export class PricingComponent implements OnInit {
   ngOnInit() {
     this.loadRules();
     this.loadPromotions();
+    this.loadCustomers();
   }
 
   setActiveTab(tab: 'rules' | 'promotions' | 'tiers') {
     this.activeTab.set(tab);
+  }
+
+  // === Customers ===
+
+  loadCustomers() {
+    this.customerService.getAll().subscribe({
+      next: (res) => {
+        if (res.success && res.data) {
+          this.customers.set(res.data);
+        }
+      }
+    });
   }
 
   // === Rules ===
@@ -1226,7 +1265,9 @@ export class PricingComponent implements OnInit {
       startDate: today,
       endDate: nextMonth,
       isActive: true,
-      appliesToAllProducts: true
+      appliesToAllProducts: true,
+      customerId: undefined,
+      applyToChildCustomers: false
     };
   }
 }

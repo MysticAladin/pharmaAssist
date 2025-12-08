@@ -57,6 +57,13 @@ public interface IPricingService
         int orderId,
         decimal orderTotal,
         CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Get all promotions available to a customer (including inherited from parent)
+    /// </summary>
+    Task<IEnumerable<Promotion>> GetAvailablePromotionsAsync(
+        int customerId,
+        CancellationToken cancellationToken = default);
 }
 
 /// <summary>

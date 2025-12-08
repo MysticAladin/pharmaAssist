@@ -249,10 +249,29 @@ public class PricingService : IPricingService
         // Check customer requirements
         var customer = await _context.Customers
             .AsNoTracking()
+            .Include(c => c.ParentCustomer)
             .FirstOrDefaultAsync(c => c.Id == customerId, cancellationToken);
 
         if (customer != null)
         {
+            // Check customer-specific promotion targeting
+            if (promotion.CustomerId.HasValue)
+            {
+                var isDirectMatch = promotion.CustomerId == customerId;
+                var isChildMatch = promotion.ApplyToChildCustomers && 
+                                   customer.ParentCustomerId.HasValue && 
+                                   customer.ParentCustomerId == promotion.CustomerId;
+                
+                if (!isDirectMatch && !isChildMatch)
+                {
+                    return new PromotionValidationResult
+                    {
+                        IsValid = false,
+                        ErrorMessage = "This promotion is not available for your account"
+                    };
+                }
+            }
+            
             if (promotion.RequiredCustomerTier.HasValue && customer.Tier != promotion.RequiredCustomerTier.Value)
             {
                 return new PromotionValidationResult
@@ -404,4 +423,70 @@ public class PricingService : IPricingService
 
         return discount;
     }
+
+    public async Task<IEnumerable<Promotion>> GetAvailablePromotionsAsync(
+        int customerId,
+        CancellationToken cancellationToken = default)
+    {
+        var customer = await _context.Customers
+            .AsNoTracking()
+            .FirstOrDefaultAsync(c => c.Id == customerId, cancellationToken);
+
+        if (customer == null)
+        {
+            return Enumerable.Empty<Promotion>();
+        }
+
+        var now = DateTime.UtcNow;
+
+        // Get all active promotions within date range
+        var promotions = await _context.Promotions
+            .AsNoTracking()
+            .Include(p => p.Customer)
+            .Where(p => p.IsActive)
+            .Where(p => p.StartDate <= now && p.EndDate >= now)
+            .Where(p => !p.MaxUsageCount.HasValue || p.CurrentUsageCount < p.MaxUsageCount)
+            .ToListAsync(cancellationToken);
+
+        // Filter promotions based on customer eligibility
+        var availablePromotions = new List<Promotion>();
+
+        foreach (var promotion in promotions)
+        {
+            // Check customer-specific targeting
+            if (promotion.CustomerId.HasValue)
+            {
+                var isDirectMatch = promotion.CustomerId == customerId;
+                var isChildMatch = promotion.ApplyToChildCustomers && 
+                                   customer.ParentCustomerId.HasValue && 
+                                   customer.ParentCustomerId == promotion.CustomerId;
+
+                if (!isDirectMatch && !isChildMatch)
+                    continue;
+            }
+
+            // Check tier requirement
+            if (promotion.RequiredCustomerTier.HasValue && customer.Tier != promotion.RequiredCustomerTier.Value)
+                continue;
+
+            // Check type requirement
+            if (promotion.RequiredCustomerType.HasValue && customer.CustomerType != promotion.RequiredCustomerType.Value)
+                continue;
+
+            // Check per-customer usage limit
+            if (promotion.MaxUsagePerCustomer.HasValue)
+            {
+                var customerUsageCount = await _context.PromotionUsages
+                    .CountAsync(u => u.PromotionId == promotion.Id && u.CustomerId == customerId, cancellationToken);
+
+                if (customerUsageCount >= promotion.MaxUsagePerCustomer.Value)
+                    continue;
+            }
+
+            availablePromotions.Add(promotion);
+        }
+
+        return availablePromotions;
+    }
 }
+

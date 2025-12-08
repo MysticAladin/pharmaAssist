@@ -88,6 +88,10 @@ export interface Promotion {
   endDate: Date;
   isActive: boolean;
   appliesToAllProducts: boolean;
+  // Customer-specific targeting
+  customerId?: number;
+  customerName?: string;
+  applyToChildCustomers: boolean;
   createdAt: Date;
 }
 
@@ -105,6 +109,9 @@ export interface CreatePromotionRequest {
   endDate: Date;
   isActive?: boolean;
   appliesToAllProducts?: boolean;
+  // Customer-specific targeting
+  customerId?: number;
+  applyToChildCustomers?: boolean;
   productIds?: number[];
   categoryIds?: number[];
 }
@@ -199,6 +206,10 @@ export class PricingService {
     if (customerId) params = params.set('customerId', customerId.toString());
     if (orderValue) params = params.set('orderValue', orderValue.toString());
     return this.http.post<ApiResponse<{ valid: boolean; promotion?: Promotion; message?: string }>>(`${this.apiUrl}/promotions/validate`, null, { params });
+  }
+
+  getAvailablePromotions(customerId: number): Observable<ApiResponse<Promotion[]>> {
+    return this.http.get<ApiResponse<Promotion[]>>(`${this.apiUrl}/promotions/available/${customerId}`);
   }
 
   // === Price Calculation ===

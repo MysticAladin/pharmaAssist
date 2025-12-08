@@ -82,6 +82,12 @@ public class PromotionDto
     public bool AppliesToAllCustomers { get; set; }
     public CustomerTier? RequiredCustomerTier { get; set; }
     public CustomerType? RequiredCustomerType { get; set; }
+    
+    // Customer-specific targeting
+    public int? CustomerId { get; set; }
+    public string? CustomerName { get; set; }
+    public bool ApplyToChildCustomers { get; set; }
+    
     public bool IsActive { get; set; }
     public bool RequiresCode { get; set; }
     public bool CanStackWithOtherPromotions { get; set; }
@@ -112,6 +118,11 @@ public class CreatePromotionDto
     public bool AppliesToAllCustomers { get; set; } = true;
     public CustomerTier? RequiredCustomerTier { get; set; }
     public CustomerType? RequiredCustomerType { get; set; }
+    
+    // Customer-specific targeting
+    public int? CustomerId { get; set; }
+    public bool ApplyToChildCustomers { get; set; } = true;
+    
     public bool IsActive { get; set; } = true;
     public bool RequiresCode { get; set; } = true;
     public bool CanStackWithOtherPromotions { get; set; } = false;

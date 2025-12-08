@@ -2340,7 +2340,11 @@
       "reducedDelivery": "Snižene cijene dostave",
       "basicSupport": "Osnovna korisnička podrška",
       "basicCredit": "Osnovni kreditni uslovi (15 dana)"
-    }
+    },
+    "customerTargeting": "Ciljanje Kupaca",
+    "targetCustomer": "Ciljni Kupac",
+    "allCustomers": "Svi Kupci",
+    "applyToChildBranches": "Primijeni na podružnice"
   },
   "targets": {
     "title": "Ciljevi i Budžeti",

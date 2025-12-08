@@ -35,6 +35,10 @@ public class Promotion : BaseEntity
     public CustomerTier? RequiredCustomerTier { get; set; }
     public CustomerType? RequiredCustomerType { get; set; }
     
+    // Customer-specific targeting (for exclusive promotions)
+    public int? CustomerId { get; set; } // Specific customer this promotion is for
+    public bool ApplyToChildCustomers { get; set; } = true; // Also apply to all child branches
+    
     // Status
     public bool IsActive { get; set; } = true;
     public bool RequiresCode { get; set; } = true; // Must enter code at checkout
@@ -52,6 +56,7 @@ public class Promotion : BaseEntity
     public bool HasReachedLimit => MaxUsageCount.HasValue && CurrentUsageCount >= MaxUsageCount;
     
     // Navigation properties
+    public virtual Customer? Customer { get; set; }
     public virtual ICollection<PromotionProduct> ApplicableProducts { get; set; } = new List<PromotionProduct>();
     public virtual ICollection<PromotionCategory> ApplicableCategories { get; set; } = new List<PromotionCategory>();
     public virtual ICollection<PromotionUsage> Usages { get; set; } = new List<PromotionUsage>();

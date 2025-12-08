@@ -196,7 +196,9 @@ public class PricingController : ControllerBase
         [FromQuery] bool? activeOnly = null,
         CancellationToken cancellationToken = default)
     {
-        var query = _context.Promotions.AsNoTracking();
+        var query = _context.Promotions
+            .Include(p => p.Customer)
+            .AsNoTracking();
 
         if (activeOnly == true)
         {
@@ -219,6 +221,7 @@ public class PricingController : ControllerBase
     public async Task<ActionResult<PromotionDto>> GetPromotion(int id, CancellationToken cancellationToken)
     {
         var promotion = await _context.Promotions
+            .Include(p => p.Customer)
             .AsNoTracking()
             .FirstOrDefaultAsync(p => p.Id == id, cancellationToken);
 
@@ -263,6 +266,8 @@ public class PricingController : ControllerBase
             AppliesToAllCustomers = dto.AppliesToAllCustomers,
             RequiredCustomerTier = dto.RequiredCustomerTier,
             RequiredCustomerType = dto.RequiredCustomerType,
+            CustomerId = dto.CustomerId,
+            ApplyToChildCustomers = dto.ApplyToChildCustomers,
             IsActive = dto.IsActive,
             RequiresCode = dto.RequiresCode,
             CanStackWithOtherPromotions = dto.CanStackWithOtherPromotions,
@@ -344,6 +349,8 @@ public class PricingController : ControllerBase
         promotion.AppliesToAllCustomers = dto.AppliesToAllCustomers;
         promotion.RequiredCustomerTier = dto.RequiredCustomerTier;
         promotion.RequiredCustomerType = dto.RequiredCustomerType;
+        promotion.CustomerId = dto.CustomerId;
+        promotion.ApplyToChildCustomers = dto.ApplyToChildCustomers;
         promotion.IsActive = dto.IsActive;
         promotion.RequiresCode = dto.RequiresCode;
         promotion.CanStackWithOtherPromotions = dto.CanStackWithOtherPromotions;
@@ -372,6 +379,42 @@ public class PricingController : ControllerBase
         await _context.SaveChangesAsync(cancellationToken);
 
         return NoContent();
+    }
+
+    /// <summary>
+    /// Get all promotions available to the current customer (including inherited from parent)
+    /// </summary>
+    [HttpGet("promotions/available")]
+    public async Task<ActionResult<IEnumerable<PromotionDto>>> GetAvailablePromotions(
+        CancellationToken cancellationToken)
+    {
+        var customerId = await GetCurrentCustomerIdAsync(cancellationToken);
+        if (customerId == null)
+        {
+            return BadRequest(new { message = "No customer profile found" });
+        }
+
+        var promotions = await _pricingService.GetAvailablePromotionsAsync(customerId.Value, cancellationToken);
+        return Ok(promotions.Select(MapToDto));
+    }
+
+    /// <summary>
+    /// Get all promotions available to a specific customer (admin view)
+    /// </summary>
+    [HttpGet("promotions/available/{customerId}")]
+    [Authorize(Roles = "Admin,Manager")]
+    public async Task<ActionResult<IEnumerable<PromotionDto>>> GetAvailablePromotionsForCustomer(
+        int customerId,
+        CancellationToken cancellationToken)
+    {
+        var customer = await _context.Customers.FindAsync([customerId], cancellationToken);
+        if (customer == null)
+        {
+            return NotFound(new { message = "Customer not found" });
+        }
+
+        var promotions = await _pricingService.GetAvailablePromotionsAsync(customerId, cancellationToken);
+        return Ok(promotions.Select(MapToDto));
     }
 
     #endregion
@@ -558,6 +601,9 @@ public class PricingController : ControllerBase
         AppliesToAllCustomers = promotion.AppliesToAllCustomers,
         RequiredCustomerTier = promotion.RequiredCustomerTier,
         RequiredCustomerType = promotion.RequiredCustomerType,
+        CustomerId = promotion.CustomerId,
+        CustomerName = promotion.Customer?.FullName,
+        ApplyToChildCustomers = promotion.ApplyToChildCustomers,
         IsActive = promotion.IsActive,
         RequiresCode = promotion.RequiresCode,
         CanStackWithOtherPromotions = promotion.CanStackWithOtherPromotions,

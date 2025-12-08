@@ -2340,7 +2340,11 @@
       "reducedDelivery": "Reduced delivery fees",
       "basicSupport": "Basic customer support",
       "basicCredit": "Basic credit terms (15 days)"
-    }
+    },
+    "customerTargeting": "Customer Targeting",
+    "targetCustomer": "Target Customer",
+    "allCustomers": "All Customers",
+    "applyToChildBranches": "Apply to child branches"
   },
   "targets": {
     "title": "Targets & Budgets",
