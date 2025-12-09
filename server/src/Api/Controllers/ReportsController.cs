@@ -321,6 +321,126 @@ public class ReportsController : ControllerBase
     }
 
     #endregion
+
+    #region Report Builder
+
+    /// <summary>
+    /// Get available fields for a data source
+    /// </summary>
+    [HttpGet("builder/fields/{dataSource}")]
+    public async Task<ActionResult<DataSourceFieldsDto>> GetDataSourceFields(
+        ReportBuilderDataSource dataSource,
+        CancellationToken cancellationToken = default)
+    {
+        var fields = await _reportService.GetDataSourceFieldsAsync(dataSource, cancellationToken);
+        return Ok(fields);
+    }
+
+    /// <summary>
+    /// Execute a report builder query
+    /// </summary>
+    [HttpPost("builder/execute")]
+    public async Task<ActionResult<ReportBuilderResultDto>> ExecuteReportBuilder(
+        [FromBody] ReportBuilderExecuteRequestDto request,
+        CancellationToken cancellationToken = default)
+    {
+        var result = await _reportService.ExecuteReportBuilderAsync(request, cancellationToken);
+        return Ok(result);
+    }
+
+    /// <summary>
+    /// Export a report builder query to file
+    /// </summary>
+    [HttpPost("builder/export")]
+    public async Task<IActionResult> ExportReportBuilder(
+        [FromBody] ReportBuilderExecuteRequestDto request,
+        CancellationToken cancellationToken = default)
+    {
+        var bytes = await _reportService.ExportReportBuilderAsync(request, cancellationToken);
+
+        if (bytes.Length == 0)
+        {
+            return BadRequest(new { Message = "No data to export" });
+        }
+
+        var (contentType, extension) = request.ExportFormat switch
+        {
+            ReportFormat.Csv => ("text/csv", "csv"),
+            ReportFormat.Excel => ("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "xlsx"),
+            ReportFormat.Pdf => ("application/pdf", "pdf"),
+            _ => ("text/csv", "csv")
+        };
+
+        var fileName = $"{request.Config.Name ?? "report"}-{DateTime.UtcNow:yyyyMMdd}.{extension}";
+        return File(bytes, contentType, fileName);
+    }
+
+    /// <summary>
+    /// Get saved reports
+    /// </summary>
+    [HttpGet("builder/saved")]
+    public async Task<ActionResult<List<SavedReportDto>>> GetSavedReports(
+        CancellationToken cancellationToken = default)
+    {
+        var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+        var reports = await _reportService.GetSavedReportsAsync(userId, cancellationToken);
+        return Ok(reports);
+    }
+
+    /// <summary>
+    /// Get a saved report by ID
+    /// </summary>
+    [HttpGet("builder/saved/{id}")]
+    public async Task<ActionResult<SavedReportDto>> GetSavedReport(
+        int id,
+        CancellationToken cancellationToken = default)
+    {
+        var report = await _reportService.GetSavedReportByIdAsync(id, cancellationToken);
+        if (report == null) return NotFound();
+        return Ok(report);
+    }
+
+    /// <summary>
+    /// Save a new report configuration
+    /// </summary>
+    [HttpPost("builder/saved")]
+    public async Task<ActionResult<SavedReportDto>> SaveReport(
+        [FromBody] ReportBuilderConfigDto config,
+        CancellationToken cancellationToken = default)
+    {
+        var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value ?? "system";
+        var report = await _reportService.SaveReportAsync(config, userId, cancellationToken);
+        return CreatedAtAction(nameof(GetSavedReport), new { id = report.Id }, report);
+    }
+
+    /// <summary>
+    /// Update a saved report
+    /// </summary>
+    [HttpPut("builder/saved/{id}")]
+    public async Task<IActionResult> UpdateSavedReport(
+        int id,
+        [FromBody] ReportBuilderConfigDto config,
+        CancellationToken cancellationToken = default)
+    {
+        var success = await _reportService.UpdateSavedReportAsync(id, config, cancellationToken);
+        if (!success) return NotFound();
+        return NoContent();
+    }
+
+    /// <summary>
+    /// Delete a saved report
+    /// </summary>
+    [HttpDelete("builder/saved/{id}")]
+    public async Task<IActionResult> DeleteSavedReport(
+        int id,
+        CancellationToken cancellationToken = default)
+    {
+        var success = await _reportService.DeleteSavedReportAsync(id, cancellationToken);
+        if (!success) return NotFound();
+        return NoContent();
+    }
+
+    #endregion
 }
 
 public class ExportRequest

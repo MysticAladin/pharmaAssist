@@ -172,3 +172,141 @@ export interface FinancialReport {
   profitTrends: ProfitTrend[];
   revenueBreakdown: { category: string; amount: number; percentage: number }[];
 }
+
+// Report Builder Types
+export enum ReportBuilderDataSource {
+  Orders = 1,
+  Products = 2,
+  Customers = 3,
+  Inventory = 4,
+  OrderItems = 5,
+  SalesAnalytics = 6
+}
+
+export enum ReportColumnType {
+  Text = 1,
+  Number = 2,
+  Currency = 3,
+  Date = 4,
+  DateTime = 5,
+  Boolean = 6,
+  Percentage = 7
+}
+
+export enum AggregationType {
+  Sum = 1,
+  Average = 2,
+  Count = 3,
+  Min = 4,
+  Max = 5
+}
+
+export enum FilterOperator {
+  Equals = 1,
+  NotEquals = 2,
+  GreaterThan = 3,
+  GreaterThanOrEqual = 4,
+  LessThan = 5,
+  LessThanOrEqual = 6,
+  Contains = 7,
+  StartsWith = 8,
+  EndsWith = 9,
+  Between = 10,
+  In = 11,
+  IsNull = 12,
+  IsNotNull = 13
+}
+
+export enum ReportFormat {
+  Pdf = 1,
+  Excel = 2,
+  Csv = 3,
+  Html = 4
+}
+
+export interface ReportColumnConfig {
+  field: string;
+  label?: string;
+  type: ReportColumnType;
+  format?: string;
+  visible: boolean;
+  order: number;
+  aggregation?: AggregationType;
+}
+
+export interface ReportFilterConfig {
+  field: string;
+  operator: FilterOperator;
+  value?: unknown;
+  value2?: unknown;
+}
+
+export interface ReportSortConfig {
+  field: string;
+  descending: boolean;
+}
+
+export interface ReportBuilderConfig {
+  id?: number;
+  name: string;
+  description?: string;
+  dataSource: ReportBuilderDataSource;
+  columns: ReportColumnConfig[];
+  filters: ReportFilterConfig[];
+  sortBy: ReportSortConfig[];
+  groupBy: string[];
+  isShared: boolean;
+  category?: string;
+}
+
+export interface ReportBuilderExecuteRequest {
+  config: ReportBuilderConfig;
+  startDate?: Date;
+  endDate?: Date;
+  page: number;
+  pageSize: number;
+  exportFormat: ReportFormat;
+}
+
+export interface ReportBuilderResult {
+  success: boolean;
+  message?: string;
+  data: Record<string, unknown>[];
+  totalCount: number;
+  page: number;
+  pageSize: number;
+  totalPages: number;
+  totals?: Record<string, unknown>;
+  generatedAt: Date;
+}
+
+export interface AvailableField {
+  field: string;
+  label: string;
+  type: ReportColumnType;
+  sortable: boolean;
+  filterable: boolean;
+  groupable: boolean;
+  supportedOperators: FilterOperator[];
+}
+
+export interface DataSourceFields {
+  dataSource: ReportBuilderDataSource;
+  fields: AvailableField[];
+}
+
+export interface SavedReport {
+  id: number;
+  name: string;
+  description?: string;
+  dataSource: ReportBuilderDataSource;
+  configuration: ReportBuilderConfig;
+  isShared: boolean;
+  isTemplate: boolean;
+  category?: string;
+  tags?: string;
+  lastRunAt?: Date;
+  runCount: number;
+  createdAt: Date;
+  createdBy?: string;
+}

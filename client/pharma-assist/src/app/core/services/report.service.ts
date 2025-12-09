@@ -17,7 +17,14 @@ import {
   CustomerReport,
   CustomerMetrics,
   FinancialReport,
-  FinancialMetrics
+  FinancialMetrics,
+  ReportBuilderDataSource,
+  ReportBuilderConfig,
+  ReportBuilderExecuteRequest,
+  ReportBuilderResult,
+  DataSourceFields,
+  SavedReport,
+  ReportColumnType
 } from '../models/report.model';
 
 @Injectable({
@@ -303,5 +310,96 @@ export class ReportService {
         { category: 'Other', amount: 70000, percentage: 2.4 }
       ]
     };
+  }
+
+  // =============== REPORT BUILDER API METHODS ===============
+
+  /**
+   * Get available fields for a data source
+   */
+  getDataSourceFields(dataSource: ReportBuilderDataSource): Observable<DataSourceFields> {
+    return this.http.get<DataSourceFields>(`${this.apiUrl}/builder/fields/${dataSource}`);
+  }
+
+  /**
+   * Execute a report builder query
+   */
+  executeReportBuilder(request: ReportBuilderExecuteRequest): Observable<ReportBuilderResult> {
+    return this.http.post<ReportBuilderResult>(`${this.apiUrl}/builder/execute`, request);
+  }
+
+  /**
+   * Export a report builder query to file
+   */
+  exportReportBuilder(request: ReportBuilderExecuteRequest): Observable<Blob> {
+    return this.http.post(`${this.apiUrl}/builder/export`, request, {
+      responseType: 'blob'
+    });
+  }
+
+  /**
+   * Get saved reports
+   */
+  getSavedReports(): Observable<SavedReport[]> {
+    return this.http.get<SavedReport[]>(`${this.apiUrl}/builder/saved`);
+  }
+
+  /**
+   * Get a saved report by ID
+   */
+  getSavedReportById(id: number): Observable<SavedReport> {
+    return this.http.get<SavedReport>(`${this.apiUrl}/builder/saved/${id}`);
+  }
+
+  /**
+   * Save a new report configuration
+   */
+  saveReport(config: ReportBuilderConfig): Observable<SavedReport> {
+    return this.http.post<SavedReport>(`${this.apiUrl}/builder/saved`, config);
+  }
+
+  /**
+   * Update a saved report
+   */
+  updateSavedReport(id: number, config: ReportBuilderConfig): Observable<void> {
+    return this.http.put<void>(`${this.apiUrl}/builder/saved/${id}`, config);
+  }
+
+  /**
+   * Delete a saved report
+   */
+  deleteSavedReport(id: number): Observable<void> {
+    return this.http.delete<void>(`${this.apiUrl}/builder/saved/${id}`);
+  }
+
+  /**
+   * Get data source display name
+   */
+  getDataSourceName(dataSource: ReportBuilderDataSource): string {
+    const names: Record<ReportBuilderDataSource, string> = {
+      [ReportBuilderDataSource.Orders]: 'reports.builder.dataSources.orders',
+      [ReportBuilderDataSource.Products]: 'reports.builder.dataSources.products',
+      [ReportBuilderDataSource.Customers]: 'reports.builder.dataSources.customers',
+      [ReportBuilderDataSource.Inventory]: 'reports.builder.dataSources.inventory',
+      [ReportBuilderDataSource.OrderItems]: 'reports.builder.dataSources.orderItems',
+      [ReportBuilderDataSource.SalesAnalytics]: 'reports.builder.dataSources.salesAnalytics'
+    };
+    return names[dataSource] || 'Unknown';
+  }
+
+  /**
+   * Get column type display name
+   */
+  getColumnTypeName(type: ReportColumnType): string {
+    const names: Record<ReportColumnType, string> = {
+      [ReportColumnType.Text]: 'Text',
+      [ReportColumnType.Number]: 'Number',
+      [ReportColumnType.Currency]: 'Currency',
+      [ReportColumnType.Date]: 'Date',
+      [ReportColumnType.DateTime]: 'Date/Time',
+      [ReportColumnType.Boolean]: 'Yes/No',
+      [ReportColumnType.Percentage]: 'Percentage'
+    };
+    return names[type] || 'Unknown';
   }
 }

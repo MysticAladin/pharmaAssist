@@ -275,3 +275,172 @@ public class ChainSalesReportDto
 }
 
 #endregion
+
+#region Report Builder
+
+/// <summary>
+/// Report Builder configuration for creating custom reports
+/// </summary>
+public class ReportBuilderConfigDto
+{
+    public int? Id { get; set; }
+    public string Name { get; set; } = string.Empty;
+    public string? Description { get; set; }
+    public ReportBuilderDataSource DataSource { get; set; }
+    public List<ReportColumnDto> Columns { get; set; } = [];
+    public List<ReportFilterDto> Filters { get; set; } = [];
+    public List<ReportSortDto> SortBy { get; set; } = [];
+    public List<string> GroupBy { get; set; } = [];
+    public ReportAggregationDto? Aggregation { get; set; }
+    public bool IsShared { get; set; }
+    public string? Category { get; set; }
+}
+
+public enum ReportBuilderDataSource
+{
+    Orders = 1,
+    Products = 2,
+    Customers = 3,
+    Inventory = 4,
+    OrderItems = 5,
+    SalesAnalytics = 6
+}
+
+public class ReportColumnDto
+{
+    public string Field { get; set; } = string.Empty;
+    public string? Label { get; set; }
+    public ReportColumnType Type { get; set; } = ReportColumnType.Text;
+    public string? Format { get; set; }
+    public bool Visible { get; set; } = true;
+    public int Order { get; set; }
+    public AggregationType? Aggregation { get; set; }
+}
+
+public enum ReportColumnType
+{
+    Text = 1,
+    Number = 2,
+    Currency = 3,
+    Date = 4,
+    DateTime = 5,
+    Boolean = 6,
+    Percentage = 7
+}
+
+public enum AggregationType
+{
+    Sum = 1,
+    Average = 2,
+    Count = 3,
+    Min = 4,
+    Max = 5
+}
+
+public class ReportFilterDto
+{
+    public string Field { get; set; } = string.Empty;
+    public FilterOperator Operator { get; set; }
+    public object? Value { get; set; }
+    public object? Value2 { get; set; } // For Between operator
+}
+
+public enum FilterOperator
+{
+    Equals = 1,
+    NotEquals = 2,
+    GreaterThan = 3,
+    GreaterThanOrEqual = 4,
+    LessThan = 5,
+    LessThanOrEqual = 6,
+    Contains = 7,
+    StartsWith = 8,
+    EndsWith = 9,
+    Between = 10,
+    In = 11,
+    IsNull = 12,
+    IsNotNull = 13
+}
+
+public class ReportSortDto
+{
+    public string Field { get; set; } = string.Empty;
+    public bool Descending { get; set; }
+}
+
+public class ReportAggregationDto
+{
+    public List<string> GroupByFields { get; set; } = [];
+    public List<ReportColumnDto> AggregatedColumns { get; set; } = [];
+}
+
+/// <summary>
+/// Request to execute a report builder query
+/// </summary>
+public class ReportBuilderExecuteRequestDto
+{
+    public ReportBuilderConfigDto Config { get; set; } = new();
+    public DateTime? StartDate { get; set; }
+    public DateTime? EndDate { get; set; }
+    public int Page { get; set; } = 1;
+    public int PageSize { get; set; } = 100;
+    public ReportFormat ExportFormat { get; set; } = ReportFormat.Pdf;
+}
+
+/// <summary>
+/// Result from executing a report builder query
+/// </summary>
+public class ReportBuilderResultDto
+{
+    public bool Success { get; set; }
+    public string? Message { get; set; }
+    public List<Dictionary<string, object?>> Data { get; set; } = [];
+    public int TotalCount { get; set; }
+    public int Page { get; set; }
+    public int PageSize { get; set; }
+    public int TotalPages => (int)Math.Ceiling((double)TotalCount / PageSize);
+    public Dictionary<string, object?>? Totals { get; set; }
+    public DateTime GeneratedAt { get; set; } = DateTime.UtcNow;
+}
+
+/// <summary>
+/// Saved report configuration DTO
+/// </summary>
+public class SavedReportDto
+{
+    public int Id { get; set; }
+    public string Name { get; set; } = string.Empty;
+    public string? Description { get; set; }
+    public ReportBuilderDataSource DataSource { get; set; }
+    public ReportBuilderConfigDto Configuration { get; set; } = new();
+    public bool IsShared { get; set; }
+    public bool IsTemplate { get; set; }
+    public string? Category { get; set; }
+    public string? Tags { get; set; }
+    public DateTime? LastRunAt { get; set; }
+    public int RunCount { get; set; }
+    public DateTime CreatedAt { get; set; }
+    public string? CreatedBy { get; set; }
+}
+
+/// <summary>
+/// Available fields for a data source
+/// </summary>
+public class DataSourceFieldsDto
+{
+    public ReportBuilderDataSource DataSource { get; set; }
+    public List<AvailableFieldDto> Fields { get; set; } = [];
+}
+
+public class AvailableFieldDto
+{
+    public string Field { get; set; } = string.Empty;
+    public string Label { get; set; } = string.Empty;
+    public ReportColumnType Type { get; set; }
+    public bool Sortable { get; set; } = true;
+    public bool Filterable { get; set; } = true;
+    public bool Groupable { get; set; }
+    public List<FilterOperator> SupportedOperators { get; set; } = [];
+}
+
+#endregion

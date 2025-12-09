@@ -66,6 +66,9 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser, Applicati
     public DbSet<Budget> Budgets { get; set; } = null!;
     public DbSet<BudgetExpense> BudgetExpenses { get; set; } = null!;
 
+    // Reports
+    public DbSet<SavedReport> SavedReports { get; set; } = null!;
+
     protected override void OnModelCreating(ModelBuilder builder)
     {
         base.OnModelCreating(builder);

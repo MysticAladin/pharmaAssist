@@ -1387,6 +1387,10 @@
       "topProduct": "Top Proizvod"
     },
     "types": {
+      "builder": {
+        "title": "Graditelj Izvještaja",
+        "description": "Kreirajte prilagođene izvještaje sa povuci i ispusti"
+      },
       "sales": {
         "title": "Izvještaji Prodaje",
         "description": "Prihodi, narudžbe i analitika kupaca"
@@ -1508,6 +1512,116 @@
         "title": "Izvezi Izvještaj",
         "fileName": "izvjestaj-proizvoda-koji-isticu"
       }
+    },
+    "builder": {
+      "title": "Graditelj Izvještaja",
+      "subtitle": "Kreirajte prilagođene izvještaje sa povuci i ispusti interfejsom",
+      "newReport": "Novi Izvještaj",
+      "savedReports": "Sačuvani Izvještaji",
+      "loadReport": "Učitaj Izvještaj",
+      "selectDataSource": "Odaberite Izvor Podataka",
+      "selectDataSourceDesc": "Odaberite primarni izvor podataka za vaš izvještaj",
+      "availableColumns": "Dostupne Kolone",
+      "selectedColumns": "Odabrane Kolone",
+      "dragToAdd": "Povucite kolone ovdje da ih dodate u izvještaj",
+      "filters": "Filteri",
+      "addFilter": "Dodaj Filter",
+      "groupBy": "Grupiši Po",
+      "sortBy": "Sortiraj Po",
+      "ascending": "Uzlazno",
+      "descending": "Silazno",
+      "preview": "Pregled",
+      "runReport": "Pokreni Izvještaj",
+      "saveReport": "Sačuvaj Izvještaj",
+      "saveAs": "Sačuvaj Kao",
+      "export": "Izvezi",
+      "exportCSV": "Izvezi CSV",
+      "exportExcel": "Izvezi Excel",
+      "exportPDF": "Izvezi PDF",
+      "reportName": "Naziv Izvještaja",
+      "reportDescription": "Opis",
+      "noColumnsSelected": "Nema odabranih kolona",
+      "noColumnsSelectedDesc": "Odaberite kolone sa liste dostupnih za uključivanje u izvještaj",
+      "noFiltersApplied": "Nema primijenjenih filtera",
+      "noData": "Nema dostupnih podataka",
+      "noDataDesc": "Pokrenite izvještaj da vidite rezultate, ili prilagodite filtere",
+      "recordsFound": "{{count}} zapisa pronađeno",
+      "selectField": "Odaberite polje",
+      "selectOperator": "Odaberite operator",
+      "enterValue": "Unesite vrijednost",
+      "dataSources": {
+        "orders": "Narudžbe",
+        "ordersDesc": "Podaci o narudžbama uključujući stavke, kupce i ukupne iznose",
+        "products": "Proizvodi",
+        "productsDesc": "Katalog proizvoda sa cijenama i zalihama",
+        "customers": "Kupci",
+        "customersDesc": "Informacije o kupcima i historija kupovine",
+        "inventory": "Zalihe",
+        "inventoryDesc": "Nivoi zaliha, kretanja i vrijednosti",
+        "prescriptions": "Recepti",
+        "prescriptionsDesc": "Zapisi o receptima i podaci o usklađenosti"
+      },
+      "dimensions": {
+        "time": "Vrijeme",
+        "customer": "Kupac",
+        "product": "Proizvod",
+        "category": "Kategorija",
+        "manufacturer": "Proizvođač",
+        "warehouse": "Skladište"
+      },
+      "metrics": {
+        "revenue": "Prihod",
+        "quantity": "Količina",
+        "orders": "Broj Narudžbi",
+        "profit": "Profit",
+        "discount": "Popust",
+        "avgOrderValue": "Prosjek Narudžbe"
+      },
+      "operators": {
+        "equals": "Jednako",
+        "notEquals": "Nije jednako",
+        "contains": "Sadrži",
+        "startsWith": "Počinje sa",
+        "endsWith": "Završava sa",
+        "greaterThan": "Veće od",
+        "lessThan": "Manje od",
+        "greaterThanOrEqual": "Veće ili jednako",
+        "lessThanOrEqual": "Manje ili jednako",
+        "between": "Između",
+        "in": "U listi",
+        "isNull": "Je prazno",
+        "isNotNull": "Nije prazno"
+      },
+      "aggregations": {
+        "sum": "Suma",
+        "average": "Prosjek",
+        "count": "Broj",
+        "min": "Minimum",
+        "max": "Maximum",
+        "first": "Prvo",
+        "last": "Zadnje"
+      },
+      "schedule": {
+        "title": "Zakaži Izvještaj",
+        "enabled": "Omogući zakazano izvršavanje",
+        "frequency": "Učestalost",
+        "daily": "Dnevno",
+        "weekly": "Sedmično",
+        "monthly": "Mjesečno",
+        "time": "Vrijeme",
+        "recipients": "Email primaoci",
+        "lastRun": "Zadnje pokretanje",
+        "nextRun": "Sljedeće zakazano pokretanje"
+      },
+      "validation": {
+        "nameRequired": "Naziv izvještaja je obavezan",
+        "dataSourceRequired": "Molimo odaberite izvor podataka",
+        "columnsRequired": "Molimo odaberite barem jednu kolonu"
+      },
+      "confirmDelete": "Da li ste sigurni da želite obrisati ovaj sačuvani izvještaj?",
+      "deleteSuccess": "Izvještaj uspješno obrisan",
+      "saveSuccess": "Izvještaj uspješno sačuvan",
+      "loadSuccess": "Izvještaj uspješno učitan"
     },
     "financial": {
       "title": "Finansijski Izvještaj",

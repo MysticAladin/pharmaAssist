@@ -886,4 +886,648 @@ public class ReportService : IReportService
     }
 
     #endregion
+
+    #region Report Builder
+
+    public async Task<DataSourceFieldsDto> GetDataSourceFieldsAsync(
+        ReportBuilderDataSource dataSource, 
+        CancellationToken cancellationToken = default)
+    {
+        var result = new DataSourceFieldsDto { DataSource = dataSource };
+        
+        result.Fields = dataSource switch
+        {
+            ReportBuilderDataSource.Orders => GetOrderFields(),
+            ReportBuilderDataSource.Products => GetProductFields(),
+            ReportBuilderDataSource.Customers => GetCustomerFields(),
+            ReportBuilderDataSource.Inventory => GetInventoryFields(),
+            ReportBuilderDataSource.OrderItems => GetOrderItemFields(),
+            ReportBuilderDataSource.SalesAnalytics => GetSalesAnalyticsFields(),
+            _ => []
+        };
+        
+        return await Task.FromResult(result);
+    }
+
+    private static List<AvailableFieldDto> GetOrderFields() =>
+    [
+        new() { Field = "OrderNumber", Label = "Order Number", Type = ReportColumnType.Text, Groupable = false },
+        new() { Field = "OrderDate", Label = "Order Date", Type = ReportColumnType.Date, Groupable = true },
+        new() { Field = "CustomerName", Label = "Customer", Type = ReportColumnType.Text, Groupable = true },
+        new() { Field = "CustomerCode", Label = "Customer Code", Type = ReportColumnType.Text, Groupable = true },
+        new() { Field = "Status", Label = "Status", Type = ReportColumnType.Text, Groupable = true },
+        new() { Field = "ItemCount", Label = "Items", Type = ReportColumnType.Number, Groupable = false },
+        new() { Field = "SubTotal", Label = "Subtotal", Type = ReportColumnType.Currency, Groupable = false },
+        new() { Field = "DiscountAmount", Label = "Discount", Type = ReportColumnType.Currency, Groupable = false },
+        new() { Field = "TaxAmount", Label = "Tax", Type = ReportColumnType.Currency, Groupable = false },
+        new() { Field = "TotalAmount", Label = "Total", Type = ReportColumnType.Currency, Groupable = false },
+        new() { Field = "PaymentMethod", Label = "Payment Method", Type = ReportColumnType.Text, Groupable = true },
+        new() { Field = "PaymentStatus", Label = "Payment Status", Type = ReportColumnType.Text, Groupable = true }
+    ];
+
+    private static List<AvailableFieldDto> GetProductFields() =>
+    [
+        new() { Field = "Name", Label = "Product Name", Type = ReportColumnType.Text, Groupable = false },
+        new() { Field = "SKU", Label = "SKU", Type = ReportColumnType.Text, Groupable = false },
+        new() { Field = "CategoryName", Label = "Category", Type = ReportColumnType.Text, Groupable = true },
+        new() { Field = "ManufacturerName", Label = "Manufacturer", Type = ReportColumnType.Text, Groupable = true },
+        new() { Field = "UnitPrice", Label = "Unit Price", Type = ReportColumnType.Currency, Groupable = false },
+        new() { Field = "CostPrice", Label = "Cost Price", Type = ReportColumnType.Currency, Groupable = false },
+        new() { Field = "CurrentStock", Label = "Stock", Type = ReportColumnType.Number, Groupable = false },
+        new() { Field = "ReorderLevel", Label = "Reorder Level", Type = ReportColumnType.Number, Groupable = false },
+        new() { Field = "IsActive", Label = "Active", Type = ReportColumnType.Boolean, Groupable = true },
+        new() { Field = "RequiresPrescription", Label = "Rx Required", Type = ReportColumnType.Boolean, Groupable = true }
+    ];
+
+    private static List<AvailableFieldDto> GetCustomerFields() =>
+    [
+        new() { Field = "CustomerCode", Label = "Customer Code", Type = ReportColumnType.Text, Groupable = false },
+        new() { Field = "Name", Label = "Name", Type = ReportColumnType.Text, Groupable = false },
+        new() { Field = "CustomerType", Label = "Type", Type = ReportColumnType.Text, Groupable = true },
+        new() { Field = "Tier", Label = "Tier", Type = ReportColumnType.Text, Groupable = true },
+        new() { Field = "Email", Label = "Email", Type = ReportColumnType.Text, Groupable = false },
+        new() { Field = "Phone", Label = "Phone", Type = ReportColumnType.Text, Groupable = false },
+        new() { Field = "City", Label = "City", Type = ReportColumnType.Text, Groupable = true },
+        new() { Field = "CreditLimit", Label = "Credit Limit", Type = ReportColumnType.Currency, Groupable = false },
+        new() { Field = "CurrentBalance", Label = "Balance", Type = ReportColumnType.Currency, Groupable = false },
+        new() { Field = "IsActive", Label = "Active", Type = ReportColumnType.Boolean, Groupable = true },
+        new() { Field = "TotalOrders", Label = "Total Orders", Type = ReportColumnType.Number, Groupable = false },
+        new() { Field = "TotalSpent", Label = "Total Spent", Type = ReportColumnType.Currency, Groupable = false }
+    ];
+
+    private static List<AvailableFieldDto> GetInventoryFields() =>
+    [
+        new() { Field = "ProductName", Label = "Product", Type = ReportColumnType.Text, Groupable = false },
+        new() { Field = "SKU", Label = "SKU", Type = ReportColumnType.Text, Groupable = false },
+        new() { Field = "BatchNumber", Label = "Batch", Type = ReportColumnType.Text, Groupable = false },
+        new() { Field = "CategoryName", Label = "Category", Type = ReportColumnType.Text, Groupable = true },
+        new() { Field = "ManufacturerName", Label = "Manufacturer", Type = ReportColumnType.Text, Groupable = true },
+        new() { Field = "Quantity", Label = "Quantity", Type = ReportColumnType.Number, Groupable = false },
+        new() { Field = "ExpiryDate", Label = "Expiry Date", Type = ReportColumnType.Date, Groupable = false },
+        new() { Field = "DaysToExpiry", Label = "Days to Expiry", Type = ReportColumnType.Number, Groupable = false },
+        new() { Field = "UnitCost", Label = "Unit Cost", Type = ReportColumnType.Currency, Groupable = false },
+        new() { Field = "TotalValue", Label = "Total Value", Type = ReportColumnType.Currency, Groupable = false },
+        new() { Field = "WarehouseName", Label = "Warehouse", Type = ReportColumnType.Text, Groupable = true }
+    ];
+
+    private static List<AvailableFieldDto> GetOrderItemFields() =>
+    [
+        new() { Field = "OrderNumber", Label = "Order Number", Type = ReportColumnType.Text, Groupable = false },
+        new() { Field = "OrderDate", Label = "Order Date", Type = ReportColumnType.Date, Groupable = true },
+        new() { Field = "CustomerName", Label = "Customer", Type = ReportColumnType.Text, Groupable = true },
+        new() { Field = "ProductName", Label = "Product", Type = ReportColumnType.Text, Groupable = true },
+        new() { Field = "SKU", Label = "SKU", Type = ReportColumnType.Text, Groupable = false },
+        new() { Field = "CategoryName", Label = "Category", Type = ReportColumnType.Text, Groupable = true },
+        new() { Field = "ManufacturerName", Label = "Manufacturer", Type = ReportColumnType.Text, Groupable = true },
+        new() { Field = "Quantity", Label = "Quantity", Type = ReportColumnType.Number, Groupable = false },
+        new() { Field = "UnitPrice", Label = "Unit Price", Type = ReportColumnType.Currency, Groupable = false },
+        new() { Field = "DiscountPercent", Label = "Discount %", Type = ReportColumnType.Percentage, Groupable = false },
+        new() { Field = "LineTotal", Label = "Line Total", Type = ReportColumnType.Currency, Groupable = false }
+    ];
+
+    private static List<AvailableFieldDto> GetSalesAnalyticsFields() =>
+    [
+        new() { Field = "Date", Label = "Date", Type = ReportColumnType.Date, Groupable = true },
+        new() { Field = "Month", Label = "Month", Type = ReportColumnType.Text, Groupable = true },
+        new() { Field = "Year", Label = "Year", Type = ReportColumnType.Number, Groupable = true },
+        new() { Field = "CustomerName", Label = "Customer", Type = ReportColumnType.Text, Groupable = true },
+        new() { Field = "CustomerTier", Label = "Customer Tier", Type = ReportColumnType.Text, Groupable = true },
+        new() { Field = "ProductName", Label = "Product", Type = ReportColumnType.Text, Groupable = true },
+        new() { Field = "CategoryName", Label = "Category", Type = ReportColumnType.Text, Groupable = true },
+        new() { Field = "ManufacturerName", Label = "Manufacturer", Type = ReportColumnType.Text, Groupable = true },
+        new() { Field = "OrderCount", Label = "Orders", Type = ReportColumnType.Number, Groupable = false },
+        new() { Field = "QuantitySold", Label = "Qty Sold", Type = ReportColumnType.Number, Groupable = false },
+        new() { Field = "Revenue", Label = "Revenue", Type = ReportColumnType.Currency, Groupable = false },
+        new() { Field = "Discount", Label = "Discount", Type = ReportColumnType.Currency, Groupable = false },
+        new() { Field = "NetRevenue", Label = "Net Revenue", Type = ReportColumnType.Currency, Groupable = false },
+        new() { Field = "Profit", Label = "Profit", Type = ReportColumnType.Currency, Groupable = false },
+        new() { Field = "ProfitMargin", Label = "Margin %", Type = ReportColumnType.Percentage, Groupable = false }
+    ];
+
+    public async Task<ReportBuilderResultDto> ExecuteReportBuilderAsync(
+        ReportBuilderExecuteRequestDto request, 
+        CancellationToken cancellationToken = default)
+    {
+        try
+        {
+            var config = request.Config;
+            var startDate = request.StartDate ?? DateTime.UtcNow.AddMonths(-1);
+            var endDate = request.EndDate ?? DateTime.UtcNow;
+
+            return config.DataSource switch
+            {
+                ReportBuilderDataSource.Orders => await ExecuteOrdersReportAsync(config, startDate, endDate, request.Page, request.PageSize, cancellationToken),
+                ReportBuilderDataSource.Products => await ExecuteProductsReportAsync(config, request.Page, request.PageSize, cancellationToken),
+                ReportBuilderDataSource.Customers => await ExecuteCustomersReportAsync(config, request.Page, request.PageSize, cancellationToken),
+                ReportBuilderDataSource.OrderItems => await ExecuteOrderItemsReportAsync(config, startDate, endDate, request.Page, request.PageSize, cancellationToken),
+                ReportBuilderDataSource.SalesAnalytics => await ExecuteSalesAnalyticsReportAsync(config, startDate, endDate, request.Page, request.PageSize, cancellationToken),
+                _ => new ReportBuilderResultDto { Success = false, Message = "Unsupported data source" }
+            };
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error executing report builder query");
+            return new ReportBuilderResultDto { Success = false, Message = ex.Message };
+        }
+    }
+
+    private async Task<ReportBuilderResultDto> ExecuteOrdersReportAsync(
+        ReportBuilderConfigDto config,
+        DateTime startDate,
+        DateTime endDate,
+        int page,
+        int pageSize,
+        CancellationToken cancellationToken)
+    {
+        var query = _context.Orders
+            .Include(o => o.Customer)
+            .Include(o => o.OrderItems)
+            .Where(o => o.OrderDate >= startDate && o.OrderDate <= endDate.AddDays(1))
+            .Where(o => o.Status != OrderStatus.Cancelled)
+            .AsQueryable();
+
+        // Apply filters
+        foreach (var filter in config.Filters)
+        {
+            query = ApplyOrderFilter(query, filter);
+        }
+
+        var totalCount = await query.CountAsync(cancellationToken);
+
+        // Apply sorting
+        query = ApplyOrderSorting(query, config.SortBy);
+
+        // Paginate
+        var orders = await query
+            .Skip((page - 1) * pageSize)
+            .Take(pageSize)
+            .ToListAsync(cancellationToken);
+
+        // Map to dictionary
+        var data = orders.Select(o => new Dictionary<string, object?>
+        {
+            ["Id"] = o.Id,
+            ["OrderNumber"] = o.OrderNumber,
+            ["OrderDate"] = o.OrderDate,
+            ["CustomerName"] = o.Customer?.FullName,
+            ["CustomerCode"] = o.Customer?.CustomerCode,
+            ["Status"] = o.Status.ToString(),
+            ["ItemCount"] = o.OrderItems.Sum(oi => oi.Quantity),
+            ["SubTotal"] = o.SubTotal,
+            ["DiscountAmount"] = o.DiscountAmount,
+            ["TaxAmount"] = o.TaxAmount,
+            ["TotalAmount"] = o.TotalAmount,
+            ["PaymentMethod"] = o.PaymentMethod.ToString(),
+            ["PaymentStatus"] = o.PaymentStatus.ToString()
+        }).ToList();
+
+        // Calculate totals
+        var totals = new Dictionary<string, object?>
+        {
+            ["TotalAmount"] = orders.Sum(o => o.TotalAmount),
+            ["DiscountAmount"] = orders.Sum(o => o.DiscountAmount),
+            ["SubTotal"] = orders.Sum(o => o.SubTotal),
+            ["ItemCount"] = orders.Sum(o => o.OrderItems.Sum(oi => oi.Quantity))
+        };
+
+        return new ReportBuilderResultDto
+        {
+            Success = true,
+            Data = data,
+            TotalCount = totalCount,
+            Page = page,
+            PageSize = pageSize,
+            Totals = totals
+        };
+    }
+
+    private static IQueryable<Order> ApplyOrderFilter(IQueryable<Order> query, ReportFilterDto filter)
+    {
+        return filter.Field.ToLower() switch
+        {
+            "customername" when filter.Value != null => 
+                query.Where(o => o.Customer != null && o.Customer.FullName.Contains(filter.Value.ToString()!)),
+            "status" when filter.Value != null => 
+                query.Where(o => o.Status.ToString() == filter.Value.ToString()),
+            "totalamount" => ApplyNumericFilter(query, o => (double)o.TotalAmount, filter),
+            _ => query
+        };
+    }
+
+    private static IQueryable<Order> ApplyNumericFilter(IQueryable<Order> query, System.Linq.Expressions.Expression<Func<Order, double>> selector, ReportFilterDto filter)
+    {
+        if (filter.Value == null) return query;
+        var value = Convert.ToDouble(filter.Value);
+        
+        return filter.Operator switch
+        {
+            FilterOperator.GreaterThan => query.Where(o => EF.Property<decimal>(o, "TotalAmount") > (decimal)value),
+            FilterOperator.LessThan => query.Where(o => EF.Property<decimal>(o, "TotalAmount") < (decimal)value),
+            FilterOperator.Equals => query.Where(o => EF.Property<decimal>(o, "TotalAmount") == (decimal)value),
+            _ => query
+        };
+    }
+
+    private static IQueryable<Order> ApplyOrderSorting(IQueryable<Order> query, List<ReportSortDto> sortBy)
+    {
+        if (sortBy.Count == 0)
+            return query.OrderByDescending(o => o.OrderDate);
+
+        var first = sortBy[0];
+        var orderedQuery = first.Field.ToLower() switch
+        {
+            "orderdate" => first.Descending ? query.OrderByDescending(o => o.OrderDate) : query.OrderBy(o => o.OrderDate),
+            "totalamount" => first.Descending ? query.OrderByDescending(o => o.TotalAmount) : query.OrderBy(o => o.TotalAmount),
+            "ordernumber" => first.Descending ? query.OrderByDescending(o => o.OrderNumber) : query.OrderBy(o => o.OrderNumber),
+            _ => query.OrderByDescending(o => o.OrderDate)
+        };
+
+        return orderedQuery;
+    }
+
+    private async Task<ReportBuilderResultDto> ExecuteProductsReportAsync(
+        ReportBuilderConfigDto config,
+        int page,
+        int pageSize,
+        CancellationToken cancellationToken)
+    {
+        var query = _context.Products
+            .Include(p => p.Category)
+            .Include(p => p.Manufacturer)
+            .Where(p => !p.IsDeleted)
+            .AsQueryable();
+
+        var totalCount = await query.CountAsync(cancellationToken);
+
+        var products = await query
+            .OrderBy(p => p.Name)
+            .Skip((page - 1) * pageSize)
+            .Take(pageSize)
+            .ToListAsync(cancellationToken);
+
+        var data = products.Select(p => new Dictionary<string, object?>
+        {
+            ["Id"] = p.Id,
+            ["Name"] = p.Name,
+            ["SKU"] = p.SKU,
+            ["CategoryName"] = p.Category?.Name,
+            ["ManufacturerName"] = p.Manufacturer?.Name,
+            ["UnitPrice"] = p.UnitPrice,
+            ["CostPrice"] = p.CostPrice,
+            ["CurrentStock"] = p.StockQuantity,
+            ["ReorderLevel"] = p.ReorderLevel,
+            ["IsActive"] = p.IsActive,
+            ["RequiresPrescription"] = p.RequiresPrescription
+        }).ToList();
+
+        return new ReportBuilderResultDto
+        {
+            Success = true,
+            Data = data,
+            TotalCount = totalCount,
+            Page = page,
+            PageSize = pageSize
+        };
+    }
+
+    private async Task<ReportBuilderResultDto> ExecuteCustomersReportAsync(
+        ReportBuilderConfigDto config,
+        int page,
+        int pageSize,
+        CancellationToken cancellationToken)
+    {
+        var query = _context.Customers
+            .Include(c => c.Orders)
+            .Where(c => !c.IsDeleted)
+            .AsQueryable();
+
+        var totalCount = await query.CountAsync(cancellationToken);
+
+        var customers = await query
+            .OrderBy(c => c.FullName)
+            .Skip((page - 1) * pageSize)
+            .Take(pageSize)
+            .ToListAsync(cancellationToken);
+
+        var data = customers.Select(c => new Dictionary<string, object?>
+        {
+            ["Id"] = c.Id,
+            ["CustomerCode"] = c.CustomerCode,
+            ["Name"] = c.FullName,
+            ["CustomerType"] = c.CustomerType.ToString(),
+            ["Tier"] = c.Tier.ToString(),
+            ["Email"] = c.Email,
+            ["Phone"] = c.Phone,
+            ["CreditLimit"] = c.CreditLimit,
+            ["CurrentBalance"] = c.CurrentBalance,
+            ["IsActive"] = c.IsActive,
+            ["TotalOrders"] = c.Orders?.Count ?? 0,
+            ["TotalSpent"] = c.Orders?.Where(o => o.Status != OrderStatus.Cancelled).Sum(o => o.TotalAmount) ?? 0
+        }).ToList();
+
+        return new ReportBuilderResultDto
+        {
+            Success = true,
+            Data = data,
+            TotalCount = totalCount,
+            Page = page,
+            PageSize = pageSize
+        };
+    }
+
+    private async Task<ReportBuilderResultDto> ExecuteOrderItemsReportAsync(
+        ReportBuilderConfigDto config,
+        DateTime startDate,
+        DateTime endDate,
+        int page,
+        int pageSize,
+        CancellationToken cancellationToken)
+    {
+        var query = _context.OrderItems
+            .Include(oi => oi.Order)
+                .ThenInclude(o => o.Customer)
+            .Include(oi => oi.Product)
+                .ThenInclude(p => p.Category)
+            .Include(oi => oi.Product)
+                .ThenInclude(p => p.Manufacturer)
+            .Where(oi => oi.Order.OrderDate >= startDate && oi.Order.OrderDate <= endDate.AddDays(1))
+            .Where(oi => oi.Order.Status != OrderStatus.Cancelled)
+            .AsQueryable();
+
+        var totalCount = await query.CountAsync(cancellationToken);
+
+        var items = await query
+            .OrderByDescending(oi => oi.Order.OrderDate)
+            .Skip((page - 1) * pageSize)
+            .Take(pageSize)
+            .ToListAsync(cancellationToken);
+
+        var data = items.Select(oi => new Dictionary<string, object?>
+        {
+            ["Id"] = oi.Id,
+            ["OrderNumber"] = oi.Order.OrderNumber,
+            ["OrderDate"] = oi.Order.OrderDate,
+            ["CustomerName"] = oi.Order.Customer?.FullName,
+            ["ProductName"] = oi.Product.Name,
+            ["SKU"] = oi.Product.SKU,
+            ["CategoryName"] = oi.Product.Category?.Name,
+            ["ManufacturerName"] = oi.Product.Manufacturer?.Name,
+            ["Quantity"] = oi.Quantity,
+            ["UnitPrice"] = oi.UnitPrice,
+            ["DiscountPercent"] = oi.DiscountPercent,
+            ["LineTotal"] = oi.LineTotal
+        }).ToList();
+
+        var totals = new Dictionary<string, object?>
+        {
+            ["Quantity"] = items.Sum(oi => oi.Quantity),
+            ["LineTotal"] = items.Sum(oi => oi.LineTotal)
+        };
+
+        return new ReportBuilderResultDto
+        {
+            Success = true,
+            Data = data,
+            TotalCount = totalCount,
+            Page = page,
+            PageSize = pageSize,
+            Totals = totals
+        };
+    }
+
+    private async Task<ReportBuilderResultDto> ExecuteSalesAnalyticsReportAsync(
+        ReportBuilderConfigDto config,
+        DateTime startDate,
+        DateTime endDate,
+        int page,
+        int pageSize,
+        CancellationToken cancellationToken)
+    {
+        var groupByFields = config.GroupBy;
+
+        // Default: group by date if no grouping specified
+        if (groupByFields.Count == 0)
+            groupByFields = ["Date"];
+
+        var query = _context.OrderItems
+            .Include(oi => oi.Order)
+                .ThenInclude(o => o.Customer)
+            .Include(oi => oi.Product)
+                .ThenInclude(p => p.Category)
+            .Include(oi => oi.Product)
+                .ThenInclude(p => p.Manufacturer)
+            .Where(oi => oi.Order.OrderDate >= startDate && oi.Order.OrderDate <= endDate.AddDays(1))
+            .Where(oi => oi.Order.Status != OrderStatus.Cancelled)
+            .AsQueryable();
+
+        // For simplicity, we'll group by date
+        var items = await query.ToListAsync(cancellationToken);
+
+        var grouped = items
+            .GroupBy(oi => oi.Order.OrderDate.Date)
+            .Select(g => new Dictionary<string, object?>
+            {
+                ["Date"] = g.Key,
+                ["OrderCount"] = g.Select(oi => oi.OrderId).Distinct().Count(),
+                ["QuantitySold"] = g.Sum(oi => oi.Quantity),
+                ["Revenue"] = g.Sum(oi => oi.LineTotal),
+                ["Discount"] = g.Sum(oi => oi.LineTotal * oi.DiscountPercent / 100),
+                ["NetRevenue"] = g.Sum(oi => oi.LineTotal * (1 - oi.DiscountPercent / 100)),
+                ["Profit"] = g.Sum(oi => (oi.UnitPrice - oi.Product.CostPrice) * oi.Quantity),
+                ["ProfitMargin"] = g.Sum(oi => oi.LineTotal) > 0 
+                    ? g.Sum(oi => (oi.UnitPrice - oi.Product.CostPrice) * oi.Quantity) / g.Sum(oi => oi.LineTotal) * 100 
+                    : 0
+            })
+            .OrderByDescending(d => (DateTime)d["Date"]!)
+            .ToList();
+
+        var totalCount = grouped.Count;
+        var pagedData = grouped.Skip((page - 1) * pageSize).Take(pageSize).ToList();
+
+        var totals = new Dictionary<string, object?>
+        {
+            ["OrderCount"] = grouped.Sum(g => (int)g["OrderCount"]!),
+            ["QuantitySold"] = grouped.Sum(g => (int)g["QuantitySold"]!),
+            ["Revenue"] = grouped.Sum(g => (decimal)g["Revenue"]!),
+            ["NetRevenue"] = grouped.Sum(g => (decimal)g["NetRevenue"]!),
+            ["Profit"] = grouped.Sum(g => (decimal)g["Profit"]!)
+        };
+
+        return new ReportBuilderResultDto
+        {
+            Success = true,
+            Data = pagedData,
+            TotalCount = totalCount,
+            Page = page,
+            PageSize = pageSize,
+            Totals = totals
+        };
+    }
+
+    public async Task<byte[]> ExportReportBuilderAsync(
+        ReportBuilderExecuteRequestDto request, 
+        CancellationToken cancellationToken = default)
+    {
+        // Get all data (no pagination for export)
+        var modifiedRequest = new ReportBuilderExecuteRequestDto
+        {
+            Config = request.Config,
+            StartDate = request.StartDate,
+            EndDate = request.EndDate,
+            Page = 1,
+            PageSize = 10000,
+            ExportFormat = request.ExportFormat
+        };
+
+        var result = await ExecuteReportBuilderAsync(modifiedRequest, cancellationToken);
+
+        if (!result.Success || result.Data.Count == 0)
+        {
+            return Array.Empty<byte>();
+        }
+
+        return request.ExportFormat switch
+        {
+            ReportFormat.Csv => await ExportToCsvAsync(result.Data),
+            ReportFormat.Excel => await ExportToExcelAsync(result.Data, request.Config.Name ?? "Report"),
+            _ => await ExportToCsvAsync(result.Data)
+        };
+    }
+
+    #endregion
+
+    #region Saved Reports
+
+    public async Task<List<SavedReportDto>> GetSavedReportsAsync(
+        string? userId = null, 
+        CancellationToken cancellationToken = default)
+    {
+        var query = _context.Set<SavedReport>()
+            .Where(r => !r.IsDeleted)
+            .AsQueryable();
+
+        if (!string.IsNullOrEmpty(userId))
+        {
+            query = query.Where(r => r.CreatedBy == userId || r.IsShared || r.IsTemplate);
+        }
+
+        var reports = await query
+            .OrderByDescending(r => r.LastRunAt ?? r.CreatedAt)
+            .ToListAsync(cancellationToken);
+
+        return reports.Select(r => new SavedReportDto
+        {
+            Id = r.Id,
+            Name = r.Name,
+            Description = r.Description,
+            DataSource = (ReportBuilderDataSource)(int)r.DataSource,
+            Configuration = System.Text.Json.JsonSerializer.Deserialize<ReportBuilderConfigDto>(r.Configuration) ?? new(),
+            IsShared = r.IsShared,
+            IsTemplate = r.IsTemplate,
+            Category = r.Category,
+            Tags = r.Tags,
+            LastRunAt = r.LastRunAt,
+            RunCount = r.RunCount,
+            CreatedAt = r.CreatedAt,
+            CreatedBy = r.CreatedBy
+        }).ToList();
+    }
+
+    public async Task<SavedReportDto?> GetSavedReportByIdAsync(
+        int id, 
+        CancellationToken cancellationToken = default)
+    {
+        var report = await _context.Set<SavedReport>()
+            .FirstOrDefaultAsync(r => r.Id == id && !r.IsDeleted, cancellationToken);
+
+        if (report == null) return null;
+
+        return new SavedReportDto
+        {
+            Id = report.Id,
+            Name = report.Name,
+            Description = report.Description,
+            DataSource = (ReportBuilderDataSource)(int)report.DataSource,
+            Configuration = System.Text.Json.JsonSerializer.Deserialize<ReportBuilderConfigDto>(report.Configuration) ?? new(),
+            IsShared = report.IsShared,
+            IsTemplate = report.IsTemplate,
+            Category = report.Category,
+            Tags = report.Tags,
+            LastRunAt = report.LastRunAt,
+            RunCount = report.RunCount,
+            CreatedAt = report.CreatedAt,
+            CreatedBy = report.CreatedBy
+        };
+    }
+
+    public async Task<SavedReportDto> SaveReportAsync(
+        ReportBuilderConfigDto config, 
+        string userId, 
+        CancellationToken cancellationToken = default)
+    {
+        var report = new SavedReport
+        {
+            Name = config.Name,
+            Description = config.Description,
+            DataSource = (ReportDataSource)(int)config.DataSource,
+            Configuration = System.Text.Json.JsonSerializer.Serialize(config),
+            IsShared = config.IsShared,
+            Category = config.Category,
+            CreatedBy = userId
+        };
+
+        _context.Set<SavedReport>().Add(report);
+        await _context.SaveChangesAsync(cancellationToken);
+
+        return new SavedReportDto
+        {
+            Id = report.Id,
+            Name = report.Name,
+            Description = report.Description,
+            DataSource = (ReportBuilderDataSource)(int)report.DataSource,
+            Configuration = config,
+            IsShared = report.IsShared,
+            Category = report.Category,
+            CreatedAt = report.CreatedAt,
+            CreatedBy = report.CreatedBy
+        };
+    }
+
+    public async Task<bool> UpdateSavedReportAsync(
+        int id, 
+        ReportBuilderConfigDto config, 
+        CancellationToken cancellationToken = default)
+    {
+        var report = await _context.Set<SavedReport>()
+            .FirstOrDefaultAsync(r => r.Id == id && !r.IsDeleted, cancellationToken);
+
+        if (report == null) return false;
+
+        report.Name = config.Name;
+        report.Description = config.Description;
+        report.DataSource = (ReportDataSource)(int)config.DataSource;
+        report.Configuration = System.Text.Json.JsonSerializer.Serialize(config);
+        report.IsShared = config.IsShared;
+        report.Category = config.Category;
+        report.UpdatedAt = DateTime.UtcNow;
+
+        await _context.SaveChangesAsync(cancellationToken);
+        return true;
+    }
+
+    public async Task<bool> DeleteSavedReportAsync(
+        int id, 
+        CancellationToken cancellationToken = default)
+    {
+        var report = await _context.Set<SavedReport>()
+            .FirstOrDefaultAsync(r => r.Id == id, cancellationToken);
+
+        if (report == null) return false;
+
+        report.IsDeleted = true;
+        await _context.SaveChangesAsync(cancellationToken);
+        return true;
+    }
+
+    #endregion
 }
