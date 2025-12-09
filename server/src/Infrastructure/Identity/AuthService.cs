@@ -2,6 +2,7 @@ using Application.DTOs.Auth;
 using Application.DTOs.Common;
 using Application.Interfaces;
 using Domain.Entities;
+using Infrastructure.Persistence;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
@@ -15,15 +16,18 @@ public class AuthService : IAuthService
 {
     private readonly UserManager<ApplicationUser> _userManager;
     private readonly ITokenService _tokenService;
+    private readonly ApplicationDbContext _context;
     private readonly ILogger<AuthService> _logger;
 
     public AuthService(
         UserManager<ApplicationUser> userManager,
         ITokenService tokenService,
+        ApplicationDbContext context,
         ILogger<AuthService> logger)
     {
         _userManager = userManager;
         _tokenService = tokenService;
+        _context = context;
         _logger = logger;
     }
 
@@ -50,9 +54,17 @@ public class AuthService : IAuthService
         }
 
         var roles = await _userManager.GetRolesAsync(user);
-        var (accessToken, refreshToken, expiresAt) = await _tokenService.GenerateTokensAsync(user.Id, roles);
+        
+        // Get permissions for user's roles
+        var permissions = await GetPermissionsForRolesAsync(roles);
+        
+        var (accessToken, refreshToken, expiresAt) = await _tokenService.GenerateTokensAsync(
+            user.Id, 
+            roles, 
+            user.CustomerId, 
+            permissions);
 
-        var userDto = MapToUserDto(user, roles);
+        var userDto = MapToUserDto(user, roles, permissions);
 
         _logger.LogInformation("User {Email} logged in successfully", request.Email);
         return AuthResponse.Success(accessToken, refreshToken, expiresAt, userDto, "Login successful");
@@ -90,9 +102,14 @@ public class AuthService : IAuthService
         await _userManager.AddToRoleAsync(user, "User");
 
         var roles = await _userManager.GetRolesAsync(user);
-        var (accessToken, refreshToken, expiresAt) = await _tokenService.GenerateTokensAsync(user.Id, roles);
+        var permissions = await GetPermissionsForRolesAsync(roles);
+        var (accessToken, refreshToken, expiresAt) = await _tokenService.GenerateTokensAsync(
+            user.Id, 
+            roles, 
+            user.CustomerId, 
+            permissions);
 
-        var userDto = MapToUserDto(user, roles);
+        var userDto = MapToUserDto(user, roles, permissions);
 
         _logger.LogInformation("User {Email} registered successfully", request.Email);
         return AuthResponse.Success(accessToken, refreshToken, expiresAt, userDto, "Registration successful");
@@ -114,9 +131,14 @@ public class AuthService : IAuthService
         }
 
         var roles = await _userManager.GetRolesAsync(user);
-        var (accessToken, refreshToken, expiresAt) = await _tokenService.GenerateTokensAsync(user.Id, roles);
+        var permissions = await GetPermissionsForRolesAsync(roles);
+        var (accessToken, refreshToken, expiresAt) = await _tokenService.GenerateTokensAsync(
+            user.Id, 
+            roles, 
+            user.CustomerId, 
+            permissions);
 
-        var userDto = MapToUserDto(user, roles);
+        var userDto = MapToUserDto(user, roles, permissions);
 
         return AuthResponse.Success(accessToken, refreshToken, expiresAt, userDto, "Token refreshed successfully");
     }
@@ -198,7 +220,8 @@ public class AuthService : IAuthService
         }
 
         var roles = await _userManager.GetRolesAsync(user);
-        var userDto = MapToUserDto(user, roles);
+        var permissions = await GetPermissionsForRolesAsync(roles);
+        var userDto = MapToUserDto(user, roles, permissions);
 
         return ApiResponse<UserDto>.Ok(userDto);
     }
@@ -226,13 +249,27 @@ public class AuthService : IAuthService
         }
 
         var roles = await _userManager.GetRolesAsync(user);
-        var userDto = MapToUserDto(user, roles);
+        var permissions = await GetPermissionsForRolesAsync(roles);
+        var userDto = MapToUserDto(user, roles, permissions);
 
         _logger.LogInformation("User {UserId} updated profile", userId);
         return ApiResponse<UserDto>.Ok(userDto, "Profile updated successfully");
     }
 
-    private static UserDto MapToUserDto(ApplicationUser user, IList<string> roles)
+    private async Task<List<string>> GetPermissionsForRolesAsync(IEnumerable<string> roleNames)
+    {
+        var permissions = await _context.RolePermissions
+            .Include(rp => rp.Permission)
+            .Include(rp => rp.Role)
+            .Where(rp => roleNames.Contains(rp.Role.Name!) && rp.Permission.IsActive)
+            .Select(rp => rp.Permission.Key)
+            .Distinct()
+            .ToListAsync();
+
+        return permissions;
+    }
+
+    private static UserDto MapToUserDto(ApplicationUser user, IList<string> roles, IEnumerable<string>? permissions = null)
     {
         return new UserDto
         {
@@ -245,7 +282,9 @@ public class AuthService : IAuthService
             PhoneNumber = user.PhoneNumber,
             DateOfBirth = user.DateOfBirth,
             IsActive = user.IsActive,
-            Roles = roles.ToList()
+            Roles = roles.ToList(),
+            CustomerId = user.CustomerId,
+            Permissions = permissions?.ToList() ?? new List<string>()
         };
     }
 

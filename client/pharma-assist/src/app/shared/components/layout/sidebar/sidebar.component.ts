@@ -508,6 +508,12 @@ export class SidebarComponent {
       roles: [UserRole.SuperAdmin, UserRole.Admin]
     },
     {
+      labelKey: 'nav.featureFlags',
+      icon: 'icon-toggle-left',
+      route: '/admin/feature-flags',
+      roles: [UserRole.SuperAdmin]
+    },
+    {
       labelKey: 'nav.pricing',
       icon: 'icon-tag',
       route: '/admin/pricing',

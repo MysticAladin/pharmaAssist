@@ -30,10 +30,13 @@ public class TokenService : ITokenService
     }
 
     public async Task<(string accessToken, string refreshToken, DateTime expiresAt)> GenerateTokensAsync(
-        string userId, IEnumerable<string> roles)
+        string userId, 
+        IEnumerable<string> roles,
+        int? customerId = null,
+        IEnumerable<string>? permissions = null)
     {
         var expiresAt = DateTime.UtcNow.AddMinutes(_jwtSettings.AccessTokenExpirationMinutes);
-        var accessToken = GenerateAccessToken(userId, roles, expiresAt);
+        var accessToken = GenerateAccessToken(userId, roles, expiresAt, customerId, permissions);
         var refreshToken = await GenerateRefreshTokenAsync(userId);
 
         return (accessToken, refreshToken, expiresAt);
@@ -64,7 +67,12 @@ public class TokenService : ITokenService
         await _context.SaveChangesAsync();
     }
 
-    private string GenerateAccessToken(string userId, IEnumerable<string> roles, DateTime expiresAt)
+    private string GenerateAccessToken(
+        string userId, 
+        IEnumerable<string> roles, 
+        DateTime expiresAt,
+        int? customerId = null,
+        IEnumerable<string>? permissions = null)
     {
         var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwtSettings.SecretKey));
         var credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
@@ -76,9 +84,25 @@ public class TokenService : ITokenService
             new(ClaimTypes.NameIdentifier, userId)
         };
 
+        // Add roles
         foreach (var role in roles)
         {
             claims.Add(new SecurityClaim(ClaimTypes.Role, role));
+        }
+
+        // Add customerId for multi-tenant feature flags
+        if (customerId.HasValue)
+        {
+            claims.Add(new SecurityClaim("customerId", customerId.Value.ToString()));
+        }
+
+        // Add permissions
+        if (permissions != null)
+        {
+            foreach (var permission in permissions)
+            {
+                claims.Add(new SecurityClaim("permission", permission));
+            }
         }
 
         var token = new JwtSecurityToken(

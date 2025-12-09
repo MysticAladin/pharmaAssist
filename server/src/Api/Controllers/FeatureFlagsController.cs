@@ -4,6 +4,7 @@ using Application.Interfaces;
 using Domain.Enums;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 
 namespace Api.Controllers;
 
@@ -22,6 +23,33 @@ public class FeatureFlagsController : ControllerBase
     {
         _featureFlagService = featureFlagService;
         _logger = logger;
+    }
+
+    /// <summary>
+    /// Gets the current user's customer ID from JWT claims
+    /// </summary>
+    private int? GetCurrentUserCustomerId()
+    {
+        var customerIdClaim = User.FindFirst("customerId")?.Value;
+        return int.TryParse(customerIdClaim, out var id) ? id : null;
+    }
+
+    /// <summary>
+    /// Checks if the current user is a SuperAdmin
+    /// </summary>
+    private bool IsSuperAdmin()
+    {
+        return User.IsInRole("SuperAdmin");
+    }
+
+    /// <summary>
+    /// Validates that the user can access/modify the specified customer's data
+    /// </summary>
+    private bool CanAccessCustomer(int customerId)
+    {
+        if (IsSuperAdmin()) return true;
+        var userCustomerId = GetCurrentUserCustomerId();
+        return userCustomerId.HasValue && userCustomerId.Value == customerId;
     }
 
     #region System Flags
@@ -73,10 +101,10 @@ public class FeatureFlagsController : ControllerBase
     }
 
     /// <summary>
-    /// Create a new system flag
+    /// Create a new system flag (SuperAdmin only)
     /// </summary>
     [HttpPost("system")]
-    [Authorize(Roles = "Admin,SuperAdmin")]
+    [Authorize(Roles = "SuperAdmin")]
     [ProducesResponseType(typeof(ApiResponse<SystemFeatureFlagDto>), StatusCodes.Status201Created)]
     [ProducesResponseType(typeof(ApiResponse<SystemFeatureFlagDto>), StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> CreateSystemFlag([FromBody] CreateSystemFlagDto dto, CancellationToken cancellationToken)
@@ -88,10 +116,10 @@ public class FeatureFlagsController : ControllerBase
     }
 
     /// <summary>
-    /// Update a system flag
+    /// Update a system flag (SuperAdmin only)
     /// </summary>
     [HttpPut("system/{id:int}")]
-    [Authorize(Roles = "Admin,SuperAdmin")]
+    [Authorize(Roles = "SuperAdmin")]
     [ProducesResponseType(typeof(ApiResponse<SystemFeatureFlagDto>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ApiResponse<SystemFeatureFlagDto>), StatusCodes.Status404NotFound)]
     public async Task<IActionResult> UpdateSystemFlag(int id, [FromBody] UpdateSystemFlagDto dto, CancellationToken cancellationToken)
@@ -114,10 +142,10 @@ public class FeatureFlagsController : ControllerBase
     }
 
     /// <summary>
-    /// Toggle a system flag's enabled state
+    /// Toggle a system flag's enabled state (SuperAdmin only)
     /// </summary>
     [HttpPost("system/{id:int}/toggle")]
-    [Authorize(Roles = "Admin,SuperAdmin")]
+    [Authorize(Roles = "SuperAdmin")]
     [ProducesResponseType(typeof(ApiResponse<bool>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ApiResponse<bool>), StatusCodes.Status404NotFound)]
     public async Task<IActionResult> ToggleSystemFlag(int id, CancellationToken cancellationToken)
@@ -131,35 +159,64 @@ public class FeatureFlagsController : ControllerBase
     #region Client Overrides
 
     /// <summary>
-    /// Get all client overrides
+    /// Get all client overrides (SuperAdmin sees all, Admin sees their own)
     /// </summary>
     [HttpGet("client")]
+    [Authorize(Roles = "Admin,SuperAdmin")]
     [ProducesResponseType(typeof(ApiResponse<IEnumerable<ClientFeatureFlagDto>>), StatusCodes.Status200OK)]
     public async Task<IActionResult> GetAllClientOverrides(CancellationToken cancellationToken)
     {
-        var result = await _featureFlagService.GetAllClientOverridesAsync(cancellationToken);
-        return result.Success ? Ok(result) : BadRequest(result);
+        if (IsSuperAdmin())
+        {
+            var result = await _featureFlagService.GetAllClientOverridesAsync(cancellationToken);
+            return result.Success ? Ok(result) : BadRequest(result);
+        }
+        else
+        {
+            var customerId = GetCurrentUserCustomerId();
+            if (!customerId.HasValue)
+            {
+                return BadRequest(ApiResponse<IEnumerable<ClientFeatureFlagDto>>.Fail("User is not associated with a customer."));
+            }
+            var result = await _featureFlagService.GetClientOverridesForCustomerAsync(customerId.Value, cancellationToken);
+            return result.Success ? Ok(result) : BadRequest(result);
+        }
     }
 
     /// <summary>
     /// Get client override by ID
     /// </summary>
     [HttpGet("client/{id:int}")]
+    [Authorize(Roles = "Admin,SuperAdmin")]
     [ProducesResponseType(typeof(ApiResponse<ClientFeatureFlagDto>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ApiResponse<ClientFeatureFlagDto>), StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetClientOverrideById(int id, CancellationToken cancellationToken)
     {
         var result = await _featureFlagService.GetClientOverrideAsync(id, cancellationToken);
-        return result.Success ? Ok(result) : NotFound(result);
+        if (!result.Success) return NotFound(result);
+        
+        // Verify access
+        if (!IsSuperAdmin() && !CanAccessCustomer(result.Data!.CustomerId))
+        {
+            return Forbid();
+        }
+        
+        return Ok(result);
     }
 
     /// <summary>
     /// Get all overrides for a specific customer
     /// </summary>
     [HttpGet("client/customer/{customerId:int}")]
+    [Authorize(Roles = "Admin,SuperAdmin")]
     [ProducesResponseType(typeof(ApiResponse<IEnumerable<ClientFeatureFlagDto>>), StatusCodes.Status200OK)]
     public async Task<IActionResult> GetClientOverridesForCustomer(int customerId, CancellationToken cancellationToken)
     {
+        if (!CanAccessCustomer(customerId))
+        {
+            return Forbid();
+        }
+        
         var result = await _featureFlagService.GetClientOverridesForCustomerAsync(customerId, cancellationToken);
         return result.Success ? Ok(result) : BadRequest(result);
     }
@@ -176,40 +233,62 @@ public class FeatureFlagsController : ControllerBase
     }
 
     /// <summary>
-    /// Set or update a client override
+    /// Set or update a client override (validates client access)
     /// </summary>
     [HttpPost("client")]
     [Authorize(Roles = "Admin,SuperAdmin")]
     [ProducesResponseType(typeof(ApiResponse<ClientFeatureFlagDto>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ApiResponse<ClientFeatureFlagDto>), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
     public async Task<IActionResult> SetClientOverride([FromBody] SetClientOverrideDto dto, CancellationToken cancellationToken)
     {
+        if (!CanAccessCustomer(dto.CustomerId))
+        {
+            return Forbid();
+        }
+        
         var result = await _featureFlagService.SetClientOverrideAsync(dto, cancellationToken);
         return result.Success ? Ok(result) : BadRequest(result);
     }
 
     /// <summary>
-    /// Remove a client override by ID
+    /// Remove a client override by ID (validates client access)
     /// </summary>
     [HttpDelete("client/{id:int}")]
     [Authorize(Roles = "Admin,SuperAdmin")]
     [ProducesResponseType(typeof(ApiResponse<bool>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ApiResponse<bool>), StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
     public async Task<IActionResult> RemoveClientOverride(int id, CancellationToken cancellationToken)
     {
+        // First get the override to check ownership
+        var overrideResult = await _featureFlagService.GetClientOverrideAsync(id, cancellationToken);
+        if (!overrideResult.Success) return NotFound(overrideResult);
+        
+        if (!CanAccessCustomer(overrideResult.Data!.CustomerId))
+        {
+            return Forbid();
+        }
+        
         var result = await _featureFlagService.RemoveClientOverrideAsync(id, cancellationToken);
         return result.Success ? Ok(result) : NotFound(result);
     }
 
     /// <summary>
-    /// Remove a client override by customer and flag
+    /// Remove a client override by customer and flag (validates client access)
     /// </summary>
     [HttpDelete("client/customer/{customerId:int}/flag/{systemFlagId:int}")]
     [Authorize(Roles = "Admin,SuperAdmin")]
     [ProducesResponseType(typeof(ApiResponse<bool>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ApiResponse<bool>), StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
     public async Task<IActionResult> RemoveClientOverrideByCustomerAndFlag(int customerId, int systemFlagId, CancellationToken cancellationToken)
     {
+        if (!CanAccessCustomer(customerId))
+        {
+            return Forbid();
+        }
+        
         var result = await _featureFlagService.RemoveClientOverrideAsync(customerId, systemFlagId, cancellationToken);
         return result.Success ? Ok(result) : NotFound(result);
     }
@@ -223,6 +302,53 @@ public class FeatureFlagsController : ControllerBase
     public async Task<IActionResult> CleanupExpiredOverrides(CancellationToken cancellationToken)
     {
         var result = await _featureFlagService.CleanupExpiredOverridesAsync(cancellationToken);
+        return result.Success ? Ok(result) : BadRequest(result);
+    }
+
+    /// <summary>
+    /// Get feature flag matrix (flags × customers) for System Admin dashboard
+    /// </summary>
+    [HttpGet("matrix")]
+    [Authorize(Roles = "SuperAdmin")]
+    [ProducesResponseType(typeof(ApiResponse<FeatureFlagMatrixDto>), StatusCodes.Status200OK)]
+    public async Task<IActionResult> GetFeatureFlagMatrix(CancellationToken cancellationToken)
+    {
+        var result = await _featureFlagService.GetFeatureFlagMatrixAsync(cancellationToken);
+        return result.Success ? Ok(result) : BadRequest(result);
+    }
+
+    /// <summary>
+    /// Bulk update client overrides (enable/disable features for multiple clients)
+    /// </summary>
+    [HttpPost("bulk")]
+    [Authorize(Roles = "SuperAdmin")]
+    [ProducesResponseType(typeof(ApiResponse<BulkUpdateResultDto>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiResponse<BulkUpdateResultDto>), StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> BulkUpdateClientOverrides([FromBody] BulkUpdateFlagsDto dto, CancellationToken cancellationToken)
+    {
+        var result = await _featureFlagService.BulkUpdateClientOverridesAsync(dto, cancellationToken);
+        return result.Success ? Ok(result) : BadRequest(result);
+    }
+
+    /// <summary>
+    /// Get configurable flags for a client (flags where AllowClientOverride = true)
+    /// </summary>
+    [HttpGet("configurable")]
+    [Authorize(Roles = "Admin,SuperAdmin")]
+    [ProducesResponseType(typeof(ApiResponse<IEnumerable<ConfigurableFlagDto>>), StatusCodes.Status200OK)]
+    public async Task<IActionResult> GetConfigurableFlags([FromQuery] int? customerId, CancellationToken cancellationToken)
+    {
+        // Admin can only see their own configurable flags
+        var targetCustomerId = IsSuperAdmin() 
+            ? customerId 
+            : GetCurrentUserCustomerId();
+        
+        if (!targetCustomerId.HasValue)
+        {
+            return BadRequest(ApiResponse<IEnumerable<ConfigurableFlagDto>>.Fail("Customer ID is required."));
+        }
+        
+        var result = await _featureFlagService.GetConfigurableFlagsForCustomerAsync(targetCustomerId.Value, cancellationToken);
         return result.Success ? Ok(result) : BadRequest(result);
     }
 

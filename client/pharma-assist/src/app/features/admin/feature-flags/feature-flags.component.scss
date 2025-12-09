@@ -877,3 +877,218 @@
     grid-template-columns: 1fr;
   }
 }
+
+// Matrix View
+.matrix-container {
+  background: var(--card-bg);
+  border-radius: 12px;
+  box-shadow: var(--shadow-sm);
+  overflow: hidden;
+}
+
+.matrix-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1.25rem 1.5rem;
+  border-bottom: 1px solid var(--border-color);
+  background: var(--bg-secondary);
+
+  h3 {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin: 0;
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: var(--text-primary);
+
+    .material-symbols-rounded {
+      color: var(--primary-color);
+    }
+  }
+
+  .matrix-description {
+    color: var(--text-secondary);
+    font-size: 0.875rem;
+    margin: 0;
+    flex: 1 1 100%;
+  }
+
+  .pending-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-left: auto;
+
+    .pending-count {
+      font-size: 0.875rem;
+      color: var(--warning-color);
+      font-weight: 500;
+    }
+  }
+}
+
+.matrix-table-container {
+  overflow-x: auto;
+  max-height: 600px;
+  overflow-y: auto;
+}
+
+.matrix-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+
+  th, td {
+    padding: 0.5rem;
+    text-align: center;
+    border-bottom: 1px solid var(--border-color);
+    border-right: 1px solid var(--border-color);
+  }
+
+  th {
+    background: var(--bg-secondary);
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    font-weight: 600;
+    font-size: 0.75rem;
+  }
+
+  .client-header,
+  .client-cell {
+    text-align: left;
+    position: sticky;
+    left: 0;
+    background: var(--card-bg);
+    z-index: 5;
+    min-width: 180px;
+    border-right: 2px solid var(--border-color);
+  }
+
+  .client-header {
+    z-index: 15;
+    background: var(--bg-secondary);
+  }
+
+  .flag-header {
+    min-width: 100px;
+    max-width: 140px;
+  }
+
+  .flag-header-content {
+    display: flex;
+    flex-direction: column;
+    gap: 0.125rem;
+
+    .flag-key {
+      font-size: 0.625rem;
+      color: var(--text-muted);
+      font-family: monospace;
+      word-break: break-all;
+    }
+
+    .flag-name {
+      font-size: 0.75rem;
+      color: var(--text-primary);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+  }
+
+  .client-name {
+    font-weight: 500;
+    font-size: 0.875rem;
+    color: var(--text-primary);
+  }
+}
+
+.matrix-cell {
+  cursor: pointer;
+  transition: all 0.15s ease;
+  position: relative;
+
+  &:hover {
+    background: var(--bg-hover);
+    transform: scale(1.05);
+  }
+
+  .cell-icon {
+    font-size: 1.25rem;
+    transition: all 0.15s ease;
+  }
+
+  &.enabled .cell-icon {
+    color: var(--success-color);
+  }
+
+  &.disabled .cell-icon {
+    color: var(--danger-color);
+  }
+
+  &.pending-enable {
+    background: rgba(76, 175, 80, 0.15);
+
+    .cell-icon {
+      color: var(--success-color);
+      animation: pulse 1s infinite;
+    }
+  }
+
+  &.pending-disable {
+    background: rgba(244, 67, 54, 0.15);
+
+    .cell-icon {
+      color: var(--danger-color);
+      animation: pulse 1s infinite;
+    }
+  }
+
+  .override-indicator {
+    position: absolute;
+    top: 2px;
+    right: 4px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: var(--primary-color);
+  }
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+.matrix-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.5rem;
+  padding: 1rem 1.5rem;
+  background: var(--bg-secondary);
+  border-top: 1px solid var(--border-color);
+
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 0.375rem;
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+
+    .material-symbols-rounded {
+      font-size: 1rem;
+
+      &.enabled { color: var(--success-color); }
+      &.disabled { color: var(--danger-color); }
+      &.pending { color: var(--warning-color); }
+    }
+
+    .override-indicator {
+      font-weight: 700;
+      color: var(--primary-color);
+    }
+  }
+}

@@ -10,7 +10,7 @@ export const ADMIN_ROUTES: Routes = [
   {
     path: 'feature-flags',
     canActivate: [roleGuard],
-    data: { roles: [UserRole.SuperAdmin, UserRole.Admin] },
+    data: { roles: [UserRole.SuperAdmin] },
     loadComponent: () => import('./feature-flags/feature-flags.component').then(m => m.FeatureFlagsComponent)
   },
   {

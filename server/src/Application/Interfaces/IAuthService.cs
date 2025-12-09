@@ -56,7 +56,11 @@ public interface IRoleService
 /// </summary>
 public interface ITokenService
 {
-    Task<(string accessToken, string refreshToken, DateTime expiresAt)> GenerateTokensAsync(string userId, IEnumerable<string> roles);
+    Task<(string accessToken, string refreshToken, DateTime expiresAt)> GenerateTokensAsync(
+        string userId, 
+        IEnumerable<string> roles, 
+        int? customerId = null, 
+        IEnumerable<string>? permissions = null);
     Task<string?> ValidateRefreshTokenAsync(string userId, string refreshToken);
     Task RevokeRefreshTokenAsync(string userId);
 }

@@ -20,4 +20,10 @@ public interface ICustomerRepository : IRepository<Customer>
     Task<Customer?> GetWithOrdersAsync(int id, CancellationToken cancellationToken = default);
     Task<IReadOnlyList<Customer>> SearchAsync(string searchTerm, CancellationToken cancellationToken = default);
     Task<string> GenerateCustomerCodeAsync(CustomerType customerType, CancellationToken cancellationToken = default);
+    
+    /// <summary>
+    /// Get all headquarters customers (IsHeadquarters = true OR ParentCustomerId is null for B2B)
+    /// Used for System Admin dashboard feature flag matrix
+    /// </summary>
+    Task<IReadOnlyList<Customer>> GetAllHeadquartersAsync(CancellationToken cancellationToken = default);
 }

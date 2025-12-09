@@ -32,6 +32,11 @@ public interface IFeatureFlagRepository
     Task<int> CountClientOverridesAsync(int systemFlagId, CancellationToken cancellationToken = default);
     Task<int> CountActiveClientOverridesAsync(CancellationToken cancellationToken = default);
     Task CleanupExpiredOverridesAsync(CancellationToken cancellationToken = default);
+    
+    // Convenience methods for dashboard
+    Task<IReadOnlyList<ClientFeatureFlag>> GetAllClientOverridesAsync(CancellationToken cancellationToken = default);
+    Task<IReadOnlyList<ClientFeatureFlag>> GetClientOverridesForCustomerAsync(int customerId, CancellationToken cancellationToken = default);
+    Task<IReadOnlyList<SystemFeatureFlag>> GetOverridableSystemFlagsAsync(CancellationToken cancellationToken = default);
 
     // History
     Task<IReadOnlyList<FeatureFlagHistory>> GetHistoryForSystemFlagAsync(int systemFlagId, int take = 50, CancellationToken cancellationToken = default);

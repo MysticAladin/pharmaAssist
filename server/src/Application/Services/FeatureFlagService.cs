@@ -752,4 +752,144 @@ public class FeatureFlagService : IFeatureFlagService
     }
 
     #endregion
+
+    #region System Admin Dashboard Operations
+
+    public async Task<ApiResponse<FeatureFlagMatrixDto>> GetFeatureFlagMatrixAsync(CancellationToken cancellationToken = default)
+    {
+        try
+        {
+            // Get all system flags
+            var systemFlags = await _repository.GetAllSystemFlagsAsync(cancellationToken);
+            
+            // Get all headquarters customers (parent companies)
+            var customers = await _unitOfWork.Customers.GetAllHeadquartersAsync(cancellationToken);
+            
+            // Get all client overrides
+            var allOverrides = await _repository.GetAllClientOverridesAsync(cancellationToken);
+
+            var matrix = new FeatureFlagMatrixDto
+            {
+                Customers = customers.Select(c => new CustomerSummaryDto
+                {
+                    Id = c.Id,
+                    Name = c.CompanyName ?? c.FullName,
+                    Code = c.CustomerCode,
+                    IsActive = c.IsActive
+                }).ToList(),
+                Rows = systemFlags.Select(flag => new FeatureFlagMatrixRowDto
+                {
+                    FlagId = flag.Id,
+                    Key = flag.Key,
+                    Name = flag.Name,
+                    Category = flag.Category,
+                    IsEnabled = flag.IsEnabled,
+                    AllowClientOverride = flag.AllowClientOverride,
+                    CustomerStates = customers.ToDictionary(
+                        c => c.Id,
+                        c => 
+                        {
+                            var clientOverride = allOverrides.FirstOrDefault(o => 
+                                o.CustomerId == c.Id && o.SystemFlagId == flag.Id);
+                            // If there's an override, use it; otherwise, use system flag state
+                            return clientOverride?.IsEnabled ?? flag.IsEnabled;
+                        })
+                }).ToList()
+            };
+
+            return ApiResponse<FeatureFlagMatrixDto>.Ok(matrix);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error getting feature flag matrix");
+            return ApiResponse<FeatureFlagMatrixDto>.Fail("An error occurred while retrieving the feature flag matrix");
+        }
+    }
+
+    public async Task<ApiResponse<BulkUpdateResultDto>> BulkUpdateClientOverridesAsync(BulkUpdateFlagsDto dto, CancellationToken cancellationToken = default)
+    {
+        var result = new BulkUpdateResultDto
+        {
+            TotalRequested = dto.Updates.Count
+        };
+
+        foreach (var update in dto.Updates)
+        {
+            try
+            {
+                var setDto = new SetClientOverrideDto
+                {
+                    CustomerId = update.CustomerId,
+                    SystemFlagId = update.SystemFlagId,
+                    IsEnabled = update.IsEnabled,
+                    Value = update.Value ?? (update.IsEnabled ? "true" : "false"),
+                    Reason = dto.Reason
+                };
+
+                var updateResult = await SetClientOverrideAsync(setDto, cancellationToken);
+                
+                if (updateResult.Success)
+                {
+                    result.SuccessCount++;
+                }
+                else
+                {
+                    result.FailedCount++;
+                    result.Errors.Add($"Failed to update flag {update.SystemFlagId} for customer {update.CustomerId}: {updateResult.Message}");
+                }
+            }
+            catch (Exception ex)
+            {
+                result.FailedCount++;
+                result.Errors.Add($"Error updating flag {update.SystemFlagId} for customer {update.CustomerId}: {ex.Message}");
+            }
+        }
+
+        _logger.LogInformation("Bulk update completed: {Success}/{Total} successful", result.SuccessCount, result.TotalRequested);
+        
+        return ApiResponse<BulkUpdateResultDto>.Ok(result, 
+            result.FailedCount == 0 ? "All updates completed successfully" : $"{result.SuccessCount} of {result.TotalRequested} updates completed");
+    }
+
+    public async Task<ApiResponse<IEnumerable<ConfigurableFlagDto>>> GetConfigurableFlagsForCustomerAsync(int customerId, CancellationToken cancellationToken = default)
+    {
+        try
+        {
+            // Get all system flags that allow client override
+            var configurableFlags = await _repository.GetOverridableSystemFlagsAsync(cancellationToken);
+            
+            // Get existing overrides for this customer
+            var customerOverrides = await _repository.GetClientOverridesForCustomerAsync(customerId, cancellationToken);
+
+            var dtos = configurableFlags.Select(flag =>
+            {
+                var existingOverride = customerOverrides.FirstOrDefault(o => o.SystemFlagId == flag.Id);
+                
+                return new ConfigurableFlagDto
+                {
+                    SystemFlagId = flag.Id,
+                    Key = flag.Key,
+                    Name = flag.Name,
+                    Description = flag.Description,
+                    Category = flag.Category,
+                    Type = flag.Type,
+                    SystemValue = flag.Value,
+                    CurrentValue = existingOverride?.Value ?? flag.Value,
+                    IsEnabled = existingOverride?.IsEnabled ?? flag.IsEnabled,
+                    HasOverride = existingOverride != null,
+                    OverrideId = existingOverride?.Id,
+                    ExpiresAt = existingOverride?.ExpiresAt
+                };
+            }).ToList();
+
+            return ApiResponse<IEnumerable<ConfigurableFlagDto>>.Ok(dtos);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error getting configurable flags for customer {CustomerId}", customerId);
+            return ApiResponse<IEnumerable<ConfigurableFlagDto>>.Fail("An error occurred while retrieving configurable flags");
+        }
+    }
+
+    #endregion
 }

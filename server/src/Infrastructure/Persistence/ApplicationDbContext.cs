@@ -53,6 +53,10 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser, Applicati
     public DbSet<ClientFeatureFlag> ClientFeatureFlags { get; set; } = null!;
     public DbSet<FeatureFlagHistory> FeatureFlagHistory { get; set; } = null!;
 
+    // Permissions
+    public DbSet<Permission> Permissions { get; set; } = null!;
+    public DbSet<RolePermission> RolePermissions { get; set; } = null!;
+
     // Pricing & Promotions
     public DbSet<PriceRule> PriceRules { get; set; } = null!;
     public DbSet<Promotion> Promotions { get; set; } = null!;

@@ -77,6 +77,16 @@ public class UserDto
     public DateTime? DateOfBirth { get; set; }
     public bool IsActive { get; set; }
     public List<string> Roles { get; set; } = new();
+    
+    /// <summary>
+    /// Associated client/customer ID for multi-tenant feature flags
+    /// </summary>
+    public int? CustomerId { get; set; }
+    
+    /// <summary>
+    /// List of permission keys based on user's roles
+    /// </summary>
+    public List<string> Permissions { get; set; } = new();
 }
 
 /// <summary>

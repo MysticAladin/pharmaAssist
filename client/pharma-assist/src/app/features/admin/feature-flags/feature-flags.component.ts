@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
 import { DbFeatureFlagService } from '../../../core/services/db-feature-flag.service';
+import { AuthStateService } from '../../../core/state/auth-state.service';
 import {
   SystemFeatureFlag,
   ClientFeatureFlag,
@@ -11,6 +12,24 @@ import {
   FlagScope,
   SYSTEM_FLAGS
 } from '../../../core/models/feature-flag.model';
+
+/** Matrix cell representing a flag state for a client */
+interface MatrixCell {
+  flagKey: string;
+  clientId: number;
+  clientName: string;
+  systemEnabled: boolean;
+  hasOverride: boolean;
+  overrideEnabled?: boolean;
+  effectiveValue: boolean;
+}
+
+/** Row in the matrix representing a client */
+interface MatrixRow {
+  clientId: number;
+  clientName: string;
+  cells: Map<string, MatrixCell>;
+}
 
 @Component({
   selector: 'app-feature-flags',
@@ -21,6 +40,7 @@ import {
 })
 export class FeatureFlagsComponent implements OnInit {
   private readonly featureFlagService = inject(DbFeatureFlagService);
+  private readonly authState = inject(AuthStateService);
   private readonly fb = inject(FormBuilder);
 
   // State
@@ -30,7 +50,7 @@ export class FeatureFlagsComponent implements OnInit {
   readonly flagsByCategory = this.featureFlagService.flagsByCategory;
 
   // UI State
-  readonly activeTab = signal<'system' | 'client'>('system');
+  readonly activeTab = signal<'system' | 'client' | 'matrix'>('system');
   readonly selectedCategory = signal<FlagCategory | 'all'>('all');
   readonly searchQuery = signal('');
   readonly showCreateModal = signal(false);
@@ -40,6 +60,18 @@ export class FeatureFlagsComponent implements OnInit {
   readonly selectedClientId = signal<string>('');
   readonly clientFlags = signal<ClientFeatureFlag[]>([]);
   readonly clientsWithOverrides = signal<{ id: string; name: string; overrideCount: number }[]>([]);
+
+  // Matrix state
+  readonly matrixLoading = signal(false);
+  readonly matrixRows = signal<MatrixRow[]>([]);
+  readonly matrixFlags = signal<SystemFeatureFlag[]>([]);
+  readonly pendingChanges = signal<Map<string, { clientId: number; flagKey: string; enabled: boolean }>>(new Map());
+
+  // Permission check
+  readonly isSuperAdmin = computed(() => {
+    const user = this.authState.currentUser();
+    return user?.roles?.includes('SuperAdmin') || (user as any)?.isSuperAdmin === true;
+  });
 
   // Enums for template
   readonly FlagCategory = FlagCategory;
@@ -106,11 +138,170 @@ export class FeatureFlagsComponent implements OnInit {
   }
 
   // Tab Management
-  setActiveTab(tab: 'system' | 'client'): void {
+  setActiveTab(tab: 'system' | 'client' | 'matrix'): void {
     this.activeTab.set(tab);
     if (tab === 'client') {
       this.loadClientsWithOverrides();
+    } else if (tab === 'matrix') {
+      this.loadMatrix();
     }
+  }
+
+  // Matrix Methods
+  loadMatrix(): void {
+    if (!this.isSuperAdmin()) {
+      return;
+    }
+
+    this.matrixLoading.set(true);
+    this.pendingChanges.set(new Map());
+
+    // Load all system flags and all client overrides
+    // In a real implementation, this would call a dedicated matrix API endpoint
+    // For now, we'll simulate with available data
+    const flags = this.systemFlags().filter(f => f.allowClientOverride);
+    this.matrixFlags.set(flags);
+
+    // Load clients - in real implementation this would come from the API
+    // using the new /featureflags/matrix endpoint
+    this.featureFlagService.getAllClientOverrides().subscribe({
+      next: (overrides: ClientFeatureFlag[]) => {
+        const clientMap = new Map<string, MatrixRow>();
+
+        // Get unique clients from overrides
+        overrides.forEach(override => {
+          if (!clientMap.has(override.customerId)) {
+            clientMap.set(override.customerId, {
+              clientId: parseInt(override.customerId, 10),
+              clientName: override.customerName || `Client ${override.customerId}`,
+              cells: new Map()
+            });
+          }
+
+          const row = clientMap.get(override.customerId)!;
+          const systemFlag = flags.find(f => f.key === override.flagKey || f.id === override.systemFlagId);
+
+          if (systemFlag) {
+            row.cells.set(override.flagKey, {
+              flagKey: override.flagKey,
+              clientId: parseInt(override.customerId, 10),
+              clientName: override.customerName || '',
+              systemEnabled: systemFlag.enabled,
+              hasOverride: true,
+              overrideEnabled: override.enabled,
+              effectiveValue: override.enabled
+            });
+          }
+        });
+
+        // Fill in cells for flags without overrides
+        clientMap.forEach(row => {
+          flags.forEach(flag => {
+            if (!row.cells.has(flag.key)) {
+              row.cells.set(flag.key, {
+                flagKey: flag.key,
+                clientId: row.clientId,
+                clientName: row.clientName,
+                systemEnabled: flag.enabled,
+                hasOverride: false,
+                effectiveValue: flag.enabled
+              });
+            }
+          });
+        });
+
+        this.matrixRows.set(Array.from(clientMap.values()));
+        this.matrixLoading.set(false);
+      },
+      error: (err: Error) => {
+        console.error('Failed to load matrix:', err);
+        this.matrixLoading.set(false);
+      }
+    });
+  }
+
+  toggleMatrixCell(row: MatrixRow, flagKey: string): void {
+    const cell = row.cells.get(flagKey);
+    if (!cell) return;
+
+    const changeKey = `${row.clientId}-${flagKey}`;
+    const pending = this.pendingChanges();
+
+    if (pending.has(changeKey)) {
+      // Toggle existing pending change or remove it
+      const change = pending.get(changeKey)!;
+      if (change.enabled === cell.effectiveValue) {
+        pending.delete(changeKey);
+      } else {
+        change.enabled = !change.enabled;
+      }
+    } else {
+      // Add new pending change
+      pending.set(changeKey, {
+        clientId: row.clientId,
+        flagKey,
+        enabled: !cell.effectiveValue
+      });
+    }
+
+    this.pendingChanges.set(new Map(pending));
+  }
+
+  getMatrixCellState(row: MatrixRow, flagKey: string): 'enabled' | 'disabled' | 'pending-enable' | 'pending-disable' {
+    const cell = row.cells.get(flagKey);
+    if (!cell) return 'disabled';
+
+    const changeKey = `${row.clientId}-${flagKey}`;
+    const pending = this.pendingChanges().get(changeKey);
+
+    if (pending) {
+      return pending.enabled ? 'pending-enable' : 'pending-disable';
+    }
+
+    return cell.effectiveValue ? 'enabled' : 'disabled';
+  }
+
+  hasPendingChanges(): boolean {
+    return this.pendingChanges().size > 0;
+  }
+
+  savePendingChanges(): void {
+    const changes = this.pendingChanges();
+    if (changes.size === 0) return;
+
+    // Group by client for batch updates
+    const updates: Array<{ clientId: number; flagKey: string; enabled: boolean }> = [];
+    changes.forEach(change => updates.push(change));
+
+    // Process updates sequentially (in real implementation, use bulk API)
+    let completed = 0;
+    updates.forEach(update => {
+      const systemFlag = this.matrixFlags().find(f => f.key === update.flagKey);
+      if (!systemFlag) return;
+
+      this.featureFlagService.setClientFlag({
+        customerId: update.clientId,
+        systemFlagId: parseInt(systemFlag.id, 10),
+        value: String(update.enabled),
+        isEnabled: update.enabled,
+        reason: 'Bulk update from matrix view'
+      }).subscribe({
+        next: () => {
+          completed++;
+          if (completed === updates.length) {
+            this.pendingChanges.set(new Map());
+            this.loadMatrix();
+          }
+        },
+        error: (err: Error) => {
+          console.error('Failed to update:', err);
+        }
+      });
+    });
+  }
+
+  discardPendingChanges(): void {
+    this.pendingChanges.set(new Map());
   }
 
   // Category Filter

@@ -1,13 +1,19 @@
 import { Directive, Input, TemplateRef, ViewContainerRef, inject, OnInit, effect } from '@angular/core';
 import { FeatureFlagService } from '../state/feature-flag.service';
-import { FeatureKey, FeatureTier } from '../models/feature-flag.model';
+import { FeatureKey, FeatureTier, SystemFlagKey } from '../models/feature-flag.model';
 
 /**
  * Structural directive to conditionally show content based on feature flag
+ * Supports both tier-based FeatureKeys and database-backed SystemFlagKeys
  *
- * Usage:
+ * Usage with tier-based feature:
  * <div *hasFeature="'advanced_analytics'">
  *   <analytics-dashboard></analytics-dashboard>
+ * </div>
+ *
+ * Usage with database flag:
+ * <div *hasFeature="'portal.split_invoice'">
+ *   <split-invoice-option></split-invoice-option>
  * </div>
  *
  * With upsell template:
@@ -27,12 +33,12 @@ export class HasFeatureDirective implements OnInit {
   private readonly viewContainer = inject(ViewContainerRef);
   private readonly featureFlags = inject(FeatureFlagService);
 
-  private feature: FeatureKey | string | null = null;
+  private feature: FeatureKey | SystemFlagKey | string | null = null;
   private elseTemplateRef: TemplateRef<unknown> | null = null;
   private hasView = false;
 
   @Input()
-  set hasFeature(feature: FeatureKey | string) {
+  set hasFeature(feature: FeatureKey | SystemFlagKey | string) {
     this.feature = feature;
     this.updateView();
   }
@@ -44,9 +50,12 @@ export class HasFeatureDirective implements OnInit {
   }
 
   constructor() {
-    // React to feature flag changes (e.g., tier changes)
+    // React to feature flag changes (tier changes and database flag changes)
     effect(() => {
+      // Track tier changes
       this.featureFlags.currentTier();
+      // Track database flag changes
+      this.featureFlags.dbFlags();
       this.updateView();
     });
   }
@@ -74,9 +83,10 @@ export class HasFeatureDirective implements OnInit {
 
 /**
  * Structural directive to show content for multiple features (ANY)
+ * Supports both tier-based FeatureKeys and database-backed SystemFlagKeys
  *
  * Usage:
- * <div *hasAnyFeature="['advanced_analytics', 'custom_reports']">
+ * <div *hasAnyFeature="['advanced_analytics', 'portal.split_invoice']">
  *   Advanced features available
  * </div>
  */
@@ -89,12 +99,12 @@ export class HasAnyFeatureDirective implements OnInit {
   private readonly viewContainer = inject(ViewContainerRef);
   private readonly featureFlags = inject(FeatureFlagService);
 
-  private features: (FeatureKey | string)[] = [];
+  private features: (FeatureKey | SystemFlagKey | string)[] = [];
   private elseTemplateRef: TemplateRef<unknown> | null = null;
   private hasView = false;
 
   @Input()
-  set hasAnyFeature(features: (FeatureKey | string)[]) {
+  set hasAnyFeature(features: (FeatureKey | SystemFlagKey | string)[]) {
     this.features = features;
     this.updateView();
   }
@@ -108,6 +118,7 @@ export class HasAnyFeatureDirective implements OnInit {
   constructor() {
     effect(() => {
       this.featureFlags.currentTier();
+      this.featureFlags.dbFlags();
       this.updateView();
     });
   }
@@ -145,12 +156,12 @@ export class HasAllFeaturesDirective implements OnInit {
   private readonly viewContainer = inject(ViewContainerRef);
   private readonly featureFlags = inject(FeatureFlagService);
 
-  private features: (FeatureKey | string)[] = [];
+  private features: (FeatureKey | SystemFlagKey | string)[] = [];
   private elseTemplateRef: TemplateRef<unknown> | null = null;
   private hasView = false;
 
   @Input()
-  set hasAllFeatures(features: (FeatureKey | string)[]) {
+  set hasAllFeatures(features: (FeatureKey | SystemFlagKey | string)[]) {
     this.features = features;
     this.updateView();
   }
@@ -164,6 +175,7 @@ export class HasAllFeaturesDirective implements OnInit {
   constructor() {
     effect(() => {
       this.featureFlags.currentTier();
+      this.featureFlags.dbFlags();
       this.updateView();
     });
   }

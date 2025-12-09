@@ -1,19 +1,55 @@
-import { Injectable, signal, computed } from '@angular/core';
+import { Injectable, inject, signal, computed, effect } from '@angular/core';
 import { BehaviorSubject, Observable } from 'rxjs';
 import {
   FeatureKey,
   FeatureTier,
   TIER_FEATURES,
   FEATURE_METADATA,
-  IFeatureFlag
+  IFeatureFlag,
+  SystemFlagKey,
+  SYSTEM_FLAGS
 } from '../models/feature-flag.model';
+import { DbFeatureFlagService } from '../services/db-feature-flag.service';
 
 const STORAGE_KEY = 'pa_feature_flags';
 
+/**
+ * Mapping from tier-based FeatureKeys to database SystemFlagKeys
+ * This allows the tier-based UI to work with database-backed flags
+ */
+const FEATURE_TO_DB_FLAG_MAP: Partial<Record<FeatureKey, SystemFlagKey>> = {
+  [FeatureKey.BasicDashboard]: SYSTEM_FLAGS.PORTAL_ENABLED,
+  [FeatureKey.ProductCatalog]: SYSTEM_FLAGS.PORTAL_ENABLED,
+  [FeatureKey.BasicOrders]: SYSTEM_FLAGS.PORTAL_ENABLED,
+  [FeatureKey.InventoryManagement]: SYSTEM_FLAGS.INVENTORY_LOW_STOCK_ALERT,
+  [FeatureKey.BasicReports]: SYSTEM_FLAGS.REPORTS_PDF_EXPORT,
+  [FeatureKey.PrescriptionManagement]: SYSTEM_FLAGS.PORTAL_PRESCRIPTION_UPLOAD,
+  [FeatureKey.AdvancedReports]: SYSTEM_FLAGS.REPORTS_CUSTOM,
+  [FeatureKey.ExportReports]: SYSTEM_FLAGS.REPORTS_PDF_EXPORT,
+  [FeatureKey.BulkOperations]: SYSTEM_FLAGS.ORDERS_BULK_IMPORT,
+  [FeatureKey.LowStockAlerts]: SYSTEM_FLAGS.INVENTORY_LOW_STOCK_ALERT,
+  [FeatureKey.ExpiryAlerts]: SYSTEM_FLAGS.INVENTORY_EXPIRY_ALERT,
+  [FeatureKey.CustomReports]: SYSTEM_FLAGS.REPORTS_CUSTOM,
+  [FeatureKey.ApiAccess]: SYSTEM_FLAGS.INTEGRATION_API_ACCESS,
+  [FeatureKey.SsoIntegration]: SYSTEM_FLAGS.INTEGRATION_SSO,
+};
+
+/**
+ * Unified Feature Flag Service
+ *
+ * This service provides a unified API for feature flag checking:
+ * 1. Database-backed flags (via DbFeatureFlagService) - Primary source of truth
+ * 2. Tier-based features (FeatureKey enum) - For upselling and backwards compatibility
+ *
+ * The service first checks if a feature is enabled in the database.
+ * If not found, it falls back to tier-based logic.
+ */
 @Injectable({
   providedIn: 'root'
 })
 export class FeatureFlagService {
+  private readonly dbFeatureFlags = inject(DbFeatureFlagService);
+
   // Current subscription tier
   private readonly _currentTier$ = new BehaviorSubject<FeatureTier>(FeatureTier.Professional);
 
@@ -28,15 +64,45 @@ export class FeatureFlagService {
     return TIER_FEATURES[this.currentTier()] ?? [];
   });
 
+  // Computed: All evaluated DB flags
+  readonly dbFlags = this.dbFeatureFlags.evaluatedFlags;
+
+  // Computed: Check if DB flags are loaded
+  readonly dbFlagsLoaded = this.dbFeatureFlags.initialized;
+
   // Observables
   readonly currentTier$: Observable<FeatureTier> = this._currentTier$.asObservable();
 
   constructor() {
     this.loadFromStorage();
+
+    // Sync tier from user data when available
+    effect(() => {
+      // The DB feature flag service auto-loads when user authenticates
+      // We can use the initialized signal to track state
+      if (this.dbFeatureFlags.initialized()) {
+        // Flags are loaded from server
+      }
+    });
   }
 
   /**
-   * Load feature flags from storage
+   * Initialize the feature flag system
+   * Call this after user authentication
+   */
+  initialize(): Observable<void> {
+    return this.dbFeatureFlags.initialize();
+  }
+
+  /**
+   * Refresh all flags from server
+   */
+  refresh(): void {
+    this.dbFeatureFlags.refresh();
+  }
+
+  /**
+   * Load feature flags from storage (fallback/cache)
    */
   private loadFromStorage(): void {
     const stored = localStorage.getItem(STORAGE_KEY);
@@ -85,17 +151,49 @@ export class FeatureFlagService {
 
   /**
    * Check if a feature is enabled
+   *
+   * Priority order:
+   * 1. Database-backed flag (if the key matches a SystemFlagKey)
+   * 2. Mapped database flag (if FeatureKey maps to a SystemFlagKey)
+   * 3. Explicit override
+   * 4. Tier-based feature access
    */
-  isFeatureEnabled(featureKey: FeatureKey | string): boolean {
-    // Check for explicit override first
+  isFeatureEnabled(featureKey: FeatureKey | SystemFlagKey | string): boolean {
+    // 1. Check if it's a database-backed flag key (e.g., "portal.enabled")
+    if (this.isDbFlagKey(featureKey)) {
+      const dbEnabled = this.dbFeatureFlags.isEnabled(featureKey);
+      if (dbEnabled !== undefined) {
+        return dbEnabled;
+      }
+    }
+
+    // 2. Check if this FeatureKey maps to a database flag
+    const mappedDbKey = FEATURE_TO_DB_FLAG_MAP[featureKey as FeatureKey];
+    if (mappedDbKey) {
+      const dbEnabled = this.dbFeatureFlags.isEnabled(mappedDbKey);
+      // If DB flag is explicitly disabled, respect that
+      const dbFlag = this.dbFeatureFlags.evaluatedFlags().get(mappedDbKey);
+      if (dbFlag && !dbFlag.enabled) {
+        return false;
+      }
+    }
+
+    // 3. Check for explicit override
     const overrides = this._featureOverrides$.getValue();
     if (overrides.has(featureKey)) {
       return overrides.get(featureKey)!;
     }
 
-    // Check tier-based features
+    // 4. Check tier-based features
     const tierFeatures = TIER_FEATURES[this._currentTier$.getValue()] ?? [];
     return tierFeatures.includes(featureKey as FeatureKey);
+  }
+
+  /**
+   * Check if the key is a database flag key format (contains a dot)
+   */
+  private isDbFlagKey(key: string): boolean {
+    return key.includes('.');
   }
 
   /**
@@ -213,5 +311,45 @@ export class FeatureFlagService {
     this._featureOverrides$.next(overrides);
 
     this.saveToStorage();
+  }
+
+  // ===================================
+  // Database Flag Delegation Methods
+  // ===================================
+
+  /**
+   * Check if a database-backed flag is enabled
+   */
+  isDbFlagEnabled(key: SystemFlagKey | string): boolean {
+    return this.dbFeatureFlags.isEnabled(key);
+  }
+
+  /**
+   * Get a database flag's value
+   */
+  getDbFlagValue<T = unknown>(key: SystemFlagKey | string): T | null {
+    return this.dbFeatureFlags.getValue<T>(key);
+  }
+
+  /**
+   * Get all evaluated database flags
+   */
+  getEvaluatedFlags(): Map<string, import('../models/feature-flag.model').EvaluatedFlag> {
+    return this.dbFeatureFlags.evaluatedFlags();
+  }
+
+  /**
+   * Create a signal that tracks a specific database flag
+   */
+  createDbFlagSignal(key: SystemFlagKey | string) {
+    return this.dbFeatureFlags.createFlagSignal(key);
+  }
+
+  /**
+   * Get the underlying DbFeatureFlagService for admin operations
+   * Only use this for admin UI that needs full access
+   */
+  getDbService(): DbFeatureFlagService {
+    return this.dbFeatureFlags;
   }
 }

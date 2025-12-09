@@ -240,4 +240,27 @@ public class FeatureFlagRepository : IFeatureFlagRepository
     }
 
     #endregion
+
+    #region Convenience Methods for Dashboard
+
+    public async Task<IReadOnlyList<ClientFeatureFlag>> GetAllClientOverridesAsync(CancellationToken cancellationToken = default)
+    {
+        return await GetAllClientFlagsAsync(cancellationToken);
+    }
+
+    public async Task<IReadOnlyList<ClientFeatureFlag>> GetClientOverridesForCustomerAsync(int customerId, CancellationToken cancellationToken = default)
+    {
+        return await GetClientFlagsForCustomerAsync(customerId, cancellationToken);
+    }
+
+    public async Task<IReadOnlyList<SystemFeatureFlag>> GetOverridableSystemFlagsAsync(CancellationToken cancellationToken = default)
+    {
+        return await _context.SystemFeatureFlags
+            .Where(f => f.AllowClientOverride && f.IsEnabled && !f.IsDeleted)
+            .OrderBy(f => f.Category)
+            .ThenBy(f => f.Name)
+            .ToListAsync(cancellationToken);
+    }
+
+    #endregion
 }

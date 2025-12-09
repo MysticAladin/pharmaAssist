@@ -475,6 +475,7 @@
     "inventoryReport": "Inventory Report",
     "advancedAnalytics": "Advanced Analytics",
     "userManagement": "User Management",
+    "featureFlags": "Feature Flags",
     "pricing": "Pricing & Promotions",
     "targets": "Targets & Budgets",
     "settings": "Settings",
@@ -1263,10 +1264,42 @@
   },
   "settings": {
     "title": "Settings",
-    "subtitle": "Manage your application preferences",
-    "general": "General",
+    "subtitle": "Manage your application preferences and features",
+    "tabs": {
+      "general": "General",
+      "features": "Features",
+      "notifications": "Notifications"
+    },
+    "general": {
+      "title": "General Settings",
+      "description": "Configure basic application settings for your organization",
+      "companyName": "Company Name",
+      "companyNameDesc": "Your business or pharmacy name",
+      "timezone": "Timezone",
+      "timezoneDesc": "Your local timezone for scheduling and reports"
+    },
+    "features": {
+      "title": "Feature Settings",
+      "description": "Enable or disable optional features for your organization. Some features may be controlled at the system level.",
+      "customized": "Customized",
+      "systemDisabled": "This feature is disabled at the system level",
+      "unsavedChanges": "You have unsaved changes",
+      "empty": {
+        "title": "No Configurable Features",
+        "description": "There are no features available for configuration at this time."
+      }
+    },
+    "notifications": {
+      "title": "Notification Settings",
+      "description": "Control how you receive alerts and updates",
+      "orderUpdates": "Order Updates",
+      "orderUpdatesDesc": "Get notified when orders are placed, updated, or completed",
+      "lowStock": "Low Stock Alerts",
+      "lowStockDesc": "Alert when products fall below reorder level",
+      "expiry": "Expiry Alerts",
+      "expiryDesc": "Alert for products approaching expiry date"
+    },
     "appearance": "Appearance",
-    "notifications": "Notifications",
     "regional": "Regional",
     "privacy": "Privacy & Security",
     "generalSettings": "General Settings",
@@ -2323,7 +2356,8 @@
       },
       "tabs": {
         "system": "System Flags",
-        "client": "Client Overrides"
+        "client": "Client Overrides",
+        "matrix": "Client Matrix"
       },
       "table": {
         "status": "Status",
@@ -2348,6 +2382,22 @@
         "defaultValue": "Default Value",
         "enabled": "Enabled",
         "allowClientOverride": "Allow client-level override"
+      },
+      "matrix": {
+        "title": "Client Feature Matrix",
+        "description": "View and manage feature flags across all clients. Click cells to toggle flags.",
+        "client": "Client",
+        "pendingChanges": "pending changes",
+        "empty": {
+          "title": "No Clients Found",
+          "description": "No clients with feature flag overrides. Client overrides will appear here."
+        },
+        "legend": {
+          "enabled": "Enabled",
+          "disabled": "Disabled",
+          "pending": "Pending Change",
+          "hasOverride": "Has Override"
+        }
       },
       "clientList": {
         "title": "Clients with Overrides",

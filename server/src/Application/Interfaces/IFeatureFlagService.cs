@@ -38,4 +38,9 @@ public interface IFeatureFlagService
     // History & Statistics
     Task<ApiResponse<IEnumerable<FeatureFlagHistoryDto>>> GetHistoryAsync(int? systemFlagId = null, int take = 50, CancellationToken cancellationToken = default);
     Task<ApiResponse<FeatureFlagStatsDto>> GetStatisticsAsync(CancellationToken cancellationToken = default);
+
+    // System Admin Dashboard Operations
+    Task<ApiResponse<FeatureFlagMatrixDto>> GetFeatureFlagMatrixAsync(CancellationToken cancellationToken = default);
+    Task<ApiResponse<BulkUpdateResultDto>> BulkUpdateClientOverridesAsync(BulkUpdateFlagsDto dto, CancellationToken cancellationToken = default);
+    Task<ApiResponse<IEnumerable<ConfigurableFlagDto>>> GetConfigurableFlagsForCustomerAsync(int customerId, CancellationToken cancellationToken = default);
 }

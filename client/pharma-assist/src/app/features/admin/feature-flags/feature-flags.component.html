@@ -82,7 +82,129 @@
       <span class="material-symbols-rounded">business</span>
       {{ 'admin.featureFlags.tabs.client' | translate }}
     </button>
+    @if (isSuperAdmin()) {
+      <button
+        class="tab"
+        [class.active]="activeTab() === 'matrix'"
+        (click)="setActiveTab('matrix')">
+        <span class="material-symbols-rounded">grid_view</span>
+        {{ 'admin.featureFlags.tabs.matrix' | translate }}
+      </button>
+    }
   </div>
+
+  <!-- Matrix Tab (SuperAdmin only) -->
+  @if (activeTab() === 'matrix' && isSuperAdmin()) {
+    <div class="matrix-container">
+      <div class="matrix-header">
+        <h3>
+          <span class="material-symbols-rounded">grid_view</span>
+          {{ 'admin.featureFlags.matrix.title' | translate }}
+        </h3>
+        <p class="matrix-description">{{ 'admin.featureFlags.matrix.description' | translate }}</p>
+
+        @if (hasPendingChanges()) {
+          <div class="pending-actions">
+            <span class="pending-count">
+              {{ pendingChanges().size }} {{ 'admin.featureFlags.matrix.pendingChanges' | translate }}
+            </span>
+            <button class="btn btn-secondary" (click)="discardPendingChanges()">
+              <span class="material-symbols-rounded">undo</span>
+              {{ 'common.cancel' | translate }}
+            </button>
+            <button class="btn btn-primary" (click)="savePendingChanges()">
+              <span class="material-symbols-rounded">save</span>
+              {{ 'common.save' | translate }}
+            </button>
+          </div>
+        }
+      </div>
+
+      @if (matrixLoading()) {
+        <div class="loading-state">
+          <div class="spinner"></div>
+          <p>{{ 'common.loading' | translate }}</p>
+        </div>
+      } @else if (matrixRows().length === 0) {
+        <div class="empty-state">
+          <span class="material-symbols-rounded">table_chart</span>
+          <h3>{{ 'admin.featureFlags.matrix.empty.title' | translate }}</h3>
+          <p>{{ 'admin.featureFlags.matrix.empty.description' | translate }}</p>
+        </div>
+      } @else {
+        <div class="matrix-table-container">
+          <table class="matrix-table">
+            <thead>
+              <tr>
+                <th class="client-header">{{ 'admin.featureFlags.matrix.client' | translate }}</th>
+                @for (flag of matrixFlags(); track flag.key) {
+                  <th class="flag-header" [title]="flag.description">
+                    <div class="flag-header-content">
+                      <span class="flag-key">{{ flag.key }}</span>
+                      <span class="flag-name">{{ flag.name }}</span>
+                    </div>
+                  </th>
+                }
+              </tr>
+            </thead>
+            <tbody>
+              @for (row of matrixRows(); track row.clientId) {
+                <tr>
+                  <td class="client-cell">
+                    <span class="client-name">{{ row.clientName }}</span>
+                  </td>
+                  @for (flag of matrixFlags(); track flag.key) {
+                    <td
+                      class="matrix-cell"
+                      [class]="getMatrixCellState(row, flag.key)"
+                      (click)="toggleMatrixCell(row, flag.key)"
+                      [title]="flag.name">
+                      @switch (getMatrixCellState(row, flag.key)) {
+                        @case ('enabled') {
+                          <span class="material-symbols-rounded cell-icon">check_circle</span>
+                        }
+                        @case ('disabled') {
+                          <span class="material-symbols-rounded cell-icon">cancel</span>
+                        }
+                        @case ('pending-enable') {
+                          <span class="material-symbols-rounded cell-icon pending">add_circle</span>
+                        }
+                        @case ('pending-disable') {
+                          <span class="material-symbols-rounded cell-icon pending">remove_circle</span>
+                        }
+                      }
+                      @if (row.cells.get(flag.key)?.hasOverride) {
+                        <span class="override-indicator" title="Has client override">*</span>
+                      }
+                    </td>
+                  }
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+
+        <div class="matrix-legend">
+          <span class="legend-item">
+            <span class="material-symbols-rounded enabled">check_circle</span>
+            {{ 'admin.featureFlags.matrix.legend.enabled' | translate }}
+          </span>
+          <span class="legend-item">
+            <span class="material-symbols-rounded disabled">cancel</span>
+            {{ 'admin.featureFlags.matrix.legend.disabled' | translate }}
+          </span>
+          <span class="legend-item">
+            <span class="material-symbols-rounded pending">pending</span>
+            {{ 'admin.featureFlags.matrix.legend.pending' | translate }}
+          </span>
+          <span class="legend-item">
+            <span class="override-indicator">*</span>
+            {{ 'admin.featureFlags.matrix.legend.hasOverride' | translate }}
+          </span>
+        </div>
+      }
+    </div>
+  }
 
   <!-- System Flags Tab -->
   @if (activeTab() === 'system') {

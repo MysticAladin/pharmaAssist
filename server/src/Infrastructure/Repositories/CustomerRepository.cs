@@ -133,4 +133,15 @@ public class CustomerRepository : Repository<Customer>, ICustomerRepository
 
         return $"{prefix}{nextNumber:D6}";
     }
+
+    public async Task<IReadOnlyList<Customer>> GetAllHeadquartersAsync(CancellationToken cancellationToken = default)
+    {
+        // Get all headquarters/main companies (IsHeadquarters = true OR no parent)
+        // These are the top-level organizations for feature flag management
+        return await _dbSet
+            .Where(c => c.IsActive && (c.IsHeadquarters || c.ParentCustomerId == null))
+            .Where(c => c.CustomerType != CustomerType.Retail) // Exclude individual retail customers
+            .OrderBy(c => c.CompanyName ?? c.LastName)
+            .ToListAsync(cancellationToken);
+    }
 }
