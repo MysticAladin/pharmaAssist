@@ -58,6 +58,17 @@ export const routes: Routes = [
         loadChildren: () => import('./features/orders/orders.routes').then(m => m.ORDERS_ROUTES)
       },
 
+      // Tenders
+      {
+        path: 'tenders',
+        canActivate: [featureGuard],
+        data: {
+          feature: FeatureKey.TenderManagement,
+          roles: [UserRole.SuperAdmin, UserRole.Admin, UserRole.Manager, UserRole.SalesRep]
+        },
+        loadChildren: () => import('./features/tenders/tenders.routes').then(m => m.TENDERS_ROUTES)
+      },
+
       // Customers
       {
         path: 'customers',

@@ -69,6 +69,13 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser, Applicati
     // Reports
     public DbSet<SavedReport> SavedReports { get; set; } = null!;
 
+    // Tenders
+    public DbSet<Tender> Tenders { get; set; } = null!;
+    public DbSet<TenderItem> TenderItems { get; set; } = null!;
+    public DbSet<TenderBid> TenderBids { get; set; } = null!;
+    public DbSet<TenderBidItem> TenderBidItems { get; set; } = null!;
+    public DbSet<TenderDocument> TenderDocuments { get; set; } = null!;
+
     protected override void OnModelCreating(ModelBuilder builder)
     {
         base.OnModelCreating(builder);

@@ -6,3 +6,4 @@ export * from './db-feature-flag.service';
 export * from './pdf.service';
 export * from './pricing.service';
 export * from './targets.service';
+export * from './tender.service';

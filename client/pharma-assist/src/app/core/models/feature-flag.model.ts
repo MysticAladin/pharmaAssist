@@ -292,7 +292,8 @@ export enum FeatureKey {
   PrioritySupport = 'priority_support',
   AuditLogs = 'audit_logs',
   SsoIntegration = 'sso_integration',
-  CustomIntegrations = 'custom_integrations'
+  CustomIntegrations = 'custom_integrations',
+  TenderManagement = 'tender_management'
 }
 
 /**
@@ -451,6 +452,11 @@ export const FEATURE_METADATA: Record<FeatureKey, { name: string; description: s
   [FeatureKey.CustomIntegrations]: {
     name: 'Custom Integrations',
     description: 'Connect with external systems',
+    tier: FeatureTier.Enterprise
+  },
+  [FeatureKey.TenderManagement]: {
+    name: 'Tender Management',
+    description: 'Manage institutional procurement tenders and bids',
     tier: FeatureTier.Enterprise
   }
 };

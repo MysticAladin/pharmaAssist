@@ -113,6 +113,8 @@ public static class DependencyInjection
         // Add Pricing Service
         services.AddScoped<IPricingService, PricingService>();
 
+        // Add Tender Service
+        services.AddScoped<ITenderService, TenderService>();
         return services;
     }
 }

@@ -2554,6 +2554,155 @@
       "closed": "Closed",
       "exceeded": "Exceeded"
     }
+  },
+  "tenders": {
+    "title": "Tenders",
+    "subtitle": "Manage institutional procurement tenders and bids",
+    "list": {
+      "title": "All Tenders",
+      "subtitle": "Browse and manage procurement tenders",
+      "createNew": "Create Tender",
+      "noTenders": "No Tenders Found",
+      "noTendersMessage": "Create your first tender to start managing procurement"
+    },
+    "detail": {
+      "title": "Tender Details",
+      "overview": "Overview",
+      "items": "Items",
+      "bids": "Bids",
+      "documents": "Documents",
+      "history": "History"
+    },
+    "form": {
+      "createTitle": "Create New Tender",
+      "editTitle": "Edit Tender",
+      "referenceNumber": "Reference Number",
+      "title": "Tender Title",
+      "description": "Description",
+      "customer": "Customer",
+      "selectCustomer": "Select Customer",
+      "type": "Tender Type",
+      "priority": "Priority",
+      "status": "Status",
+      "publishDate": "Publish Date",
+      "submissionDeadline": "Submission Deadline",
+      "evaluationDate": "Evaluation Date",
+      "awardDate": "Award Date",
+      "estimatedValue": "Estimated Value",
+      "budgetLimit": "Budget Limit",
+      "terms": "Terms & Conditions",
+      "notes": "Notes"
+    },
+    "myTenders": {
+      "title": "My Tenders",
+      "subtitle": "Tenders assigned to you",
+      "noTenders": "No Assigned Tenders",
+      "noTendersMessage": "You don't have any tenders assigned to you"
+    },
+    "bid": {
+      "title": "Submit Bid",
+      "subtitle": "Enter your bid for this tender",
+      "bidReference": "Bid Reference",
+      "totalPrice": "Total Price",
+      "deliveryDays": "Delivery Days",
+      "validityDays": "Validity Days",
+      "notes": "Notes",
+      "items": "Bid Items",
+      "unitPrice": "Unit Price",
+      "amount": "Amount",
+      "submit": "Submit Bid",
+      "saveDraft": "Save as Draft",
+      "submitted": "Bid submitted successfully",
+      "noBids": "No Bids Received",
+      "noBidsMessage": "No bids have been submitted for this tender yet"
+    },
+    "actions": {
+      "publish": "Publish",
+      "close": "Close Tender",
+      "award": "Award Tender",
+      "cancel": "Cancel Tender",
+      "addItem": "Add Item",
+      "removeItem": "Remove Item",
+      "viewBids": "View Bids",
+      "acceptBid": "Accept Bid",
+      "rejectBid": "Reject Bid",
+      "download": "Download Documents"
+    },
+    "statuses": {
+      "draft": "Draft",
+      "published": "Published",
+      "open": "Open",
+      "underEvaluation": "Under Evaluation",
+      "awarded": "Awarded",
+      "cancelled": "Cancelled",
+      "expired": "Expired",
+      "completed": "Completed"
+    },
+    "types": {
+      "openTender": "Open Tender",
+      "restrictedTender": "Restricted Tender",
+      "negotiatedProcurement": "Negotiated Procurement",
+      "frameworkAgreement": "Framework Agreement",
+      "quoteRequest": "Quote Request"
+    },
+    "priorities": {
+      "low": "Low",
+      "medium": "Medium",
+      "high": "High",
+      "critical": "Critical"
+    },
+    "bidStatuses": {
+      "draft": "Draft",
+      "submitted": "Submitted",
+      "underReview": "Under Review",
+      "accepted": "Accepted",
+      "rejected": "Rejected",
+      "withdrawn": "Withdrawn"
+    },
+    "stats": {
+      "total": "Total Tenders",
+      "open": "Open",
+      "awarded": "Awarded",
+      "expired": "Expired",
+      "pendingBids": "Pending Bids",
+      "averageValue": "Average Value"
+    },
+    "filters": {
+      "status": "Status",
+      "type": "Type",
+      "priority": "Priority",
+      "customer": "Customer",
+      "dateRange": "Date Range",
+      "all": "All"
+    },
+    "messages": {
+      "created": "Tender created successfully",
+      "updated": "Tender updated successfully",
+      "deleted": "Tender deleted successfully",
+      "published": "Tender published successfully",
+      "closed": "Tender closed successfully",
+      "awarded": "Tender awarded successfully",
+      "cancelled": "Tender cancelled successfully",
+      "itemAdded": "Item added successfully",
+      "itemRemoved": "Item removed successfully",
+      "bidSubmitted": "Bid submitted successfully",
+      "bidAccepted": "Bid accepted successfully",
+      "bidRejected": "Bid rejected",
+      "confirmDelete": "Are you sure you want to delete this tender?",
+      "confirmCancel": "Are you sure you want to cancel this tender?",
+      "confirmPublish": "Are you sure you want to publish this tender?",
+      "confirmClose": "Are you sure you want to close this tender?",
+      "confirmAward": "Are you sure you want to award this tender?"
+    },
+    "validation": {
+      "titleRequired": "Tender title is required",
+      "customerRequired": "Customer is required",
+      "deadlineRequired": "Submission deadline is required",
+      "deadlineFuture": "Submission deadline must be in the future",
+      "itemRequired": "At least one item is required",
+      "priceRequired": "Price is required",
+      "quantityRequired": "Quantity is required"
+    }
   }
 }
 
