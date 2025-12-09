@@ -37,7 +37,7 @@ export class TenderService {
   getTenders(filter?: TenderFilterDto): Observable<IPagedResult<TenderDto>> {
     this.loading.set(true);
     let params = new HttpParams();
-    
+
     if (filter) {
       if (filter.searchTerm) params = params.set('searchTerm', filter.searchTerm);
       if (filter.status) params = params.set('status', filter.status);
@@ -218,7 +218,7 @@ export class TenderService {
     formData.append('name', name);
     formData.append('documentType', documentType);
     if (description) formData.append('description', description);
-    
+
     return this.http.post<TenderDocumentDto>(`${this.apiUrl}/${tenderId}/documents`, formData).pipe(
       map(doc => ({
         ...doc,
@@ -299,7 +299,7 @@ export class TenderService {
     const params = new HttpParams()
       .set('pageNumber', pageNumber.toString())
       .set('pageSize', pageSize.toString());
-    
+
     return this.http.get<IPagedResult<TenderDto>>(`${this.apiUrl}/my`, { params }).pipe(
       map(result => ({
         ...result,
@@ -320,7 +320,7 @@ export class TenderService {
     const params = new HttpParams()
       .set('pageNumber', pageNumber.toString())
       .set('pageSize', pageSize.toString());
-    
+
     return this.http.get<IPagedResult<TenderDto>>(`${this.apiUrl}/open`, { params }).pipe(
       map(result => ({
         ...result,
@@ -341,7 +341,7 @@ export class TenderService {
     const params = new HttpParams()
       .set('pageNumber', pageNumber.toString())
       .set('pageSize', pageSize.toString());
-    
+
     return this.http.get<IPagedResult<TenderDto>>(`${this.apiUrl}/overdue`, { params }).pipe(
       map(result => ({
         ...result,
@@ -362,7 +362,7 @@ export class TenderService {
     const params = new HttpParams()
       .set('pageNumber', pageNumber.toString())
       .set('pageSize', pageSize.toString());
-    
+
     return this.http.get<IPagedResult<TenderDto>>(`${this.apiUrl}/customer/${customerId}`, { params }).pipe(
       map(result => ({
         ...result,

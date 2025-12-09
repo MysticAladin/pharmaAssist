@@ -53,7 +53,7 @@ import {
           <!-- Basic Information -->
           <div class="form-section">
             <h2 class="section-title">{{ 'TENDERS.FORM.BASIC_INFO' | translate }}</h2>
-            
+
             <div class="form-row">
               <div class="form-group flex-2">
                 <label for="title" class="form-label required">{{ 'TENDERS.FIELD.TITLE' | translate }}</label>
@@ -105,7 +105,7 @@ import {
           <!-- Dates -->
           <div class="form-section">
             <h2 class="section-title">{{ 'TENDERS.FORM.DATES' | translate }}</h2>
-            
+
             <div class="form-row">
               <div class="form-group">
                 <label for="submissionDeadline" class="form-label required">{{ 'TENDERS.FIELD.DEADLINE' | translate }}</label>
@@ -133,7 +133,7 @@ import {
           <!-- Financial -->
           <div class="form-section">
             <h2 class="section-title">{{ 'TENDERS.FORM.FINANCIAL' | translate }}</h2>
-            
+
             <div class="form-row">
               <div class="form-group">
                 <label for="estimatedValue" class="form-label">{{ 'TENDERS.FIELD.ESTIMATED_VALUE' | translate }}</label>
@@ -170,7 +170,7 @@ import {
           <!-- Delivery & Terms -->
           <div class="form-section">
             <h2 class="section-title">{{ 'TENDERS.FORM.TERMS' | translate }}</h2>
-            
+
             <div class="form-row">
               <div class="form-group">
                 <label for="deliveryLocation" class="form-label">{{ 'TENDERS.FIELD.DELIVERY_LOCATION' | translate }}</label>
@@ -208,7 +208,7 @@ import {
           <!-- Contact -->
           <div class="form-section">
             <h2 class="section-title">{{ 'TENDERS.FORM.CONTACT' | translate }}</h2>
-            
+
             <div class="form-row">
               <div class="form-group">
                 <label for="contactPerson" class="form-label">{{ 'TENDERS.FIELD.CONTACT_PERSON' | translate }}</label>
@@ -759,7 +759,7 @@ export class TenderFormComponent implements OnInit {
     if (this.form.invalid) return;
 
     const formValue = this.form.value;
-    
+
     // Parse dates
     const data = {
       ...formValue,
@@ -775,7 +775,7 @@ export class TenderFormComponent implements OnInit {
         ...data,
         id: this.tender()!.id
       };
-      
+
       this.tenderService.updateTender(this.tender()!.id, updateDto).subscribe({
         next: (updated) => {
           this.router.navigate(['/tenders', updated.id]);
@@ -786,7 +786,7 @@ export class TenderFormComponent implements OnInit {
       });
     } else {
       const createDto: CreateTenderDto = data;
-      
+
       this.tenderService.createTender(createDto).subscribe({
         next: (created) => {
           this.router.navigate(['/tenders', created.id]);

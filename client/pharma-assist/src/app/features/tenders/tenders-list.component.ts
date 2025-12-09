@@ -117,7 +117,7 @@ import { ConfirmDialogComponent } from '../../shared/components/confirm-dialog';
             [debounceTime]="300"
             (search)="onSearch($event)">
           </app-search-input>
-          
+
           <div class="filter-group">
             <select class="form-select" [(ngModel)]="selectedStatus" (ngModelChange)="loadTenders()">
               <option [ngValue]="null">{{ 'TENDERS.FILTER.ALL_STATUSES' | translate }}</option>
@@ -125,14 +125,14 @@ import { ConfirmDialogComponent } from '../../shared/components/confirm-dialog';
                 <option [value]="status">{{ tenderStatusLabels[status] | translate }}</option>
               }
             </select>
-            
+
             <select class="form-select" [(ngModel)]="selectedType" (ngModelChange)="loadTenders()">
               <option [ngValue]="null">{{ 'TENDERS.FILTER.ALL_TYPES' | translate }}</option>
               @for (type of types; track type) {
                 <option [value]="type">{{ tenderTypeLabels[type] | translate }}</option>
               }
             </select>
-            
+
             <select class="form-select" [(ngModel)]="selectedPriority" (ngModelChange)="loadTenders()">
               <option [ngValue]="null">{{ 'TENDERS.FILTER.ALL_PRIORITIES' | translate }}</option>
               @for (priority of priorities; track priority) {
@@ -238,7 +238,7 @@ import { ConfirmDialogComponent } from '../../shared/components/confirm-dialog';
                   </td>
                   <td>
                     <div class="action-buttons">
-                      <button class="btn-icon" title="{{ 'COMMON.VIEW' | translate }}" 
+                      <button class="btn-icon" title="{{ 'COMMON.VIEW' | translate }}"
                               [routerLink]="['/tenders', tender.id]">
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                           <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>

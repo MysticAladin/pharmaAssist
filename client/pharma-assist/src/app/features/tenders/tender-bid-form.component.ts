@@ -46,7 +46,7 @@ import {
           <!-- Tender Items -->
           <div class="form-section">
             <h2 class="section-title">{{ 'TENDERS.BID_FORM.ITEMS' | translate }}</h2>
-            
+
             <div class="items-table-container">
               <table class="items-table">
                 <thead>
@@ -106,7 +106,7 @@ import {
           <!-- Bid Summary -->
           <div class="form-section">
             <h2 class="section-title">{{ 'TENDERS.BID_FORM.SUMMARY' | translate }}</h2>
-            
+
             <div class="form-row">
               <div class="form-group">
                 <label class="form-label">{{ 'TENDERS.BID_FORM.TOTAL_AMOUNT' | translate }}</label>
@@ -136,7 +136,7 @@ import {
           <!-- Bid Details -->
           <div class="form-section">
             <h2 class="section-title">{{ 'TENDERS.BID_FORM.DETAILS' | translate }}</h2>
-            
+
             <div class="form-row">
               <div class="form-group">
                 <label class="form-label">{{ 'TENDERS.BID_FORM.VALIDITY_DAYS' | translate }}</label>
