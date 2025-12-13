@@ -33,7 +33,7 @@ import { RouterModule } from '@angular/router';
       display: flex;
       align-items: center;
       justify-content: center;
-      background-color: #f8fafc;
+      background-color: var(--surface-secondary);
       padding: 20px;
     }
 
@@ -46,7 +46,7 @@ import { RouterModule } from '@angular/router';
       width: 80px;
       height: 80px;
       margin: 0 auto 24px;
-      background-color: #fef3c7;
+      background-color: var(--status-pending-bg);
       border-radius: 50%;
       display: flex;
       align-items: center;
@@ -55,19 +55,19 @@ import { RouterModule } from '@angular/router';
 
     .error-icon i {
       font-size: 40px;
-      color: #f59e0b;
+      color: var(--color-warning);
     }
 
     h1 {
       font-size: 28px;
       font-weight: 700;
-      color: #1e293b;
+      color: var(--text-primary);
       margin-bottom: 12px;
     }
 
     p {
       font-size: 16px;
-      color: #64748b;
+      color: var(--text-secondary);
       margin-bottom: 32px;
     }
 
@@ -100,23 +100,23 @@ import { RouterModule } from '@angular/router';
     }
 
     .btn-primary {
-      background-color: #3b82f6;
+      background-color: var(--brand-primary);
       color: #fff;
     }
 
     .btn-primary:hover {
-      background-color: #2563eb;
+      background-color: var(--brand-primary-dark);
     }
 
     .btn-secondary {
-      background-color: #fff;
-      color: #64748b;
-      border: 1px solid #e2e8f0;
+      background-color: var(--surface-primary);
+      color: var(--text-secondary);
+      border: 1px solid var(--border-light);
     }
 
     .btn-secondary:hover {
-      background-color: #f8fafc;
-      color: #1e293b;
+      background-color: var(--surface-secondary);
+      color: var(--text-primary);
     }
   `]
 })

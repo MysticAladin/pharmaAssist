@@ -273,9 +273,9 @@ import { ReportFilters, ReportPeriod, FinancialReport } from '../../core/models/
     }
 
     .metric-card.primary { border-color: var(--primary); background: rgba(79, 70, 229, 0.05); }
-    .metric-card.success { border-color: #10b981; background: rgba(16, 185, 129, 0.05); }
-    .metric-card.warning { border-color: #f59e0b; background: rgba(245, 158, 11, 0.05); }
-    .metric-card.danger { border-color: #ef4444; background: rgba(239, 68, 68, 0.05); }
+    .metric-card.success { border-color: var(--color-success); background: rgba(var(--color-success-rgb), 0.05); }
+    .metric-card.warning { border-color: var(--color-warning); background: rgba(245, 158, 11, 0.05); }
+    .metric-card.danger { border-color: var(--color-error); background: rgba(var(--color-error-rgb), 0.05); }
 
     .metric-icon { font-size: 2rem; }
     .metric-content { display: flex; flex-direction: column; }
@@ -393,7 +393,7 @@ import { ReportFilters, ReportPeriod, FinancialReport } from '../../core/models/
       color: var(--text-secondary);
     }
 
-    .profit { color: #10b981; font-weight: 600; }
+    .profit { color: var(--color-success); font-weight: 600; }
   `]
 })
 export class FinancialReportComponent implements OnInit {

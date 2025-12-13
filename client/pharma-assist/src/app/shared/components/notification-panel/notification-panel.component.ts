@@ -158,7 +158,7 @@ interface AlertNotification {
       right: -400px;
       width: 400px;
       height: 100vh;
-      background: #fff;
+      background: var(--surface-primary);
       box-shadow: -4px 0 20px rgba(0, 0, 0, 0.15);
       z-index: 1001;
       display: flex;
@@ -185,13 +185,13 @@ interface AlertNotification {
       justify-content: space-between;
       align-items: center;
       padding: 20px;
-      border-bottom: 1px solid #e5e7eb;
+      border-bottom: 1px solid var(--border-light);
     }
 
     .panel-header h3 {
       font-size: 18px;
       font-weight: 600;
-      color: var(--text-primary, #1e293b);
+      color: var(--text-primary);
       margin: 0;
     }
 
@@ -204,7 +204,7 @@ interface AlertNotification {
     .btn-text {
       background: none;
       border: none;
-      color: var(--primary, #3b82f6);
+      color: var(--primary);
       font-size: 13px;
       font-weight: 500;
       cursor: pointer;
@@ -214,21 +214,21 @@ interface AlertNotification {
     }
 
     .btn-text:hover {
-      background: #f1f5f9;
+      background: var(--surface-tertiary);
     }
 
     .btn-text.danger {
-      color: #ef4444;
+      color: var(--color-error);
     }
 
     .btn-text.danger:hover {
-      background: #fef2f2;
+      background: var(--color-error-bg);
     }
 
     .btn-icon {
       background: none;
       border: none;
-      color: var(--text-muted, #64748b);
+      color: var(--text-muted);
       cursor: pointer;
       padding: 8px;
       border-radius: 8px;
@@ -239,13 +239,13 @@ interface AlertNotification {
     }
 
     .btn-icon:hover {
-      background: #f1f5f9;
-      color: var(--text-primary, #1e293b);
+      background: var(--surface-tertiary);
+      color: var(--text-primary);
     }
 
     .panel-tabs {
       display: flex;
-      border-bottom: 1px solid #e5e7eb;
+      border-bottom: 1px solid var(--border-light);
     }
 
     .tab {
@@ -255,7 +255,7 @@ interface AlertNotification {
       border: none;
       font-size: 13px;
       font-weight: 500;
-      color: var(--text-muted, #64748b);
+      color: var(--text-muted);
       cursor: pointer;
       display: flex;
       align-items: center;
@@ -266,18 +266,18 @@ interface AlertNotification {
     }
 
     .tab:hover {
-      color: var(--text-primary, #1e293b);
-      background: #f8fafc;
+      color: var(--text-primary);
+      background: var(--surface-secondary);
     }
 
     .tab.active {
-      color: var(--primary, #3b82f6);
-      border-bottom-color: var(--primary, #3b82f6);
+      color: var(--primary);
+      border-bottom-color: var(--primary);
     }
 
     .tab-badge {
-      background: #e5e7eb;
-      color: var(--text-primary, #1e293b);
+      background: var(--neutral-200);
+      color: var(--text-primary);
       font-size: 11px;
       font-weight: 600;
       padding: 2px 6px;
@@ -285,12 +285,12 @@ interface AlertNotification {
     }
 
     .tab-badge.urgent {
-      background: #ef4444;
+      background: var(--color-error);
       color: white;
     }
 
     .tab-badge.warning {
-      background: #f59e0b;
+      background: var(--color-warning);
       color: white;
     }
 
@@ -316,11 +316,11 @@ interface AlertNotification {
     }
 
     .notification-item:hover {
-      background: #f8fafc;
+      background: var(--surface-secondary);
     }
 
     .notification-item.unread {
-      background: #f0f9ff;
+      background: var(--color-info-bg);
     }
 
     .notification-item.unread::before {
@@ -331,7 +331,7 @@ interface AlertNotification {
       transform: translateY(-50%);
       width: 6px;
       height: 6px;
-      background: var(--primary, #3b82f6);
+      background: var(--primary);
       border-radius: 50%;
     }
 
@@ -345,10 +345,10 @@ interface AlertNotification {
       flex-shrink: 0;
     }
 
-    .notification-success .notification-icon { background: #f0fdf4; color: #10b981; }
-    .notification-danger .notification-icon { background: #fef2f2; color: #ef4444; }
-    .notification-warning .notification-icon { background: #fffbeb; color: #f59e0b; }
-    .notification-info .notification-icon { background: #eff6ff; color: #3b82f6; }
+    .notification-success .notification-icon { background: var(--color-success-bg); color: var(--color-success); }
+    .notification-danger .notification-icon { background: var(--color-error-bg); color: var(--color-error); }
+    .notification-warning .notification-icon { background: var(--color-warning-bg); color: var(--color-warning); }
+    .notification-info .notification-icon { background: var(--color-info-bg); color: var(--brand-primary); }
 
     .notification-content {
       flex: 1;
@@ -358,26 +358,26 @@ interface AlertNotification {
     .notification-title {
       font-size: 14px;
       font-weight: 600;
-      color: var(--text-primary, #1e293b);
+      color: var(--text-primary);
       margin: 0 0 4px 0;
     }
 
     .notification-message {
       font-size: 13px;
-      color: var(--text-muted, #64748b);
+      color: var(--text-muted);
       margin: 0 0 6px 0;
       line-height: 1.4;
     }
 
     .notification-time {
       font-size: 11px;
-      color: #94a3b8;
+      color: var(--text-muted);
     }
 
     .btn-dismiss {
       background: none;
       border: none;
-      color: #94a3b8;
+      color: var(--text-muted);
       cursor: pointer;
       padding: 4px;
       border-radius: 4px;
@@ -390,8 +390,8 @@ interface AlertNotification {
     }
 
     .btn-dismiss:hover {
-      background: #e5e7eb;
-      color: #64748b;
+      background: var(--neutral-200);
+      color: var(--text-secondary);
     }
 
     .empty-state {
@@ -401,7 +401,7 @@ interface AlertNotification {
       justify-content: center;
       padding: 60px 20px;
       text-align: center;
-      color: var(--text-muted, #64748b);
+      color: var(--text-muted);
     }
 
     .empty-state svg {
@@ -412,7 +412,7 @@ interface AlertNotification {
     .empty-state h4 {
       font-size: 16px;
       font-weight: 600;
-      color: var(--text-primary, #1e293b);
+      color: var(--text-primary);
       margin: 0 0 8px 0;
     }
 
@@ -433,7 +433,7 @@ interface AlertNotification {
       width: 40px;
       height: 40px;
       border: 3px solid #e5e7eb;
-      border-top-color: var(--primary, #3b82f6);
+      border-top-color: var(--primary);
       border-radius: 50%;
       animation: spin 1s linear infinite;
       margin-bottom: 16px;
@@ -445,7 +445,7 @@ interface AlertNotification {
 
     .panel-footer {
       padding: 16px 20px;
-      border-top: 1px solid #e5e7eb;
+      border-top: 1px solid var(--border-light);
       text-align: center;
     }
 

@@ -76,18 +76,18 @@ import { ModalComponent } from './components/modal';
     }
 
     .icon-danger {
-      background: #fee2e2;
-      color: #dc2626;
+      background: var(--color-error-bg);
+      color: var(--color-error-dark);
     }
 
     .icon-warning {
-      background: #fef3c7;
-      color: #d97706;
+      background: var(--status-pending-bg);
+      color: var(--status-pending-text);
     }
 
     .icon-info {
-      background: #dbeafe;
-      color: #2563eb;
+      background: var(--status-processing-bg);
+      color: var(--brand-primary-dark);
     }
 
     .message {
@@ -116,12 +116,12 @@ import { ModalComponent } from './components/modal';
     }
 
     .btn-secondary {
-      background: #f1f5f9;
+      background: var(--surface-tertiary);
       color: #475569;
     }
 
     .btn-secondary:hover {
-      background: #e2e8f0;
+      background: var(--neutral-200);
     }
 
     .btn-danger {
@@ -143,7 +143,7 @@ import { ModalComponent } from './components/modal';
     }
 
     .btn-info {
-      background: #2563eb;
+      background: var(--brand-primary-dark);
       color: white;
     }
 

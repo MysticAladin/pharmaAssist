@@ -204,12 +204,12 @@ import { KmCurrencyPipe } from '../../../../core/pipes/km-currency.pipe';
     .claim-date { font-size: 0.75rem; color: var(--text-secondary); }
 
     .status { padding: 0.25rem 0.75rem; border-radius: 999px; font-size: 0.75rem; font-weight: 600; text-transform: uppercase; }
-    .status-submitted { background: #fef3c7; color: #92400e; }
-    .status-under-review { background: #dbeafe; color: #1e40af; }
-    .status-approved { background: #d1fae5; color: #065f46; }
-    .status-rejected { background: #fee2e2; color: #991b1b; }
-    .status-resolved { background: #e0e7ff; color: #3730a3; }
-    .status-closed { background: #f3f4f6; color: #6b7280; }
+    .status-submitted { background: var(--status-pending-bg); color: var(--color-warning-text); }
+    .status-under-review { background: var(--status-processing-bg); color: var(--color-info-text); }
+    .status-approved { background: var(--color-success-bg); color: var(--color-success-text); }
+    .status-rejected { background: var(--color-error-bg); color: var(--color-error-text); }
+    .status-resolved { background: var(--status-shipped-bg); color: #3730a3; }
+    .status-closed { background: var(--surface-tertiary); color: var(--text-secondary); }
 
     .claim-body { display: flex; flex-direction: column; gap: 0.5rem; }
     .claim-body .label { font-size: 0.75rem; color: var(--text-secondary); margin-right: 0.5rem; }
@@ -246,8 +246,8 @@ import { KmCurrencyPipe } from '../../../../core/pipes/km-currency.pipe';
     .detail-section { margin-bottom: 1.5rem; }
     .detail-section h4 { font-size: 0.875rem; font-weight: 600; margin-bottom: 0.5rem; color: var(--text-secondary); }
     .detail-section p { margin: 0; line-height: 1.5; }
-    .detail-section.resolution { background: #d1fae5; padding: 1rem; border-radius: 8px; }
-    .detail-section.resolution h4 { color: #065f46; }
+    .detail-section.resolution { background: var(--color-success-bg); padding: 1rem; border-radius: 8px; }
+    .detail-section.resolution h4 { color: var(--color-success-text); }
 
     .refund-info { background: var(--bg-secondary); padding: 1rem; border-radius: 8px; display: flex; justify-content: space-between; align-items: center; }
     .refund-info .label { color: var(--text-secondary); }

@@ -112,7 +112,7 @@ import { NotificationPanelComponent } from '../../../components/notification-pan
       gap: 16px;
       padding: 12px 24px;
       background-color: var(--header-bg, #fff);
-      border-bottom: 1px solid var(--border-color, #e2e8f0);
+      border-bottom: 1px solid var(--border-color);
       position: sticky;
       top: 0;
       z-index: 30;
@@ -136,12 +136,12 @@ import { NotificationPanelComponent } from '../../../components/notification-pan
       align-items: center;
       gap: 10px;
       padding: 8px 16px;
-      background-color: var(--input-bg, #f1f5f9);
+      background-color: var(--input-bg);
       border-radius: 8px;
     }
 
     .header-search i {
-      color: var(--text-muted, #64748b);
+      color: var(--text-muted);
     }
 
     .search-input {
@@ -182,13 +182,13 @@ import { NotificationPanelComponent } from '../../../components/notification-pan
       border: none;
       border-radius: 8px;
       font-size: 20px;
-      color: var(--text-secondary, #475569);
+      color: var(--text-secondary);
       cursor: pointer;
       transition: all 0.2s ease;
     }
 
     .action-btn:hover {
-      background-color: var(--hover-bg, #f1f5f9);
+      background-color: var(--hover-bg);
       color: var(--text-primary);
     }
 
@@ -199,8 +199,8 @@ import { NotificationPanelComponent } from '../../../components/notification-pan
       min-width: 16px;
       height: 16px;
       padding: 0 4px;
-      background-color: #ef4444;
-      color: #fff;
+      background-color: var(--color-error);
+      color: var(--text-on-primary);
       font-size: 10px;
       font-weight: 600;
       border-radius: 8px;
@@ -234,7 +234,7 @@ import { NotificationPanelComponent } from '../../../components/notification-pan
       width: 40px;
       height: 40px;
       border-radius: 50%;
-      background-color: var(--primary, #3b82f6);
+      background-color: var(--primary);
       display: flex;
       align-items: center;
       justify-content: center;
@@ -310,11 +310,11 @@ import { NotificationPanelComponent } from '../../../components/notification-pan
     }
 
     .dropdown-item.text-danger {
-      color: #ef4444;
+      color: var(--color-error);
     }
 
     .dropdown-item.text-danger i {
-      color: #ef4444;
+      color: var(--color-error);
     }
 
     .dropdown-divider {
@@ -325,7 +325,7 @@ import { NotificationPanelComponent } from '../../../components/notification-pan
 
     /* Dark mode */
     :host-context(.dark) .header {
-      background-color: var(--header-bg-dark, #1e293b);
+      background-color: var(--header-bg-dark);
       border-color: var(--border-dark, #334155);
     }
 
@@ -334,12 +334,12 @@ import { NotificationPanelComponent } from '../../../components/notification-pan
     }
 
     :host-context(.dark) .search-input {
-      color: #f8fafc;
+      color: var(--neutral-50);
     }
 
     :host-context(.dark) .user-dropdown {
-      background-color: #1e293b;
-      border-color: #334155;
+      background-color: var(--surface-dark);
+      border-color: var(--surface-dark-elevated);
     }
 
     /* Responsive */

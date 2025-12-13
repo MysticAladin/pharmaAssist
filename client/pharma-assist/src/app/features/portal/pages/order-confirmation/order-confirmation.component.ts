@@ -131,7 +131,7 @@ import { KmCurrencyPipe } from '../../../../core/pipes/km-currency.pipe';
     h1 {
       font-size: 1.75rem;
       margin-bottom: 0.5rem;
-      color: #059669;
+      color: var(--color-success-dark);
     }
 
     .subtitle {
@@ -307,12 +307,12 @@ import { KmCurrencyPipe } from '../../../../core/pipes/km-currency.pipe';
     }
 
     .invoice-card.commercial .invoice-badge {
-      background: #dbeafe;
-      color: #1d4ed8;
+      background: var(--status-processing-bg);
+      color: var(--brand-primary-darker);
     }
 
     .invoice-card.essential .invoice-badge {
-      background: #dcfce7;
+      background: var(--color-success-bg);
       color: #15803d;
     }
 

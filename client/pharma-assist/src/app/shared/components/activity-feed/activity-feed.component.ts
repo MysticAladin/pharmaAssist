@@ -119,7 +119,7 @@ import { ActivityService, Activity, ActivityType } from '../../../core/services/
       background: white;
       border-radius: 12px;
       box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
-      border: 1px solid var(--border-color, #e5e7eb);
+      border: 1px solid var(--border-color);
       overflow: hidden;
     }
 
@@ -128,19 +128,19 @@ import { ActivityService, Activity, ActivityType } from '../../../core/services/
       justify-content: space-between;
       align-items: center;
       padding: 1rem 1.25rem;
-      border-bottom: 1px solid var(--border-color, #e5e7eb);
+      border-bottom: 1px solid var(--border-color);
     }
 
     .feed-header h3 {
       font-size: 0.95rem;
       font-weight: 600;
-      color: var(--text-primary, #1a1a2e);
+      color: var(--text-primary);
       margin: 0;
     }
 
     .today-count {
       font-size: 0.75rem;
-      color: var(--pharma-teal, #0d9488);
+      color: var(--pharma-teal);
       background: rgba(13, 148, 136, 0.1);
       padding: 0.25rem 0.5rem;
       border-radius: 4px;
@@ -157,7 +157,7 @@ import { ActivityService, Activity, ActivityType } from '../../../core/services/
       align-items: center;
       justify-content: center;
       padding: 2.5rem 1rem;
-      color: var(--text-secondary, #6b7280);
+      color: var(--text-secondary);
     }
 
     .empty-state svg {
@@ -184,7 +184,7 @@ import { ActivityService, Activity, ActivityType } from '../../../core/services/
     }
 
     .activity-item:hover {
-      background: var(--bg-hover, #f9fafb);
+      background: var(--bg-hover);
     }
 
     .activity-icon {
@@ -197,13 +197,13 @@ import { ActivityService, Activity, ActivityType } from '../../../core/services/
       justify-content: center;
     }
 
-    .icon-blue { background: #dbeafe; color: #2563eb; }
-    .icon-green { background: #d1fae5; color: #059669; }
-    .icon-red { background: #fee2e2; color: #dc2626; }
+    .icon-blue { background: var(--status-processing-bg); color: var(--brand-primary-dark); }
+    .icon-green { background: var(--color-success-bg); color: var(--color-success-dark); }
+    .icon-red { background: var(--color-error-bg); color: var(--color-error-dark); }
     .icon-orange { background: #fed7aa; color: #ea580c; }
     .icon-purple { background: #e9d5ff; color: #7c3aed; }
-    .icon-teal { background: #ccfbf1; color: #0d9488; }
-    .icon-indigo { background: #e0e7ff; color: #4f46e5; }
+    .icon-teal { background: #ccfbf1; color: var(--pharma-teal-500); }
+    .icon-indigo { background: var(--status-shipped-bg); color: var(--status-shipped-text); }
 
     .activity-content {
       flex: 1;
@@ -216,12 +216,12 @@ import { ActivityService, Activity, ActivityType } from '../../../core/services/
     .activity-title {
       font-size: 0.8rem;
       font-weight: 500;
-      color: var(--text-primary, #1a1a2e);
+      color: var(--text-primary);
     }
 
     .activity-desc {
       font-size: 0.75rem;
-      color: var(--text-secondary, #6b7280);
+      color: var(--text-secondary);
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;

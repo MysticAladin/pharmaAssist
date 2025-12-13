@@ -634,7 +634,7 @@ import { EmptyStateComponent } from '../../../shared/components/empty-state/empt
 
     .target-card.achieved {
       border-color: var(--success-color);
-      background: linear-gradient(135deg, rgba(16, 185, 129, 0.05), transparent);
+      background: linear-gradient(135deg, rgba(var(--color-success-rgb), 0.05), transparent);
     }
 
     .target-header {
@@ -751,7 +751,7 @@ import { EmptyStateComponent } from '../../../shared/components/empty-state/empt
     }
 
     .data-table tr.exceeded {
-      background: rgba(239, 68, 68, 0.05);
+      background: rgba(var(--color-error-rgb), 0.05);
     }
 
     .budget-info {
@@ -840,9 +840,9 @@ import { EmptyStateComponent } from '../../../shared/components/empty-state/empt
       font-size: 1.25rem;
     }
 
-    .targets-icon { background: #dbeafe; color: #1e40af; }
-    .achieved-icon { background: #d1fae5; color: #065f46; }
-    .budget-icon { background: #fef3c7; color: #92400e; }
+    .targets-icon { background: var(--status-processing-bg); color: var(--color-info-text); }
+    .achieved-icon { background: var(--color-success-bg); color: var(--color-success-text); }
+    .budget-icon { background: var(--status-pending-bg); color: var(--color-warning-text); }
     .spent-icon { background: #f3e8ff; color: #7c3aed; }
 
     .summary-content {

@@ -614,8 +614,8 @@ import { EmptyStateComponent } from '../../../shared/components/empty-state/empt
       font-weight: 600;
     }
 
-    .tier-a { background: #fef3c7; color: #92400e; }
-    .tier-b { background: #dbeafe; color: #1e40af; }
+    .tier-a { background: var(--status-pending-bg); color: var(--color-warning-text); }
+    .tier-b { background: var(--status-processing-bg); color: var(--color-info-text); }
     .tier-c { background: #f3e8ff; color: #7c3aed; }
 
     .action-buttons {
@@ -741,13 +741,13 @@ import { EmptyStateComponent } from '../../../shared/components/empty-state/empt
       margin: 0 auto 1rem;
     }
 
-    .tier-card.tier-a { border-color: #f59e0b; }
-    .tier-card.tier-a .tier-badge { background: #fef3c7; color: #92400e; }
+    .tier-card.tier-a { border-color: var(--color-warning); }
+    .tier-card.tier-a .tier-badge { background: var(--status-pending-bg); color: var(--color-warning-text); }
 
-    .tier-card.tier-b { border-color: #3b82f6; }
-    .tier-card.tier-b .tier-badge { background: #dbeafe; color: #1e40af; }
+    .tier-card.tier-b { border-color: var(--brand-primary); }
+    .tier-card.tier-b .tier-badge { background: var(--status-processing-bg); color: var(--color-info-text); }
 
-    .tier-card.tier-c { border-color: #8b5cf6; }
+    .tier-card.tier-c { border-color: var(--accent-purple); }
     .tier-card.tier-c .tier-badge { background: #f3e8ff; color: #7c3aed; }
 
     .tier-card h3 {

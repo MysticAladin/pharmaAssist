@@ -115,7 +115,7 @@ import { FeatureKey, FeatureTier, FEATURE_METADATA } from '../../core/models/fea
 
     .upgrade-header p {
       font-size: 16px;
-      color: #64748b;
+      color: var(--text-secondary);
     }
 
     .plans-grid {
@@ -127,7 +127,7 @@ import { FeatureKey, FeatureTier, FEATURE_METADATA } from '../../core/models/fea
 
     .plan-card {
       position: relative;
-      background: #fff;
+      background: var(--surface-primary);
       border-radius: 16px;
       padding: 32px;
       border: 2px solid #e2e8f0;
@@ -135,17 +135,17 @@ import { FeatureKey, FeatureTier, FEATURE_METADATA } from '../../core/models/fea
     }
 
     .plan-card:hover {
-      border-color: #3b82f6;
+      border-color: var(--brand-primary);
       transform: translateY(-4px);
     }
 
     .plan-card.featured {
-      border-color: #3b82f6;
-      box-shadow: 0 10px 40px rgba(59, 130, 246, 0.15);
+      border-color: var(--brand-primary);
+      box-shadow: 0 10px 40px rgba(var(--brand-primary-rgb), 0.15);
     }
 
     .plan-card.current {
-      background: #f0f9ff;
+      background: var(--color-info-bg);
     }
 
     .popular-badge {
@@ -153,7 +153,7 @@ import { FeatureKey, FeatureTier, FEATURE_METADATA } from '../../core/models/fea
       top: -12px;
       left: 50%;
       transform: translateX(-50%);
-      background: #3b82f6;
+      background: var(--brand-primary);
       color: #fff;
       padding: 4px 16px;
       border-radius: 20px;
@@ -165,7 +165,7 @@ import { FeatureKey, FeatureTier, FEATURE_METADATA } from '../../core/models/fea
       position: absolute;
       top: 16px;
       right: 16px;
-      background: #10b981;
+      background: var(--color-success);
       color: #fff;
       padding: 4px 12px;
       border-radius: 16px;
@@ -189,12 +189,12 @@ import { FeatureKey, FeatureTier, FEATURE_METADATA } from '../../core/models/fea
     .plan-price .price {
       font-size: 40px;
       font-weight: 700;
-      color: #1e293b;
+      color: var(--text-primary);
     }
 
     .plan-price .currency {
       font-size: 14px;
-      color: #64748b;
+      color: var(--text-secondary);
     }
 
     .plan-features {
@@ -212,7 +212,7 @@ import { FeatureKey, FeatureTier, FEATURE_METADATA } from '../../core/models/fea
     }
 
     .plan-features i {
-      color: #10b981;
+      color: var(--color-success);
       font-size: 18px;
     }
 
@@ -227,23 +227,23 @@ import { FeatureKey, FeatureTier, FEATURE_METADATA } from '../../core/models/fea
     }
 
     .btn-primary {
-      background: #3b82f6;
+      background: var(--brand-primary);
       color: #fff;
       border: none;
     }
 
     .btn-primary:hover:not(:disabled) {
-      background: #2563eb;
+      background: var(--brand-primary-dark);
     }
 
     .btn-outline {
       background: transparent;
       border: 2px solid #3b82f6;
-      color: #3b82f6;
+      color: var(--brand-primary);
     }
 
     .btn-outline:hover:not(:disabled) {
-      background: #f0f9ff;
+      background: var(--color-info-bg);
     }
 
     .btn:disabled {
@@ -256,7 +256,7 @@ import { FeatureKey, FeatureTier, FEATURE_METADATA } from '../../core/models/fea
     }
 
     .back-link a {
-      color: #3b82f6;
+      color: var(--brand-primary);
       text-decoration: none;
     }
 

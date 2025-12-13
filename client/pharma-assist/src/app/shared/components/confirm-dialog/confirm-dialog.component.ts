@@ -78,18 +78,18 @@ export type ConfirmVariant = 'danger' | 'warning' | 'info';
     }
 
     .icon-danger {
-      background: #fee2e2;
-      color: #dc2626;
+      background: var(--color-error-bg);
+      color: var(--color-error-dark);
     }
 
     .icon-warning {
-      background: #fef3c7;
-      color: #d97706;
+      background: var(--status-pending-bg);
+      color: var(--status-pending-text);
     }
 
     .icon-info {
-      background: #dbeafe;
-      color: #2563eb;
+      background: var(--status-processing-bg);
+      color: var(--brand-primary-dark);
     }
 
     .message {
@@ -128,12 +128,12 @@ export type ConfirmVariant = 'danger' | 'warning' | 'info';
     }
 
     .btn-secondary {
-      background: var(--surface-alt, #f1f5f9);
+      background: var(--surface-alt);
       color: var(--text);
       border: 1px solid var(--border);
 
       &:hover:not(:disabled) {
-        background: var(--surface-hover, #e2e8f0);
+        background: var(--surface-hover);
       }
     }
 
@@ -156,7 +156,7 @@ export type ConfirmVariant = 'danger' | 'warning' | 'info';
     }
 
     .btn-info {
-      background: #2563eb;
+      background: var(--brand-primary-dark);
       color: white;
 
       &:hover:not(:disabled) {

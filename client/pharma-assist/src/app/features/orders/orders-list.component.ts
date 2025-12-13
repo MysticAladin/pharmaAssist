@@ -388,13 +388,13 @@ import { ConfirmDialogComponent } from '../../shared/components/confirm-dialog';
     .page-title {
       font-size: 1.75rem;
       font-weight: 600;
-      color: var(--text-primary, #1a1a2e);
+      color: var(--text-primary);
       margin: 0 0 0.25rem 0;
     }
 
     .page-subtitle {
       font-size: 0.9rem;
-      color: var(--text-secondary, #6b7280);
+      color: var(--text-secondary);
       margin: 0;
     }
 
@@ -414,7 +414,7 @@ import { ConfirmDialogComponent } from '../../shared/components/confirm-dialog';
       background: white;
       border-radius: 12px;
       box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
-      border: 1px solid var(--border-color, #e5e7eb);
+      border: 1px solid var(--border-color);
     }
 
     .stat-icon {
@@ -427,23 +427,23 @@ import { ConfirmDialogComponent } from '../../shared/components/confirm-dialog';
     }
 
     .stat-icon.pending {
-      background: #fef3c7;
-      color: #d97706;
+      background: var(--status-pending-bg);
+      color: var(--status-pending-text);
     }
 
     .stat-icon.processing {
-      background: #dbeafe;
-      color: #2563eb;
+      background: var(--status-processing-bg);
+      color: var(--status-processing-text);
     }
 
     .stat-icon.shipped {
-      background: #e0e7ff;
-      color: #4f46e5;
+      background: var(--status-shipped-bg);
+      color: var(--status-shipped-text);
     }
 
     .stat-icon.delivered {
-      background: #d1fae5;
-      color: #059669;
+      background: var(--status-completed-bg);
+      color: var(--status-completed-text);
     }
 
     .stat-content {
@@ -454,13 +454,13 @@ import { ConfirmDialogComponent } from '../../shared/components/confirm-dialog';
     .stat-value {
       font-size: 1.5rem;
       font-weight: 600;
-      color: var(--text-primary, #1a1a2e);
+      color: var(--text-primary);
       line-height: 1.2;
     }
 
     .stat-label {
       font-size: 0.8rem;
-      color: var(--text-secondary, #6b7280);
+      color: var(--text-secondary);
     }
 
     /* Filters Bar */
@@ -473,7 +473,7 @@ import { ConfirmDialogComponent } from '../../shared/components/confirm-dialog';
       background: white;
       border-radius: 12px;
       box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
-      border: 1px solid var(--border-color, #e5e7eb);
+      border: 1px solid var(--border-color);
       align-items: center;
     }
 
@@ -486,7 +486,7 @@ import { ConfirmDialogComponent } from '../../shared/components/confirm-dialog';
 
     .filter-select {
       padding: 0.5rem 2rem 0.5rem 0.75rem;
-      border: 1px solid var(--border-color, #e5e7eb);
+      border: 1px solid var(--border-color);
       border-radius: 8px;
       font-size: 0.875rem;
       background: white;
@@ -500,7 +500,7 @@ import { ConfirmDialogComponent } from '../../shared/components/confirm-dialog';
 
     .filter-select:focus {
       outline: none;
-      border-color: var(--pharma-teal, #0d9488);
+      border-color: var(--pharma-teal);
       box-shadow: 0 0 0 3px rgba(13, 148, 136, 0.1);
     }
 
@@ -512,12 +512,12 @@ import { ConfirmDialogComponent } from '../../shared/components/confirm-dialog';
 
     .date-filter label {
       font-size: 0.8rem;
-      color: var(--text-secondary, #6b7280);
+      color: var(--text-secondary);
     }
 
     .date-input {
       padding: 0.5rem 0.75rem;
-      border: 1px solid var(--border-color, #e5e7eb);
+      border: 1px solid var(--border-color);
       border-radius: 8px;
       font-size: 0.875rem;
       font-family: inherit;
@@ -525,7 +525,7 @@ import { ConfirmDialogComponent } from '../../shared/components/confirm-dialog';
 
     .date-input:focus {
       outline: none;
-      border-color: var(--pharma-teal, #0d9488);
+      border-color: var(--pharma-teal);
       box-shadow: 0 0 0 3px rgba(13, 148, 136, 0.1);
     }
 
@@ -538,7 +538,7 @@ import { ConfirmDialogComponent } from '../../shared/components/confirm-dialog';
 
     .order-number {
       font-weight: 600;
-      color: var(--pharma-teal, #0d9488);
+      color: var(--pharma-teal);
     }
 
     .prescription-badge {
@@ -548,8 +548,8 @@ import { ConfirmDialogComponent } from '../../shared/components/confirm-dialog';
       width: 22px;
       height: 22px;
       border-radius: 50%;
-      background: #dbeafe;
-      color: #2563eb;
+      background: var(--status-processing-bg);
+      color: var(--brand-primary-dark);
     }
 
     .customer-cell {
@@ -559,21 +559,21 @@ import { ConfirmDialogComponent } from '../../shared/components/confirm-dialog';
 
     .customer-name {
       font-weight: 500;
-      color: var(--text-primary, #1a1a2e);
+      color: var(--text-primary);
     }
 
     .date-cell {
-      color: var(--text-secondary, #6b7280);
+      color: var(--text-secondary);
       font-size: 0.875rem;
     }
 
     .amount-cell {
       font-weight: 600;
-      color: var(--text-primary, #1a1a2e);
+      color: var(--text-primary);
     }
 
     .items-count {
-      color: var(--text-secondary, #6b7280);
+      color: var(--text-secondary);
       font-size: 0.875rem;
     }
 
@@ -592,19 +592,19 @@ import { ConfirmDialogComponent } from '../../shared/components/confirm-dialog';
       border: none;
       border-radius: 6px;
       background: transparent;
-      color: var(--text-secondary, #6b7280);
+      color: var(--text-secondary);
       cursor: pointer;
       transition: all 0.2s;
     }
 
     .btn-icon:hover {
-      background: var(--bg-hover, #f3f4f6);
-      color: var(--pharma-teal, #0d9488);
+      background: var(--bg-hover);
+      color: var(--pharma-teal);
     }
 
     .btn-icon.btn-danger:hover {
-      background: #fef2f2;
-      color: #dc2626;
+      background: var(--color-error-bg);
+      color: var(--color-error-dark);
     }
 
     /* Pagination Container */
@@ -622,7 +622,7 @@ import { ConfirmDialogComponent } from '../../shared/components/confirm-dialog';
       align-items: center;
       gap: 1.5rem;
       padding: 0.75rem 1.25rem;
-      background: var(--text-primary, #1a1a2e);
+      background: var(--text-primary);
       color: white;
       border-radius: 12px;
       box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
@@ -646,7 +646,7 @@ import { ConfirmDialogComponent } from '../../shared/components/confirm-dialog';
 
     .bulk-buttons .btn-secondary {
       background: white;
-      color: var(--text-primary, #1a1a2e);
+      color: var(--text-primary);
     }
 
     .bulk-buttons .btn-ghost {
@@ -673,8 +673,8 @@ import { ConfirmDialogComponent } from '../../shared/components/confirm-dialog';
     .spinner {
       width: 40px;
       height: 40px;
-      border: 3px solid var(--border-color, #e5e7eb);
-      border-top-color: var(--pharma-teal, #0d9488);
+      border: 3px solid var(--border-color);
+      border-top-color: var(--pharma-teal);
       border-radius: 50%;
       animation: spin 0.8s linear infinite;
     }
@@ -685,7 +685,7 @@ import { ConfirmDialogComponent } from '../../shared/components/confirm-dialog';
 
     .loading-state p {
       margin-top: 1rem;
-      color: var(--text-secondary, #6b7280);
+      color: var(--text-secondary);
     }
 
     /* Buttons */
@@ -704,32 +704,32 @@ import { ConfirmDialogComponent } from '../../shared/components/confirm-dialog';
     }
 
     .btn-primary {
-      background: var(--pharma-teal, #0d9488);
+      background: var(--pharma-teal);
       color: white;
     }
 
     .btn-primary:hover {
-      background: var(--pharma-teal-dark, #0f766e);
+      background: var(--pharma-teal-dark);
     }
 
     .btn-secondary {
       background: white;
-      color: var(--text-primary, #1a1a2e);
-      border: 1px solid var(--border-color, #e5e7eb);
+      color: var(--text-primary);
+      border: 1px solid var(--border-color);
     }
 
     .btn-secondary:hover {
-      background: var(--bg-hover, #f9fafb);
+      background: var(--bg-hover);
     }
 
     .btn-ghost {
       background: transparent;
-      color: var(--text-secondary, #6b7280);
+      color: var(--text-secondary);
     }
 
     .btn-ghost:hover {
-      background: var(--bg-hover, #f3f4f6);
-      color: var(--text-primary, #1a1a2e);
+      background: var(--bg-hover);
+      color: var(--text-primary);
     }
 
     /* Export Dropdown */
@@ -743,7 +743,7 @@ import { ConfirmDialogComponent } from '../../shared/components/confirm-dialog';
       right: 0;
       margin-top: 0.5rem;
       background: white;
-      border: 1px solid var(--border-color, #e5e7eb);
+      border: 1px solid var(--border-color);
       border-radius: 8px;
       box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
       min-width: 160px;
@@ -769,7 +769,7 @@ import { ConfirmDialogComponent } from '../../shared/components/confirm-dialog';
       border: none;
       background: none;
       font-size: 0.875rem;
-      color: var(--text-primary, #1a1a2e);
+      color: var(--text-primary);
       cursor: pointer;
       transition: background 0.15s;
     }
@@ -783,11 +783,11 @@ import { ConfirmDialogComponent } from '../../shared/components/confirm-dialog';
     }
 
     .export-menu-item:hover {
-      background: var(--bg-hover, #f3f4f6);
+      background: var(--bg-hover);
     }
 
     .export-menu-item lucide-icon {
-      color: var(--text-secondary, #6b7280);
+      color: var(--text-secondary);
     }
 
     /* Responsive */

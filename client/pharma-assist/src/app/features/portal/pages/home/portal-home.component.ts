@@ -228,7 +228,7 @@ import { KmCurrencyPipe } from '../../../../core/pipes/km-currency.pipe';
 
     /* Hero Banner */
     .hero-banner {
-      background: linear-gradient(135deg, var(--primary-color, #3b82f6) 0%, #1e40af 100%);
+      background: linear-gradient(135deg, var(--primary-color) 0%, #1e40af 100%);
       border-radius: 16px;
       padding: 3rem;
       color: white;
@@ -317,7 +317,7 @@ import { KmCurrencyPipe } from '../../../../core/pipes/km-currency.pipe';
     }
 
     .view-all {
-      color: var(--primary-color, #3b82f6);
+      color: var(--primary-color);
       text-decoration: none;
       font-weight: 500;
     }
@@ -350,7 +350,7 @@ import { KmCurrencyPipe } from '../../../../core/pipes/km-currency.pipe';
 
     .product-image {
       height: 160px;
-      background: var(--surface-ground, #f5f5f5);
+      background: var(--surface-ground);
       display: flex;
       align-items: center;
       justify-content: center;
@@ -372,7 +372,7 @@ import { KmCurrencyPipe } from '../../../../core/pipes/km-currency.pipe';
       position: absolute;
       top: 8px;
       right: 8px;
-      background: #ef4444;
+      background: var(--color-error);
       color: white;
       padding: 0.25rem 0.5rem;
       border-radius: 4px;
@@ -392,7 +392,7 @@ import { KmCurrencyPipe } from '../../../../core/pipes/km-currency.pipe';
     }
 
     .product-badge.new {
-      background: #10b981;
+      background: var(--color-success);
       color: white;
     }
 
@@ -426,7 +426,7 @@ import { KmCurrencyPipe } from '../../../../core/pipes/km-currency.pipe';
     .product-price {
       font-size: 1.125rem;
       font-weight: 700;
-      color: var(--primary-color, #3b82f6);
+      color: var(--primary-color);
     }
 
     .reorder-info {
@@ -487,22 +487,22 @@ import { KmCurrencyPipe } from '../../../../core/pipes/km-currency.pipe';
     }
 
     .btn-primary {
-      background: var(--primary-color, #3b82f6);
+      background: var(--primary-color);
       color: white;
     }
 
     .btn-primary:hover:not(:disabled) {
-      background: #2563eb;
+      background: var(--brand-primary-dark);
     }
 
     .btn-secondary {
       background: white;
       color: var(--text-color, #333);
-      border: 1px solid var(--border-color, #e5e7eb);
+      border: 1px solid var(--border-color);
     }
 
     .btn-secondary:hover {
-      background: var(--surface-ground, #f5f5f5);
+      background: var(--surface-ground);
     }
 
     .btn-sm {

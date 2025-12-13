@@ -76,7 +76,7 @@ import { NotificationService, ToastNotification } from '../../../core/services/n
       gap: 0.75rem;
       padding: 1rem 1.25rem;
       border-radius: 12px;
-      background: #fff;
+      background: var(--surface-primary);
       box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
       border-left: 4px solid;
       animation: slideIn 0.3s ease;
@@ -94,24 +94,24 @@ import { NotificationService, ToastNotification } from '../../../core/services/n
     }
 
     .toast-success {
-      border-left-color: #10b981;
+      border-left-color: var(--color-success);
     }
-    .toast-success .toast-icon { color: #10b981; }
+    .toast-success .toast-icon { color: var(--color-success); }
 
     .toast-error {
-      border-left-color: #ef4444;
+      border-left-color: var(--color-error);
     }
-    .toast-error .toast-icon { color: #ef4444; }
+    .toast-error .toast-icon { color: var(--color-error); }
 
     .toast-warning {
-      border-left-color: #f59e0b;
+      border-left-color: var(--color-warning);
     }
-    .toast-warning .toast-icon { color: #f59e0b; }
+    .toast-warning .toast-icon { color: var(--color-warning); }
 
     .toast-info {
-      border-left-color: #3b82f6;
+      border-left-color: var(--brand-primary);
     }
-    .toast-info .toast-icon { color: #3b82f6; }
+    .toast-info .toast-icon { color: var(--brand-primary); }
 
     .toast-icon {
       flex-shrink: 0;
@@ -127,13 +127,13 @@ import { NotificationService, ToastNotification } from '../../../core/services/n
       margin: 0;
       font-size: 0.9rem;
       font-weight: 600;
-      color: #1e293b;
+      color: var(--text-primary);
     }
 
     .toast-message {
       margin: 0.25rem 0 0;
       font-size: 0.8rem;
-      color: #64748b;
+      color: var(--text-secondary);
     }
 
     .toast-close {
@@ -141,13 +141,13 @@ import { NotificationService, ToastNotification } from '../../../core/services/n
       padding: 0;
       background: none;
       border: none;
-      color: #94a3b8;
+      color: var(--text-muted);
       cursor: pointer;
       transition: color 0.2s;
     }
 
     .toast-close:hover {
-      color: #64748b;
+      color: var(--text-secondary);
     }
 
     @media (max-width: 480px) {

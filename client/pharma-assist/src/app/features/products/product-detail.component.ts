@@ -389,7 +389,7 @@ import { ConfirmDialogComponent } from '../../shared/components/confirm-dialog';
       color: white;
 
       &:hover {
-        background: var(--primary-dark, #0f766e);
+        background: var(--primary-dark);
       }
     }
 
@@ -399,17 +399,17 @@ import { ConfirmDialogComponent } from '../../shared/components/confirm-dialog';
       border: 1px solid var(--border);
 
       &:hover {
-        background: var(--surface-hover, #f1f5f9);
+        background: var(--surface-hover);
       }
     }
 
     .btn-danger-outline {
       background: transparent;
-      color: #dc2626;
+      color: var(--color-error-dark);
       border: 1px solid #dc2626;
 
       &:hover {
-        background: #fee2e2;
+        background: var(--color-error-bg);
       }
     }
 
@@ -468,15 +468,15 @@ import { ConfirmDialogComponent } from '../../shared/components/confirm-dialog';
       }
 
       &.stock-low {
-        color: #dc2626;
+        color: var(--color-error-dark);
         font-weight: 500;
       }
     }
 
     .low-stock-badge {
       display: inline-block;
-      background: #fee2e2;
-      color: #dc2626;
+      background: var(--color-error-bg);
+      color: var(--color-error-dark);
       font-size: 11px;
       font-weight: 500;
       padding: 2px 8px;

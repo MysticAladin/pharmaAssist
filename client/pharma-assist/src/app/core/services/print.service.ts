@@ -355,7 +355,7 @@ export class PrintService {
 
           .company-info h1 {
             font-size: 24px;
-            color: #14b8a6;
+            color: var(--pharma-teal-500);
             margin-bottom: 4px;
           }
 
@@ -385,7 +385,7 @@ export class PrintService {
 
           .section h3 {
             font-size: 13px;
-            color: #14b8a6;
+            color: var(--pharma-teal-500);
             margin-bottom: 8px;
             text-transform: uppercase;
             letter-spacing: 0.5px;
@@ -457,7 +457,7 @@ export class PrintService {
           }
 
           .totals-row.discount {
-            color: #dc2626;
+            color: var(--color-error-dark);
           }
 
           .totals-row.total {
@@ -474,7 +474,7 @@ export class PrintService {
 
           .notes-section {
             padding: 12px 16px;
-            background: #fffbeb;
+            background: var(--color-warning-bg);
             border-left: 3px solid #f59e0b;
             margin-top: 20px;
           }

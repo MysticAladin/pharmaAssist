@@ -120,7 +120,7 @@ import { KeyboardService } from '../../../core/services/keyboard.service';
       transition: all 0.15s;
 
       &:hover {
-        background: var(--surface-hover, #f1f5f9);
+        background: var(--surface-hover);
         color: var(--text);
       }
     }

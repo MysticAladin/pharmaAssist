@@ -114,10 +114,10 @@ import { KmCurrencyPipe } from '../../../../core/pipes/km-currency.pipe';
     .price-section { margin-bottom: 1rem; }
     .price { font-size: 2rem; font-weight: 700; color: var(--primary-color); }
     .original-price { text-decoration: line-through; color: var(--text-secondary); margin-left: 0.5rem; }
-    .stock-info { padding: 0.5rem 1rem; border-radius: 6px; display: inline-block; margin-bottom: 1rem; background: #d1fae5; color: #059669; }
-    .stock-info.low { background: #fef3c7; color: #d97706; }
-    .stock-info.out { background: #fee2e2; color: #dc2626; }
-    .prescription-warning { background: #fef3c7; color: #d97706; padding: 1rem; border-radius: 8px; margin-bottom: 1.5rem; }
+    .stock-info { padding: 0.5rem 1rem; border-radius: 6px; display: inline-block; margin-bottom: 1rem; background: var(--color-success-bg); color: var(--color-success-dark); }
+    .stock-info.low { background: var(--status-pending-bg); color: var(--status-pending-text); }
+    .stock-info.out { background: var(--color-error-bg); color: var(--color-error-dark); }
+    .prescription-warning { background: var(--status-pending-bg); color: var(--status-pending-text); padding: 1rem; border-radius: 8px; margin-bottom: 1.5rem; }
     .add-to-cart-section { display: flex; gap: 1rem; margin-bottom: 2rem; }
     .quantity-control { display: flex; align-items: center; border: 1px solid var(--border-color); border-radius: 8px; overflow: hidden; }
     .quantity-control button { width: 48px; height: 48px; border: none; background: var(--surface-ground); cursor: pointer; font-size: 1.25rem; }

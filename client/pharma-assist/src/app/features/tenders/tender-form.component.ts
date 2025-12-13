@@ -419,7 +419,7 @@ import {
 
     .form-label.required::after {
       content: ' *';
-      color: #dc2626;
+      color: var(--color-error-dark);
     }
 
     .form-input, .form-select, .form-textarea {
@@ -438,7 +438,7 @@ import {
     }
 
     .form-input.invalid, .form-select.invalid {
-      border-color: #dc2626;
+      border-color: var(--color-error-dark);
     }
 
     .form-textarea {
@@ -470,7 +470,7 @@ import {
 
     .error-message {
       font-size: 0.75rem;
-      color: #dc2626;
+      color: var(--color-error-dark);
     }
 
     /* Items */
@@ -524,8 +524,8 @@ import {
     }
 
     .btn-remove:hover {
-      background: #fee2e2;
-      color: #dc2626;
+      background: var(--color-error-bg);
+      color: var(--color-error-dark);
     }
 
     /* Actions */

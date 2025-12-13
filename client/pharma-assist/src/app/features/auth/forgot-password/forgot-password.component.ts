@@ -16,7 +16,7 @@ import { RouterModule } from '@angular/router';
   styles: [`
     .forgot-card {
       padding: 40px;
-      background: #fff;
+      background: var(--surface-primary);
       border-radius: 16px;
       max-width: 420px;
       width: 100%;

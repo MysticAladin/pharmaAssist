@@ -39,7 +39,7 @@ import { UIStateService } from '../../../../core/state/ui-state.service';
       width: 48px;
       height: 48px;
       border: 4px solid #e2e8f0;
-      border-top-color: #3b82f6;
+      border-top-color: var(--brand-primary);
       border-radius: 50%;
       animation: spin 1s linear infinite;
     }
@@ -62,12 +62,12 @@ import { UIStateService } from '../../../../core/state/ui-state.service';
     }
 
     :host-context(.dark) .spinner {
-      border-color: #334155;
-      border-top-color: #3b82f6;
+      border-color: var(--surface-dark-elevated);
+      border-top-color: var(--brand-primary);
     }
 
     :host-context(.dark) .loading-text {
-      color: #94a3b8;
+      color: var(--text-muted);
     }
   `]
 })

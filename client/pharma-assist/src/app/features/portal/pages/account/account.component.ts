@@ -209,7 +209,7 @@ interface Address {
     .address-card p { font-size: 0.875rem; color: var(--text-secondary); line-height: 1.5; margin-bottom: 1rem; }
     .address-actions { display: flex; gap: 0.5rem; }
     .address-actions button { padding: 0.5rem 0.75rem; border: 1px solid var(--border-color); background: transparent; border-radius: 6px; cursor: pointer; font-size: 0.75rem; }
-    .address-actions button.danger { color: #dc2626; border-color: #fecaca; }
+    .address-actions button.danger { color: var(--color-error-dark); border-color: #fecaca; }
 
     .preference-row { margin-bottom: 1rem; }
     .preference-row label { display: flex; align-items: center; gap: 0.75rem; cursor: pointer; }

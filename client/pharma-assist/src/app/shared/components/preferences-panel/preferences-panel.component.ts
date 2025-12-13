@@ -313,7 +313,7 @@ import { NotificationService } from '../../../core/services/notification.service
 
     .pref-section {
       background: var(--bg-primary, white);
-      border: 1px solid var(--border-color, #e5e7eb);
+      border: 1px solid var(--border-color);
       border-radius: 12px;
       padding: 1.5rem;
       margin-bottom: 1.5rem;
@@ -343,7 +343,7 @@ import { NotificationService } from '../../../core/services/notification.service
       justify-content: space-between;
       align-items: center;
       padding: 0.75rem 0;
-      border-bottom: 1px solid var(--border-color, #e5e7eb);
+      border-bottom: 1px solid var(--border-color);
 
       &:last-child {
         border-bottom: none;
@@ -361,19 +361,19 @@ import { NotificationService } from '../../../core/services/notification.service
 
       label {
         font-weight: 500;
-        color: var(--text-primary, #111827);
+        color: var(--text-primary);
       }
     }
 
     .pref-desc {
       font-size: 0.8125rem;
-      color: var(--text-secondary, #6b7280);
+      color: var(--text-secondary);
     }
 
     .pref-control {
       select {
         padding: 0.5rem 2rem 0.5rem 0.75rem;
-        border: 1px solid var(--border-color, #e5e7eb);
+        border: 1px solid var(--border-color);
         border-radius: 8px;
         background: var(--bg-primary, white);
         font-size: 0.875rem;
@@ -392,7 +392,7 @@ import { NotificationService } from '../../../core/services/notification.service
       align-items: center;
       gap: 0.25rem;
       padding: 0.75rem 1rem;
-      border: 2px solid var(--border-color, #e5e7eb);
+      border: 2px solid var(--border-color);
       border-radius: 8px;
       background: var(--bg-primary, white);
       cursor: pointer;
@@ -414,7 +414,7 @@ import { NotificationService } from '../../../core/services/notification.service
 
     .theme-label {
       font-size: 0.75rem;
-      color: var(--text-secondary, #6b7280);
+      color: var(--text-secondary);
     }
 
     /* Toggle switch */
@@ -445,7 +445,7 @@ import { NotificationService } from '../../../core/services/notification.service
       position: absolute;
       cursor: pointer;
       inset: 0;
-      background: var(--bg-secondary, #e5e7eb);
+      background: var(--bg-secondary);
       border-radius: 24px;
       transition: 0.2s;
 
@@ -478,13 +478,13 @@ import { NotificationService } from '../../../core/services/notification.service
     .pref-subsection {
       margin-top: 1rem;
       padding-top: 1rem;
-      border-top: 1px solid var(--border-color, #e5e7eb);
+      border-top: 1px solid var(--border-color);
 
       h4 {
         margin: 0 0 0.75rem;
         font-size: 0.875rem;
         font-weight: 600;
-        color: var(--text-secondary, #6b7280);
+        color: var(--text-secondary);
       }
     }
 
@@ -505,12 +505,12 @@ import { NotificationService } from '../../../core/services/notification.service
     }
 
     .btn-secondary {
-      background: var(--bg-secondary, #f3f4f6);
-      color: var(--text-primary, #111827);
-      border: 1px solid var(--border-color, #e5e7eb);
+      background: var(--bg-secondary);
+      color: var(--text-primary);
+      border: 1px solid var(--border-color);
 
       &:hover {
-        background: var(--bg-tertiary, #e5e7eb);
+        background: var(--bg-tertiary);
       }
     }
 

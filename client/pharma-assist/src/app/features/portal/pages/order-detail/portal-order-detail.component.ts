@@ -246,8 +246,8 @@ interface OrderItem {
     .not-found .icon { font-size: 4rem; display: block; margin-bottom: 1rem; }
 
     .alert { display: flex; align-items: center; gap: 0.75rem; padding: 1rem; border-radius: 8px; margin-bottom: 1rem; }
-    .alert-success { background: #d1fae5; color: #065f46; }
-    .alert-error { background: #fee2e2; color: #991b1b; }
+    .alert-success { background: var(--color-success-bg); color: var(--color-success-text); }
+    .alert-error { background: var(--color-error-bg); color: var(--color-error-text); }
     .alert .icon { font-weight: bold; }
     .alert .close { margin-left: auto; background: none; border: none; font-size: 1.25rem; cursor: pointer; opacity: 0.7; }
     .alert .close:hover { opacity: 1; }
@@ -257,14 +257,14 @@ interface OrderItem {
     .order-date { color: var(--text-secondary); }
 
     .status { padding: 0.25rem 0.75rem; border-radius: 999px; font-size: 0.75rem; font-weight: 600; text-transform: uppercase; }
-    .status-pending { background: #fef3c7; color: #92400e; }
+    .status-pending { background: var(--status-pending-bg); color: var(--color-warning-text); }
     .status-confirmed { background: #e0f2fe; color: #0369a1; }
-    .status-processing { background: #dbeafe; color: #1e40af; }
+    .status-processing { background: var(--status-processing-bg); color: var(--color-info-text); }
     .status-ready { background: #fae8ff; color: #86198f; }
-    .status-shipped { background: #e0e7ff; color: #3730a3; }
-    .status-delivered { background: #d1fae5; color: #065f46; }
-    .status-cancelled { background: #fee2e2; color: #991b1b; }
-    .status-returned { background: #fef3c7; color: #92400e; }
+    .status-shipped { background: var(--status-shipped-bg); color: #3730a3; }
+    .status-delivered { background: var(--color-success-bg); color: var(--color-success-text); }
+    .status-cancelled { background: var(--color-error-bg); color: var(--color-error-text); }
+    .status-returned { background: var(--status-pending-bg); color: var(--color-warning-text); }
 
     .order-content { display: grid; grid-template-columns: 1fr 360px; gap: 2rem; }
     .main-content { display: flex; flex-direction: column; gap: 1.5rem; }
@@ -278,7 +278,7 @@ interface OrderItem {
     .product-name { font-weight: 500; display: block; }
     .product-sku { font-size: 0.75rem; color: var(--text-secondary); }
     .item-total { font-weight: 600; }
-    .btn-claim { padding: 0.375rem 0.75rem; font-size: 0.75rem; border-radius: 6px; background: var(--warning-color, #f59e0b); color: white; border: none; cursor: pointer; white-space: nowrap; }
+    .btn-claim { padding: 0.375rem 0.75rem; font-size: 0.75rem; border-radius: 6px; background: var(--warning-color); color: white; border: none; cursor: pointer; white-space: nowrap; }
     .btn-claim:hover { opacity: 0.9; }
 
     .sidebar { display: flex; flex-direction: column; gap: 1rem; }
@@ -295,8 +295,8 @@ interface OrderItem {
     .btn .icon { font-size: 1rem; }
 
     .payment-status { margin-top: 0.5rem; font-weight: 500; }
-    .cancellation-reason { background: #fef2f2; border: 1px solid #fecaca; }
-    .cancellation-reason h3 { color: #991b1b; }
+    .cancellation-reason { background: var(--color-error-bg); border: 1px solid var(--color-error-light); }
+    .cancellation-reason h3 { color: var(--color-error-text); }
 
     /* Modal styles */
     .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; z-index: 1000; padding: 1rem; }
@@ -313,7 +313,7 @@ interface OrderItem {
     .form-group input, .form-group textarea, .form-group select { width: 100%; padding: 0.75rem; border: 1px solid var(--border-color); border-radius: 8px; font-size: 0.875rem; background: var(--bg-primary); }
     .form-group input:focus, .form-group textarea:focus, .form-group select:focus { outline: none; border-color: var(--primary-color); }
 
-    .claim-product { background: var(--bg-secondary, #f3f4f6); padding: 1rem; border-radius: 8px; margin-bottom: 1rem; }
+    .claim-product { background: var(--bg-secondary); padding: 1rem; border-radius: 8px; margin-bottom: 1rem; }
     .claim-product strong { display: block; }
     .claim-product .sku { font-size: 0.75rem; color: var(--text-secondary); }
 

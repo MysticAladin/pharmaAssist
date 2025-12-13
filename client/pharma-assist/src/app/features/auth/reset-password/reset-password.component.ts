@@ -7,6 +7,6 @@ import { RouterModule } from '@angular/router';
   standalone: true,
   imports: [CommonModule, RouterModule],
   template: `<div class="card"><h2>Reset lozinke</h2><p>U razvoju...</p></div>`,
-  styles: [`.card { padding: 40px; background: #fff; border-radius: 16px; }`]
+  styles: [`.card { padding: 40px; background: var(--surface-primary); border-radius: 16px; }`]
 })
 export class ResetPasswordComponent {}

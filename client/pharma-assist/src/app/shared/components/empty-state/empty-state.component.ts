@@ -166,12 +166,12 @@ import { TranslateModule } from '@ngx-translate/core';
     }
 
     .btn-primary {
-      background: var(--pharma-teal-600, #0d9488);
+      background: var(--pharma-teal-600);
       color: white;
     }
 
     .btn-primary:hover {
-      background: var(--pharma-teal-700, #0f766e);
+      background: var(--pharma-teal-700);
     }
   `]
 })

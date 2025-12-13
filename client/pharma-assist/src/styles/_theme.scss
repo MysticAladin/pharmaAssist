@@ -1,0 +1,354 @@
+// =============================================================================
+// PharmaAssist Theme Configuration
+// =============================================================================
+// This is the SINGLE SOURCE OF TRUTH for all colors in the application.
+// To change the app's color scheme, modify only this file.
+//
+// Future: These variables can be overridden at runtime by a ThemeService
+// for per-tenant branding (Option C).
+// =============================================================================
+
+:root {
+  // ===========================================================================
+  // BRAND COLORS - Primary identity colors (change these for different tenants)
+  // ===========================================================================
+
+  // Primary Brand Color - Main accent color (buttons, links, highlights)
+  --brand-primary: #3b82f6;           // Blue - change this for tenant branding
+  --brand-primary-rgb: 59, 130, 246;  // RGB values for rgba() usage
+  --brand-primary-light: #60a5fa;
+  --brand-primary-lighter: #93c5fd;
+  --brand-primary-dark: #2563eb;
+  --brand-primary-darker: #1d4ed8;
+  --brand-primary-bg: #eff6ff;        // Very light tint for backgrounds
+  --brand-primary-bg-hover: #dbeafe;
+
+  // Secondary Brand Color - Supporting accent
+  --brand-secondary: #10b981;         // Emerald green
+  --brand-secondary-light: #34d399;
+  --brand-secondary-dark: #059669;
+  --brand-secondary-bg: #d1fae5;
+
+  // ===========================================================================
+  // SEMANTIC COLORS - Meaning-based colors (generally don't change per tenant)
+  // ===========================================================================
+
+  // Success - Positive actions, completed states
+  --color-success: #10b981;
+  --color-success-rgb: 16, 185, 129;  // RGB values for rgba() usage
+  --color-success-light: #34d399;
+  --color-success-dark: #059669;
+  --color-success-bg: #d1fae5;
+  --color-success-text: #065f46;
+
+  // Warning - Caution, pending states
+  --color-warning: #f59e0b;
+  --color-warning-rgb: 245, 158, 11;  // RGB values for rgba() usage
+  --color-warning-light: #fbbf24;
+  --color-warning-dark: #d97706;
+  --color-warning-bg: #fef3c7;
+  --color-warning-text: #92400e;
+
+  // Error/Danger - Destructive actions, errors
+  --color-error: #ef4444;
+  --color-error-rgb: 239, 68, 68;     // RGB values for rgba() usage
+  --color-error-light: #f87171;
+  --color-error-dark: #dc2626;
+  --color-error-darker: #b91c1c;
+  --color-error-bg: #fee2e2;
+  --color-error-text: #991b1b;
+
+  // Info - Informational, neutral highlights
+  --color-info: #3b82f6;
+  --color-info-rgb: 59, 130, 246;     // RGB values for rgba() usage
+  --color-info-light: #60a5fa;
+  --color-info-dark: #2563eb;
+  --color-info-bg: #dbeafe;
+  --color-info-text: #1e40af;
+
+  // ===========================================================================
+  // NEUTRAL COLORS - Grays for text, borders, backgrounds
+  // ===========================================================================
+
+  --neutral-50: #f8fafc;
+  --neutral-100: #f1f5f9;
+  --neutral-200: #e2e8f0;
+  --neutral-300: #cbd5e1;
+  --neutral-400: #94a3b8;
+  --neutral-500: #64748b;
+  --neutral-600: #475569;
+  --neutral-700: #334155;
+  --neutral-800: #1e293b;
+  --neutral-900: #0f172a;
+  --neutral-950: #020617;
+
+  // ===========================================================================
+  // SURFACE COLORS - Backgrounds and containers
+  // ===========================================================================
+
+  --surface-primary: #ffffff;
+  --surface-secondary: #f8fafc;
+  --surface-tertiary: #f1f5f9;
+  --surface-elevated: #ffffff;
+  --surface-overlay: rgba(0, 0, 0, 0.5);
+
+  // Dark mode surfaces (for sidebar, dark sections)
+  --surface-dark: #1e293b;
+  --surface-dark-elevated: #334155;
+  --surface-dark-hover: #475569;
+
+  // ===========================================================================
+  // TEXT COLORS
+  // ===========================================================================
+
+  --text-primary: #1e293b;
+  --text-secondary: #64748b;
+  --text-muted: #94a3b8;
+  --text-disabled: #cbd5e1;
+  --text-inverse: #ffffff;
+  --text-link: var(--brand-primary);
+  --text-link-hover: var(--brand-primary-dark);
+
+  // ===========================================================================
+  // BORDER COLORS
+  // ===========================================================================
+
+  --border-light: #e2e8f0;
+  --border-medium: #cbd5e1;
+  --border-dark: #94a3b8;
+  --border-focus: var(--brand-primary);
+
+  // ===========================================================================
+  // STATUS BADGE COLORS
+  // ===========================================================================
+
+  // Order/Process statuses
+  --status-pending-bg: #fef3c7;
+  --status-pending-text: #d97706;
+  --status-processing-bg: #dbeafe;
+  --status-processing-text: #2563eb;
+  --status-completed-bg: #d1fae5;
+  --status-completed-text: #059669;
+  --status-cancelled-bg: #fee2e2;
+  --status-cancelled-text: #dc2626;
+  --status-shipped-bg: #e0e7ff;
+  --status-shipped-text: #4f46e5;
+
+  // Generic statuses
+  --status-active-bg: #dcfce7;
+  --status-active-text: #166534;
+  --status-inactive-bg: #f1f5f9;
+  --status-inactive-text: #475569;
+
+  // ===========================================================================
+  // COMPONENT-SPECIFIC TOKENS
+  // ===========================================================================
+
+  // Buttons
+  --btn-primary-bg: var(--brand-primary);
+  --btn-primary-bg-hover: var(--brand-primary-dark);
+  --btn-primary-text: var(--text-inverse);
+
+  --btn-secondary-bg: var(--neutral-100);
+  --btn-secondary-bg-hover: var(--neutral-200);
+  --btn-secondary-text: var(--text-primary);
+
+  --btn-danger-bg: var(--color-error);
+  --btn-danger-bg-hover: var(--color-error-dark);
+  --btn-danger-text: var(--text-inverse);
+
+  --btn-success-bg: var(--color-success);
+  --btn-success-bg-hover: var(--color-success-dark);
+  --btn-success-text: var(--text-inverse);
+
+  --btn-warning-bg: var(--color-warning);
+  --btn-warning-bg-hover: var(--color-warning-dark);
+  --btn-warning-text: #000000;
+
+  --btn-outline-border: var(--brand-primary);
+  --btn-outline-text: var(--brand-primary);
+  --btn-outline-bg-hover: var(--brand-primary-bg);
+
+  // Sidebar
+  --sidebar-bg: var(--surface-dark);
+  --sidebar-text: var(--neutral-400);
+  --sidebar-text-hover: var(--text-inverse);
+  --sidebar-text-active: var(--text-inverse);
+  --sidebar-item-hover-bg: var(--surface-dark-hover);
+  --sidebar-item-active-bg: var(--brand-primary);
+  --sidebar-border: var(--neutral-700);
+  --sidebar-muted: var(--neutral-500);
+
+  // Header
+  --header-bg: var(--surface-primary);
+  --header-border: var(--border-light);
+  --header-text: var(--text-primary);
+
+  // Cards
+  --card-bg: var(--surface-primary);
+  --card-border: var(--border-light);
+  --card-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+
+  // Forms
+  --input-bg: var(--surface-primary);
+  --input-border: var(--border-medium);
+  --input-border-focus: var(--brand-primary);
+  --input-text: var(--text-primary);
+  --input-placeholder: var(--text-muted);
+
+  // Tables
+  --table-header-bg: var(--neutral-50);
+  --table-row-hover: var(--neutral-50);
+  --table-border: var(--border-light);
+
+  // Notifications/Alerts
+  --notification-badge: var(--color-error);
+
+  // ===========================================================================
+  // ACCENT COLOR PALETTE (for charts, categories, icons)
+  // ===========================================================================
+
+  --accent-blue: #3b82f6;
+  --accent-blue-bg: #eff6ff;
+  --accent-green: #10b981;
+  --accent-green-bg: #f0fdf4;
+  --accent-orange: #f59e0b;
+  --accent-orange-bg: #fff7ed;
+  --accent-red: #ef4444;
+  --accent-red-bg: #fef2f2;
+  --accent-purple: #8b5cf6;
+  --accent-purple-bg: #f5f3ff;
+  --accent-teal: #14b8a6;
+  --accent-teal-bg: #f0fdfa;
+  --accent-yellow: #eab308;
+  --accent-yellow-bg: #fffbeb;
+  --accent-indigo: #6366f1;
+  --accent-indigo-bg: #eef2ff;
+  --accent-pink: #ec4899;
+  --accent-pink-bg: #fdf2f8;
+  --accent-cyan: #06b6d4;
+  --accent-cyan-bg: #ecfeff;
+
+  // ===========================================================================
+  // SHADOWS
+  // ===========================================================================
+
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+
+  // ===========================================================================
+  // SPACING (kept here for completeness, rarely changes per tenant)
+  // ===========================================================================
+
+  --spacing-xs: 0.25rem;
+  --spacing-sm: 0.5rem;
+  --spacing-md: 1rem;
+  --spacing-lg: 1.5rem;
+  --spacing-xl: 2rem;
+  --spacing-2xl: 3rem;
+
+  // ===========================================================================
+  // BORDER RADIUS
+  // ===========================================================================
+
+  --radius-sm: 0.25rem;
+  --radius-md: 0.5rem;
+  --radius-lg: 0.75rem;
+  --radius-xl: 1rem;
+  --radius-full: 9999px;
+
+  // ===========================================================================
+  // TRANSITIONS
+  // ===========================================================================
+
+  --transition-fast: 150ms ease;
+  --transition-base: 250ms ease;
+  --transition-slow: 350ms ease;
+
+  // ===========================================================================
+  // LAYOUT
+  // ===========================================================================
+
+  --sidebar-width: 280px;
+  --sidebar-collapsed-width: 80px;
+  --header-height: 64px;
+  --footer-height: 48px;
+
+  // ===========================================================================
+  // TYPOGRAPHY
+  // ===========================================================================
+
+  --font-family: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+  --font-size-xs: 0.75rem;
+  --font-size-sm: 0.875rem;
+  --font-size-base: 1rem;
+  --font-size-lg: 1.125rem;
+  --font-size-xl: 1.25rem;
+  --font-size-2xl: 1.5rem;
+  --font-size-3xl: 1.875rem;
+  --font-size-4xl: 2.25rem;
+}
+
+// =============================================================================
+// LEGACY VARIABLE ALIASES
+// =============================================================================
+// These map old variable names to new ones for backward compatibility.
+// Components using these will continue to work during migration.
+
+:root {
+  // Map old primary palette to new brand colors
+  --primary: var(--brand-primary);
+  --primary-50: var(--brand-primary-bg);
+  --primary-100: var(--brand-primary-bg-hover);
+  --primary-200: #a5d6a7;
+  --primary-300: #81c784;
+  --primary-400: var(--brand-primary-light);
+  --primary-500: var(--brand-primary);
+  --primary-600: var(--brand-primary);
+  --primary-700: var(--brand-primary-dark);
+  --primary-800: var(--brand-primary-darker);
+  --primary-900: #1b5e20;
+
+  // Pharma Teal Colors (legacy - used by existing components)
+  --pharma-teal-50: #e0f7f6;
+  --pharma-teal-100: #b3ece9;
+  --pharma-teal-200: #80e0db;
+  --pharma-teal-300: #4dd4cd;
+  --pharma-teal-400: #26c9c1;
+  --pharma-teal-500: #00bfb5;
+  --pharma-teal-600: #00aea4;
+  --pharma-teal-700: #009b91;
+  --pharma-teal-800: #00897e;
+  --pharma-teal-900: #006b5f;
+
+  // Pharma Gradients (legacy)
+  --gradient-pharma: linear-gradient(135deg, #00bfb5 0%, #26c9c1 50%, #4dd4cd 100%);
+  --gradient-pharma-dark: linear-gradient(135deg, #009b91 0%, #00aea4 50%, #00bfb5 100%);
+  --gradient-pharma-light: linear-gradient(135deg, #80e0db 0%, #b3ece9 50%, #e0f7f6 100%);
+
+  // Secondary palette (legacy)
+  --secondary-50: #e3f2fd;
+  --secondary-100: #bbdefb;
+  --secondary-200: #90caf9;
+  --secondary-300: #64b5f6;
+  --secondary-400: #42a5f5;
+  --secondary-500: #2196f3;
+  --secondary-600: #1e88e5;
+  --secondary-700: #1976d2;
+  --secondary-800: #1565c0;
+  --secondary-900: #0d47a1;
+
+  // Map old semantic colors
+  --success: var(--color-success);
+  --warning: var(--color-warning);
+  --error: var(--color-error);
+  --info: var(--color-info);
+
+  // Map old background/surface colors
+  --bg-primary: var(--surface-primary);
+  --bg-secondary: var(--surface-secondary);
+  --bg-tertiary: var(--surface-tertiary);
+  --bg-dark: var(--surface-dark);
+}

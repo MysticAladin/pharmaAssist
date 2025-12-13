@@ -83,7 +83,7 @@ import { NotificationService, ToastNotification } from '../../../../core/service
       align-items: flex-start;
       gap: 12px;
       padding: 16px;
-      background-color: #fff;
+      background-color: var(--surface-primary);
       border-radius: 12px;
       box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
       pointer-events: auto;
@@ -117,19 +117,19 @@ import { NotificationService, ToastNotification } from '../../../../core/service
     }
 
     .notification-success .notification-icon {
-      background-color: #10b981;
+      background-color: var(--color-success);
     }
 
     .notification-error .notification-icon {
-      background-color: #ef4444;
+      background-color: var(--color-error);
     }
 
     .notification-warning .notification-icon {
-      background-color: #f59e0b;
+      background-color: var(--color-warning);
     }
 
     .notification-info .notification-icon {
-      background-color: #3b82f6;
+      background-color: var(--brand-primary);
     }
 
     .notification-content {
@@ -140,13 +140,13 @@ import { NotificationService, ToastNotification } from '../../../../core/service
     .notification-title {
       font-size: 14px;
       font-weight: 600;
-      color: #1e293b;
+      color: var(--text-primary);
       margin-bottom: 4px;
     }
 
     .notification-message {
       font-size: 13px;
-      color: #64748b;
+      color: var(--text-secondary);
       line-height: 1.4;
     }
 
@@ -154,28 +154,28 @@ import { NotificationService, ToastNotification } from '../../../../core/service
       background: none;
       border: none;
       padding: 4px;
-      color: #94a3b8;
+      color: var(--text-muted);
       cursor: pointer;
       border-radius: 4px;
       transition: all 0.2s ease;
     }
 
     .notification-close:hover {
-      background-color: #f1f5f9;
+      background-color: var(--surface-tertiary);
       color: #475569;
     }
 
     /* Dark mode */
     :host-context(.dark) .notification {
-      background-color: #1e293b;
+      background-color: var(--surface-dark);
     }
 
     :host-context(.dark) .notification-title {
-      color: #f8fafc;
+      color: var(--neutral-50);
     }
 
     :host-context(.dark) .notification-message {
-      color: #94a3b8;
+      color: var(--text-muted);
     }
 
     /* Responsive */

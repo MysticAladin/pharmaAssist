@@ -282,7 +282,7 @@ import { KmCurrencyPipe } from '../../../../core/pipes/km-currency.pipe';
     .form-group input, .form-group textarea { width: 100%; padding: 0.75rem; border: 1px solid var(--border-color); border-radius: 8px; }
     .delivery-options, .payment-options { display: flex; flex-direction: column; gap: 0.75rem; margin-bottom: 1.5rem; }
     .delivery-option, .payment-option { display: flex; align-items: center; gap: 1rem; padding: 1rem; border: 2px solid var(--border-color); border-radius: 8px; cursor: pointer; }
-    .delivery-option.selected, .payment-option.selected { border-color: var(--primary-color); background: rgba(59, 130, 246, 0.05); }
+    .delivery-option.selected, .payment-option.selected { border-color: var(--primary-color); background: rgba(var(--brand-primary-rgb), 0.05); }
     .delivery-option input, .payment-option input { display: none; }
     .option-icon { font-size: 1.5rem; }
     .option-info { flex: 1; }
@@ -318,18 +318,18 @@ import { KmCurrencyPipe } from '../../../../core/pipes/km-currency.pipe';
     .split-invoice-summary { display: flex; flex-direction: column; gap: 0.75rem; }
     .invoice-type { display: flex; align-items: center; gap: 0.75rem; padding: 0.5rem; background: white; border-radius: 6px; }
     .type-badge { padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.75rem; font-weight: 600; }
-    .type-badge.commercial { background: #dbeafe; color: #1d4ed8; }
-    .type-badge.essential { background: #dcfce7; color: #15803d; }
+    .type-badge.commercial { background: var(--status-processing-bg); color: var(--brand-primary-darker); }
+    .type-badge.essential { background: var(--color-success-bg); color: #15803d; }
     .item-count { flex: 1; font-size: 0.875rem; color: var(--text-secondary); }
     .type-total { font-weight: 600; }
     .price-type-indicator { width: 16px; height: 16px; border-radius: 50%; font-size: 0.625rem; display: inline-flex; align-items: center; justify-content: center; font-weight: 700; }
-    .price-type-indicator.commercial { background: #dbeafe; color: #1d4ed8; }
-    .price-type-indicator.essential { background: #dcfce7; color: #15803d; }
+    .price-type-indicator.commercial { background: var(--status-processing-bg); color: var(--brand-primary-darker); }
+    .price-type-indicator.essential { background: var(--color-success-bg); color: #15803d; }
     .split-summary { margin-bottom: 1rem; padding: 0.75rem; background: var(--surface-ground); border-radius: 8px; }
     .split-group { display: flex; justify-content: space-between; padding: 0.5rem 0; }
     .split-group:not(:last-child) { border-bottom: 1px dashed var(--border-color); }
     .split-label { font-size: 0.875rem; display: flex; align-items: center; gap: 0.5rem; }
-    .split-group.commercial .split-label::before { content: ''; width: 8px; height: 8px; border-radius: 50%; background: #3b82f6; }
+    .split-group.commercial .split-label::before { content: ''; width: 8px; height: 8px; border-radius: 50%; background: var(--brand-primary); }
     .split-group.essential .split-label::before { content: ''; width: 8px; height: 8px; border-radius: 50%; background: #22c55e; }
     .split-value { font-weight: 600; }
     .split-invoice-note { margin-top: 0.5rem; font-size: 0.875rem; }

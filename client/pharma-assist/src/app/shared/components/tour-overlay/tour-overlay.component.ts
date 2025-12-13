@@ -104,20 +104,20 @@ import { HelpService } from '../../../core/services/help.service';
       justify-content: space-between;
       align-items: center;
       padding: 16px 20px 12px;
-      border-bottom: 1px solid #e5e7eb;
+      border-bottom: 1px solid var(--border-light);
 
       h4 {
         margin: 0;
         font-size: 1rem;
         font-weight: 600;
-        color: #111827;
+        color: var(--text-primary);
       }
     }
 
     .step-counter {
       font-size: 0.75rem;
-      color: #6b7280;
-      background: #f3f4f6;
+      color: var(--text-secondary);
+      background: var(--surface-tertiary);
       padding: 4px 8px;
       border-radius: 12px;
     }
@@ -138,13 +138,13 @@ import { HelpService } from '../../../core/services/help.service';
       justify-content: space-between;
       align-items: center;
       padding: 12px 20px 16px;
-      border-top: 1px solid #e5e7eb;
+      border-top: 1px solid var(--border-light);
     }
 
     .btn-skip {
       padding: 6px 12px;
       font-size: 0.8125rem;
-      color: #6b7280;
+      color: var(--text-secondary);
       background: none;
       border: none;
       cursor: pointer;
@@ -171,11 +171,11 @@ import { HelpService } from '../../../core/services/help.service';
 
     .btn-prev {
       background: white;
-      border: 1px solid #e5e7eb;
+      border: 1px solid var(--border-light);
       color: #374151;
 
       &:hover {
-        background: #f9fafb;
+        background: var(--surface-secondary);
       }
     }
 

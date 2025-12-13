@@ -160,10 +160,10 @@ import { KmCurrencyPipe } from '../../../../core/pipes/km-currency.pipe';
     .entry-row input { padding: 0.75rem; border: 1px solid var(--border-color); border-radius: 8px; }
     .entry-row input[type="number"] { text-align: center; }
     .remove-btn { width: 32px; height: 32px; border-radius: 50%; border: none; background: var(--surface-ground); cursor: pointer; }
-    .product-preview { font-size: 0.875rem; padding: 0.5rem 0.75rem; background: #f0fdf4; border-radius: 6px; margin: -0.25rem 0 0.75rem; display: flex; justify-content: space-between; }
+    .product-preview { font-size: 0.875rem; padding: 0.5rem 0.75rem; background: var(--color-success-bg); border-radius: 6px; margin: -0.25rem 0 0.75rem; display: flex; justify-content: space-between; }
     .product-preview .name { color: #166534; }
     .product-preview .price { font-weight: 600; }
-    .error-msg { font-size: 0.75rem; color: #dc2626; margin: -0.25rem 0 0.75rem; }
+    .error-msg { font-size: 0.75rem; color: var(--color-error-dark); margin: -0.25rem 0 0.75rem; }
     .add-row-btn { width: 100%; padding: 0.75rem; border: 2px dashed var(--border-color); background: transparent; border-radius: 8px; cursor: pointer; color: var(--text-secondary); margin-top: 0.5rem; }
     .add-row-btn:hover { border-color: var(--primary-color); color: var(--primary-color); }
 
@@ -171,7 +171,7 @@ import { KmCurrencyPipe } from '../../../../core/pipes/km-currency.pipe';
     .paste-entry .hint { font-size: 0.75rem; color: var(--text-secondary); margin: 0.5rem 0 1rem; }
 
     .upload-zone { border: 2px dashed var(--border-color); border-radius: 12px; padding: 3rem 2rem; text-align: center; cursor: pointer; transition: all 0.2s; }
-    .upload-zone:hover, .upload-zone.dragover { border-color: var(--primary-color); background: rgba(59, 130, 246, 0.05); }
+    .upload-zone:hover, .upload-zone.dragover { border-color: var(--primary-color); background: rgba(var(--brand-primary-rgb), 0.05); }
     .upload-zone label { cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 0.5rem; }
     .upload-icon { font-size: 3rem; }
     .upload-text { font-weight: 500; }

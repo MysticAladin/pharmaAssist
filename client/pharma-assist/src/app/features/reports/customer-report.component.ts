@@ -244,7 +244,7 @@ import { ReportFilters, ReportPeriod, CustomerReport } from '../../core/models/r
     }
 
     .metric-card.primary { border-color: var(--primary); background: rgba(79, 70, 229, 0.05); }
-    .metric-card.success { border-color: #10b981; background: rgba(16, 185, 129, 0.05); }
+    .metric-card.success { border-color: var(--color-success); background: rgba(var(--color-success-rgb), 0.05); }
 
     .metric-icon { font-size: 2rem; }
     .metric-content { display: flex; flex-direction: column; }
@@ -335,7 +335,7 @@ import { ReportFilters, ReportPeriod, CustomerReport } from '../../core/models/r
     }
 
     .growth-month { color: var(--text-secondary); }
-    .growth-new { color: #10b981; font-weight: 600; }
+    .growth-new { color: var(--color-success); font-weight: 600; }
     .growth-total { color: var(--text-secondary); font-size: 0.875rem; }
 
     /* Table */

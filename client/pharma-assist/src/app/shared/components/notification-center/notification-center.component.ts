@@ -191,13 +191,13 @@ import { NotificationService, PersistentNotification, NotificationCategory } fro
       background: transparent;
       border-radius: 8px;
       cursor: pointer;
-      color: var(--text-secondary, #6b7280);
+      color: var(--text-secondary);
       transition: all 0.2s;
     }
 
     .notification-trigger:hover {
-      background: var(--bg-hover, #f3f4f6);
-      color: var(--text-primary, #1a1a2e);
+      background: var(--bg-hover);
+      color: var(--text-primary);
     }
 
     .notification-badge {
@@ -210,7 +210,7 @@ import { NotificationService, PersistentNotification, NotificationCategory } fro
       font-size: 0.7rem;
       font-weight: 600;
       color: white;
-      background: #ef4444;
+      background: var(--color-error);
       border-radius: 9px;
       display: flex;
       align-items: center;
@@ -226,7 +226,7 @@ import { NotificationService, PersistentNotification, NotificationCategory } fro
       background: white;
       border-radius: 12px;
       box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
-      border: 1px solid var(--border-color, #e5e7eb);
+      border: 1px solid var(--border-color);
       z-index: 1001;
       overflow: hidden;
       display: flex;
@@ -238,14 +238,14 @@ import { NotificationService, PersistentNotification, NotificationCategory } fro
       justify-content: space-between;
       align-items: center;
       padding: 1rem;
-      border-bottom: 1px solid var(--border-color, #e5e7eb);
+      border-bottom: 1px solid var(--border-color);
     }
 
     .panel-header h3 {
       margin: 0;
       font-size: 1rem;
       font-weight: 600;
-      color: var(--text-primary, #1a1a2e);
+      color: var(--text-primary);
     }
 
     .header-actions {
@@ -261,26 +261,26 @@ import { NotificationService, PersistentNotification, NotificationCategory } fro
       border: none;
       background: transparent;
       font-size: 0.75rem;
-      color: var(--pharma-teal, #0d9488);
+      color: var(--pharma-teal);
       cursor: pointer;
       border-radius: 4px;
       transition: background 0.15s;
     }
 
     .action-btn:hover {
-      background: var(--bg-hover, #f3f4f6);
+      background: var(--bg-hover);
     }
 
     .action-btn.text-danger {
-      color: #ef4444;
+      color: var(--color-error);
     }
 
     .category-tabs {
       display: flex;
       gap: 0.25rem;
       padding: 0.5rem;
-      border-bottom: 1px solid var(--border-color, #e5e7eb);
-      background: var(--bg-secondary, #f9fafb);
+      border-bottom: 1px solid var(--border-color);
+      background: var(--bg-secondary);
     }
 
     .tab-btn {
@@ -291,7 +291,7 @@ import { NotificationService, PersistentNotification, NotificationCategory } fro
       border: none;
       background: transparent;
       font-size: 0.8rem;
-      color: var(--text-secondary, #6b7280);
+      color: var(--text-secondary);
       cursor: pointer;
       border-radius: 6px;
       transition: all 0.15s;
@@ -299,12 +299,12 @@ import { NotificationService, PersistentNotification, NotificationCategory } fro
 
     .tab-btn:hover {
       background: white;
-      color: var(--text-primary, #1a1a2e);
+      color: var(--text-primary);
     }
 
     .tab-btn.active {
       background: white;
-      color: var(--pharma-teal, #0d9488);
+      color: var(--pharma-teal);
       box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
     }
 
@@ -315,7 +315,7 @@ import { NotificationService, PersistentNotification, NotificationCategory } fro
       font-size: 0.65rem;
       font-weight: 600;
       color: white;
-      background: #ef4444;
+      background: var(--color-error);
       border-radius: 8px;
       display: flex;
       align-items: center;
@@ -334,7 +334,7 @@ import { NotificationService, PersistentNotification, NotificationCategory } fro
       align-items: center;
       justify-content: center;
       padding: 3rem 1rem;
-      color: var(--text-secondary, #6b7280);
+      color: var(--text-secondary);
     }
 
     .empty-state svg {
@@ -351,14 +351,14 @@ import { NotificationService, PersistentNotification, NotificationCategory } fro
       display: flex;
       gap: 0.75rem;
       padding: 0.875rem 1rem;
-      border-bottom: 1px solid var(--border-color, #e5e7eb);
+      border-bottom: 1px solid var(--border-color);
       cursor: pointer;
       transition: background 0.15s;
       position: relative;
     }
 
     .notification-item:hover {
-      background: var(--bg-hover, #f9fafb);
+      background: var(--bg-hover);
     }
 
     .notification-item:last-child {
@@ -376,7 +376,7 @@ import { NotificationService, PersistentNotification, NotificationCategory } fro
       top: 0;
       bottom: 0;
       width: 3px;
-      background: var(--pharma-teal, #0d9488);
+      background: var(--pharma-teal);
     }
 
     .notification-icon {
@@ -390,23 +390,23 @@ import { NotificationService, PersistentNotification, NotificationCategory } fro
     }
 
     .type-success .notification-icon {
-      background: #d1fae5;
-      color: #059669;
+      background: var(--color-success-bg);
+      color: var(--color-success-dark);
     }
 
     .type-error .notification-icon {
-      background: #fee2e2;
-      color: #dc2626;
+      background: var(--color-error-bg);
+      color: var(--color-error-dark);
     }
 
     .type-warning .notification-icon {
-      background: #fef3c7;
-      color: #d97706;
+      background: var(--status-pending-bg);
+      color: var(--status-pending-text);
     }
 
     .type-info .notification-icon {
-      background: #dbeafe;
-      color: #2563eb;
+      background: var(--status-processing-bg);
+      color: var(--brand-primary-dark);
     }
 
     .notification-content {
@@ -417,13 +417,13 @@ import { NotificationService, PersistentNotification, NotificationCategory } fro
     .notification-title {
       font-size: 0.875rem;
       font-weight: 500;
-      color: var(--text-primary, #1a1a2e);
+      color: var(--text-primary);
       margin-bottom: 0.15rem;
     }
 
     .notification-message {
       font-size: 0.8rem;
-      color: var(--text-secondary, #6b7280);
+      color: var(--text-secondary);
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
@@ -458,8 +458,8 @@ import { NotificationService, PersistentNotification, NotificationCategory } fro
     }
 
     .delete-btn:hover {
-      background: #fee2e2;
-      color: #dc2626;
+      background: var(--color-error-bg);
+      color: var(--color-error-dark);
     }
 
     .backdrop {

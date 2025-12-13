@@ -624,8 +624,8 @@ interface ManufacturerFormData {
     }
 
     .btn-icon-danger:hover {
-      background: #fef2f2;
-      color: #dc2626;
+      background: var(--color-error-bg);
+      color: var(--color-error-dark);
     }
 
     .btn-icon:disabled {

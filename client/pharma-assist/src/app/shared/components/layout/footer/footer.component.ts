@@ -25,7 +25,7 @@ import { CommonModule } from '@angular/common';
     .footer {
       padding: 16px 24px;
       background-color: var(--footer-bg, #fff);
-      border-top: 1px solid var(--border-color, #e2e8f0);
+      border-top: 1px solid var(--border-color);
     }
 
     .footer-content {
@@ -38,7 +38,7 @@ import { CommonModule } from '@angular/common';
 
     .footer-left {
       font-size: 13px;
-      color: var(--text-muted, #64748b);
+      color: var(--text-muted);
     }
 
     .footer-right {
@@ -55,7 +55,7 @@ import { CommonModule } from '@angular/common';
     }
 
     .footer-link:hover {
-      color: var(--primary, #3b82f6);
+      color: var(--primary);
     }
 
     .separator {
@@ -64,7 +64,7 @@ import { CommonModule } from '@angular/common';
 
     /* Dark mode */
     :host-context(.dark) .footer {
-      background-color: var(--footer-bg-dark, #1e293b);
+      background-color: var(--footer-bg-dark);
       border-color: var(--border-dark, #334155);
     }
 

@@ -411,18 +411,18 @@ import {
     }
 
     .summary-card.warning {
-      border-color: #f59e0b;
+      border-color: var(--color-warning);
       background: rgba(245, 158, 11, 0.1);
     }
 
     .summary-card.danger {
-      border-color: #ef4444;
-      background: rgba(239, 68, 68, 0.1);
+      border-color: var(--color-error);
+      background: rgba(var(--color-error-rgb), 0.1);
     }
 
     .summary-card.success {
-      border-color: #10b981;
-      background: rgba(16, 185, 129, 0.1);
+      border-color: var(--color-success);
+      background: rgba(var(--color-success-rgb), 0.1);
     }
 
     .card-icon {
@@ -539,7 +539,7 @@ import {
     }
 
     .logs-table tr.failed {
-      background: rgba(239, 68, 68, 0.05);
+      background: rgba(var(--color-error-rgb), 0.05);
     }
 
     .logs-table tr.critical {
@@ -622,18 +622,18 @@ import {
     }
 
     .severity-badge.info {
-      background: rgba(59, 130, 246, 0.1);
-      color: #3b82f6;
+      background: rgba(var(--brand-primary-rgb), 0.1);
+      color: var(--brand-primary);
     }
 
     .severity-badge.warning {
       background: rgba(245, 158, 11, 0.1);
-      color: #f59e0b;
+      color: var(--color-warning);
     }
 
     .severity-badge.critical {
-      background: rgba(239, 68, 68, 0.1);
-      color: #ef4444;
+      background: rgba(var(--color-error-rgb), 0.1);
+      color: var(--color-error);
     }
 
     .status-badge {
@@ -645,13 +645,13 @@ import {
     }
 
     .status-badge.success {
-      background: rgba(16, 185, 129, 0.1);
-      color: #10b981;
+      background: rgba(var(--color-success-rgb), 0.1);
+      color: var(--color-success);
     }
 
     .status-badge.failed {
-      background: rgba(239, 68, 68, 0.1);
-      color: #ef4444;
+      background: rgba(var(--color-error-rgb), 0.1);
+      color: var(--color-error);
     }
 
     /* Pagination */
@@ -792,7 +792,7 @@ import {
     }
 
     .detail-item.error {
-      background: rgba(239, 68, 68, 0.1);
+      background: rgba(var(--color-error-rgb), 0.1);
       padding: 0.75rem;
       border-radius: 8px;
     }

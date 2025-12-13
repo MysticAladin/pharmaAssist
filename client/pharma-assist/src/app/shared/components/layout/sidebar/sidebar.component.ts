@@ -156,8 +156,8 @@ interface NavItem {
       top: 0;
       bottom: 0;
       width: 260px;
-      background-color: var(--sidebar-bg, #1e293b);
-      color: var(--sidebar-text, #94a3b8);
+      background-color: var(--sidebar-bg);
+      color: var(--sidebar-text);
       display: flex;
       flex-direction: column;
       z-index: 50;
@@ -229,7 +229,7 @@ interface NavItem {
       font-weight: 600;
       text-transform: uppercase;
       letter-spacing: 0.5px;
-      color: var(--sidebar-muted, #64748b);
+      color: var(--sidebar-muted);
     }
 
     .nav-list {
@@ -259,7 +259,7 @@ interface NavItem {
     }
 
     .nav-link.active {
-      background-color: var(--primary, #3b82f6);
+      background-color: var(--primary);
       color: #fff;
     }
 
@@ -287,18 +287,18 @@ interface NavItem {
     }
 
     .badge-info {
-      background-color: #3b82f6;
-      color: #fff;
+      background-color: var(--color-info);
+      color: var(--text-on-primary);
     }
 
     .badge-warning {
-      background-color: #f59e0b;
-      color: #000;
+      background-color: var(--color-warning);
+      color: var(--text-primary);
     }
 
     .badge-danger {
-      background-color: #ef4444;
-      color: #fff;
+      background-color: var(--color-error);
+      color: var(--text-on-primary);
     }
 
     /* Submenu */
@@ -317,7 +317,7 @@ interface NavItem {
       display: block;
       padding: 8px 12px;
       font-size: 13px;
-      color: var(--sidebar-muted, #64748b);
+      color: var(--sidebar-muted);
       text-decoration: none;
       border-radius: 6px;
       transition: all 0.2s ease;
@@ -345,7 +345,7 @@ interface NavItem {
 
     .nav-sublink.active {
       color: var(--primary-400, #60a5fa);
-      background-color: rgba(59, 130, 246, 0.1);
+      background-color: rgba(var(--brand-primary-rgb), 0.1);
     }
 
     .nav-sublink.active::before {
@@ -388,23 +388,23 @@ interface NavItem {
     }
 
     .tier-free {
-      background-color: #64748b;
-      color: #fff;
+      background-color: var(--neutral-500);
+      color: var(--text-on-primary);
     }
 
     .tier-basic {
-      background-color: #3b82f6;
-      color: #fff;
+      background-color: var(--brand-primary);
+      color: var(--text-on-primary);
     }
 
     .tier-professional {
-      background-color: #8b5cf6;
-      color: #fff;
+      background-color: var(--accent-purple);
+      color: var(--text-on-primary);
     }
 
     .tier-enterprise {
-      background-color: #f59e0b;
-      color: #000;
+      background-color: var(--color-warning);
+      color: var(--text-primary);
     }
 
     .collapse-btn {

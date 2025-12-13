@@ -452,7 +452,7 @@ import { ConfirmDialogComponent } from '../../shared/components/confirm-dialog';
       color: white;
 
       &:hover {
-        background: var(--primary-dark, #0f766e);
+        background: var(--primary-dark);
       }
     }
 
@@ -486,7 +486,7 @@ import { ConfirmDialogComponent } from '../../shared/components/confirm-dialog';
       background-position: right 10px center;
 
       &:hover {
-        border-color: var(--border-hover, #94a3b8);
+        border-color: var(--border-hover);
       }
 
       &:focus {
@@ -533,13 +533,13 @@ import { ConfirmDialogComponent } from '../../shared/components/confirm-dialog';
       transition: all 0.15s;
 
       &:hover {
-        background: var(--surface-hover, #f1f5f9);
+        background: var(--surface-hover);
         color: var(--text);
       }
 
       &.action-btn-danger:hover {
-        background: #fee2e2;
-        color: #dc2626;
+        background: var(--color-error-bg);
+        color: var(--color-error-dark);
       }
     }
 
@@ -703,7 +703,7 @@ import { ConfirmDialogComponent } from '../../shared/components/confirm-dialog';
       transition: all 0.15s;
 
       &:hover {
-        background: var(--surface-hover, #f1f5f9);
+        background: var(--surface-hover);
         color: var(--text);
       }
     }
@@ -720,7 +720,7 @@ import { ConfirmDialogComponent } from '../../shared/components/confirm-dialog';
       border: 1px solid var(--border);
 
       &:hover {
-        background: var(--surface-hover, #f1f5f9);
+        background: var(--surface-hover);
         border-color: var(--border-hover);
       }
     }
@@ -756,7 +756,7 @@ import { ConfirmDialogComponent } from '../../shared/components/confirm-dialog';
         transition: all 0.15s;
 
         &:hover {
-          background: var(--surface-hover, #f1f5f9);
+          background: var(--surface-hover);
         }
 
         svg {

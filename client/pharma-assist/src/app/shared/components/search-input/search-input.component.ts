@@ -46,7 +46,7 @@ import { Subject, debounceTime, distinctUntilChanged, takeUntil } from 'rxjs';
       min-width: 240px;
 
       &:hover {
-        border-color: var(--border-hover, #94a3b8);
+        border-color: var(--border-hover);
       }
 
       &.focused {
@@ -89,7 +89,7 @@ import { Subject, debounceTime, distinctUntilChanged, takeUntil } from 'rxjs';
 
       &:hover {
         color: var(--text);
-        background: var(--surface-hover, #f1f5f9);
+        background: var(--surface-hover);
       }
     }
   `]

@@ -194,7 +194,7 @@ import { Subject, takeUntil, debounceTime, distinctUntilChanged } from 'rxjs';
     }
 
     .scanner-modal {
-      background: #fff;
+      background: var(--surface-primary);
       border-radius: 16px;
       width: 100%;
       max-width: 480px;
@@ -215,14 +215,14 @@ import { Subject, takeUntil, debounceTime, distinctUntilChanged } from 'rxjs';
       align-items: center;
       justify-content: space-between;
       padding: 16px 20px;
-      border-bottom: 1px solid #e5e7eb;
+      border-bottom: 1px solid var(--border-light);
     }
 
     .scanner-header h3 {
       margin: 0;
       font-size: 1.125rem;
       font-weight: 600;
-      color: #1a1a2e;
+      color: var(--text-primary);
     }
 
     .btn-close {
@@ -231,18 +231,18 @@ import { Subject, takeUntil, debounceTime, distinctUntilChanged } from 'rxjs';
       padding: 8px;
       border-radius: 8px;
       cursor: pointer;
-      color: #6b7280;
+      color: var(--text-secondary);
       transition: all 0.2s;
     }
 
     .btn-close:hover {
-      background: #f3f4f6;
-      color: #1a1a2e;
+      background: var(--surface-tertiary);
+      color: var(--text-primary);
     }
 
     .scanner-tabs {
       display: flex;
-      border-bottom: 1px solid #e5e7eb;
+      border-bottom: 1px solid var(--border-light);
     }
 
     .tab {
@@ -256,20 +256,20 @@ import { Subject, takeUntil, debounceTime, distinctUntilChanged } from 'rxjs';
       border: none;
       font-size: 0.875rem;
       font-weight: 500;
-      color: #6b7280;
+      color: var(--text-secondary);
       cursor: pointer;
       transition: all 0.2s;
       border-bottom: 2px solid transparent;
     }
 
     .tab:hover {
-      background: #f9fafb;
-      color: #1a1a2e;
+      background: var(--surface-secondary);
+      color: var(--text-primary);
     }
 
     .tab.active {
-      color: #0d9488;
-      border-bottom-color: #0d9488;
+      color: var(--pharma-teal-500);
+      border-bottom-color: var(--pharma-teal-500);
     }
 
     .scanner-content {
@@ -288,20 +288,20 @@ import { Subject, takeUntil, debounceTime, distinctUntilChanged } from 'rxjs';
       display: flex;
       align-items: center;
       gap: 8px;
-      background: #f9fafb;
-      border: 2px solid #e5e7eb;
+      background: var(--surface-secondary);
+      border: 2px solid var(--border-light);
       border-radius: 12px;
       padding: 4px;
       transition: border-color 0.2s;
     }
 
     .input-group:focus-within {
-      border-color: #0d9488;
+      border-color: var(--pharma-teal-500);
     }
 
     .input-icon {
       padding: 8px 12px;
-      color: #9ca3af;
+      color: var(--text-muted);
     }
 
     .barcode-input {
@@ -319,14 +319,14 @@ import { Subject, takeUntil, debounceTime, distinctUntilChanged } from 'rxjs';
     }
 
     .barcode-input.invalid {
-      color: #dc2626;
+      color: var(--color-error-dark);
     }
 
     .btn-search {
       width: 48px;
       height: 48px;
       border-radius: 10px;
-      background: #0d9488;
+      background: var(--pharma-teal-500);
       border: none;
       color: #fff;
       cursor: pointer;
@@ -337,22 +337,22 @@ import { Subject, takeUntil, debounceTime, distinctUntilChanged } from 'rxjs';
     }
 
     .btn-search:hover:not(:disabled) {
-      background: #0f766e;
+      background: var(--pharma-teal-700);
     }
 
     .btn-search:disabled {
-      background: #9ca3af;
+      background: var(--neutral-400);
       cursor: not-allowed;
     }
 
     .validation-error {
-      color: #dc2626;
+      color: var(--color-error-dark);
       font-size: 0.8rem;
       margin: 0;
     }
 
     .hint {
-      color: #6b7280;
+      color: var(--text-secondary);
       font-size: 0.8rem;
       margin: 0;
       text-align: center;
@@ -372,27 +372,27 @@ import { Subject, takeUntil, debounceTime, distinctUntilChanged } from 'rxjs';
       justify-content: center;
       gap: 16px;
       padding: 40px 20px;
-      background: #f9fafb;
+      background: var(--surface-secondary);
       border-radius: 12px;
       text-align: center;
     }
 
     .camera-placeholder svg, .camera-error svg {
-      color: #9ca3af;
+      color: var(--text-muted);
     }
 
     .camera-error svg {
-      color: #f59e0b;
+      color: var(--color-warning);
     }
 
     .camera-error h4 {
       margin: 0;
-      color: #1a1a2e;
+      color: var(--text-primary);
     }
 
     .camera-error p {
       margin: 0;
-      color: #6b7280;
+      color: var(--text-secondary);
       font-size: 0.875rem;
     }
 
@@ -430,7 +430,7 @@ import { Subject, takeUntil, debounceTime, distinctUntilChanged } from 'rxjs';
       position: absolute;
       width: 24px;
       height: 24px;
-      border: 3px solid #0d9488;
+      border: 3px solid var(--pharma-teal-500);
     }
 
     .corner.top-left { top: -2px; left: -2px; border-right: none; border-bottom: none; border-radius: 8px 0 0 0; }
@@ -454,7 +454,7 @@ import { Subject, takeUntil, debounceTime, distinctUntilChanged } from 'rxjs';
 
     .camera-hint {
       text-align: center;
-      color: #6b7280;
+      color: var(--text-secondary);
       font-size: 0.8rem;
       margin: 0;
     }
@@ -473,13 +473,13 @@ import { Subject, takeUntil, debounceTime, distinctUntilChanged } from 'rxjs';
     }
 
     .search-result.found {
-      background: #f0fdf4;
-      border: 1px solid #86efac;
+      background: var(--color-success-bg);
+      border: 1px solid var(--color-success-light);
     }
 
     .search-result.not-found {
-      background: #fef2f2;
-      border: 1px solid #fecaca;
+      background: var(--color-error-bg);
+      border: 1px solid var(--color-error-light);
     }
 
     .result-found, .result-not-found {
@@ -499,13 +499,13 @@ import { Subject, takeUntil, debounceTime, distinctUntilChanged } from 'rxjs';
     }
 
     .result-icon.success {
-      background: #dcfce7;
-      color: #16a34a;
+      background: var(--color-success-bg);
+      color: var(--color-success-dark);
     }
 
     .result-icon.error {
-      background: #fee2e2;
-      color: #dc2626;
+      background: var(--color-error-bg);
+      color: var(--color-error-dark);
     }
 
     .result-content {
@@ -515,7 +515,7 @@ import { Subject, takeUntil, debounceTime, distinctUntilChanged } from 'rxjs';
     .result-content h4 {
       margin: 0 0 4px;
       font-size: 1rem;
-      color: #1a1a2e;
+      color: var(--text-primary);
     }
 
     .product-details {
@@ -527,27 +527,27 @@ import { Subject, takeUntil, debounceTime, distinctUntilChanged } from 'rxjs';
     .sku {
       font-family: monospace;
       font-size: 0.8rem;
-      color: #6b7280;
-      background: #e5e7eb;
+      color: var(--text-secondary);
+      background: var(--neutral-200);
       padding: 2px 8px;
       border-radius: 4px;
     }
 
     .price {
       font-weight: 600;
-      color: #0d9488;
+      color: var(--pharma-teal-500);
     }
 
     .barcode-display {
       font-size: 0.8rem;
-      color: #6b7280;
+      color: var(--text-secondary);
       margin: 0;
     }
 
     .result-not-found .result-content p {
       margin: 0;
       font-size: 0.875rem;
-      color: #6b7280;
+      color: var(--text-secondary);
     }
 
     /* Buttons */
@@ -562,23 +562,23 @@ import { Subject, takeUntil, debounceTime, distinctUntilChanged } from 'rxjs';
     }
 
     .btn-primary {
-      background: #0d9488;
+      background: var(--pharma-teal-500);
       color: #fff;
       border: none;
     }
 
     .btn-primary:hover {
-      background: #0f766e;
+      background: var(--pharma-teal-700);
     }
 
     .btn-secondary {
-      background: #fff;
-      color: #1a1a2e;
-      border: 1px solid #e5e7eb;
+      background: var(--surface-primary);
+      color: var(--text-primary);
+      border: 1px solid var(--border-light);
     }
 
     .btn-secondary:hover {
-      background: #f9fafb;
+      background: var(--surface-secondary);
     }
 
     /* Recent Scans */
@@ -590,7 +590,7 @@ import { Subject, takeUntil, debounceTime, distinctUntilChanged } from 'rxjs';
       margin: 0 0 12px;
       font-size: 0.875rem;
       font-weight: 600;
-      color: #6b7280;
+      color: var(--text-secondary);
     }
 
     .scans-list {
@@ -604,16 +604,16 @@ import { Subject, takeUntil, debounceTime, distinctUntilChanged } from 'rxjs';
       align-items: center;
       justify-content: space-between;
       padding: 12px;
-      background: #f9fafb;
-      border: 1px solid #e5e7eb;
+      background: var(--surface-secondary);
+      border: 1px solid var(--border-light);
       border-radius: 8px;
       cursor: pointer;
       transition: all 0.2s;
     }
 
     .scan-item:hover {
-      background: #f3f4f6;
-      border-color: #0d9488;
+      background: var(--surface-tertiary);
+      border-color: var(--pharma-teal-500);
     }
 
     .scan-barcode {
@@ -624,7 +624,7 @@ import { Subject, takeUntil, debounceTime, distinctUntilChanged } from 'rxjs';
 
     .scan-time {
       font-size: 0.75rem;
-      color: #9ca3af;
+      color: var(--text-muted);
     }
 
     /* Spinner */
@@ -639,7 +639,7 @@ import { Subject, takeUntil, debounceTime, distinctUntilChanged } from 'rxjs';
 
     .camera-placeholder .spinner {
       border-color: rgba(13, 148, 136, 0.3);
-      border-top-color: #0d9488;
+      border-top-color: var(--pharma-teal-500);
     }
 
     @keyframes spin {
@@ -648,41 +648,41 @@ import { Subject, takeUntil, debounceTime, distinctUntilChanged } from 'rxjs';
 
     /* Dark mode support */
     :host-context(.dark) .scanner-modal {
-      background: #1e293b;
+      background: var(--surface-dark);
     }
 
     :host-context(.dark) .scanner-header {
-      border-color: #334155;
+      border-color: var(--surface-dark-elevated);
     }
 
     :host-context(.dark) .scanner-header h3 {
-      color: #f8fafc;
+      color: var(--neutral-50);
     }
 
     :host-context(.dark) .scanner-tabs {
-      border-color: #334155;
+      border-color: var(--surface-dark-elevated);
     }
 
     :host-context(.dark) .tab {
-      color: #94a3b8;
+      color: var(--text-muted);
     }
 
     :host-context(.dark) .tab:hover {
-      background: #334155;
-      color: #f8fafc;
+      background: var(--surface-dark-elevated);
+      color: var(--neutral-50);
     }
 
     :host-context(.dark) .input-group {
-      background: #0f172a;
-      border-color: #334155;
+      background: var(--neutral-900);
+      border-color: var(--surface-dark-elevated);
     }
 
     :host-context(.dark) .barcode-input {
-      color: #f8fafc;
+      color: var(--neutral-50);
     }
 
     :host-context(.dark) .camera-placeholder {
-      background: #0f172a;
+      background: var(--neutral-900);
     }
   `]
 })

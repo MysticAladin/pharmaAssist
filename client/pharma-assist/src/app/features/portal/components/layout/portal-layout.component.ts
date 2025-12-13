@@ -213,7 +213,7 @@ import { filter, map, startWith } from 'rxjs/operators';
     .search-box {
       display: flex;
       align-items: center;
-      background: var(--surface-ground, #f5f5f5);
+      background: var(--surface-ground);
       border-radius: 8px;
       padding: 0.5rem 1rem;
       border: 2px solid transparent;
@@ -221,7 +221,7 @@ import { filter, map, startWith } from 'rxjs/operators';
     }
 
     .search-box:focus-within {
-      border-color: var(--primary-color, #3b82f6);
+      border-color: var(--primary-color);
     }
 
     .search-icon {
@@ -263,14 +263,14 @@ import { filter, map, startWith } from 'rxjs/operators';
     }
 
     .action-btn:hover {
-      background: var(--surface-ground, #f5f5f5);
+      background: var(--surface-ground);
     }
 
     .cart-btn {
       display: flex;
       align-items: center;
       gap: 0.5rem;
-      background: var(--primary-color, #3b82f6);
+      background: var(--primary-color);
       color: white;
       padding: 0.5rem 1rem;
       border-radius: 8px;
@@ -283,7 +283,7 @@ import { filter, map, startWith } from 'rxjs/operators';
       position: absolute;
       top: -8px;
       right: -8px;
-      background: #ef4444;
+      background: var(--color-error);
       color: white;
       font-size: 0.75rem;
       min-width: 20px;
@@ -316,13 +316,13 @@ import { filter, map, startWith } from 'rxjs/operators';
     }
 
     .user-btn:hover {
-      background: var(--surface-ground, #f5f5f5);
+      background: var(--surface-ground);
     }
 
     .user-avatar {
       width: 32px;
       height: 32px;
-      background: var(--primary-color, #3b82f6);
+      background: var(--primary-color);
       color: white;
       border-radius: 50%;
       display: flex;
@@ -366,23 +366,23 @@ import { filter, map, startWith } from 'rxjs/operators';
     }
 
     .dropdown-item:hover {
-      background: var(--surface-ground, #f5f5f5);
+      background: var(--surface-ground);
     }
 
     .dropdown-item.logout {
-      color: #ef4444;
+      color: var(--color-error);
     }
 
     .dropdown-divider {
       height: 1px;
-      background: var(--border-color, #e5e7eb);
+      background: var(--border-color);
       margin: 0.5rem 0;
     }
 
     /* Category Nav */
     .category-nav {
-      background: var(--surface-ground, #f5f5f5);
-      border-top: 1px solid var(--border-color, #e5e7eb);
+      background: var(--surface-ground);
+      border-top: 1px solid var(--border-color);
     }
 
     .nav-container {
@@ -406,19 +406,19 @@ import { filter, map, startWith } from 'rxjs/operators';
 
     .nav-item:hover,
     .nav-item.active {
-      color: var(--primary-color, #3b82f6);
-      border-bottom-color: var(--primary-color, #3b82f6);
+      color: var(--primary-color);
+      border-bottom-color: var(--primary-color);
     }
 
     .nav-item.highlight {
-      background: var(--primary-color, #3b82f6);
+      background: var(--primary-color);
       color: white;
       border-radius: 6px;
       border-bottom: none;
     }
 
     .nav-item.highlight:hover {
-      background: #2563eb;
+      background: var(--brand-primary-dark);
       color: white;
     }
 
@@ -434,7 +434,7 @@ import { filter, map, startWith } from 'rxjs/operators';
     /* Footer */
     .portal-footer {
       background: var(--surface-card, white);
-      border-top: 1px solid var(--border-color, #e5e7eb);
+      border-top: 1px solid var(--border-color);
       margin-top: auto;
     }
 
@@ -463,7 +463,7 @@ import { filter, map, startWith } from 'rxjs/operators';
     }
 
     .footer-section a:hover {
-      color: var(--primary-color, #3b82f6);
+      color: var(--primary-color);
     }
 
     .contact-link {
@@ -474,7 +474,7 @@ import { filter, map, startWith } from 'rxjs/operators';
     }
 
     .contact-link:hover {
-      color: var(--primary-color, #3b82f6);
+      color: var(--primary-color);
     }
 
     .contact-icon {
@@ -484,7 +484,7 @@ import { filter, map, startWith } from 'rxjs/operators';
     .footer-bottom {
       text-align: center;
       padding: 1.5rem 2rem;
-      border-top: 1px solid var(--border-color, #e5e7eb);
+      border-top: 1px solid var(--border-color);
       color: var(--text-secondary, #666);
       font-size: 0.875rem;
     }

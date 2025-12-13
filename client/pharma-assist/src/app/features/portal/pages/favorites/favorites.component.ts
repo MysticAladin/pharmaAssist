@@ -87,7 +87,7 @@ import { KmCurrencyPipe } from '../../../../core/pipes/km-currency.pipe';
     .favorite-card:hover { transform: translateY(-4px); box-shadow: 0 8px 24px rgba(0,0,0,0.12); }
 
     .remove-btn { position: absolute; top: 0.75rem; right: 0.75rem; width: 32px; height: 32px; border-radius: 50%; border: none; background: rgba(0,0,0,0.5); color: white; cursor: pointer; z-index: 2; font-size: 0.875rem; display: flex; align-items: center; justify-content: center; transition: background 0.2s; }
-    .remove-btn:hover { background: #ef4444; }
+    .remove-btn:hover { background: var(--color-error); }
 
     .product-image { height: 180px; background: var(--surface-ground); display: flex; align-items: center; justify-content: center; cursor: pointer; }
     .product-image img { width: 100%; height: 100%; object-fit: cover; }
@@ -100,7 +100,7 @@ import { KmCurrencyPipe } from '../../../../core/pipes/km-currency.pipe';
 
     .price-row { display: flex; align-items: center; gap: 0.75rem; }
     .price { font-size: 1.125rem; font-weight: 600; color: var(--primary-color); }
-    .out-of-stock { font-size: 0.75rem; color: #ef4444; background: #fef2f2; padding: 0.25rem 0.5rem; border-radius: 4px; }
+    .out-of-stock { font-size: 0.75rem; color: var(--color-error); background: var(--color-error-bg); padding: 0.25rem 0.5rem; border-radius: 4px; }
 
     .card-actions { padding: 0 1rem 1rem; }
     .btn { width: 100%; padding: 0.75rem; border-radius: 8px; border: none; cursor: pointer; font-weight: 500; }

@@ -60,7 +60,7 @@ export class ExportService {
         <style>
           table { border-collapse: collapse; }
           th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
-          th { background-color: #14b8a6; color: white; font-weight: bold; }
+          th { background-color: var(--pharma-teal-500); color: white; font-weight: bold; }
           tr:nth-child(even) { background-color: #f9f9f9; }
         </style>
       </head>
@@ -120,11 +120,11 @@ export class ExportService {
           @page { size: A4; margin: 20mm; }
           body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 12px; }
           .header { margin-bottom: 20px; }
-          .header h1 { color: #14b8a6; margin: 0 0 5px; font-size: 24px; }
+          .header h1 { color: var(--pharma-teal-500); margin: 0 0 5px; font-size: 24px; }
           .header p { color: #666; margin: 0; font-size: 14px; }
           table { width: 100%; border-collapse: collapse; margin-top: 20px; }
           th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
-          th { background-color: #14b8a6; color: white; font-weight: 600; font-size: 11px; text-transform: uppercase; }
+          th { background-color: var(--pharma-teal-500); color: white; font-weight: 600; font-size: 11px; text-transform: uppercase; }
           tr:nth-child(even) { background-color: #f9f9f9; }
           .footer { margin-top: 30px; font-size: 10px; color: #888; text-align: center; }
           @media print { body { print-color-adjust: exact; -webkit-print-color-adjust: exact; } }

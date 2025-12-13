@@ -149,7 +149,7 @@ import { HelpService } from '../../../core/services/help.service';
       justify-content: space-between;
       align-items: center;
       padding: 20px 24px;
-      border-bottom: 1px solid var(--border-color, #e5e7eb);
+      border-bottom: 1px solid var(--border-color);
 
       h2 {
         margin: 0;
@@ -166,13 +166,13 @@ import { HelpService } from '../../../core/services/help.service';
       height: 32px;
       border: none;
       background: transparent;
-      color: var(--text-secondary, #6b7280);
+      color: var(--text-secondary);
       border-radius: 8px;
       cursor: pointer;
 
       &:hover {
-        background: var(--bg-secondary, #f3f4f6);
-        color: var(--text-primary, #111827);
+        background: var(--bg-secondary);
+        color: var(--text-primary);
       }
     }
 
@@ -191,7 +191,7 @@ import { HelpService } from '../../../core/services/help.service';
         font-weight: 600;
         text-transform: uppercase;
         letter-spacing: 0.5px;
-        color: var(--text-secondary, #6b7280);
+        color: var(--text-secondary);
       }
     }
 
@@ -207,8 +207,8 @@ import { HelpService } from '../../../core/services/help.service';
       align-items: center;
       gap: 8px;
       padding: 16px;
-      background: var(--bg-secondary, #f9fafb);
-      border: 1px solid var(--border-color, #e5e7eb);
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-color);
       border-radius: 12px;
       cursor: pointer;
       transition: all 0.15s;
@@ -226,7 +226,7 @@ import { HelpService } from '../../../core/services/help.service';
     .action-label {
       font-size: 0.8125rem;
       font-weight: 500;
-      color: var(--text-primary, #111827);
+      color: var(--text-primary);
       text-align: center;
     }
 
@@ -241,7 +241,7 @@ import { HelpService } from '../../../core/services/help.service';
       justify-content: space-between;
       align-items: center;
       padding: 12px;
-      background: var(--bg-secondary, #f9fafb);
+      background: var(--bg-secondary);
       border-radius: 8px;
     }
 
@@ -253,12 +253,12 @@ import { HelpService } from '../../../core/services/help.service';
 
     .tour-name {
       font-weight: 500;
-      color: var(--text-primary, #111827);
+      color: var(--text-primary);
     }
 
     .tour-desc {
       font-size: 0.75rem;
-      color: var(--text-secondary, #6b7280);
+      color: var(--text-secondary);
     }
 
     .tour-actions {
@@ -269,7 +269,7 @@ import { HelpService } from '../../../core/services/help.service';
 
     .completed-badge {
       font-size: 0.75rem;
-      color: #10b981;
+      color: var(--color-success);
       font-weight: 500;
     }
 
@@ -317,14 +317,14 @@ import { HelpService } from '../../../core/services/help.service';
       align-items: center;
       gap: 10px;
       padding: 10px 12px;
-      background: var(--bg-secondary, #f9fafb);
+      background: var(--bg-secondary);
       border-radius: 8px;
       text-decoration: none;
-      color: var(--text-primary, #111827);
+      color: var(--text-primary);
       transition: background 0.15s;
 
       &:hover {
-        background: var(--bg-tertiary, #e5e7eb);
+        background: var(--bg-tertiary);
       }
     }
 
@@ -334,7 +334,7 @@ import { HelpService } from '../../../core/services/help.service';
 
     .panel-footer {
       padding: 16px 24px;
-      border-top: 1px solid var(--border-color, #e5e7eb);
+      border-top: 1px solid var(--border-color);
     }
 
     .btn-reset {
@@ -342,13 +342,13 @@ import { HelpService } from '../../../core/services/help.service';
       padding: 10px;
       font-size: 0.875rem;
       background: transparent;
-      border: 1px solid var(--border-color, #e5e7eb);
+      border: 1px solid var(--border-color);
       border-radius: 8px;
-      color: var(--text-secondary, #6b7280);
+      color: var(--text-secondary);
       cursor: pointer;
 
       &:hover {
-        background: var(--bg-secondary, #f9fafb);
+        background: var(--bg-secondary);
       }
     }
   `]

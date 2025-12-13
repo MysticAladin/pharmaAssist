@@ -101,7 +101,7 @@ import { TranslateModule } from '@ngx-translate/core';
 
       &:hover {
         color: var(--text);
-        background: var(--surface-hover, #f1f5f9);
+        background: var(--surface-hover);
       }
     }
 

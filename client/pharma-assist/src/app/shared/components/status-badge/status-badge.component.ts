@@ -53,27 +53,27 @@ export type BadgeSize = 'sm' | 'md' | 'lg';
 
     /* Variants */
     .badge-success {
-      background: #dcfce7;
+      background: var(--color-success-bg);
       color: #166534;
     }
 
     .badge-warning {
-      background: #fef3c7;
-      color: #92400e;
+      background: var(--status-pending-bg);
+      color: var(--color-warning-text);
     }
 
     .badge-danger {
-      background: #fee2e2;
-      color: #991b1b;
+      background: var(--color-error-bg);
+      color: var(--color-error-text);
     }
 
     .badge-info {
-      background: #dbeafe;
-      color: #1e40af;
+      background: var(--status-processing-bg);
+      color: var(--color-info-text);
     }
 
     .badge-neutral {
-      background: #f1f5f9;
+      background: var(--surface-tertiary);
       color: #475569;
     }
 

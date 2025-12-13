@@ -135,11 +135,11 @@ import { Command, COMMAND_CATEGORY_ICONS } from '../../../core/models/command.mo
       align-items: center;
       gap: 12px;
       padding: 16px 20px;
-      border-bottom: 1px solid var(--border-color, #e5e7eb);
+      border-bottom: 1px solid var(--border-color);
     }
 
     .search-icon {
-      color: var(--text-secondary, #6b7280);
+      color: var(--text-secondary);
       flex-shrink: 0;
     }
 
@@ -148,7 +148,7 @@ import { Command, COMMAND_CATEGORY_ICONS } from '../../../core/models/command.mo
       border: none;
       background: transparent;
       font-size: 16px;
-      color: var(--text-primary, #111827);
+      color: var(--text-primary);
       outline: none;
 
       &::placeholder {
@@ -158,12 +158,12 @@ import { Command, COMMAND_CATEGORY_ICONS } from '../../../core/models/command.mo
 
     .esc-hint {
       padding: 4px 8px;
-      background: var(--bg-secondary, #f3f4f6);
-      border: 1px solid var(--border-color, #e5e7eb);
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-color);
       border-radius: 4px;
       font-size: 11px;
       font-family: inherit;
-      color: var(--text-secondary, #6b7280);
+      color: var(--text-secondary);
     }
 
     .results-container {
@@ -178,7 +178,7 @@ import { Command, COMMAND_CATEGORY_ICONS } from '../../../core/models/command.mo
       align-items: center;
       gap: 8px;
       padding: 32px;
-      color: var(--text-secondary, #6b7280);
+      color: var(--text-secondary);
     }
 
     .no-results-icon {
@@ -201,7 +201,7 @@ import { Command, COMMAND_CATEGORY_ICONS } from '../../../core/models/command.mo
       font-weight: 600;
       text-transform: uppercase;
       letter-spacing: 0.5px;
-      color: var(--text-secondary, #6b7280);
+      color: var(--text-secondary);
     }
 
     .group-icon {
@@ -229,7 +229,7 @@ import { Command, COMMAND_CATEGORY_ICONS } from '../../../core/models/command.mo
 
       &:hover,
       &.selected {
-        background: var(--bg-secondary, #f3f4f6);
+        background: var(--bg-secondary);
       }
 
       &.selected {
@@ -253,12 +253,12 @@ import { Command, COMMAND_CATEGORY_ICONS } from '../../../core/models/command.mo
     .command-title {
       font-size: 14px;
       font-weight: 500;
-      color: var(--text-primary, #111827);
+      color: var(--text-primary);
     }
 
     .command-description {
       font-size: 12px;
-      color: var(--text-secondary, #6b7280);
+      color: var(--text-secondary);
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
@@ -266,12 +266,12 @@ import { Command, COMMAND_CATEGORY_ICONS } from '../../../core/models/command.mo
 
     .command-shortcut {
       padding: 4px 8px;
-      background: var(--bg-secondary, #f3f4f6);
-      border: 1px solid var(--border-color, #e5e7eb);
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-color);
       border-radius: 4px;
       font-size: 11px;
       font-family: inherit;
-      color: var(--text-secondary, #6b7280);
+      color: var(--text-secondary);
       white-space: nowrap;
     }
 
@@ -279,8 +279,8 @@ import { Command, COMMAND_CATEGORY_ICONS } from '../../../core/models/command.mo
       display: flex;
       gap: 16px;
       padding: 12px 20px;
-      border-top: 1px solid var(--border-color, #e5e7eb);
-      background: var(--bg-secondary, #f9fafb);
+      border-top: 1px solid var(--border-color);
+      background: var(--bg-secondary);
     }
 
     .footer-hint {
@@ -288,12 +288,12 @@ import { Command, COMMAND_CATEGORY_ICONS } from '../../../core/models/command.mo
       align-items: center;
       gap: 6px;
       font-size: 12px;
-      color: var(--text-secondary, #6b7280);
+      color: var(--text-secondary);
 
       kbd {
         padding: 2px 6px;
         background: var(--bg-primary, white);
-        border: 1px solid var(--border-color, #e5e7eb);
+        border: 1px solid var(--border-color);
         border-radius: 4px;
         font-size: 11px;
         font-family: inherit;
@@ -307,7 +307,7 @@ import { Command, COMMAND_CATEGORY_ICONS } from '../../../core/models/command.mo
       }
 
       .search-input {
-        color: var(--text-primary, #f9fafb);
+        color: var(--text-primary);
       }
 
       .command-item {

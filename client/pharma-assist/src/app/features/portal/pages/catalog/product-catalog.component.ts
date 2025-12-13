@@ -316,7 +316,7 @@ import { KmCurrencyPipe } from '../../../../core/pipes/km-currency.pipe';
     .filter-input {
       width: 100%;
       padding: 0.75rem;
-      border: 1px solid var(--border-color, #e5e7eb);
+      border: 1px solid var(--border-color);
       border-radius: 8px;
       font-size: 0.875rem;
     }
@@ -324,7 +324,7 @@ import { KmCurrencyPipe } from '../../../../core/pipes/km-currency.pipe';
     .filter-select {
       width: 100%;
       padding: 0.75rem;
-      border: 1px solid var(--border-color, #e5e7eb);
+      border: 1px solid var(--border-color);
       border-radius: 8px;
       font-size: 0.875rem;
       background: white;
@@ -350,11 +350,11 @@ import { KmCurrencyPipe } from '../../../../core/pipes/km-currency.pipe';
     }
 
     .category-item:hover {
-      background: var(--surface-ground, #f5f5f5);
+      background: var(--surface-ground);
     }
 
     .category-item.active {
-      background: var(--primary-color, #3b82f6);
+      background: var(--primary-color);
       color: white;
     }
 
@@ -403,7 +403,7 @@ import { KmCurrencyPipe } from '../../../../core/pipes/km-currency.pipe';
     .filter-toggle {
       display: none;
       padding: 0.5rem 1rem;
-      border: 1px solid var(--border-color, #e5e7eb);
+      border: 1px solid var(--border-color);
       border-radius: 8px;
       background: white;
       cursor: pointer;
@@ -422,7 +422,7 @@ import { KmCurrencyPipe } from '../../../../core/pipes/km-currency.pipe';
 
     .view-toggle {
       display: flex;
-      border: 1px solid var(--border-color, #e5e7eb);
+      border: 1px solid var(--border-color);
       border-radius: 8px;
       overflow: hidden;
     }
@@ -436,13 +436,13 @@ import { KmCurrencyPipe } from '../../../../core/pipes/km-currency.pipe';
     }
 
     .view-toggle button.active {
-      background: var(--primary-color, #3b82f6);
+      background: var(--primary-color);
       color: white;
     }
 
     .sort-select {
       padding: 0.5rem 1rem;
-      border: 1px solid var(--border-color, #e5e7eb);
+      border: 1px solid var(--border-color);
       border-radius: 8px;
       font-size: 0.875rem;
       background: white;
@@ -509,7 +509,7 @@ import { KmCurrencyPipe } from '../../../../core/pipes/km-currency.pipe';
     }
 
     .product-badge.rx {
-      background: #f59e0b;
+      background: var(--color-warning);
       color: white;
     }
 
@@ -525,18 +525,18 @@ import { KmCurrencyPipe } from '../../../../core/pipes/km-currency.pipe';
     }
 
     .product-badge.price-type.commercial {
-      background: #dbeafe;
-      color: #1d4ed8;
+      background: var(--status-processing-bg);
+      color: var(--brand-primary-darker);
     }
 
     .product-badge.price-type.essential {
-      background: #dcfce7;
+      background: var(--color-success-bg);
       color: #15803d;
     }
 
     .product-image {
       height: 160px;
-      background: var(--surface-ground, #f5f5f5);
+      background: var(--surface-ground);
       display: flex;
       align-items: center;
       justify-content: center;
@@ -613,7 +613,7 @@ import { KmCurrencyPipe } from '../../../../core/pipes/km-currency.pipe';
     .product-price {
       font-size: 1.125rem;
       font-weight: 700;
-      color: var(--primary-color, #3b82f6);
+      color: var(--primary-color);
     }
 
     .original-price {
@@ -625,11 +625,11 @@ import { KmCurrencyPipe } from '../../../../core/pipes/km-currency.pipe';
 
     .product-stock {
       font-size: 0.75rem;
-      color: #10b981;
+      color: var(--color-success);
     }
 
     .product-stock.low {
-      color: #f59e0b;
+      color: var(--color-warning);
     }
 
     .product-actions {
@@ -642,7 +642,7 @@ import { KmCurrencyPipe } from '../../../../core/pipes/km-currency.pipe';
     .quantity-control {
       display: flex;
       align-items: center;
-      border: 1px solid var(--border-color, #e5e7eb);
+      border: 1px solid var(--border-color);
       border-radius: 6px;
       overflow: hidden;
     }
@@ -651,7 +651,7 @@ import { KmCurrencyPipe } from '../../../../core/pipes/km-currency.pipe';
       width: 32px;
       height: 32px;
       border: none;
-      background: var(--surface-ground, #f5f5f5);
+      background: var(--surface-ground);
       cursor: pointer;
       font-size: 1rem;
     }
@@ -681,12 +681,12 @@ import { KmCurrencyPipe } from '../../../../core/pipes/km-currency.pipe';
       gap: 0.5rem;
       margin-top: 2rem;
       padding-top: 2rem;
-      border-top: 1px solid var(--border-color, #e5e7eb);
+      border-top: 1px solid var(--border-color);
     }
 
     .page-btn {
       padding: 0.5rem 1rem;
-      border: 1px solid var(--border-color, #e5e7eb);
+      border: 1px solid var(--border-color);
       border-radius: 6px;
       background: white;
       cursor: pointer;
@@ -706,16 +706,16 @@ import { KmCurrencyPipe } from '../../../../core/pipes/km-currency.pipe';
     .page-num {
       width: 36px;
       height: 36px;
-      border: 1px solid var(--border-color, #e5e7eb);
+      border: 1px solid var(--border-color);
       border-radius: 6px;
       background: white;
       cursor: pointer;
     }
 
     .page-num.active {
-      background: var(--primary-color, #3b82f6);
+      background: var(--primary-color);
       color: white;
-      border-color: var(--primary-color, #3b82f6);
+      border-color: var(--primary-color);
     }
 
     .ellipsis {
@@ -732,8 +732,8 @@ import { KmCurrencyPipe } from '../../../../core/pipes/km-currency.pipe';
     .spinner {
       width: 48px;
       height: 48px;
-      border: 4px solid var(--surface-ground, #f5f5f5);
-      border-top-color: var(--primary-color, #3b82f6);
+      border: 4px solid var(--surface-ground);
+      border-top-color: var(--primary-color);
       border-radius: 50%;
       animation: spin 1s linear infinite;
       margin: 0 auto 1rem;
@@ -778,7 +778,7 @@ import { KmCurrencyPipe } from '../../../../core/pipes/km-currency.pipe';
     }
 
     .btn-primary {
-      background: var(--primary-color, #3b82f6);
+      background: var(--primary-color);
       color: white;
     }
 
@@ -788,7 +788,7 @@ import { KmCurrencyPipe } from '../../../../core/pipes/km-currency.pipe';
     }
 
     .btn-secondary {
-      background: var(--surface-ground, #f5f5f5);
+      background: var(--surface-ground);
       color: var(--text-color, #333);
     }
 

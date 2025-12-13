@@ -194,7 +194,7 @@ import { PaginationComponent, PageEvent } from '../../shared/components/paginati
     }
 
     .deadline.urgent {
-      color: #d97706;
+      color: var(--status-pending-text);
     }
 
     .value {

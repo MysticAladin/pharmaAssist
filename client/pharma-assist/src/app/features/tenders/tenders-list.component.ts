@@ -378,10 +378,10 @@ import { ConfirmDialogComponent } from '../../shared/components/confirm-dialog';
       border-radius: 0.5rem;
     }
 
-    .stat-icon.draft { background: #f3f4f6; color: #6b7280; }
-    .stat-icon.open { background: #dcfce7; color: #16a34a; }
+    .stat-icon.draft { background: var(--surface-tertiary); color: var(--text-secondary); }
+    .stat-icon.open { background: var(--color-success-bg); color: var(--color-success-dark); }
     .stat-icon.awarded { background: #f3e8ff; color: #9333ea; }
-    .stat-icon.total { background: #dbeafe; color: #2563eb; }
+    .stat-icon.total { background: var(--status-processing-bg); color: var(--brand-primary-dark); }
 
     .stat-content {
       display: flex;
@@ -474,7 +474,7 @@ import { ConfirmDialogComponent } from '../../shared/components/confirm-dialog';
     }
 
     .tenders-table tr.urgent {
-      background: #fef2f2;
+      background: var(--color-error-bg);
     }
 
     .tender-number a {
@@ -509,8 +509,8 @@ import { ConfirmDialogComponent } from '../../shared/components/confirm-dialog';
     }
 
     .badge-success {
-      background: #dcfce7;
-      color: #16a34a;
+      background: var(--color-success-bg);
+      color: var(--color-success-dark);
     }
 
     .type-badge {
@@ -532,18 +532,18 @@ import { ConfirmDialogComponent } from '../../shared/components/confirm-dialog';
     }
 
     .deadline-warning {
-      color: #d97706;
+      color: var(--status-pending-text);
     }
 
     .deadline-passed {
-      color: #dc2626;
+      color: var(--color-error-dark);
     }
 
     .deadline-badge {
       margin-left: 0.25rem;
       padding: 0.125rem 0.25rem;
-      background: #fef3c7;
-      color: #d97706;
+      background: var(--status-pending-bg);
+      color: var(--status-pending-text);
       border-radius: 0.25rem;
       font-size: 0.625rem;
       font-weight: 600;
@@ -600,8 +600,8 @@ import { ConfirmDialogComponent } from '../../shared/components/confirm-dialog';
     }
 
     .btn-icon.btn-danger:hover {
-      background: #fee2e2;
-      color: #dc2626;
+      background: var(--color-error-bg);
+      color: var(--color-error-dark);
     }
 
     .btn-icon.btn-primary:hover {

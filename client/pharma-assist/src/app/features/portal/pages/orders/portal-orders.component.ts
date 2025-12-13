@@ -108,11 +108,11 @@ import { KmCurrencyPipe } from '../../../../core/pipes/km-currency.pipe';
     .order-number .value { font-size: 1.125rem; font-weight: 600; }
 
     .status { padding: 0.25rem 0.75rem; border-radius: 999px; font-size: 0.75rem; font-weight: 600; text-transform: uppercase; }
-    .status-pending { background: #fef3c7; color: #92400e; }
-    .status-processing { background: #dbeafe; color: #1e40af; }
-    .status-shipped { background: #e0e7ff; color: #3730a3; }
-    .status-delivered { background: #d1fae5; color: #065f46; }
-    .status-cancelled { background: #fee2e2; color: #991b1b; }
+    .status-pending { background: var(--status-pending-bg); color: var(--color-warning-text); }
+    .status-processing { background: var(--status-processing-bg); color: var(--color-info-text); }
+    .status-shipped { background: var(--status-shipped-bg); color: #3730a3; }
+    .status-delivered { background: var(--color-success-bg); color: var(--color-success-text); }
+    .status-cancelled { background: var(--color-error-bg); color: var(--color-error-text); }
 
     .order-body { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; }
     .info-group .label { font-size: 0.75rem; color: var(--text-secondary); display: block; }

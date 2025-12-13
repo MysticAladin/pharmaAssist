@@ -589,7 +589,7 @@ import { ConfirmDialogComponent } from '../../shared/components/confirm-dialog';
 
     .btn-primary { background: var(--primary); color: white; }
     .btn-secondary { background: var(--bg-secondary); color: var(--text-primary); border: 1px solid var(--border-color); }
-    .btn-success { background: #16a34a; color: white; }
+    .btn-success { background: var(--color-success-dark); color: white; }
     .btn-warning { background: #d97706; color: white; }
     .btn-danger { background: #dc2626; color: white; }
 
@@ -691,8 +691,8 @@ import { ConfirmDialogComponent } from '../../shared/components/confirm-dialog';
       white-space: pre-wrap;
     }
 
-    .deadline-warning { color: #d97706; }
-    .deadline-passed { color: #dc2626; }
+    .deadline-warning { color: var(--status-pending-text); }
+    .deadline-passed { color: var(--color-error-dark); }
 
     /* Items table */
     .items-table {
@@ -737,8 +737,8 @@ import { ConfirmDialogComponent } from '../../shared/components/confirm-dialog';
 
     .required-badge {
       padding: 0.125rem 0.375rem;
-      background: #dcfce7;
-      color: #16a34a;
+      background: var(--color-success-bg);
+      color: var(--color-success-dark);
       border-radius: 0.25rem;
       font-size: 0.75rem;
     }
@@ -766,7 +766,7 @@ import { ConfirmDialogComponent } from '../../shared/components/confirm-dialog';
     }
 
     .bid-card.winning {
-      border-color: #16a34a;
+      border-color: var(--color-success-dark);
       box-shadow: 0 0 0 1px #16a34a;
     }
 
@@ -796,8 +796,8 @@ import { ConfirmDialogComponent } from '../../shared/components/confirm-dialog';
       gap: 0.25rem;
       margin-left: auto;
       padding: 0.125rem 0.5rem;
-      background: #dcfce7;
-      color: #16a34a;
+      background: var(--color-success-bg);
+      color: var(--color-success-dark);
       border-radius: 0.25rem;
       font-size: 0.75rem;
       font-weight: 600;
@@ -820,7 +820,7 @@ import { ConfirmDialogComponent } from '../../shared/components/confirm-dialog';
     .bid-amount .discount {
       margin-left: 0.5rem;
       font-size: 0.875rem;
-      color: #16a34a;
+      color: var(--color-success-dark);
     }
 
     .bid-details {

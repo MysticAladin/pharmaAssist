@@ -137,7 +137,7 @@ import {
     }
 
     .virtual-scroll-container::-webkit-scrollbar-track {
-      background: var(--surface-ground, #f5f5f5);
+      background: var(--surface-ground);
       border-radius: 4px;
     }
 

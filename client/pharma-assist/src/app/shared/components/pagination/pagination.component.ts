@@ -142,7 +142,7 @@ export interface PageEvent {
         background-position: right 8px center;
 
         &:hover {
-          border-color: var(--border-hover, #94a3b8);
+          border-color: var(--border-hover);
         }
 
         &:focus {
@@ -175,8 +175,8 @@ export interface PageEvent {
       transition: all 0.15s;
 
       &:hover:not(:disabled) {
-        background: var(--surface-hover, #f1f5f9);
-        border-color: var(--border-hover, #94a3b8);
+        background: var(--surface-hover);
+        border-color: var(--border-hover);
       }
 
       &:disabled {

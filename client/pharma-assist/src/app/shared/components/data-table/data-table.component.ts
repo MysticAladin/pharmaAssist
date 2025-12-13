@@ -247,7 +247,7 @@ export interface SortEvent {
     }
 
     .striped.hoverable tbody tr:hover:not(.skeleton-row):not(.empty-row) {
-      background: var(--surface-hover, #f1f5f9);
+      background: var(--surface-hover);
     }
 
     td {
