@@ -1,17 +1,20 @@
 import { Component, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterModule, RouterOutlet, Router } from '@angular/router';
+import { RouterModule, RouterOutlet, Router, ActivatedRoute, NavigationEnd } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { AuthStateService } from '../../../../core/state/auth-state.service';
 import { CartService } from '../../services/cart.service';
+import { KmCurrencyPipe } from '../../../../core/pipes/km-currency.pipe';
+import { toSignal } from '@angular/core/rxjs-interop';
+import { filter, map, startWith } from 'rxjs/operators';
 
 @Component({
   selector: 'app-portal-layout',
   standalone: true,
-  imports: [CommonModule, RouterModule, RouterOutlet, TranslateModule, FormsModule],
+  imports: [CommonModule, RouterModule, RouterOutlet, TranslateModule, FormsModule, KmCurrencyPipe],
   template: `
-    <div class="portal-layout" [class.dark]="isDarkMode()">
+    <div class="portal-layout">
       <!-- Top Header -->
       <header class="portal-header">
         <div class="header-container">
@@ -42,12 +45,7 @@ import { CartService } from '../../services/cart.service';
           <div class="header-actions">
             <!-- Language Toggle -->
             <button class="action-btn" (click)="toggleLanguage()" [title]="'common.language' | translate">
-              {{ currentLanguage() === 'en' ? '🇺🇸' : '🇧🇦' }}
-            </button>
-
-            <!-- Theme Toggle -->
-            <button class="action-btn" (click)="toggleTheme()" [title]="'common.theme' | translate">
-              {{ isDarkMode() ? '☀️' : '🌙' }}
+              {{ currentLanguage() === 'en' ? 'BA' : 'EN' }}
             </button>
 
             <!-- Cart -->
@@ -56,7 +54,7 @@ import { CartService } from '../../services/cart.service';
               @if (cartItemCount() > 0) {
                 <span class="cart-badge">{{ cartItemCount() }}</span>
               }
-              <span class="cart-total">{{ cartTotal() | currency:'BAM':'symbol':'1.2-2' }}</span>
+              <span class="cart-total">{{ cartTotal() | kmCurrency }}</span>
             </a>
 
             <!-- User Menu -->
@@ -94,16 +92,16 @@ import { CartService } from '../../services/cart.service';
         <!-- Category Navigation -->
         <nav class="category-nav">
           <div class="nav-container">
-            <a routerLink="/portal/catalog" routerLinkActive="active" class="nav-item">
+            <a routerLink="/portal/catalog" [class.active]="isAllProductsActive()" class="nav-item">
               {{ 'portal.catalog.all' | translate }}
             </a>
-            <a routerLink="/portal/catalog" [queryParams]="{category: 'medications'}" class="nav-item">
+            <a routerLink="/portal/catalog" [queryParams]="{category: 'medications'}" [class.active]="isMedicationsActive()" class="nav-item">
               💊 {{ 'portal.categories.medications' | translate }}
             </a>
-            <a routerLink="/portal/catalog" [queryParams]="{category: 'medical-supplies'}" class="nav-item">
+            <a routerLink="/portal/catalog" [queryParams]="{category: 'medical-supplies'}" [class.active]="isMedicalSuppliesActive()" class="nav-item">
               🩹 {{ 'portal.categories.medicalSupplies' | translate }}
             </a>
-            <a routerLink="/portal/catalog" [queryParams]="{category: 'equipment'}" class="nav-item">
+            <a routerLink="/portal/catalog" [queryParams]="{category: 'equipment'}" [class.active]="isEquipmentActive()" class="nav-item">
               🔬 {{ 'portal.categories.equipment' | translate }}
             </a>
             <a routerLink="/portal/quick-order" class="nav-item highlight">
@@ -123,9 +121,15 @@ import { CartService } from '../../services/cart.service';
         <div class="footer-container">
           <div class="footer-section">
             <h4>{{ 'portal.footer.contact' | translate }}</h4>
-            <p>📧 orders&#64;pharmaassist.ba</p>
-            <p>📞 +387 33 123 456</p>
-            <p>📍 Sarajevo, Bosnia and Herzegovina</p>
+            <a href="mailto:orders@pharmaassist.ba" class="contact-link">
+              <span class="contact-icon">📧</span> orders&#64;pharmaassist.ba
+            </a>
+            <a href="tel:+38733123456" class="contact-link">
+              <span class="contact-icon">📞</span> +387 33 123 456
+            </a>
+            <a href="https://maps.google.com/?q=Sarajevo,Bosnia+and+Herzegovina" target="_blank" rel="noopener" class="contact-link">
+              <span class="contact-icon">📍</span> Zmaja od Bosne 8, 71000 Sarajevo
+            </a>
           </div>
           <div class="footer-section">
             <h4>{{ 'portal.footer.quickLinks' | translate }}</h4>
@@ -462,6 +466,21 @@ import { CartService } from '../../services/cart.service';
       color: var(--primary-color, #3b82f6);
     }
 
+    .contact-link {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      transition: color 0.2s;
+    }
+
+    .contact-link:hover {
+      color: var(--primary-color, #3b82f6);
+    }
+
+    .contact-icon {
+      font-size: 1rem;
+    }
+
     .footer-bottom {
       text-align: center;
       padding: 1.5rem 2rem;
@@ -503,10 +522,47 @@ export class PortalLayoutComponent {
   private cartService = inject(CartService);
   private translateService = inject(TranslateService);
   private router = inject(Router);
+  private route = inject(ActivatedRoute);
+
+  // Track current URL reactively using router events
+  private currentUrl = toSignal(
+    this.router.events.pipe(
+      filter(event => event instanceof NavigationEnd),
+      map(() => this.router.url),
+      startWith(this.router.url)
+    )
+  );
+
+  activeCategory = computed(() => {
+    const url = this.currentUrl() || '';
+    if (!url.includes('/portal/catalog')) return null;
+
+    const match = url.match(/[?&]category=([^&]+)/);
+    return match ? match[1] : null;
+  });
+
+  isAllProductsActive = computed(() => {
+    const url = this.currentUrl() || '';
+    return url.includes('/portal/catalog') && !url.includes('category=');
+  });
+
+  isMedicationsActive = computed(() => {
+    const url = this.currentUrl() || '';
+    return url.includes('/portal/catalog') && url.includes('category=medications');
+  });
+
+  isMedicalSuppliesActive = computed(() => {
+    const url = this.currentUrl() || '';
+    return url.includes('/portal/catalog') && url.includes('category=medical-supplies');
+  });
+
+  isEquipmentActive = computed(() => {
+    const url = this.currentUrl() || '';
+    return url.includes('/portal/catalog') && url.includes('category=equipment');
+  });
 
   searchQuery = signal('');
   showUserMenu = signal(false);
-  isDarkMode = signal(false);
   currentYear = new Date().getFullYear();
 
   currentLanguage = signal(this.translateService.currentLang || 'en');
@@ -536,11 +592,6 @@ export class PortalLayoutComponent {
 
   toggleUserMenu(): void {
     this.showUserMenu.update(v => !v);
-  }
-
-  toggleTheme(): void {
-    this.isDarkMode.update(v => !v);
-    document.body.classList.toggle('dark', this.isDarkMode());
   }
 
   toggleLanguage(): void {

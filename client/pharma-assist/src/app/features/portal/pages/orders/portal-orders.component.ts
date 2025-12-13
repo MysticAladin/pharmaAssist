@@ -4,11 +4,12 @@ import { RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
 import { PortalOrdersService, PortalOrder, OrderStatus } from '../../services/portal-orders.service';
+import { KmCurrencyPipe } from '../../../../core/pipes/km-currency.pipe';
 
 @Component({
   selector: 'app-portal-orders',
   standalone: true,
-  imports: [CommonModule, RouterModule, FormsModule, TranslateModule],
+  imports: [CommonModule, RouterModule, FormsModule, TranslateModule, KmCurrencyPipe],
   template: `
     <div class="orders-page">
       <div class="page-header">
@@ -65,7 +66,7 @@ import { PortalOrdersService, PortalOrder, OrderStatus } from '../../services/po
                 </div>
                 <div class="info-group">
                   <span class="label">{{ 'portal.orders.total' | translate }}</span>
-                  <span class="value total">{{ order.totalAmount | currency:'BAM':'symbol':'1.2-2' }}</span>
+                  <span class="value total">{{ order.totalAmount | kmCurrency }}</span>
                 </div>
               </div>
               <div class="order-arrow">→</div>

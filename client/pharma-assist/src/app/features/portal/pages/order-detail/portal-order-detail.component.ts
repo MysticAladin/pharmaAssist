@@ -5,6 +5,7 @@ import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
 import { PortalOrdersService, PortalOrder, OrderStatus } from '../../services/portal-orders.service';
 import { PortalClaimsService, ClaimType, CreateClaimRequest } from '../../services/portal-claims.service';
+import { KmCurrencyPipe } from '../../../../core/pipes/km-currency.pipe';
 
 interface OrderItem {
   id: number;
@@ -19,7 +20,7 @@ interface OrderItem {
 @Component({
   selector: 'app-portal-order-detail',
   standalone: true,
-  imports: [CommonModule, RouterModule, FormsModule, TranslateModule],
+  imports: [CommonModule, RouterModule, FormsModule, TranslateModule, KmCurrencyPipe],
   template: `
     <div class="order-detail-page">
       <a routerLink="/portal/orders" class="back-link">← {{ 'common.back' | translate }}</a>
@@ -75,8 +76,8 @@ interface OrderItem {
                       <span class="product-sku">SKU: {{ item.sku }}</span>
                     </div>
                     <span>{{ item.quantity }}</span>
-                    <span>{{ item.unitPrice | currency:'BAM':'symbol':'1.2-2' }}</span>
-                    <span class="item-total">{{ item.total | currency:'BAM':'symbol':'1.2-2' }}</span>
+                    <span>{{ item.unitPrice | kmCurrency }}</span>
+                    <span class="item-total">{{ item.total | kmCurrency }}</span>
                     @if (canFileClaim()) {
                       <button class="btn-claim" (click)="openClaimModal(item)">
                         {{ 'portal.claims.fileClaim' | translate }}
@@ -92,10 +93,10 @@ interface OrderItem {
             <!-- Summary -->
             <div class="section summary-section">
               <h3>{{ 'portal.orderDetail.summary' | translate }}</h3>
-              <div class="summary-row"><span>{{ 'portal.cart.subtotal' | translate }}</span><span>{{ order()!.subTotal | currency:'BAM':'symbol':'1.2-2' }}</span></div>
-              <div class="summary-row"><span>{{ 'portal.cart.delivery' | translate }}</span><span>{{ order()!.shippingAmount | currency:'BAM':'symbol':'1.2-2' }}</span></div>
-              <div class="summary-row"><span>{{ 'portal.cart.tax' | translate }}</span><span>{{ order()!.taxAmount | currency:'BAM':'symbol':'1.2-2' }}</span></div>
-              <div class="summary-row total"><span>{{ 'portal.cart.total' | translate }}</span><span>{{ order()!.totalAmount | currency:'BAM':'symbol':'1.2-2' }}</span></div>
+              <div class="summary-row"><span>{{ 'portal.cart.subtotal' | translate }}</span><span>{{ order()!.subTotal | kmCurrency }}</span></div>
+              <div class="summary-row"><span>{{ 'portal.cart.delivery' | translate }}</span><span>{{ order()!.shippingAmount | kmCurrency }}</span></div>
+              <div class="summary-row"><span>{{ 'portal.cart.tax' | translate }}</span><span>{{ order()!.taxAmount | kmCurrency }}</span></div>
+              <div class="summary-row total"><span>{{ 'portal.cart.total' | translate }}</span><span>{{ order()!.totalAmount | kmCurrency }}</span></div>
             </div>
 
             <!-- Actions -->

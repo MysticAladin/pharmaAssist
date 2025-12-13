@@ -7,11 +7,12 @@ import { Subject, debounceTime, distinctUntilChanged, takeUntil } from 'rxjs';
 import { CatalogService, PaginatedResult, PaginationParams } from '../../services/catalog.service';
 import { CartService } from '../../services/cart.service';
 import { ProductCatalogItem, ProductFilter, CategoryNode, PriceType } from '../../models/portal.model';
+import { KmCurrencyPipe } from '../../../../core/pipes/km-currency.pipe';
 
 @Component({
   selector: 'app-product-catalog',
   standalone: true,
-  imports: [CommonModule, RouterModule, FormsModule, TranslateModule],
+  imports: [CommonModule, RouterModule, FormsModule, TranslateModule, KmCurrencyPipe],
   template: `
     <div class="catalog-page">
       <!-- Sidebar Filters -->
@@ -199,9 +200,9 @@ import { ProductCatalogItem, ProductFilter, CategoryNode, PriceType } from '../.
                   <div class="product-footer">
                     <p class="product-price">
                       @if (product.customerPrice && product.customerPrice < product.unitPrice) {
-                        <span class="original-price">{{ product.unitPrice | currency:'BAM':'symbol':'1.2-2' }}</span>
+                        <span class="original-price">{{ product.unitPrice | kmCurrency }}</span>
                       }
-                      {{ (product.customerPrice ?? product.unitPrice) | currency:'BAM':'symbol':'1.2-2' }}
+                      {{ (product.customerPrice ?? product.unitPrice) | kmCurrency }}
                     </p>
                     <p class="product-stock" [class.low]="product.stockQuantity < 10">
                       {{ product.stockQuantity }} {{ 'portal.product.inStock' | translate }}
@@ -869,6 +870,7 @@ export class ProductCatalogComponent implements OnInit, OnDestroy {
   // Filters
   searchQuery = '';
   selectedCategory = signal<string | null>(null);
+  categorySlug = signal<string | null>(null); // For nav links like 'medications', 'medical-supplies'
   selectedManufacturer: string | null = null;
   minPrice: number | null = null;
   maxPrice: number | null = null;
@@ -925,7 +927,18 @@ export class ProductCatalogComponent implements OnInit, OnDestroy {
     // Handle route params
     this.route.queryParams.pipe(takeUntil(this.destroy$)).subscribe(params => {
       if (params['search']) this.searchQuery = params['search'];
-      if (params['category']) this.selectedCategory.set(params['category']);
+      if (params['category']) {
+        const categoryParam = params['category'];
+        // Check if it's a GUID (ID) or a slug/name
+        const isGuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(categoryParam);
+        if (isGuid) {
+          this.selectedCategory.set(categoryParam);
+          this.categorySlug.set(null);
+        } else {
+          this.categorySlug.set(categoryParam);
+          this.selectedCategory.set(null);
+        }
+      }
       if (params['manufacturer']) this.selectedManufacturer = params['manufacturer'];
       this.loadProducts();
     });
@@ -941,6 +954,7 @@ export class ProductCatalogComponent implements OnInit, OnDestroy {
 
     const filter: ProductFilter = {};
     if (this.searchQuery) filter.search = this.searchQuery;
+    if (this.categorySlug()) filter.category = this.categorySlug()!;
     if (this.selectedCategory()) filter.categoryId = this.selectedCategory()!;
     if (this.selectedManufacturer) filter.manufacturerId = this.selectedManufacturer;
     if (this.minPrice) filter.minPrice = this.minPrice;
@@ -994,6 +1008,7 @@ export class ProductCatalogComponent implements OnInit, OnDestroy {
 
   selectCategory(categoryId: string | null) {
     this.selectedCategory.set(categoryId);
+    this.categorySlug.set(null); // Clear slug when selecting from sidebar
     this.currentPage.set(1);
     this.loadProducts();
   }
@@ -1006,6 +1021,7 @@ export class ProductCatalogComponent implements OnInit, OnDestroy {
   clearFilters() {
     this.searchQuery = '';
     this.selectedCategory.set(null);
+    this.categorySlug.set(null);
     this.selectedManufacturer = null;
     this.minPrice = null;
     this.maxPrice = null;

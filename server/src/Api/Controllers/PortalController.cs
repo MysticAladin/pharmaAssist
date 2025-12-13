@@ -334,6 +334,215 @@ public class PortalController : ControllerBase
     #region Products
 
     /// <summary>
+    /// Get paginated product catalog for portal
+    /// </summary>
+    [HttpGet("products")]
+    [ProducesResponseType(typeof(object), StatusCodes.Status200OK)]
+    [AllowAnonymous]
+    public async Task<IActionResult> GetProducts(
+        [FromQuery] string? search = null,
+        [FromQuery] int? categoryId = null,
+        [FromQuery] string? category = null,
+        [FromQuery] int? manufacturerId = null,
+        [FromQuery] decimal? minPrice = null,
+        [FromQuery] decimal? maxPrice = null,
+        [FromQuery] bool? inStockOnly = null,
+        [FromQuery] bool? requiresPrescription = null,
+        [FromQuery] string? sortBy = null,
+        [FromQuery] string? sortOrder = null,
+        [FromQuery] int page = 1,
+        [FromQuery] int pageSize = 20,
+        CancellationToken cancellationToken = default)
+    {
+        var query = _context.Products
+            .Include(p => p.Category)
+            .Include(p => p.Manufacturer)
+            .Where(p => !p.IsDeleted && p.IsActive);
+
+        // Apply filters
+        if (!string.IsNullOrWhiteSpace(search))
+        {
+            var searchLower = search.ToLower();
+            query = query.Where(p => 
+                p.Name.ToLower().Contains(searchLower) ||
+                p.SKU.ToLower().Contains(searchLower) ||
+                (p.Description != null && p.Description.ToLower().Contains(searchLower)));
+        }
+
+        // Filter by category ID or category name/slug
+        if (categoryId.HasValue)
+        {
+            query = query.Where(p => p.CategoryId == categoryId.Value);
+        }
+        else if (!string.IsNullOrWhiteSpace(category))
+        {
+            // Map common navigation slugs to actual category names or parent categories
+            var categorySlugMappings = new Dictionary<string, string[]>(StringComparer.OrdinalIgnoreCase)
+            {
+                // "medications" / "lijekovi" -> All medicine-related categories
+                { "medications", new[] { "Prescription Medicines", "OTC Medicines", "Antibiotics", "Cardiovascular", "Diabetes", "Neurological", "Respiratory", "Gastroenterology", "Pain Relief", "Cold & Flu", "Allergies", "First Aid" } },
+                // "medical-supplies" -> Medical devices and supplies
+                { "medical-supplies", new[] { "Medical Devices", "Diagnostic Equipment", "Mobility Aids" } },
+                // "equipment" / "oprema" -> Equipment categories
+                { "equipment", new[] { "Medical Devices", "Diagnostic Equipment", "Mobility Aids" } }
+            };
+
+            if (categorySlugMappings.TryGetValue(category, out var mappedCategories))
+            {
+                // Filter by multiple category names
+                query = query.Where(p => p.Category != null && mappedCategories.Contains(p.Category.Name));
+            }
+            else
+            {
+                // Support category filtering by name or slug (original logic)
+                var categoryLower = category.ToLower().Replace("-", " ").Replace("_", " ");
+                query = query.Where(p => p.Category != null && 
+                    (p.Category.Name.ToLower() == categoryLower ||
+                     p.Category.Name.ToLower().Replace(" ", "-") == category.ToLower() ||
+                     p.Category.Name.ToLower().Replace(" ", "_") == category.ToLower()));
+            }
+        }
+
+        if (manufacturerId.HasValue)
+            query = query.Where(p => p.ManufacturerId == manufacturerId.Value);
+
+        if (minPrice.HasValue)
+            query = query.Where(p => p.UnitPrice >= minPrice.Value);
+
+        if (maxPrice.HasValue)
+            query = query.Where(p => p.UnitPrice <= maxPrice.Value);
+
+        if (inStockOnly == true)
+            query = query.Where(p => p.StockQuantity > 0);
+
+        if (requiresPrescription.HasValue)
+            query = query.Where(p => p.RequiresPrescription == requiresPrescription.Value);
+
+        // Apply sorting
+        query = (sortBy?.ToLower(), sortOrder?.ToLower()) switch
+        {
+            ("name", "desc") => query.OrderByDescending(p => p.Name),
+            ("name", _) => query.OrderBy(p => p.Name),
+            ("price", "desc") => query.OrderByDescending(p => p.UnitPrice),
+            ("price", _) => query.OrderBy(p => p.UnitPrice),
+            ("date", "desc") or ("createdat", "desc") => query.OrderByDescending(p => p.CreatedAt),
+            ("date", _) or ("createdat", _) => query.OrderBy(p => p.CreatedAt),
+            _ => query.OrderBy(p => p.Name)
+        };
+
+        var totalCount = await query.CountAsync(cancellationToken);
+        var totalPages = (int)Math.Ceiling(totalCount / (double)pageSize);
+
+        var items = await query
+            .Skip((page - 1) * pageSize)
+            .Take(pageSize)
+            .Select(p => new PortalProductDto
+            {
+                Id = p.Id,
+                Name = p.Name,
+                SKU = p.SKU,
+                Description = p.Description ?? "",
+                Price = p.UnitPrice,
+                ImageUrl = p.ImageUrl,
+                CategoryName = p.Category != null ? p.Category.Name : "",
+                ManufacturerName = p.Manufacturer != null ? p.Manufacturer.Name : "",
+                IsInStock = p.StockQuantity > 0,
+                StockQuantity = p.StockQuantity
+            })
+            .ToListAsync(cancellationToken);
+
+        return Ok(new
+        {
+            items,
+            totalCount,
+            page,
+            pageSize,
+            totalPages,
+            hasPrevious = page > 1,
+            hasNext = page < totalPages
+        });
+    }
+
+    /// <summary>
+    /// Get single product details for portal
+    /// </summary>
+    [HttpGet("products/{id:int}")]
+    [ProducesResponseType(typeof(PortalProductDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [AllowAnonymous]
+    public async Task<IActionResult> GetProductById(int id, CancellationToken cancellationToken)
+    {
+        var product = await _context.Products
+            .Include(p => p.Category)
+            .Include(p => p.Manufacturer)
+            .Where(p => p.Id == id && !p.IsDeleted && p.IsActive)
+            .Select(p => new PortalProductDto
+            {
+                Id = p.Id,
+                Name = p.Name,
+                SKU = p.SKU,
+                Description = p.Description ?? "",
+                Price = p.UnitPrice,
+                ImageUrl = p.ImageUrl,
+                CategoryName = p.Category != null ? p.Category.Name : "",
+                ManufacturerName = p.Manufacturer != null ? p.Manufacturer.Name : "",
+                IsInStock = p.StockQuantity > 0,
+                StockQuantity = p.StockQuantity
+            })
+            .FirstOrDefaultAsync(cancellationToken);
+
+        if (product == null)
+            return NotFound();
+
+        return Ok(product);
+    }
+
+    /// <summary>
+    /// Get categories for portal filter
+    /// </summary>
+    [HttpGet("categories")]
+    [ProducesResponseType(typeof(IEnumerable<PortalCategoryDto>), StatusCodes.Status200OK)]
+    [AllowAnonymous]
+    public async Task<IActionResult> GetCategories(CancellationToken cancellationToken)
+    {
+        var categories = await _context.Categories
+            .Where(c => !c.IsDeleted)
+            .OrderBy(c => c.Name)
+            .Select(c => new PortalCategoryDto
+            {
+                Id = c.Id,
+                Name = c.Name,
+                Description = c.Description ?? "",
+                ProductCount = c.Products.Count(p => !p.IsDeleted && p.IsActive)
+            })
+            .ToListAsync(cancellationToken);
+
+        return Ok(categories);
+    }
+
+    /// <summary>
+    /// Get manufacturers for portal filter
+    /// </summary>
+    [HttpGet("manufacturers")]
+    [ProducesResponseType(typeof(IEnumerable<PortalManufacturerDto>), StatusCodes.Status200OK)]
+    [AllowAnonymous]
+    public async Task<IActionResult> GetManufacturers(CancellationToken cancellationToken)
+    {
+        var manufacturers = await _context.Manufacturers
+            .Where(m => !m.IsDeleted)
+            .OrderBy(m => m.Name)
+            .Select(m => new PortalManufacturerDto
+            {
+                Id = m.Id,
+                Name = m.Name,
+                ProductCount = m.Products.Count(p => !p.IsDeleted && p.IsActive)
+            })
+            .ToListAsync(cancellationToken);
+
+        return Ok(manufacturers);
+    }
+
+    /// <summary>
     /// Get featured products for portal home
     /// </summary>
     [HttpGet("products/featured")]
@@ -552,6 +761,21 @@ public class PortalProductDto
     public string ManufacturerName { get; set; } = string.Empty;
     public bool IsInStock { get; set; }
     public int StockQuantity { get; set; }
+}
+
+public class PortalCategoryDto
+{
+    public int Id { get; set; }
+    public string Name { get; set; } = string.Empty;
+    public string Description { get; set; } = string.Empty;
+    public int ProductCount { get; set; }
+}
+
+public class PortalManufacturerDto
+{
+    public int Id { get; set; }
+    public string Name { get; set; } = string.Empty;
+    public int ProductCount { get; set; }
 }
 
 #endregion

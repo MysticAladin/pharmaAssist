@@ -5,11 +5,12 @@ import { TranslateModule } from '@ngx-translate/core';
 import { CatalogService } from '../../services/catalog.service';
 import { CartService } from '../../services/cart.service';
 import { ProductCatalogItem, ReorderSuggestion, PriceType } from '../../models/portal.model';
+import { KmCurrencyPipe } from '../../../../core/pipes/km-currency.pipe';
 
 @Component({
   selector: 'app-portal-home',
   standalone: true,
-  imports: [CommonModule, RouterModule, TranslateModule],
+  imports: [CommonModule, RouterModule, TranslateModule, KmCurrencyPipe],
   template: `
     <div class="portal-home">
       <!-- Hero Banner -->
@@ -80,7 +81,7 @@ import { ProductCatalogItem, ReorderSuggestion, PriceType } from '../../models/p
                 <div class="product-info">
                   <h3 class="product-name">{{ suggestion.product.name }}</h3>
                   <p class="product-manufacturer">{{ suggestion.product.manufacturer }}</p>
-                  <p class="product-price">{{ suggestion.product.unitPrice | currency:'BAM':'symbol':'1.2-2' }}</p>
+                  <p class="product-price">{{ suggestion.product.unitPrice | kmCurrency }}</p>
                   <p class="reorder-info">
                     {{ 'portal.home.lastOrdered' | translate }}: {{ suggestion.lastOrderDate | date:'mediumDate' }}
                   </p>
@@ -127,7 +128,7 @@ import { ProductCatalogItem, ReorderSuggestion, PriceType } from '../../models/p
                   <h3 class="product-name">{{ product.name }}</h3>
                   <p class="product-manufacturer">{{ product.manufacturer }}</p>
                   <p class="product-price">
-                    {{ (product.customerPrice ?? product.unitPrice) | currency:'BAM':'symbol':'1.2-2' }}
+                    {{ (product.customerPrice ?? product.unitPrice) | kmCurrency }}
                   </p>
                 </div>
                 <div class="product-actions" (click)="$event.stopPropagation()">
@@ -168,7 +169,7 @@ import { ProductCatalogItem, ReorderSuggestion, PriceType } from '../../models/p
                 <h3 class="product-name">{{ product.name }}</h3>
                 <p class="product-manufacturer">{{ product.manufacturer }}</p>
                 <p class="product-price">
-                  {{ (product.customerPrice ?? product.unitPrice) | currency:'BAM':'symbol':'1.2-2' }}
+                  {{ (product.customerPrice ?? product.unitPrice) | kmCurrency }}
                 </p>
               </div>
               <div class="product-actions" (click)="$event.stopPropagation()">

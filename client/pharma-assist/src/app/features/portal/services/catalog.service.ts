@@ -57,6 +57,7 @@ export class CatalogService {
       .set('pageSize', pagination.pageSize.toString());
 
     if (filter.search) params = params.set('search', filter.search);
+    if (filter.category) params = params.set('category', filter.category);
     if (filter.categoryId) params = params.set('categoryId', filter.categoryId);
     if (filter.manufacturerId) params = params.set('manufacturerId', filter.manufacturerId);
     if (filter.minPrice) params = params.set('minPrice', filter.minPrice.toString());

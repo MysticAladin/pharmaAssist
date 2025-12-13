@@ -194,6 +194,7 @@ export interface ProductCatalogItem {
 
 export interface ProductFilter {
   search?: string;
+  category?: string; // Category slug/name for nav links (e.g., 'medications', 'medical-supplies')
   categoryId?: string;
   manufacturerId?: string;
   minPrice?: number;

@@ -6,11 +6,12 @@ import { TranslateModule } from '@ngx-translate/core';
 import { CartService } from '../../services/cart.service';
 import { CatalogService } from '../../services/catalog.service';
 import { QuickOrderItem, PriceType } from '../../models/portal.model';
+import { KmCurrencyPipe } from '../../../../core/pipes/km-currency.pipe';
 
 @Component({
   selector: 'app-quick-order',
   standalone: true,
-  imports: [CommonModule, RouterModule, FormsModule, TranslateModule],
+  imports: [CommonModule, RouterModule, FormsModule, TranslateModule, KmCurrencyPipe],
   template: `
     <div class="quick-order-page">
       <div class="page-header">
@@ -59,7 +60,7 @@ import { QuickOrderItem, PriceType } from '../../models/portal.model';
                     <div class="product-preview">
                       <span class="name">{{ item.productName }}</span>
                       @if (item.unitPrice) {
-                        <span class="price">{{ item.unitPrice | currency:'BAM':'symbol':'1.2-2' }}</span>
+                        <span class="price">{{ item.unitPrice | kmCurrency }}</span>
                       }
                     </div>
                   } @else if (item.error) {
@@ -124,13 +125,13 @@ import { QuickOrderItem, PriceType } from '../../models/portal.model';
                     <span class="sku">{{ item.sku }}</span>
                   </div>
                   <span class="qty">x{{ item.quantity }}</span>
-                  <span class="price">{{ (item.unitPrice ?? 0) * item.quantity | currency:'BAM':'symbol':'1.2-2' }}</span>
+                  <span class="price">{{ (item.unitPrice ?? 0) * item.quantity | kmCurrency }}</span>
                 </div>
               }
             </div>
             <div class="preview-total">
               <span>{{ 'portal.cart.total' | translate }}</span>
-              <span>{{ previewTotal() | currency:'BAM':'symbol':'1.2-2' }}</span>
+              <span>{{ previewTotal() | kmCurrency }}</span>
             </div>
             <button class="btn btn-primary btn-lg" (click)="addAllToCart()" [disabled]="validItems().length === 0">
               {{ 'portal.quickOrder.addAllToCart' | translate }}

@@ -8,11 +8,12 @@ import { DeliveryAddress, DeliveryOption, PaymentMethod, DELIVERY_OPTIONS, Check
 import { AuthService } from '../../../../core/services/auth.service';
 import { DbFeatureFlagService } from '../../../../core/services/db-feature-flag.service';
 import { SYSTEM_FLAGS } from '../../../../core/models/feature-flag.model';
+import { KmCurrencyPipe } from '../../../../core/pipes/km-currency.pipe';
 
 @Component({
   selector: 'app-checkout',
   standalone: true,
-  imports: [CommonModule, RouterModule, FormsModule, TranslateModule],
+  imports: [CommonModule, RouterModule, FormsModule, TranslateModule, KmCurrencyPipe],
   template: `
     <div class="checkout-page">
       <h1>{{ 'portal.checkout.title' | translate }}</h1>
@@ -94,7 +95,7 @@ import { SYSTEM_FLAGS } from '../../../../core/models/feature-flag.model';
                           <span class="option-desc">{{ option.description }}</span>
                         </div>
                         <span class="option-price">
-                          {{ option.price === 0 ? ('portal.checkout.free' | translate) : (option.price | currency:'BAM':'symbol':'1.2-2') }}
+                          {{ option.price === 0 ? ('portal.checkout.free' | translate) : (option.price | kmCurrency) }}
                         </span>
                       </div>
                     </label>
@@ -154,12 +155,12 @@ import { SYSTEM_FLAGS } from '../../../../core/models/feature-flag.model';
                           <div class="invoice-type">
                             <span class="type-badge commercial">{{ 'portal.checkout.commercialList' | translate }}</span>
                             <span class="item-count">{{ commercialItemCount() }} {{ 'portal.checkout.items' | translate }}</span>
-                            <span class="type-total">{{ commercialTotal() | currency:'BAM':'symbol':'1.2-2' }}</span>
+                            <span class="type-total">{{ commercialTotal() | kmCurrency }}</span>
                           </div>
                           <div class="invoice-type">
                             <span class="type-badge essential">{{ 'portal.checkout.essentialList' | translate }}</span>
                             <span class="item-count">{{ essentialItemCount() }} {{ 'portal.checkout.items' | translate }}</span>
-                            <span class="type-total">{{ essentialTotal() | currency:'BAM':'symbol':'1.2-2' }}</span>
+                            <span class="type-total">{{ essentialTotal() | kmCurrency }}</span>
                           </div>
                         </div>
                       </div>
@@ -197,7 +198,7 @@ import { SYSTEM_FLAGS } from '../../../../core/models/feature-flag.model';
                 </div>
                 <div class="review-section">
                   <h4>{{ 'portal.checkout.deliveryMethod' | translate }}</h4>
-                  <p>{{ selectedDelivery?.name }} - {{ selectedDelivery?.price === 0 ? 'Free' : (selectedDelivery?.price | currency:'BAM') }}</p>
+                  <p>{{ selectedDelivery?.name }} - {{ selectedDelivery?.price === 0 ? 'Free' : (selectedDelivery?.price | kmCurrency) }}</p>
                 </div>
                 <div class="review-section">
                   <h4>{{ 'portal.checkout.payment' | translate }}</h4>
@@ -233,7 +234,7 @@ import { SYSTEM_FLAGS } from '../../../../core/models/feature-flag.model';
                     {{ item.priceType === 'essential' ? 'E' : 'C' }}
                   </span>
                 </span>
-                <span class="item-price">{{ item.subtotal | currency:'BAM':'symbol':'1.2-2' }}</span>
+                <span class="item-price">{{ item.subtotal | kmCurrency }}</span>
               </div>
             }
           </div>
@@ -243,21 +244,21 @@ import { SYSTEM_FLAGS } from '../../../../core/models/feature-flag.model';
             <div class="split-summary">
               <div class="split-group commercial">
                 <span class="split-label">{{ 'portal.checkout.commercialList' | translate }}</span>
-                <span class="split-value">{{ commercialTotal() | currency:'BAM':'symbol':'1.2-2' }}</span>
+                <span class="split-value">{{ commercialTotal() | kmCurrency }}</span>
               </div>
               <div class="split-group essential">
                 <span class="split-label">{{ 'portal.checkout.essentialList' | translate }}</span>
-                <span class="split-value">{{ essentialTotal() | currency:'BAM':'symbol':'1.2-2' }}</span>
+                <span class="split-value">{{ essentialTotal() | kmCurrency }}</span>
               </div>
             </div>
-            <div class="summary-row"><span>{{ 'portal.cart.delivery' | translate }}</span><span>{{ (selectedDelivery?.price ?? 0) | currency:'BAM':'symbol':'1.2-2' }}</span></div>
-            <div class="summary-row total"><span>{{ 'portal.cart.total' | translate }}</span><span>{{ grandTotal() | currency:'BAM':'symbol':'1.2-2' }}</span></div>
+            <div class="summary-row"><span>{{ 'portal.cart.delivery' | translate }}</span><span>{{ (selectedDelivery?.price ?? 0) | kmCurrency }}</span></div>
+            <div class="summary-row total"><span>{{ 'portal.cart.total' | translate }}</span><span>{{ grandTotal() | kmCurrency }}</span></div>
           } @else {
             <!-- Standard View -->
-            <div class="summary-row"><span>{{ 'portal.cart.subtotal' | translate }}</span><span>{{ subtotal() | currency:'BAM':'symbol':'1.2-2' }}</span></div>
-            <div class="summary-row"><span>{{ 'portal.cart.delivery' | translate }}</span><span>{{ (selectedDelivery?.price ?? 0) | currency:'BAM':'symbol':'1.2-2' }}</span></div>
-            <div class="summary-row"><span>{{ 'portal.cart.tax' | translate }}</span><span>{{ tax() | currency:'BAM':'symbol':'1.2-2' }}</span></div>
-            <div class="summary-row total"><span>{{ 'portal.cart.total' | translate }}</span><span>{{ grandTotal() | currency:'BAM':'symbol':'1.2-2' }}</span></div>
+            <div class="summary-row"><span>{{ 'portal.cart.subtotal' | translate }}</span><span>{{ subtotal() | kmCurrency }}</span></div>
+            <div class="summary-row"><span>{{ 'portal.cart.delivery' | translate }}</span><span>{{ (selectedDelivery?.price ?? 0) | kmCurrency }}</span></div>
+            <div class="summary-row"><span>{{ 'portal.cart.tax' | translate }}</span><span>{{ tax() | kmCurrency }}</span></div>
+            <div class="summary-row total"><span>{{ 'portal.cart.total' | translate }}</span><span>{{ grandTotal() | kmCurrency }}</span></div>
           }
         </div>
       </div>

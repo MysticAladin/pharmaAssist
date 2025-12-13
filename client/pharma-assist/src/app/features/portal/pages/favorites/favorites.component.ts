@@ -5,11 +5,12 @@ import { TranslateModule } from '@ngx-translate/core';
 import { CatalogService } from '../../services/catalog.service';
 import { CartService } from '../../services/cart.service';
 import { Favorite, ProductCatalogItem, PriceType } from '../../models/portal.model';
+import { KmCurrencyPipe } from '../../../../core/pipes/km-currency.pipe';
 
 @Component({
   selector: 'app-favorites',
   standalone: true,
-  imports: [CommonModule, RouterModule, TranslateModule],
+  imports: [CommonModule, RouterModule, TranslateModule, KmCurrencyPipe],
   template: `
     <div class="favorites-page">
       <div class="page-header">
@@ -47,7 +48,7 @@ import { Favorite, ProductCatalogItem, PriceType } from '../../models/portal.mod
                 <h3 [routerLink]="['/portal/product', fav.product.id]">{{ fav.product.name }}</h3>
                 <p class="sku">SKU: {{ fav.product.code }}</p>
                 <div class="price-row">
-                  <span class="price">{{ fav.product.unitPrice | currency:'BAM':'symbol':'1.2-2' }}</span>
+                  <span class="price">{{ fav.product.unitPrice | kmCurrency }}</span>
                   @if (!fav.product.isAvailable) {
                     <span class="out-of-stock">{{ 'portal.catalog.outOfStock' | translate }}</span>
                   }

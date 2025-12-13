@@ -1,6 +1,6 @@
 import { Injectable, inject, signal } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { Observable, of, delay } from 'rxjs';
+import { Observable, of, delay, map, catchError } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import {
   ReportFilters,
@@ -102,28 +102,61 @@ export class ReportService {
    * Get sales report
    */
   getSalesReport(filters: ReportFilters): Observable<SalesReport> {
-    // In production: return this.http.get<SalesReport>(`${this.apiUrl}/sales`, { params });
-    return of(this.generateMockSalesReport(filters)).pipe(delay(500));
+    const range = this.getDateRange(filters.period, filters.customRange);
+    let params = new HttpParams()
+      .set('startDate', range.start.toISOString())
+      .set('endDate', range.end.toISOString());
+
+    return this.http.get<any>(`${this.apiUrl}/sales`, { params }).pipe(
+      map(response => this.mapSalesReportFromApi(response, filters)),
+      catchError(err => {
+        console.warn('Failed to fetch sales report from API, using mock data', err);
+        return of(this.generateMockSalesReport(filters)).pipe(delay(500));
+      })
+    );
   }
 
   /**
    * Get inventory report
    */
   getInventoryReport(filters: ReportFilters): Observable<InventoryReport> {
-    return of(this.generateMockInventoryReport(filters)).pipe(delay(500));
+    return this.http.get<any>(`${this.apiUrl}/inventory`).pipe(
+      map(response => this.mapInventoryReportFromApi(response)),
+      catchError(err => {
+        console.warn('Failed to fetch inventory report from API, using mock data', err);
+        return of(this.generateMockInventoryReport(filters)).pipe(delay(500));
+      })
+    );
   }
 
   /**
    * Get customer report
    */
   getCustomerReport(filters: ReportFilters): Observable<CustomerReport> {
-    return of(this.generateMockCustomerReport(filters)).pipe(delay(500));
+    // Customer report requires a customerId - if not provided, use mock
+    if (!filters.customerId) {
+      return of(this.generateMockCustomerReport(filters)).pipe(delay(500));
+    }
+
+    const range = this.getDateRange(filters.period, filters.customRange);
+    let params = new HttpParams()
+      .set('startDate', range.start.toISOString())
+      .set('endDate', range.end.toISOString());
+
+    return this.http.get<any>(`${this.apiUrl}/customer/${filters.customerId}`, { params }).pipe(
+      map(response => this.mapCustomerReportFromApi(response)),
+      catchError(err => {
+        console.warn('Failed to fetch customer report from API, using mock data', err);
+        return of(this.generateMockCustomerReport(filters)).pipe(delay(500));
+      })
+    );
   }
 
   /**
    * Get financial report
    */
   getFinancialReport(filters: ReportFilters): Observable<FinancialReport> {
+    // Financial report - currently no backend endpoint, use mock
     return of(this.generateMockFinancialReport(filters)).pipe(delay(500));
   }
 
@@ -131,8 +164,136 @@ export class ReportService {
    * Export report to CSV or PDF
    */
   exportReport(type: 'sales' | 'inventory' | 'customer' | 'financial', format: 'csv' | 'pdf', filters: ReportFilters): void {
-    // In production, would call backend to generate and download report
-    console.log(`Exporting ${type} report as ${format}`, filters);
+    const range = this.getDateRange(filters.period, filters.customRange);
+    let params = new HttpParams()
+      .set('format', format === 'pdf' ? 'Pdf' : 'Csv');
+
+    if (type === 'sales') {
+      params = params
+        .set('startDate', range.start.toISOString())
+        .set('endDate', range.end.toISOString());
+
+      this.http.get(`${this.apiUrl}/sales/download`, { params, responseType: 'blob' })
+        .subscribe({
+          next: (blob) => this.downloadBlob(blob, `sales-report.${format}`),
+          error: () => console.log(`Exporting ${type} report as ${format}`, filters)
+        });
+    } else if (type === 'inventory') {
+      this.http.get(`${this.apiUrl}/inventory/download`, { params, responseType: 'blob' })
+        .subscribe({
+          next: (blob) => this.downloadBlob(blob, `inventory-report.${format}`),
+          error: () => console.log(`Exporting ${type} report as ${format}`, filters)
+        });
+    } else {
+      console.log(`Exporting ${type} report as ${format}`, filters);
+    }
+  }
+
+  private downloadBlob(blob: Blob, filename: string): void {
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    a.click();
+    window.URL.revokeObjectURL(url);
+  }
+
+  /**
+   * Map API sales report to frontend model
+   */
+  private mapSalesReportFromApi(apiResponse: any, filters: ReportFilters): SalesReport {
+    const range = this.getDateRange(filters.period, filters.customRange);
+    const days = Math.ceil((range.end.getTime() - range.start.getTime()) / (1000 * 60 * 60 * 24));
+
+    // Map daily sales to trends
+    const trends: SalesTrend[] = (apiResponse.dailySales || []).map((d: any) => ({
+      date: new Date(d.date).toISOString().split('T')[0],
+      revenue: d.revenue || 0,
+      orders: d.orderCount || 0,
+      items: 0 // API doesn't provide this per day
+    }));
+
+    // Map items to top products
+    const items = apiResponse.items || [];
+    const totalRevenue = apiResponse.totalRevenue || 0;
+    const topProducts: TopProduct[] = items.slice(0, 10).map((item: any) => ({
+      id: item.productId,
+      name: item.productName,
+      sku: item.sku,
+      quantity: item.quantitySold,
+      revenue: item.totalAmount,
+      percentage: totalRevenue > 0 ? (item.totalAmount / totalRevenue) * 100 : 0
+    }));
+
+    return {
+      metrics: {
+        totalRevenue: apiResponse.totalRevenue || 0,
+        totalOrders: apiResponse.totalOrders || 0,
+        averageOrderValue: apiResponse.averageOrderValue || 0,
+        itemsSold: items.reduce((sum: number, i: any) => sum + (i.quantitySold || 0), 0),
+        revenueGrowth: 0, // Not provided by API
+        ordersGrowth: 0
+      },
+      trends,
+      topProducts,
+      topCustomers: [], // Not provided by basic sales report
+      byCategory: [], // Not provided by basic sales report
+      hourlyDistribution: [] // Not provided by basic sales report
+    };
+  }
+
+  /**
+   * Map API inventory report to frontend model
+   */
+  private mapInventoryReportFromApi(apiResponse: any): InventoryReport {
+    return {
+      metrics: {
+        totalProducts: apiResponse.totalProducts || 0,
+        activeProducts: apiResponse.totalInStock || 0,
+        lowStockCount: apiResponse.totalLowStock || 0,
+        outOfStockCount: apiResponse.totalOutOfStock || 0,
+        expiringThisMonth: apiResponse.totalExpiringSoon || 0,
+        totalValue: apiResponse.totalInventoryValue || 0
+      },
+      byCategory: [], // Would need to aggregate from items
+      expiringProducts: (apiResponse.items || [])
+        .filter((i: any) => i.earliestExpiry)
+        .slice(0, 10)
+        .map((item: any) => ({
+          id: item.productId,
+          name: item.productName,
+          batchNumber: item.sku,
+          expiryDate: new Date(item.earliestExpiry),
+          quantity: item.currentStock,
+          daysUntilExpiry: Math.ceil((new Date(item.earliestExpiry).getTime() - Date.now()) / (1000 * 60 * 60 * 24))
+        })),
+      stockMovements: []
+    };
+  }
+
+  /**
+   * Map API customer report to frontend model
+   */
+  private mapCustomerReportFromApi(apiResponse: any): CustomerReport {
+    return {
+      metrics: {
+        totalCustomers: 1,
+        activeCustomers: 1,
+        newCustomers: 0,
+        repeatCustomerRate: apiResponse.totalOrders > 1 ? 100 : 0,
+        averageLifetimeValue: apiResponse.totalSpent || 0
+      },
+      segments: [],
+      growth: [],
+      topCustomers: [{
+        id: apiResponse.customerId,
+        name: apiResponse.customerName,
+        email: apiResponse.email,
+        orders: apiResponse.totalOrders,
+        totalSpent: apiResponse.totalSpent,
+        percentage: 100
+      }]
+    };
   }
 
   // Mock data generators

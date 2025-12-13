@@ -2,11 +2,12 @@ import { Component, inject, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule, ActivatedRoute, Router } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
+import { KmCurrencyPipe } from '../../../../core/pipes/km-currency.pipe';
 
 @Component({
   selector: 'app-order-confirmation',
   standalone: true,
-  imports: [CommonModule, RouterModule, TranslateModule],
+  imports: [CommonModule, RouterModule, TranslateModule, KmCurrencyPipe],
   template: `
     <div class="confirmation-page">
       <div class="confirmation-card">
@@ -38,14 +39,14 @@ import { TranslateModule } from '@ngx-translate/core';
                 <span class="invoice-badge">{{ 'portal.checkout.commercialList' | translate }}</span>
                 <div class="invoice-details">
                   <span class="invoice-items">{{ orderData()?.commercialItemCount }} {{ 'portal.checkout.items' | translate }}</span>
-                  <span class="invoice-total">{{ orderData()?.commercialTotal | currency:'BAM':'symbol':'1.2-2' }}</span>
+                  <span class="invoice-total">{{ orderData()?.commercialTotal | kmCurrency }}</span>
                 </div>
               </div>
               <div class="invoice-card essential">
                 <span class="invoice-badge">{{ 'portal.checkout.essentialList' | translate }}</span>
                 <div class="invoice-details">
                   <span class="invoice-items">{{ orderData()?.essentialItemCount }} {{ 'portal.checkout.items' | translate }}</span>
-                  <span class="invoice-total">{{ orderData()?.essentialTotal | currency:'BAM':'symbol':'1.2-2' }}</span>
+                  <span class="invoice-total">{{ orderData()?.essentialTotal | kmCurrency }}</span>
                 </div>
               </div>
             </div>

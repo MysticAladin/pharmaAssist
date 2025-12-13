@@ -5,11 +5,12 @@ import { TranslateModule } from '@ngx-translate/core';
 import { CatalogService } from '../../services/catalog.service';
 import { CartService } from '../../services/cart.service';
 import { ProductCatalogItem } from '../../models/portal.model';
+import { KmCurrencyPipe } from '../../../../core/pipes/km-currency.pipe';
 
 @Component({
   selector: 'app-product-detail',
   standalone: true,
-  imports: [CommonModule, RouterModule, TranslateModule],
+  imports: [CommonModule, RouterModule, TranslateModule, KmCurrencyPipe],
   template: `
     <div class="product-detail">
       @if (isLoading()) {
@@ -35,9 +36,9 @@ import { ProductCatalogItem } from '../../models/portal.model';
             <p class="manufacturer">{{ 'portal.product.by' | translate }} {{ product()!.manufacturer }}</p>
 
             <div class="price-section">
-              <span class="price">{{ (product()!.customerPrice ?? product()!.unitPrice) | currency:'BAM':'symbol':'1.2-2' }}</span>
+              <span class="price">{{ (product()!.customerPrice ?? product()!.unitPrice) | kmCurrency }}</span>
               @if (product()?.customerPrice && product()!.customerPrice! < product()!.unitPrice) {
-                <span class="original-price">{{ product()!.unitPrice | currency:'BAM':'symbol':'1.2-2' }}</span>
+                <span class="original-price">{{ product()!.unitPrice | kmCurrency }}</span>
               }
             </div>
 

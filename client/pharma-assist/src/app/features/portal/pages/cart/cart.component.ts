@@ -5,11 +5,12 @@ import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
 import { CartService } from '../../services/cart.service';
 import { CartItem, PriceType } from '../../models/portal.model';
+import { KmCurrencyPipe } from '../../../../core/pipes/km-currency.pipe';
 
 @Component({
   selector: 'app-cart',
   standalone: true,
-  imports: [CommonModule, RouterModule, FormsModule, TranslateModule],
+  imports: [CommonModule, RouterModule, FormsModule, TranslateModule, KmCurrencyPipe],
   template: `
     <div class="cart-page">
       <h1>{{ 'portal.cart.title' | translate }}</h1>
@@ -58,7 +59,7 @@ import { CartItem, PriceType } from '../../models/portal.model';
                 </div>
 
                 <div class="col-price">
-                  {{ item.unitPrice | currency:'BAM':'symbol':'1.2-2' }}
+                  {{ item.unitPrice | kmCurrency }}
                 </div>
 
                 <div class="col-quantity">
@@ -79,7 +80,7 @@ import { CartItem, PriceType } from '../../models/portal.model';
                 </div>
 
                 <div class="col-subtotal">
-                  {{ item.subtotal | currency:'BAM':'symbol':'1.2-2' }}
+                  {{ item.subtotal | kmCurrency }}
                 </div>
 
                 <div class="col-actions">
@@ -106,18 +107,18 @@ import { CartItem, PriceType } from '../../models/portal.model';
 
             <div class="summary-row">
               <span>{{ 'portal.cart.subtotal' | translate }} ({{ itemCount() }} {{ 'portal.cart.items' | translate }})</span>
-              <span>{{ subtotal() | currency:'BAM':'symbol':'1.2-2' }}</span>
+              <span>{{ subtotal() | kmCurrency }}</span>
             </div>
 
             @if (hasMixedPriceTypes()) {
               <div class="price-breakdown">
                 <div class="breakdown-row commercial">
                   <span>{{ 'portal.checkout.commercialList' | translate }}</span>
-                  <span>{{ commercialTotal() | currency:'BAM':'symbol':'1.2-2' }}</span>
+                  <span>{{ commercialTotal() | kmCurrency }}</span>
                 </div>
                 <div class="breakdown-row essential">
                   <span>{{ 'portal.checkout.essentialList' | translate }}</span>
-                  <span>{{ essentialTotal() | currency:'BAM':'symbol':'1.2-2' }}</span>
+                  <span>{{ essentialTotal() | kmCurrency }}</span>
                 </div>
                 <p class="split-hint">{{ 'portal.cart.splitInvoiceHint' | translate }}</p>
               </div>
@@ -125,19 +126,19 @@ import { CartItem, PriceType } from '../../models/portal.model';
 
             <div class="summary-row">
               <span>{{ 'portal.cart.tax' | translate }} (17% PDV)</span>
-              <span>{{ tax() | currency:'BAM':'symbol':'1.2-2' }}</span>
+              <span>{{ tax() | kmCurrency }}</span>
             </div>
 
             @if (discount() > 0) {
               <div class="summary-row discount">
                 <span>{{ 'portal.cart.discount' | translate }}</span>
-                <span>-{{ discount() | currency:'BAM':'symbol':'1.2-2' }}</span>
+                <span>-{{ discount() | kmCurrency }}</span>
               </div>
             }
 
             <div class="summary-row total">
               <span>{{ 'portal.cart.total' | translate }}</span>
-              <span>{{ total() | currency:'BAM':'symbol':'1.2-2' }}</span>
+              <span>{{ total() | kmCurrency }}</span>
             </div>
 
             <!-- Discount Code -->

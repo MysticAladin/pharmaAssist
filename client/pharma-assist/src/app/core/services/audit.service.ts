@@ -1,6 +1,6 @@
 import { Injectable, inject, signal, computed } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { Observable, of } from 'rxjs';
+import { Observable, of, catchError, map, tap } from 'rxjs';
 import {
   AuditLog,
   AuditLogFilters,
@@ -19,6 +19,16 @@ interface PagedResponse<T> {
   totalPages: number;
 }
 
+interface ApiPagedResponse<T> {
+  items?: T[];
+  data?: T[];
+  totalCount: number;
+  pageNumber?: number;
+  page?: number;
+  pageSize: number;
+  totalPages: number;
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -26,8 +36,9 @@ export class AuditService {
   private readonly http = inject(HttpClient);
   private readonly apiUrl = `${environment.apiUrl}/audit`;
 
-  // Local cache for demo
-  private auditLogs = signal<AuditLog[]>(this.generateMockLogs());
+  // Local cache - will be populated from API
+  private auditLogs = signal<AuditLog[]>([]);
+  private initialized = false;
 
   // Reactive state
   readonly recentLogs = computed(() => this.auditLogs().slice(0, 50));
@@ -83,13 +94,68 @@ export class AuditService {
    * Get paginated audit logs
    */
   getLogs(filters: AuditLogFilters): Observable<PagedResponse<AuditLog>> {
-    // In production, would call backend
-    // let params = new HttpParams()
-    //   .set('page', filters.page.toString())
-    //   .set('pageSize', filters.pageSize.toString());
-    // return this.http.get<PagedResponse<AuditLog>>(this.apiUrl, { params });
+    // Build query params for API
+    let params = new HttpParams()
+      .set('page', filters.page.toString())
+      .set('pageSize', filters.pageSize.toString());
 
-    // Demo: filter local data
+    if (filters.userId) {
+      params = params.set('userId', filters.userId);
+    }
+    if (filters.action) {
+      params = params.set('action', filters.action);
+    }
+    if (filters.entityType) {
+      params = params.set('entityType', filters.entityType);
+    }
+    if (filters.severity) {
+      params = params.set('severity', filters.severity);
+    }
+    if (filters.success !== undefined) {
+      params = params.set('success', filters.success.toString());
+    }
+    if (filters.startDate) {
+      params = params.set('startDate', filters.startDate.toISOString());
+    }
+    if (filters.endDate) {
+      params = params.set('endDate', filters.endDate.toISOString());
+    }
+    if (filters.search) {
+      params = params.set('searchTerm', filters.search);
+    }
+
+    return this.http.get<ApiPagedResponse<AuditLog>>(this.apiUrl, { params }).pipe(
+      map(response => this.mapApiResponse(response, filters)),
+      tap(response => {
+        // Update local cache with fetched data
+        if (!this.initialized) {
+          this.auditLogs.set(response.data);
+          this.initialized = true;
+        }
+      }),
+      catchError(err => {
+        console.warn('Failed to fetch audit logs from API, using mock data', err);
+        return of(this.filterLocalLogs(filters));
+      })
+    );
+  }
+
+  private mapApiResponse(response: ApiPagedResponse<AuditLog>, filters: AuditLogFilters): PagedResponse<AuditLog> {
+    return {
+      data: response.items || response.data || [],
+      totalCount: response.totalCount,
+      page: response.pageNumber || response.page || filters.page,
+      pageSize: response.pageSize,
+      totalPages: response.totalPages
+    };
+  }
+
+  private filterLocalLogs(filters: AuditLogFilters): PagedResponse<AuditLog> {
+    // Ensure we have mock data if API failed and cache is empty
+    if (this.auditLogs().length === 0) {
+      this.auditLogs.set(this.generateMockLogs());
+    }
+
     let logs = [...this.auditLogs()];
 
     if (filters.userId) {
@@ -126,13 +192,13 @@ export class AuditService {
     const start = (filters.page - 1) * filters.pageSize;
     const data = logs.slice(start, start + filters.pageSize);
 
-    return of({
+    return {
       data,
       totalCount,
       page: filters.page,
       pageSize: filters.pageSize,
       totalPages: Math.ceil(totalCount / filters.pageSize)
-    });
+    };
   }
 
   /**

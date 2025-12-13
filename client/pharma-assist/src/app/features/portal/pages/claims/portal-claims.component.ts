@@ -4,11 +4,12 @@ import { RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
 import { PortalClaimsService, Claim, ClaimStatus, ClaimType } from '../../services/portal-claims.service';
+import { KmCurrencyPipe } from '../../../../core/pipes/km-currency.pipe';
 
 @Component({
   selector: 'app-portal-claims',
   standalone: true,
-  imports: [CommonModule, RouterModule, FormsModule, TranslateModule],
+  imports: [CommonModule, RouterModule, FormsModule, TranslateModule, KmCurrencyPipe],
   template: `
     <div class="claims-page">
       <div class="page-header">
@@ -86,7 +87,7 @@ import { PortalClaimsService, Claim, ClaimStatus, ClaimType } from '../../servic
               @if (claim.refundAmount) {
                 <div class="claim-footer">
                   <span class="refund-label">{{ 'portal.claims.refundAmount' | translate }}:</span>
-                  <span class="refund-amount">{{ claim.refundAmount | currency:'BAM':'symbol':'1.2-2' }}</span>
+                  <span class="refund-amount">{{ claim.refundAmount | kmCurrency }}</span>
                 </div>
               }
 
@@ -152,7 +153,7 @@ import { PortalClaimsService, Claim, ClaimStatus, ClaimType } from '../../servic
               @if (selectedClaim()!.refundAmount) {
                 <div class="refund-info">
                   <span class="label">{{ 'portal.claims.refundAmount' | translate }}</span>
-                  <span class="amount">{{ selectedClaim()!.refundAmount | currency:'BAM':'symbol':'1.2-2' }}</span>
+                  <span class="amount">{{ selectedClaim()!.refundAmount | kmCurrency }}</span>
                 </div>
               }
             </div>
