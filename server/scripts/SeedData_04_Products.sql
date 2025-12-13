@@ -11,20 +11,16 @@ PRINT 'Starting Part 4: Products seed...';
 DECLARE @Now DATETIME2 = GETUTCDATE();
 
 -- =============================================
--- CLEANUP: Delete existing products and related data
+-- CLEANUP: Already handled in Part 3 (Manufacturers_Categories)
+-- This is a no-op since Part 3 already cleans products
 -- =============================================
 PRINT 'Cleaning up existing products...';
 
--- Delete in correct order due to FK constraints
-DELETE FROM OrderItems;
-DELETE FROM PromotionProducts;
+-- Products already cleaned in Part 3, just clean any additional references
 DELETE FROM PriceRules;
-DELETE FROM ProductBatches;
-DELETE FROM InventoryStocks;
 DELETE FROM StockMovements;
 DELETE FROM TenderBidItems;
 DELETE FROM TenderItems;
-DELETE FROM Products;
 
 PRINT 'Products cleanup completed.';
 

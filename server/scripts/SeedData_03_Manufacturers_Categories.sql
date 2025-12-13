@@ -11,12 +11,21 @@ PRINT 'Starting Part 3: Manufacturers and Categories seed...';
 DECLARE @Now DATETIME2 = GETUTCDATE();
 
 -- =============================================
--- CLEANUP: Delete existing manufacturers and categories
+-- CLEANUP: Delete existing data (respecting FK constraints)
 -- =============================================
-PRINT 'Cleaning up existing manufacturers and categories...';
+PRINT 'Cleaning up existing data...';
 
--- Categories must be deleted before products (FK constraint)
--- Products will be cleaned in Part 4
+-- Must delete in correct order due to FK constraints
+-- First delete things that reference Products
+DELETE FROM OrderItems;
+DELETE FROM InventoryStocks;
+DELETE FROM ProductBatches;
+DELETE FROM PromotionProducts;
+
+-- Then delete Products (which reference Categories/Manufacturers)
+DELETE FROM Products;
+
+-- Now we can safely delete Categories and Manufacturers
 DELETE FROM Categories;
 DELETE FROM Manufacturers;
 

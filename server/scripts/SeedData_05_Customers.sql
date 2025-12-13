@@ -16,21 +16,37 @@ DECLARE @Now DATETIME2 = GETUTCDATE();
 PRINT 'Cleaning up existing customers...';
 
 -- Delete in correct order due to FK constraints
+-- First delete things that reference Orders
+DELETE FROM OrderItems;
+
+-- Then delete Orders (which reference CustomerAddresses)
+DELETE FROM Orders;
+
+-- Now we can delete CustomerAddresses
 DELETE FROM CustomerAddresses;
+
+-- Delete other customer-related data
 DELETE FROM PromotionUsages;
-DELETE FROM Orders; -- Will also need to delete orders
 DELETE FROM Prescriptions;
 DELETE FROM Claims;
 DELETE FROM SalesTargets;
+DELETE FROM SalesTargetProgress;
 DELETE FROM Budgets;
+DELETE FROM BudgetExpenses;
+DELETE FROM TenderBidItems;
+DELETE FROM TenderBids;
+DELETE FROM TenderDocuments;
+DELETE FROM TenderItems;
 DELETE FROM Tenders;
 DELETE FROM ClientFeatureFlags;
+
+-- Finally delete Customers
 DELETE FROM Customers;
 
 PRINT 'Customers cleanup completed.';
 
 -- Get user ID for customer user
-DECLARE @CustomerUserId NVARCHAR(450) = (SELECT Id FROM AspNetUsers WHERE NormalizedEmail = 'CUSTOMER.USER@PHARMAASSIST.COM');
+DECLARE @CustomerUserId NVARCHAR(450) = (SELECT Id FROM Users WHERE NormalizedEmail = 'CUSTOMER.USER@PHARMAASSIST.COM');
 
 -- Get geographic IDs
 DECLARE @SarajevoCantonId INT = (SELECT Id FROM Cantons WHERE Code = 'SC');

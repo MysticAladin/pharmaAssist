@@ -160,7 +160,7 @@ public class EvaluateFlagsResponseDto
 public class FeatureFlagMatrixDto
 {
     public List<FeatureFlagMatrixRowDto> Rows { get; set; } = new();
-    public List<CustomerSummaryDto> Customers { get; set; } = new();
+    public List<FeatureFlagCustomerSummaryDto> Customers { get; set; } = new();
 }
 
 /// <summary>
@@ -181,9 +181,9 @@ public class FeatureFlagMatrixRowDto
 }
 
 /// <summary>
-/// Basic customer info for the matrix header
+/// Basic customer info for the feature flag matrix header
 /// </summary>
-public class CustomerSummaryDto
+public class FeatureFlagCustomerSummaryDto
 {
     public int Id { get; set; }
     public string Name { get; set; } = string.Empty;

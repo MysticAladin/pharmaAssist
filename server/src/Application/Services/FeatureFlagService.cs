@@ -770,7 +770,7 @@ public class FeatureFlagService : IFeatureFlagService
 
             var matrix = new FeatureFlagMatrixDto
             {
-                Customers = customers.Select(c => new CustomerSummaryDto
+                Customers = customers.Select(c => new FeatureFlagCustomerSummaryDto
                 {
                     Id = c.Id,
                     Name = c.CompanyName ?? c.FullName,
