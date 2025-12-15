@@ -434,7 +434,7 @@ import { ConfirmDialogComponent } from '../../shared/components/confirm-dialog';
     </div>
   `,
   styles: [`
-    :host{--c1:#1a1a2e;--c2:#6b7280;--c3:#9ca3af;--c4:#e5e7eb;--c5:#f3f4f6;--c6:#0d9488;--c7:#0f766e}
+    :host{--c1:#1a1a2e;--c2:#6b7280;--c3:#9ca3af;--c4:#e5e7eb;--c5:#f3f4f6;--c6:#0aaaaa;--c7:#088888}
     .order-detail-page{padding:1.5rem;max-width:1200px;margin:0 auto}
     .back-nav{margin-bottom:1rem}
     .btn-back{display:inline-flex;align-items:center;gap:.5rem;padding:.5rem .75rem;background:0 0;border:none;color:var(--c2);font-size:.875rem;font-weight:500;cursor:pointer;border-radius:6px;transition:all .2s}

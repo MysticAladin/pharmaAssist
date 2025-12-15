@@ -457,7 +457,7 @@ interface NotificationSettings {
     </div>
   `,
   styles: [`
-    :host{--c1:#1a1a2e;--c2:#6b7280;--c3:#e5e7eb;--c4:#f3f4f6;--c5:#0d9488;--c6:#dc2626}
+    :host{--c1:#1a1a2e;--c2:#6b7280;--c3:#e5e7eb;--c4:#f3f4f6;--c5:#0aaaaa;--c6:#dc2626}
     .settings-page{padding:1.5rem;max-width:1100px;margin:0 auto}
     .page-header{margin-bottom:1.5rem}
     .page-title{font-size:1.5rem;font-weight:600;color:var(--c1);margin:0 0 .25rem}
@@ -511,7 +511,7 @@ interface NotificationSettings {
     .toggle input:checked+.toggle-slider{background:var(--c5)}
     .toggle input:checked+.toggle-slider:before{transform:translateX(20px)}
     .btn-primary{display:flex;align-items:center;justify-content:center;gap:.5rem;padding:.75rem 1.5rem;background:var(--c5);color:#fff;border:none;border-radius:8px;font-size:.9rem;font-weight:500;cursor:pointer;transition:all .2s}
-    .btn-primary:hover:not(:disabled){background:#0f766e}
+    .btn-primary:hover:not(:disabled){background:#088888}
     .btn-primary:disabled{opacity:.6;cursor:not-allowed}
     .btn-danger{padding:.5rem 1rem;background:var(--c6);color:#fff;border:none;border-radius:6px;font-size:.8rem;font-weight:500;cursor:pointer;transition:all .2s}
     .btn-danger:hover{background:#b91c1c}

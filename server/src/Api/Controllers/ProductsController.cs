@@ -46,9 +46,20 @@ public class ProductsController : ControllerBase
         [FromQuery] int? categoryId = null,
         [FromQuery] int? manufacturerId = null,
         [FromQuery] bool? activeOnly = true,
+        [FromQuery] decimal? minPrice = null,
+        [FromQuery] decimal? maxPrice = null,
+        [FromQuery] string? stockStatus = null,
+        [FromQuery] bool? requiresPrescription = null,
+        [FromQuery] bool? hasBarcode = null,
+        [FromQuery] string? expiryStatus = null,
+        [FromQuery] string? sortBy = null,
+        [FromQuery] string? sortDirection = null,
         CancellationToken cancellationToken = default)
     {
-        var result = await _productService.GetPagedAsync(page, pageSize, search, categoryId, manufacturerId, activeOnly, cancellationToken);
+        var result = await _productService.GetPagedAsync(
+            page, pageSize, search, categoryId, manufacturerId, activeOnly,
+            minPrice, maxPrice, stockStatus, requiresPrescription, hasBarcode,
+            expiryStatus, sortBy, sortDirection, cancellationToken);
         return Ok(result);
     }
 

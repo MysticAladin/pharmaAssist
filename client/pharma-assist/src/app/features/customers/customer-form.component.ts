@@ -311,7 +311,7 @@ interface City {
     </div>
   `,
   styles: [`
-    :host{--c1:#1a1a2e;--c2:#6b7280;--c3:#e5e7eb;--c4:#f3f4f6;--c5:#0d9488;--c6:#dc2626}
+    :host{--c1:#1a1a2e;--c2:#6b7280;--c3:#e5e7eb;--c4:#f3f4f6;--c5:#0aaaaa;--c6:#dc2626}
     .customer-form-page{padding:1.5rem;max-width:900px;margin:0 auto}
 
     .page-header{display:flex;gap:1rem;align-items:flex-start;margin-bottom:1.5rem}
@@ -351,7 +351,7 @@ interface City {
     .btn-secondary{background:var(--c4);color:var(--c2)}
     .btn-secondary:hover{background:var(--c3)}
     .btn-primary{background:var(--c5);color:#fff}
-    .btn-primary:hover:not(:disabled){background:#0f766e}
+    .btn-primary:hover:not(:disabled){background:#088888}
   `]
 })
 export class CustomerFormComponent implements OnInit {

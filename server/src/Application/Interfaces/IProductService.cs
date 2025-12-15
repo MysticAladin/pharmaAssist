@@ -10,7 +10,13 @@ public interface IProductService
 {
     Task<ApiResponse<ProductDto>> GetByIdAsync(int id, CancellationToken cancellationToken = default);
     Task<ApiResponse<IEnumerable<ProductDto>>> GetAllAsync(CancellationToken cancellationToken = default);
-    Task<PagedResponse<ProductSummaryDto>> GetPagedAsync(int page, int pageSize, string? search = null, int? categoryId = null, int? manufacturerId = null, bool? activeOnly = true, CancellationToken cancellationToken = default);
+    Task<PagedResponse<ProductSummaryDto>> GetPagedAsync(
+        int page, int pageSize, string? search = null, int? categoryId = null, 
+        int? manufacturerId = null, bool? activeOnly = true,
+        decimal? minPrice = null, decimal? maxPrice = null, string? stockStatus = null,
+        bool? requiresPrescription = null, bool? hasBarcode = null, string? expiryStatus = null,
+        string? sortBy = null, string? sortDirection = null,
+        CancellationToken cancellationToken = default);
     Task<ApiResponse<IEnumerable<ProductSummaryDto>>> SearchAsync(string searchTerm, CancellationToken cancellationToken = default);
     Task<ApiResponse<IEnumerable<ProductDto>>> GetByCategoryAsync(int categoryId, CancellationToken cancellationToken = default);
     Task<ApiResponse<IEnumerable<ProductDto>>> GetByManufacturerAsync(int manufacturerId, CancellationToken cancellationToken = default);

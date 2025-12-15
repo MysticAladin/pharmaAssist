@@ -259,7 +259,7 @@ import { StatusBadgeComponent } from '../../shared/components/status-badge';
     </div>
   `,
   styles: [`
-    :host{--c1:#1a1a2e;--c2:#6b7280;--c3:#e5e7eb;--c4:#f3f4f6;--c5:#0d9488;--c6:#dc2626;--c7:#22c55e}
+    :host{--c1:#1a1a2e;--c2:#6b7280;--c3:#e5e7eb;--c4:#f3f4f6;--c5:#0aaaaa;--c6:#dc2626;--c7:#22c55e}
     .prescription-detail{padding:1.5rem;max-width:1200px;margin:0 auto}
 
     .loading-state{display:flex;flex-direction:column;align-items:center;padding:4rem 2rem;color:var(--c2)}
@@ -278,7 +278,7 @@ import { StatusBadgeComponent } from '../../shared/components/status-badge';
     .header-actions{display:flex;gap:.75rem}
     .btn{display:inline-flex;align-items:center;gap:.5rem;padding:.75rem 1.25rem;border:none;border-radius:8px;font-size:.875rem;font-weight:500;cursor:pointer;transition:all .2s}
     .btn-primary{background:var(--c5);color:#fff}
-    .btn-primary:hover{background:#0f766e}
+    .btn-primary:hover{background:#088888}
     .btn-success{background:var(--c7);color:#fff}
     .btn-success:hover{background:#16a34a}
     .btn-danger{background:var(--c6);color:#fff}

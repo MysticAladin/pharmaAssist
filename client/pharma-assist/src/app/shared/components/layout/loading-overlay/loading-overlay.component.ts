@@ -1,17 +1,18 @@
 import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { TranslateModule } from '@ngx-translate/core';
 import { UIStateService } from '../../../../core/state/ui-state.service';
 
 @Component({
   selector: 'app-loading-overlay',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, TranslateModule],
   template: `
     @if (uiState.globalLoading()) {
       <div class="loading-overlay">
         <div class="loading-spinner">
           <div class="spinner"></div>
-          <span class="loading-text">Učitavanje...</span>
+          <span class="loading-text">{{ 'common.loading' | translate }}</span>
         </div>
       </div>
     }

@@ -162,7 +162,7 @@ interface TopItem {
     </div>
   `,
   styles: [`
-    :host{--c1:#1a1a2e;--c2:#6b7280;--c3:#e5e7eb;--c4:#f3f4f6;--c5:#0d9488;--c6:#059669;--c7:#dc2626}
+    :host{--c1:#1a1a2e;--c2:#6b7280;--c3:#e5e7eb;--c4:#f3f4f6;--c5:#0aaaaa;--c6:#059669;--c7:#dc2626}
     .sales-report{padding:1.5rem;max-width:1400px;margin:0 auto}
     .page-header{margin-bottom:1.5rem}
     .breadcrumb{font-size:.875rem;color:var(--c2);margin-bottom:.75rem;display:flex;align-items:center;gap:.5rem}
@@ -175,7 +175,7 @@ interface TopItem {
     .header-actions{display:flex;gap:.75rem}
     .btn-primary,.btn-secondary{display:flex;align-items:center;gap:.5rem;padding:.625rem 1rem;border-radius:8px;font-size:.875rem;font-weight:500;cursor:pointer;transition:all .2s}
     .btn-primary{background:var(--c5);color:#fff;border:none}
-    .btn-primary:hover{background:#0f766e}
+    .btn-primary:hover{background:#088888}
     .btn-secondary{background:#fff;color:var(--c1);border:1px solid var(--c3)}
     .btn-secondary:hover{border-color:var(--c5);color:var(--c5)}
     .filters-bar{background:#fff;border-radius:12px;padding:1rem;border:1px solid var(--c3);margin-bottom:1.5rem;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:1rem}
@@ -209,7 +209,7 @@ interface TopItem {
     .chart-placeholder{height:200px}
     .bar-chart{display:flex;align-items:flex-end;justify-content:space-between;height:100%;gap:.5rem;padding-bottom:1.5rem}
     .bar-container{display:flex;flex-direction:column;align-items:center;flex:1;height:100%}
-    .bar{width:100%;max-width:40px;background:linear-gradient(180deg,var(--c5),#14b8a6);border-radius:4px 4px 0 0;transition:height .3s}
+    .bar{width:100%;max-width:40px;background:linear-gradient(180deg,var(--c5),#2cc4c4);border-radius:4px 4px 0 0;transition:height .3s}
     .bar-label{font-size:.65rem;color:var(--c2);margin-top:.5rem;position:absolute;bottom:0}
     .bar-container{position:relative}
     .lists-section{display:grid;grid-template-columns:repeat(2,1fr);gap:1rem}

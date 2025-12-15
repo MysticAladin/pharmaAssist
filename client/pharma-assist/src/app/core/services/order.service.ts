@@ -38,7 +38,7 @@ export class OrderService {
     filter?: OrderFilter
   ): Observable<PaginatedResult<OrderSummary>> {
     let params = new HttpParams()
-      .set('pageNumber', page.toString())
+      .set('page', page.toString())
       .set('pageSize', pageSize.toString());
 
     if (filter) {
@@ -71,7 +71,7 @@ export class OrderService {
       }
     }
 
-    return this.http.get<PaginatedResult<OrderSummary>>(this.baseUrl, { params });
+    return this.http.get<PaginatedResult<OrderSummary>>(`${this.baseUrl}/paged`, { params });
   }
 
   /**

@@ -155,7 +155,7 @@ interface PasswordChange {
     </div>
   `,
   styles: [`
-    :host{--c1:#1a1a2e;--c2:#6b7280;--c3:#e5e7eb;--c4:#f3f4f6;--c5:#0d9488;--c6:#dc2626}
+    :host{--c1:#1a1a2e;--c2:#6b7280;--c3:#e5e7eb;--c4:#f3f4f6;--c5:#0aaaaa;--c6:#dc2626}
     .profile-page{padding:1.5rem;max-width:900px;margin:0 auto}
     .page-header{margin-bottom:1.5rem}
     .page-title{font-size:1.5rem;font-weight:600;color:var(--c1);margin:0 0 .25rem}
@@ -164,7 +164,7 @@ interface PasswordChange {
     .profile-card{display:flex;align-items:center;gap:1.5rem;background:#fff;border:1px solid var(--c3);border-radius:12px;padding:1.5rem}
     @media(max-width:600px){.profile-card{flex-direction:column;text-align:center}}
     .avatar-section{display:flex;flex-direction:column;align-items:center;gap:.75rem}
-    .avatar{width:100px;height:100px;border-radius:50%;background:linear-gradient(135deg,var(--c5),#0f766e);display:flex;align-items:center;justify-content:center;overflow:hidden}
+    .avatar{width:100px;height:100px;border-radius:50%;background:linear-gradient(135deg,var(--c5),#088888);display:flex;align-items:center;justify-content:center;overflow:hidden}
     .avatar img{width:100%;height:100%;object-fit:cover}
     .avatar-initials{color:#fff;font-size:2rem;font-weight:600}
     .btn-change-avatar{display:flex;align-items:center;gap:.375rem;padding:.5rem .75rem;background:none;border:1px solid var(--c3);border-radius:6px;color:var(--c2);font-size:.75rem;cursor:pointer;transition:all .2s}
@@ -191,7 +191,7 @@ interface PasswordChange {
     .error-message{background:#fef2f2;color:var(--c6);padding:.75rem;border-radius:8px;font-size:.8rem;margin-bottom:1rem}
     .card-actions{margin-top:1.25rem;display:flex;justify-content:flex-end}
     .btn-primary{display:flex;align-items:center;gap:.5rem;padding:.75rem 1.25rem;background:var(--c5);color:#fff;border:none;border-radius:8px;font-size:.875rem;font-weight:500;cursor:pointer;transition:all .2s}
-    .btn-primary:hover:not(:disabled){background:#0f766e}
+    .btn-primary:hover:not(:disabled){background:#088888}
     .btn-primary:disabled{opacity:.6;cursor:not-allowed}
     .danger-actions{display:flex;flex-direction:column;gap:1rem}
     .danger-action{display:flex;justify-content:space-between;align-items:center;padding:1rem;background:#fef2f2;border-radius:8px}

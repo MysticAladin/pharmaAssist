@@ -350,7 +350,7 @@ export class PrintService {
             align-items: flex-start;
             margin-bottom: 30px;
             padding-bottom: 20px;
-            border-bottom: 2px solid #14b8a6;
+            border-bottom: 2px solid #2cc4c4;
           }
 
           .company-info h1 {
@@ -463,7 +463,7 @@ export class PrintService {
           .totals-row.total {
             font-size: 14px;
             font-weight: 600;
-            border-bottom: 2px solid #14b8a6;
+            border-bottom: 2px solid #2cc4c4;
           }
 
           .status-section {

@@ -4,6 +4,7 @@ using Application.Interfaces;
 using AutoMapper;
 using Domain.Entities;
 using Domain.Interfaces;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
 namespace Application.Services;
@@ -66,11 +67,21 @@ public class ProductService : IProductService
         int? categoryId = null,
         int? manufacturerId = null,
         bool? activeOnly = true,
+        decimal? minPrice = null,
+        decimal? maxPrice = null,
+        string? stockStatus = null,
+        bool? requiresPrescription = null,
+        bool? hasBarcode = null,
+        string? expiryStatus = null,
+        string? sortBy = null,
+        string? sortDirection = null,
         CancellationToken cancellationToken = default)
     {
         try
         {
-            var query = _unitOfWork.Products.AsQueryable();
+            IQueryable<Product> query = _unitOfWork.Products.AsQueryable()
+                .Include(p => p.Category)
+                .Include(p => p.Manufacturer);
 
             // Apply filters
             if (!string.IsNullOrEmpty(search))
@@ -98,15 +109,61 @@ public class ProductService : IProductService
                 query = query.Where(p => p.IsActive);
             }
 
-            // Get total count
-            var totalCount = query.Count();
+            // Advanced filters
+            if (minPrice.HasValue)
+            {
+                query = query.Where(p => p.UnitPrice >= minPrice.Value);
+            }
+
+            if (maxPrice.HasValue)
+            {
+                query = query.Where(p => p.UnitPrice <= maxPrice.Value);
+            }
+
+            if (!string.IsNullOrEmpty(stockStatus))
+            {
+                query = stockStatus switch
+                {
+                    "inStock" => query.Where(p => p.StockQuantity > p.ReorderLevel),
+                    "lowStock" => query.Where(p => p.StockQuantity > 0 && p.StockQuantity <= p.ReorderLevel),
+                    "outOfStock" => query.Where(p => p.StockQuantity <= 0),
+                    _ => query
+                };
+            }
+
+            if (requiresPrescription.HasValue)
+            {
+                query = query.Where(p => p.RequiresPrescription == requiresPrescription.Value);
+            }
+
+            if (hasBarcode.HasValue)
+            {
+                query = hasBarcode.Value 
+                    ? query.Where(p => p.Barcode != null && p.Barcode != "")
+                    : query.Where(p => p.Barcode == null || p.Barcode == "");
+            }
+
+            // Get total count before pagination
+            var totalCount = await query.CountAsync(cancellationToken);
+
+            // Apply sorting
+            var isDescending = sortDirection?.ToLower() == "desc";
+            query = sortBy?.ToLower() switch
+            {
+                "name" => isDescending ? query.OrderByDescending(p => p.Name) : query.OrderBy(p => p.Name),
+                "unitprice" => isDescending ? query.OrderByDescending(p => p.UnitPrice) : query.OrderBy(p => p.UnitPrice),
+                "stockquantity" => isDescending ? query.OrderByDescending(p => p.StockQuantity) : query.OrderBy(p => p.StockQuantity),
+                "createdat" => isDescending ? query.OrderByDescending(p => p.CreatedAt) : query.OrderBy(p => p.CreatedAt),
+                "categoryname" => isDescending ? query.OrderByDescending(p => p.Category != null ? p.Category.Name : "") : query.OrderBy(p => p.Category != null ? p.Category.Name : ""),
+                "manufacturername" => isDescending ? query.OrderByDescending(p => p.Manufacturer != null ? p.Manufacturer.Name : "") : query.OrderBy(p => p.Manufacturer != null ? p.Manufacturer.Name : ""),
+                _ => query.OrderBy(p => p.Name)
+            };
 
             // Apply pagination
-            var products = query
-                .OrderBy(p => p.Name)
+            var products = await query
                 .Skip((page - 1) * pageSize)
                 .Take(pageSize)
-                .ToList();
+                .ToListAsync(cancellationToken);
 
             var dtos = _mapper.Map<List<ProductSummaryDto>>(products);
 

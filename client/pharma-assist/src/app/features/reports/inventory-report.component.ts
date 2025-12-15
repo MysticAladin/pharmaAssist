@@ -164,7 +164,7 @@ interface InventoryItem {
     </div>
   `,
   styles: [`
-    :host{--c1:#1a1a2e;--c2:#6b7280;--c3:#e5e7eb;--c4:#f3f4f6;--c5:#0d9488;--c6:#059669;--c7:#dc2626;--c8:#f59e0b}
+    :host{--c1:#1a1a2e;--c2:#6b7280;--c3:#e5e7eb;--c4:#f3f4f6;--c5:#0aaaaa;--c6:#059669;--c7:#dc2626;--c8:#f59e0b}
     .inventory-report{padding:1.5rem;max-width:1400px;margin:0 auto}
     .page-header{margin-bottom:1.5rem}
     .breadcrumb{font-size:.875rem;color:var(--c2);margin-bottom:.75rem;display:flex;align-items:center;gap:.5rem}
@@ -177,7 +177,7 @@ interface InventoryItem {
     .header-actions{display:flex;gap:.75rem}
     .btn-primary,.btn-secondary{display:flex;align-items:center;gap:.5rem;padding:.625rem 1rem;border-radius:8px;font-size:.875rem;font-weight:500;cursor:pointer;transition:all .2s}
     .btn-primary{background:var(--c5);color:#fff;border:none}
-    .btn-primary:hover{background:#0f766e}
+    .btn-primary:hover{background:#088888}
     .btn-secondary{background:#fff;color:var(--c1);border:1px solid var(--c3)}
     .btn-secondary:hover{border-color:var(--c5);color:var(--c5)}
     .stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:1rem;margin-bottom:1.5rem}
@@ -247,7 +247,7 @@ export class InventoryReportComponent implements OnInit {
   statusCounts = signal({ ok: 1102, low: 98, critical: 45 });
 
   categoryBreakdown = signal([
-    { name: 'Pain Relief', count: 245, value: 89450, percentage: 100, color: '#0d9488' },
+    { name: 'Pain Relief', count: 245, value: 89450, percentage: 100, color: '#0aaaaa' },
     { name: 'Antibiotics', count: 189, value: 76230, percentage: 85, color: '#3b82f6' },
     { name: 'Vitamins', count: 312, value: 54120, percentage: 60, color: '#8b5cf6' },
     { name: 'Cardiovascular', count: 156, value: 98540, percentage: 70, color: '#f59e0b' },
@@ -255,7 +255,7 @@ export class InventoryReportComponent implements OnInit {
   ]);
 
   manufacturerBreakdown = signal([
-    { name: 'Bosnalijek', count: 312, value: 124500, percentage: 100, color: '#0d9488' },
+    { name: 'Bosnalijek', count: 312, value: 124500, percentage: 100, color: '#0aaaaa' },
     { name: 'Hemofarm', count: 245, value: 98760, percentage: 79, color: '#3b82f6' },
     { name: 'Alkaloid', count: 189, value: 76430, percentage: 61, color: '#8b5cf6' },
     { name: 'Pliva', count: 156, value: 65890, percentage: 53, color: '#f59e0b' },

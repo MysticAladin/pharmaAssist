@@ -159,7 +159,7 @@ interface QuickStat {
     </div>
   `,
   styles: [`
-    :host{--c1:#1a1a2e;--c2:#6b7280;--c3:#e5e7eb;--c4:#f3f4f6;--c5:#0d9488}
+    :host{--c1:#1a1a2e;--c2:#6b7280;--c3:#e5e7eb;--c4:#f3f4f6;--c5:#0aaaaa}
     .reports-page{padding:1.5rem;max-width:1400px;margin:0 auto}
     .page-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:2rem;gap:1rem;flex-wrap:wrap}
     .page-title{font-size:1.75rem;font-weight:600;color:var(--c1);margin:0 0 .25rem}
@@ -213,7 +213,7 @@ export class ReportsComponent implements OnInit {
 
   reportCards: ReportCard[] = [
     { id: 'builder', icon: 'builder', titleKey: 'reports.types.builder.title', descriptionKey: 'reports.types.builder.description', route: '/reports/builder', color: '#059669', available: true },
-    { id: 'sales', icon: 'sales', titleKey: 'reports.types.sales.title', descriptionKey: 'reports.types.sales.description', route: '/reports/sales', color: '#0d9488', available: true },
+    { id: 'sales', icon: 'sales', titleKey: 'reports.types.sales.title', descriptionKey: 'reports.types.sales.description', route: '/reports/sales', color: '#0aaaaa', available: true },
     { id: 'inventory', icon: 'inventory', titleKey: 'reports.types.inventory.title', descriptionKey: 'reports.types.inventory.description', route: '/reports/inventory', color: '#3b82f6', available: true },
     { id: 'analytics', icon: 'chart', titleKey: 'reports.types.analytics.title', descriptionKey: 'reports.types.analytics.description', route: '/reports/analytics', color: '#8b5cf6', available: true },
     { id: 'expiring', icon: 'calendar', titleKey: 'reports.types.expiring.title', descriptionKey: 'reports.types.expiring.description', route: '/reports/expiring', color: '#ef4444', available: true },

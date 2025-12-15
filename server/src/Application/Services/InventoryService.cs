@@ -257,6 +257,43 @@ public class InventoryService : IInventoryService
         return ApiResponse<IEnumerable<LowStockAlertDto>>.Ok(alerts);
     }
 
+    public async Task<ApiResponse<IEnumerable<ExpiringProductDto>>> GetExpiringProductsAsync(int days = 30, CancellationToken cancellationToken = default)
+    {
+        var expiryDate = DateTime.UtcNow.AddDays(days);
+        var expiringBatches = await _unitOfWork.Inventory.GetExpiringBatchesAsync(expiryDate, cancellationToken);
+        var expiringProducts = new List<ExpiringProductDto>();
+        var today = DateTime.UtcNow.Date;
+
+        foreach (var batch in expiringBatches)
+        {
+            var product = batch.Product ?? await _unitOfWork.Products.GetByIdAsync(batch.ProductId, cancellationToken);
+            if (product != null)
+            {
+                var daysUntilExpiry = (batch.ExpiryDate - today).Days;
+                var severity = daysUntilExpiry <= 0 ? "Expired" 
+                             : daysUntilExpiry <= 7 ? "Critical" 
+                             : "Warning";
+
+                expiringProducts.Add(new ExpiringProductDto
+                {
+                    ProductId = batch.ProductId,
+                    ProductName = product.Name,
+                    ProductSku = product.SKU,
+                    BatchId = batch.Id,
+                    BatchNumber = batch.BatchNumber,
+                    WarehouseId = 1, // Default warehouse - batches don't have warehouse context
+                    WarehouseName = "Main Warehouse",
+                    Quantity = batch.RemainingQuantity,
+                    ExpiryDate = batch.ExpiryDate,
+                    DaysUntilExpiry = daysUntilExpiry,
+                    Severity = severity
+                });
+            }
+        }
+
+        return ApiResponse<IEnumerable<ExpiringProductDto>>.Ok(expiringProducts.OrderBy(e => e.DaysUntilExpiry));
+    }
+
     #endregion
 
     #region Stock Movements

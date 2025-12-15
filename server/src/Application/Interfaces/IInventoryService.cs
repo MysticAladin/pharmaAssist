@@ -23,6 +23,7 @@ public interface IInventoryService
     Task<ApiResponse<IEnumerable<InventoryStockDto>>> GetStockByProductAsync(int productId, CancellationToken cancellationToken = default);
     Task<ApiResponse<ProductStockSummaryDto>> GetProductStockSummaryAsync(int productId, CancellationToken cancellationToken = default);
     Task<ApiResponse<IEnumerable<LowStockAlertDto>>> GetLowStockAlertsAsync(CancellationToken cancellationToken = default);
+    Task<ApiResponse<IEnumerable<ExpiringProductDto>>> GetExpiringProductsAsync(int days = 30, CancellationToken cancellationToken = default);
     
     // Stock movements
     Task<ApiResponse<StockMovementDto>> GetMovementByIdAsync(int id, CancellationToken cancellationToken = default);

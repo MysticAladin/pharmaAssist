@@ -258,7 +258,7 @@ import {
     </div>
   `,
   styles: [`
-    :host{--c1:#1a1a2e;--c2:#6b7280;--c3:#e5e7eb;--c4:#f3f4f6;--c5:#0d9488;--c6:#dc2626}
+    :host{--c1:#1a1a2e;--c2:#6b7280;--c3:#e5e7eb;--c4:#f3f4f6;--c5:#0aaaaa;--c6:#dc2626}
     .report-builder{height:100%;display:flex;flex-direction:column;background:var(--c4)}
     .page-header{display:flex;justify-content:space-between;align-items:center;padding:1rem 1.5rem;background:#fff;border-bottom:1px solid var(--c3)}
     .header-left{display:flex;align-items:center;gap:1rem}
@@ -332,7 +332,7 @@ import {
 
     .btn{padding:.5rem 1rem;border:none;border-radius:6px;font-size:.875rem;cursor:pointer;display:inline-flex;align-items:center;gap:.5rem;transition:all .2s}
     .btn-primary{background:var(--c5);color:#fff}
-    .btn-primary:hover:not(:disabled){background:#0f766e}
+    .btn-primary:hover:not(:disabled){background:#088888}
     .btn-primary:disabled{opacity:.6;cursor:not-allowed}
     .btn-outline{background:#fff;border:1px solid var(--c3);color:var(--c1)}
     .btn-outline:hover:not(:disabled){border-color:var(--c5);color:var(--c5)}

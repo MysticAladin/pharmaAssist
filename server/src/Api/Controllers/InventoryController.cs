@@ -161,6 +161,28 @@ public class InventoryController : ControllerBase
         return result.Success ? Ok(result) : BadRequest(result);
     }
 
+    /// <summary>
+    /// Get low stock products (dashboard-friendly endpoint)
+    /// </summary>
+    [HttpGet("low-stock")]
+    [ProducesResponseType(typeof(ApiResponse<IEnumerable<LowStockAlertDto>>), StatusCodes.Status200OK)]
+    public async Task<IActionResult> GetLowStock([FromQuery] int threshold = 10, CancellationToken cancellationToken = default)
+    {
+        var result = await _inventoryService.GetLowStockAlertsAsync(cancellationToken);
+        return result.Success ? Ok(result) : BadRequest(result);
+    }
+
+    /// <summary>
+    /// Get expiring products (products expiring within specified days)
+    /// </summary>
+    [HttpGet("expiring")]
+    [ProducesResponseType(typeof(ApiResponse<IEnumerable<ExpiringProductDto>>), StatusCodes.Status200OK)]
+    public async Task<IActionResult> GetExpiringProducts([FromQuery] int days = 30, CancellationToken cancellationToken = default)
+    {
+        var result = await _inventoryService.GetExpiringProductsAsync(days, cancellationToken);
+        return result.Success ? Ok(result) : BadRequest(result);
+    }
+
     #endregion
 
     #region Stock Movements

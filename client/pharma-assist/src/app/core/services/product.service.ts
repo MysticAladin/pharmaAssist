@@ -48,6 +48,32 @@ export class ProductService {
       params = params.set('activeOnly', filters.activeOnly.toString());
     }
 
+    // Advanced filters
+    if (filters.minPrice !== undefined && filters.minPrice !== null) {
+      params = params.set('minPrice', filters.minPrice.toString());
+    }
+    if (filters.maxPrice !== undefined && filters.maxPrice !== null) {
+      params = params.set('maxPrice', filters.maxPrice.toString());
+    }
+    if (filters.stockStatus && filters.stockStatus !== 'all') {
+      params = params.set('stockStatus', filters.stockStatus);
+    }
+    if (filters.requiresPrescription !== undefined && filters.requiresPrescription !== null) {
+      params = params.set('requiresPrescription', filters.requiresPrescription.toString());
+    }
+    if (filters.hasBarcode !== undefined && filters.hasBarcode !== null) {
+      params = params.set('hasBarcode', filters.hasBarcode.toString());
+    }
+    if (filters.expiryStatus && filters.expiryStatus !== 'all') {
+      params = params.set('expiryStatus', filters.expiryStatus);
+    }
+    if (filters.sortBy) {
+      params = params.set('sortBy', filters.sortBy);
+    }
+    if (filters.sortDirection) {
+      params = params.set('sortDirection', filters.sortDirection);
+    }
+
     return this.http.get<PagedResponse<ProductSummary>>(`${this.apiUrl}/paged`, { params });
   }
 

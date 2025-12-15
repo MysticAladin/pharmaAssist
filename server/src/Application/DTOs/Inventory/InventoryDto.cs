@@ -181,3 +181,21 @@ public class LowStockAlertDto
     public int MinimumStockLevel { get; set; }
     public string Severity { get; set; } = string.Empty; // "Warning" or "Critical"
 }
+
+/// <summary>
+/// Expiring product DTO
+/// </summary>
+public class ExpiringProductDto
+{
+    public int ProductId { get; set; }
+    public string ProductName { get; set; } = string.Empty;
+    public string ProductSku { get; set; } = string.Empty;
+    public int? BatchId { get; set; }
+    public string? BatchNumber { get; set; }
+    public int WarehouseId { get; set; }
+    public string WarehouseName { get; set; } = string.Empty;
+    public int Quantity { get; set; }
+    public DateTime ExpiryDate { get; set; }
+    public int DaysUntilExpiry { get; set; }
+    public string Severity { get; set; } = string.Empty; // "Warning", "Critical", or "Expired"
+}

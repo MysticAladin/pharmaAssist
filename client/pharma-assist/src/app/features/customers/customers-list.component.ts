@@ -284,14 +284,14 @@ import { ModalComponent } from '../../shared/components/modal/modal.component';
     </div>
   `,
   styles: [`
-    :host{--c1:#1a1a2e;--c2:#6b7280;--c3:#e5e7eb;--c4:#f3f4f6;--c5:#0d9488}
+    :host{--c1:#1a1a2e;--c2:#6b7280;--c3:#e5e7eb;--c4:#f3f4f6;--c5:#0aaaaa}
     .customers-page{padding:1.5rem;max-width:1400px;margin:0 auto}
     .page-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:1.5rem;gap:1rem;flex-wrap:wrap}
     .page-title{font-size:1.75rem;font-weight:600;color:var(--c1);margin:0 0 .25rem}
     .page-description{color:var(--c2);margin:0;font-size:.9rem}
     .header-actions{display:flex;gap:.75rem}
     .btn{display:inline-flex;align-items:center;gap:.5rem;padding:.5rem 1rem;font-size:.875rem;font-weight:500;border-radius:8px;border:none;cursor:pointer;transition:all .2s}
-    .btn-primary{background:var(--c5);color:#fff}.btn-primary:hover{background:#0f766e}
+    .btn-primary{background:var(--c5);color:#fff}.btn-primary:hover{background:#088888}
     .btn-secondary{background:#fff;color:var(--c1);border:1px solid var(--c3)}.btn-secondary:hover{background:var(--c4)}
     .stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:1rem;margin-bottom:1.5rem}
     @media(max-width:1024px){.stats-grid{grid-template-columns:repeat(2,1fr)}}

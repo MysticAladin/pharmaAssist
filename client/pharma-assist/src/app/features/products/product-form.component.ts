@@ -280,7 +280,7 @@ interface ProductForm {
     </div>
   `,
   styles: [`
-    :host{--c1:#1a1a2e;--c2:#6b7280;--c3:#e5e7eb;--c4:#f3f4f6;--c5:#0d9488;--c6:#059669;--c7:#dc2626}
+    :host{--c1:#1a1a2e;--c2:#6b7280;--c3:#e5e7eb;--c4:#f3f4f6;--c5:#0aaaaa;--c6:#059669;--c7:#dc2626}
     .product-form-page{padding:1.5rem;max-width:900px;margin:0 auto}
     .page-header{margin-bottom:1.5rem}
     .breadcrumb{font-size:.875rem;color:var(--c2);margin-bottom:.75rem;display:flex;align-items:center;gap:.5rem}
@@ -292,10 +292,10 @@ interface ProductForm {
     .header-actions{display:flex;gap:.75rem}
     .btn-primary,.btn-secondary{display:flex;align-items:center;justify-content:center;gap:.5rem;padding:.625rem 1.25rem;border-radius:8px;font-size:.875rem;font-weight:500;cursor:pointer;transition:all .2s}
     .btn-primary{background:var(--c5);color:#fff;border:none;min-width:100px}
-    .btn-primary:hover:not(:disabled){background:#0f766e}
+    .btn-primary:hover:not(:disabled){background:var(--c6)}
     .btn-primary:disabled{opacity:.6;cursor:not-allowed}
-    .btn-secondary{background:#fff;color:var(--c1);border:1px solid var(--c3)}
-    .btn-secondary:hover{border-color:var(--c5);color:var(--c5)}
+    .btn-secondary{background:#ffffff;color:var(--c1);border:1px solid var(--c3)}
+    .btn-secondary:hover{background:var(--c4);border-color:var(--c5);color:var(--c5)}
     .spinner{width:16px;height:16px;border:2px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:spin .8s linear infinite}
     @keyframes spin{to{transform:rotate(360deg)}}
     .loading-container{display:flex;justify-content:center;padding:4rem}

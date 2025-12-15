@@ -14,14 +14,14 @@
   // ===========================================================================
 
   // Primary Brand Color - Main accent color (buttons, links, highlights)
-  --brand-primary: #3b82f6;           // Blue - change this for tenant branding
-  --brand-primary-rgb: 59, 130, 246;  // RGB values for rgba() usage
-  --brand-primary-light: #60a5fa;
-  --brand-primary-lighter: #93c5fd;
-  --brand-primary-dark: #2563eb;
-  --brand-primary-darker: #1d4ed8;
-  --brand-primary-bg: #eff6ff;        // Very light tint for backgrounds
-  --brand-primary-bg-hover: #dbeafe;
+  --brand-primary: #0aaaaa;           // Teal - main brand color
+  --brand-primary-rgb: 10, 170, 170;  // RGB values for rgba() usage
+  --brand-primary-light: #2cc4c4;
+  --brand-primary-lighter: #6ed9d9;
+  --brand-primary-dark: #088888;
+  --brand-primary-darker: #066666;
+  --brand-primary-bg: #e6f7f7;        // Very light tint for backgrounds
+  --brand-primary-bg-hover: #ccefef;
 
   // Secondary Brand Color - Supporting accent
   --brand-secondary: #10b981;         // Emerald green
@@ -218,7 +218,7 @@
   --accent-red-bg: #fef2f2;
   --accent-purple: #8b5cf6;
   --accent-purple-bg: #f5f3ff;
-  --accent-teal: #14b8a6;
+  --accent-teal: #2cc4c4;
   --accent-teal-bg: #f0fdfa;
   --accent-yellow: #eab308;
   --accent-yellow-bg: #fffbeb;
@@ -302,31 +302,31 @@
   --primary: var(--brand-primary);
   --primary-50: var(--brand-primary-bg);
   --primary-100: var(--brand-primary-bg-hover);
-  --primary-200: #a5d6a7;
-  --primary-300: #81c784;
+  --primary-200: #99dfdf;
+  --primary-300: #6ed9d9;
   --primary-400: var(--brand-primary-light);
   --primary-500: var(--brand-primary);
   --primary-600: var(--brand-primary);
   --primary-700: var(--brand-primary-dark);
   --primary-800: var(--brand-primary-darker);
-  --primary-900: #1b5e20;
+  --primary-900: #044444;
 
-  // Pharma Teal Colors (legacy - used by existing components)
-  --pharma-teal-50: #e0f7f6;
-  --pharma-teal-100: #b3ece9;
-  --pharma-teal-200: #80e0db;
-  --pharma-teal-300: #4dd4cd;
-  --pharma-teal-400: #26c9c1;
-  --pharma-teal-500: #00bfb5;
-  --pharma-teal-600: #00aea4;
-  --pharma-teal-700: #009b91;
-  --pharma-teal-800: #00897e;
-  --pharma-teal-900: #006b5f;
+  // Pharma Teal Colors (legacy - aligned with brand-primary #0aaaaa)
+  --pharma-teal-50: #e6f7f7;
+  --pharma-teal-100: #ccefef;
+  --pharma-teal-200: #99dfdf;
+  --pharma-teal-300: #6ed9d9;
+  --pharma-teal-400: #3dcfcf;
+  --pharma-teal-500: #2cc4c4;
+  --pharma-teal-600: #0aaaaa;
+  --pharma-teal-700: #088888;
+  --pharma-teal-800: #066666;
+  --pharma-teal-900: #044444;
 
   // Pharma Gradients (legacy)
-  --gradient-pharma: linear-gradient(135deg, #00bfb5 0%, #26c9c1 50%, #4dd4cd 100%);
-  --gradient-pharma-dark: linear-gradient(135deg, #009b91 0%, #00aea4 50%, #00bfb5 100%);
-  --gradient-pharma-light: linear-gradient(135deg, #80e0db 0%, #b3ece9 50%, #e0f7f6 100%);
+  --gradient-pharma: linear-gradient(135deg, #0aaaaa 0%, #2cc4c4 50%, #6ed9d9 100%);
+  --gradient-pharma-dark: linear-gradient(135deg, #066666 0%, #088888 50%, #0aaaaa 100%);
+  --gradient-pharma-light: linear-gradient(135deg, #99dfdf 0%, #ccefef 50%, #e6f7f7 100%);
 
   // Secondary palette (legacy)
   --secondary-50: #e3f2fd;
@@ -359,4 +359,18 @@
   --border-color: var(--border-light);
   --hover-bg: var(--neutral-100);
   --text-on-primary: var(--text-inverse);
+
+  // Shorthand variable aliases used by components
+  --surface: var(--surface-primary);
+  --surface-hover: var(--neutral-100);
+  --border: var(--border-light);
+  --text: var(--text-primary);
+  --bg: var(--surface-secondary);
+  --primary-dark: var(--brand-primary-dark);
+  --border-hover: var(--border-medium);
+
+  // Legacy pharma-teal aliases (map to brand-primary for consistency)
+  --pharma-teal: var(--brand-primary);
+  --pharma-teal-dark: var(--brand-primary-dark);
+  --pharma-teal-light: var(--brand-primary-light);
 }

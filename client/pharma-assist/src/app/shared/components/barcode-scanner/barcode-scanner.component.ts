@@ -443,7 +443,7 @@ import { Subject, takeUntil, debounceTime, distinctUntilChanged } from 'rxjs';
       left: 10%;
       right: 10%;
       height: 2px;
-      background: linear-gradient(90deg, transparent, #0d9488, transparent);
+      background: linear-gradient(90deg, transparent, #0aaaaa, transparent);
       animation: scan 2s ease-in-out infinite;
     }
 

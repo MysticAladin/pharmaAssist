@@ -10,7 +10,7 @@ import { ExportService, ExportColumn } from '../../core/services/export.service'
 import { ProductSummary, ProductFilters } from '../../core/models/product.model';
 import { Category, Manufacturer } from '../../core/models/catalog.model';
 
-import { DataTableComponent, TableColumn } from '../../shared/components/data-table';
+import { DataTableComponent, TableColumn, SortEvent } from '../../shared/components/data-table';
 import { SearchInputComponent } from '../../shared/components/search-input';
 import { PaginationComponent, PageEvent } from '../../shared/components/pagination';
 import { EmptyStateComponent } from '../../shared/components/empty-state';
@@ -334,6 +334,7 @@ import { ConfirmDialogComponent } from '../../shared/components/confirm-dialog';
         [enableActions]="true"
         [enableRowClick]="true"
         [actionsTemplate]="actionsTemplate"
+        (sortChange)="onTableSort($event)"
         (rowClick)="viewProduct($event)"
       >
         <ng-container emptyState>
@@ -355,19 +356,19 @@ import { ConfirmDialogComponent } from '../../shared/components/confirm-dialog';
       <!-- Actions Template -->
       <ng-template #actionsTemplate let-row>
         <div class="row-actions">
-          <button class="action-btn" (click)="viewProduct(row)" title="{{ 'common.view' | translate }}">
+          <button class="action-btn" (click)="viewProduct(row, $event)" title="{{ 'common.view' | translate }}">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
               <circle cx="12" cy="12" r="3"/>
             </svg>
           </button>
-          <button class="action-btn" (click)="editProduct(row); $event.stopPropagation()" title="{{ 'common.edit' | translate }}">
+          <button class="action-btn" (click)="editProduct(row, $event)" title="{{ 'common.edit' | translate }}">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
               <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
             </svg>
           </button>
-          <button class="action-btn action-btn-danger" (click)="confirmDelete(row); $event.stopPropagation()" title="{{ 'common.delete' | translate }}">
+          <button class="action-btn action-btn-danger" (click)="confirmDelete(row, $event)" title="{{ 'common.delete' | translate }}">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
             </svg>
@@ -783,7 +784,10 @@ export class ProductsListComponent implements OnInit {
   filters = signal<ProductFilters>({
     page: 1,
     pageSize: 10,
-    activeOnly: true
+    activeOnly: true,
+    stockStatus: undefined,
+    sortBy: 'name',
+    sortDirection: 'asc'
   });
 
   // Bulk selection
@@ -930,15 +934,18 @@ export class ProductsListComponent implements OnInit {
     this.router.navigate(['/products/new']);
   }
 
-  viewProduct(product: ProductSummary): void {
+  viewProduct(product: ProductSummary, event?: Event): void {
+    event?.stopPropagation();
     this.router.navigate(['/products', product.id]);
   }
 
-  editProduct(product: ProductSummary): void {
+  editProduct(product: ProductSummary, event?: Event): void {
+    event?.stopPropagation();
     this.router.navigate(['/products', product.id, 'edit']);
   }
 
-  confirmDelete(product: ProductSummary): void {
+  confirmDelete(product: ProductSummary, event?: Event): void {
+    event?.stopPropagation();
     this.productToDelete.set(product);
     this.showDeleteDialog.set(true);
   }
@@ -1012,6 +1019,16 @@ export class ProductsListComponent implements OnInit {
       ...f,
       sortDirection: f.sortDirection === 'desc' ? 'asc' : 'desc'
     }));
+  }
+
+  onTableSort(event: SortEvent): void {
+    this.filters.update(f => ({
+      ...f,
+      sortBy: event.column,
+      sortDirection: event.direction,
+      page: 1
+    }));
+    this.loadProducts();
   }
 
   clearAdvancedFilters(): void {

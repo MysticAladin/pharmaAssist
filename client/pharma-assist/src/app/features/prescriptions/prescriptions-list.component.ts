@@ -242,7 +242,7 @@ import { PaginationComponent, PageEvent } from '../../shared/components/paginati
     </div>
   `,
   styles: [`
-    :host{--c1:#1a1a2e;--c2:#6b7280;--c3:#e5e7eb;--c4:#f3f4f6;--c5:#0d9488;--c6:#dc2626;--c7:#f59e0b;--c8:#3b82f6}
+    :host{--c1:#1a1a2e;--c2:#6b7280;--c3:#e5e7eb;--c4:#f3f4f6;--c5:#0aaaaa;--c6:#dc2626;--c7:#f59e0b;--c8:#3b82f6}
     .prescriptions-page{padding:1.5rem;max-width:1400px;margin:0 auto}
     .page-header{margin-bottom:1.5rem}
     .page-title{font-size:1.5rem;font-weight:600;color:var(--c1);margin:0 0 .25rem}

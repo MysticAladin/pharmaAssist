@@ -377,7 +377,7 @@ interface BatchOption {
     </div>
   `,
   styles: [`
-    :host{--c1:#1a1a2e;--c2:#6b7280;--c3:#e5e7eb;--c4:#f3f4f6;--c5:#0d9488;--c6:#dc2626;--c7:#22c55e;--c8:#f59e0b}
+    :host{--c1:#1a1a2e;--c2:#6b7280;--c3:#e5e7eb;--c4:#f3f4f6;--c5:#0aaaaa;--c6:#dc2626;--c7:#22c55e;--c8:#f59e0b}
     .dispense-page{padding:1.5rem;max-width:900px;margin:0 auto}
     .loading-state,.error-state{display:flex;flex-direction:column;align-items:center;padding:4rem;color:var(--c2);text-align:center}
     .spinner{width:40px;height:40px;border:3px solid var(--c3);border-top-color:var(--c5);border-radius:50%;animation:spin .8s linear infinite}
@@ -492,7 +492,7 @@ interface BatchOption {
     .btn-secondary{background:var(--c4);color:var(--c2)}
     .btn-secondary:hover{background:var(--c3)}
     .btn-primary{background:var(--c5);color:#fff}
-    .btn-primary:hover:not(:disabled){background:#0f766e}
+    .btn-primary:hover:not(:disabled){background:#088888}
     .btn-success{background:var(--c7);color:#fff}
     .btn-success:hover:not(:disabled){background:#16a34a}
   `]
