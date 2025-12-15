@@ -12,11 +12,11 @@ import { CommonModule } from '@angular/common';
           <span>© {{ currentYear }} PharmaAssist d.o.o. Sva prava zadržana.</span>
         </div>
         <div class="footer-right">
-          <a href="/privacy" class="footer-link">Privatnost</a>
+          <span class="footer-link" (click)="showComingSoon('Privatnost')">Privatnost</span>
           <span class="separator">•</span>
-          <a href="/terms" class="footer-link">Uslovi korištenja</a>
+          <span class="footer-link" (click)="showComingSoon('Uslovi korištenja')">Uslovi korištenja</span>
           <span class="separator">•</span>
-          <a href="/support" class="footer-link">Podrška</a>
+          <a href="mailto:podrska@pharmaassist.ba" class="footer-link">Podrška</a>
         </div>
       </div>
     </footer>
@@ -52,6 +52,7 @@ import { CommonModule } from '@angular/common';
       color: var(--text-muted);
       text-decoration: none;
       transition: color 0.2s ease;
+      cursor: pointer;
     }
 
     .footer-link:hover {
@@ -83,4 +84,8 @@ import { CommonModule } from '@angular/common';
 })
 export class FooterComponent {
   currentYear = new Date().getFullYear();
+
+  showComingSoon(page: string): void {
+    alert(`${page} stranica je u pripremi.`);
+  }
 }

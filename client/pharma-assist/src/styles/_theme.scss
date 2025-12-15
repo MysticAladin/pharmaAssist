@@ -351,4 +351,12 @@
   --bg-secondary: var(--surface-secondary);
   --bg-tertiary: var(--surface-tertiary);
   --bg-dark: var(--surface-dark);
+
+  // Map old text colors
+  --text-light: var(--text-inverse);  // White text for use on dark backgrounds
+
+  // Map old border/UI colors
+  --border-color: var(--border-light);
+  --hover-bg: var(--neutral-100);
+  --text-on-primary: var(--text-inverse);
 }

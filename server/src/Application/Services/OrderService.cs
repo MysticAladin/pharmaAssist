@@ -676,4 +676,39 @@ public class OrderService : IOrderService
     }
 
     #endregion
+
+    #region Statistics
+
+    public async Task<ApiResponse<OrderStatsDto>> GetStatsAsync(DateTime? fromDate = null, DateTime? toDate = null, CancellationToken cancellationToken = default)
+    {
+        var allOrders = await _unitOfWork.Orders.GetAllAsync(cancellationToken);
+        
+        // Apply date filters if provided
+        var filtered = allOrders.AsEnumerable();
+        
+        if (fromDate.HasValue)
+            filtered = filtered.Where(o => o.OrderDate >= fromDate.Value);
+        
+        if (toDate.HasValue)
+            filtered = filtered.Where(o => o.OrderDate <= toDate.Value);
+
+        var orderList = filtered.ToList();
+
+        var stats = new OrderStatsDto
+        {
+            TotalOrders = orderList.Count,
+            PendingOrders = orderList.Count(o => o.Status == OrderStatus.Pending),
+            ProcessingOrders = orderList.Count(o => o.Status == OrderStatus.Processing || o.Status == OrderStatus.Confirmed),
+            CompletedOrders = orderList.Count(o => o.Status == OrderStatus.Delivered),
+            CancelledOrders = orderList.Count(o => o.Status == OrderStatus.Cancelled),
+            ShippedOrders = orderList.Count(o => o.Status == OrderStatus.Shipped),
+            TotalRevenue = orderList.Sum(o => o.TotalAmount),
+            AverageOrderValue = orderList.Count > 0 ? orderList.Average(o => o.TotalAmount) : 0,
+            OrdersWithPrescription = orderList.Count(o => o.OrderItems.Any(oi => oi.PrescriptionId != null))
+        };
+
+        return ApiResponse<OrderStatsDto>.Ok(stats);
+    }
+
+    #endregion
 }

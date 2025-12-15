@@ -111,6 +111,17 @@ public class OrdersController : ControllerBase
     }
 
     /// <summary>
+    /// Get order statistics
+    /// </summary>
+    [HttpGet("stats")]
+    [ProducesResponseType(typeof(ApiResponse<OrderStatsDto>), StatusCodes.Status200OK)]
+    public async Task<IActionResult> GetStats([FromQuery] DateTime? fromDate = null, [FromQuery] DateTime? toDate = null, CancellationToken cancellationToken = default)
+    {
+        var result = await _orderService.GetStatsAsync(fromDate, toDate, cancellationToken);
+        return result.Success ? Ok(result) : BadRequest(result);
+    }
+
+    /// <summary>
     /// Create a new order
     /// </summary>
     [HttpPost]

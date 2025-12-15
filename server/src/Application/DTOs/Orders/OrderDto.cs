@@ -183,3 +183,19 @@ public class VerifyPrescriptionDto
     public bool IsVerified { get; set; }
     public string? Notes { get; set; }
 }
+
+/// <summary>
+/// Order statistics DTO
+/// </summary>
+public class OrderStatsDto
+{
+    public int TotalOrders { get; set; }
+    public int PendingOrders { get; set; }
+    public int ProcessingOrders { get; set; }
+    public int CompletedOrders { get; set; }
+    public int CancelledOrders { get; set; }
+    public int ShippedOrders { get; set; }
+    public decimal TotalRevenue { get; set; }
+    public decimal AverageOrderValue { get; set; }
+    public int OrdersWithPrescription { get; set; }
+}

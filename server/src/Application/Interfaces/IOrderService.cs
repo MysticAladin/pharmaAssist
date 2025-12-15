@@ -48,4 +48,7 @@ public interface IOrderService
     
     // Order Calculations
     Task<ApiResponse<OrderDto>> RecalculateTotalsAsync(int orderId, CancellationToken cancellationToken = default);
+    
+    // Statistics
+    Task<ApiResponse<OrderStatsDto>> GetStatsAsync(DateTime? fromDate = null, DateTime? toDate = null, CancellationToken cancellationToken = default);
 }

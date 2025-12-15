@@ -1,5 +1,5 @@
 import { Routes } from '@angular/router';
-import { authGuard, noAuthGuard, adminGuard, featureGuard, customerGuard } from './core/guards';
+import { authGuard, noAuthGuard, adminGuard, featureGuard, customerGuard, staffGuard } from './core/guards';
 import { FeatureKey } from './core/models/feature-flag.model';
 import { UserRole } from './core/models/user.model';
 
@@ -20,10 +20,10 @@ export const routes: Routes = [
     loadChildren: () => import('./features/portal/portal.routes').then(m => m.PORTAL_ROUTES)
   },
 
-  // Main application routes (require auth)
+  // Main application routes (require auth - staff only, not customers)
   {
     path: '',
-    canActivate: [authGuard],
+    canActivate: [staffGuard],
     loadComponent: () => import('./shared/components/layout/main-layout/main-layout.component')
       .then(m => m.MainLayoutComponent),
     children: [

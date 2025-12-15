@@ -1,6 +1,8 @@
-import { Component } from '@angular/core';
+import { Component, inject, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
+import { AuthStateService } from '../../core/state/auth-state.service';
+import { UserRole } from '../../core/models/user.model';
 
 @Component({
   selector: 'app-access-denied',
@@ -15,9 +17,9 @@ import { RouterModule } from '@angular/router';
         <h1>Pristup odbijen</h1>
         <p>Nemate dozvolu za pristup ovoj stranici.</p>
         <div class="error-actions">
-          <a routerLink="/dashboard" class="btn btn-primary">
+          <a [routerLink]="homeRoute()" class="btn btn-primary">
             <i class="icon-home"></i>
-            Nazad na kontrolnu ploču
+            {{ homeLabel() }}
           </a>
         </div>
       </div>
@@ -89,4 +91,21 @@ import { RouterModule } from '@angular/router';
     }
   `]
 })
-export class AccessDeniedComponent {}
+export class AccessDeniedComponent {
+  private authState = inject(AuthStateService);
+
+  // Determine where to redirect based on user role
+  homeRoute = computed(() => {
+    if (this.authState.hasRole(UserRole.Customer)) {
+      return '/portal';
+    }
+    return '/dashboard';
+  });
+
+  homeLabel = computed(() => {
+    if (this.authState.hasRole(UserRole.Customer)) {
+      return 'Nazad na portal';
+    }
+    return 'Nazad na kontrolnu ploču';
+  });
+}

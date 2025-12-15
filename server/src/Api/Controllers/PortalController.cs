@@ -439,15 +439,22 @@ public class PortalController : ControllerBase
             .Select(p => new PortalProductDto
             {
                 Id = p.Id,
+                Code = p.SKU,
                 Name = p.Name,
-                SKU = p.SKU,
+                GenericName = p.GenericName,
                 Description = p.Description ?? "",
-                Price = p.UnitPrice,
+                UnitPrice = p.UnitPrice,
                 ImageUrl = p.ImageUrl,
-                CategoryName = p.Category != null ? p.Category.Name : "",
-                ManufacturerName = p.Manufacturer != null ? p.Manufacturer.Name : "",
-                IsInStock = p.StockQuantity > 0,
-                StockQuantity = p.StockQuantity
+                Category = p.Category != null ? p.Category.Name : "",
+                CategoryId = p.CategoryId.ToString(),
+                Manufacturer = p.Manufacturer != null ? p.Manufacturer.Name : "",
+                ManufacturerId = p.ManufacturerId.ToString(),
+                IsAvailable = p.StockQuantity > 0,
+                StockQuantity = p.StockQuantity,
+                RequiresPrescription = p.RequiresPrescription,
+                DosageForm = p.DosageForm,
+                Strength = p.Strength,
+                PackSize = p.PackageSize
             })
             .ToListAsync(cancellationToken);
 
@@ -479,15 +486,22 @@ public class PortalController : ControllerBase
             .Select(p => new PortalProductDto
             {
                 Id = p.Id,
+                Code = p.SKU,
                 Name = p.Name,
-                SKU = p.SKU,
+                GenericName = p.GenericName,
                 Description = p.Description ?? "",
-                Price = p.UnitPrice,
+                UnitPrice = p.UnitPrice,
                 ImageUrl = p.ImageUrl,
-                CategoryName = p.Category != null ? p.Category.Name : "",
-                ManufacturerName = p.Manufacturer != null ? p.Manufacturer.Name : "",
-                IsInStock = p.StockQuantity > 0,
-                StockQuantity = p.StockQuantity
+                Category = p.Category != null ? p.Category.Name : "",
+                CategoryId = p.CategoryId.ToString(),
+                Manufacturer = p.Manufacturer != null ? p.Manufacturer.Name : "",
+                ManufacturerId = p.ManufacturerId.ToString(),
+                IsAvailable = p.StockQuantity > 0,
+                StockQuantity = p.StockQuantity,
+                RequiresPrescription = p.RequiresPrescription,
+                DosageForm = p.DosageForm,
+                Strength = p.Strength,
+                PackSize = p.PackageSize
             })
             .FirstOrDefaultAsync(cancellationToken);
 
@@ -559,15 +573,22 @@ public class PortalController : ControllerBase
             .Select(p => new PortalProductDto
             {
                 Id = p.Id,
+                Code = p.SKU,
                 Name = p.Name,
-                SKU = p.SKU,
+                GenericName = p.GenericName,
                 Description = p.Description ?? "",
-                Price = p.UnitPrice,
+                UnitPrice = p.UnitPrice,
                 ImageUrl = p.ImageUrl,
-                CategoryName = p.Category != null ? p.Category.Name : "",
-                ManufacturerName = p.Manufacturer != null ? p.Manufacturer.Name : "",
-                IsInStock = p.StockQuantity > 0,
-                StockQuantity = p.StockQuantity
+                Category = p.Category != null ? p.Category.Name : "",
+                CategoryId = p.CategoryId.ToString(),
+                Manufacturer = p.Manufacturer != null ? p.Manufacturer.Name : "",
+                ManufacturerId = p.ManufacturerId.ToString(),
+                IsAvailable = p.StockQuantity > 0,
+                StockQuantity = p.StockQuantity,
+                RequiresPrescription = p.RequiresPrescription,
+                DosageForm = p.DosageForm,
+                Strength = p.Strength,
+                PackSize = p.PackageSize
             })
             .ToListAsync(cancellationToken);
 
@@ -591,15 +612,22 @@ public class PortalController : ControllerBase
             .Select(p => new PortalProductDto
             {
                 Id = p.Id,
+                Code = p.SKU,
                 Name = p.Name,
-                SKU = p.SKU,
+                GenericName = p.GenericName,
                 Description = p.Description ?? "",
-                Price = p.UnitPrice,
+                UnitPrice = p.UnitPrice,
                 ImageUrl = p.ImageUrl,
-                CategoryName = p.Category != null ? p.Category.Name : "",
-                ManufacturerName = p.Manufacturer != null ? p.Manufacturer.Name : "",
-                IsInStock = p.StockQuantity > 0,
-                StockQuantity = p.StockQuantity
+                Category = p.Category != null ? p.Category.Name : "",
+                CategoryId = p.CategoryId.ToString(),
+                Manufacturer = p.Manufacturer != null ? p.Manufacturer.Name : "",
+                ManufacturerId = p.ManufacturerId.ToString(),
+                IsAvailable = p.StockQuantity > 0,
+                StockQuantity = p.StockQuantity,
+                RequiresPrescription = p.RequiresPrescription,
+                DosageForm = p.DosageForm,
+                Strength = p.Strength,
+                PackSize = p.PackageSize
             })
             .ToListAsync(cancellationToken);
 
@@ -635,15 +663,22 @@ public class PortalController : ControllerBase
             .Select(p => new PortalProductDto
             {
                 Id = p.Id,
+                Code = p.SKU,
                 Name = p.Name,
-                SKU = p.SKU,
+                GenericName = p.GenericName,
                 Description = p.Description ?? "",
-                Price = p.UnitPrice,
+                UnitPrice = p.UnitPrice,
                 ImageUrl = p.ImageUrl,
-                CategoryName = p.Category != null ? p.Category.Name : "",
-                ManufacturerName = p.Manufacturer != null ? p.Manufacturer.Name : "",
-                IsInStock = p.StockQuantity > 0,
-                StockQuantity = p.StockQuantity
+                Category = p.Category != null ? p.Category.Name : "",
+                CategoryId = p.CategoryId.ToString(),
+                Manufacturer = p.Manufacturer != null ? p.Manufacturer.Name : "",
+                ManufacturerId = p.ManufacturerId.ToString(),
+                IsAvailable = p.StockQuantity > 0,
+                StockQuantity = p.StockQuantity,
+                RequiresPrescription = p.RequiresPrescription,
+                DosageForm = p.DosageForm,
+                Strength = p.Strength,
+                PackSize = p.PackageSize
             })
             .ToListAsync(cancellationToken);
 
@@ -752,15 +787,23 @@ public class CustomerAddressDto
 public class PortalProductDto
 {
     public int Id { get; set; }
+    public string Code { get; set; } = string.Empty;
     public string Name { get; set; } = string.Empty;
-    public string SKU { get; set; } = string.Empty;
+    public string? GenericName { get; set; }
     public string Description { get; set; } = string.Empty;
-    public decimal Price { get; set; }
+    public decimal UnitPrice { get; set; }
+    public decimal? CustomerPrice { get; set; }
     public string? ImageUrl { get; set; }
-    public string CategoryName { get; set; } = string.Empty;
-    public string ManufacturerName { get; set; } = string.Empty;
-    public bool IsInStock { get; set; }
+    public string Category { get; set; } = string.Empty;
+    public string? CategoryId { get; set; }
+    public string Manufacturer { get; set; } = string.Empty;
+    public string? ManufacturerId { get; set; }
+    public bool IsAvailable { get; set; }
     public int StockQuantity { get; set; }
+    public bool RequiresPrescription { get; set; }
+    public string? DosageForm { get; set; }
+    public string? Strength { get; set; }
+    public string? PackSize { get; set; }
 }
 
 public class PortalCategoryDto
