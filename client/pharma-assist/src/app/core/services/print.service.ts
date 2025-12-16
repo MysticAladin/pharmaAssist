@@ -355,7 +355,7 @@ export class PrintService {
 
           .company-info h1 {
             font-size: 24px;
-            color: var(--pharma-teal-500);
+            color: #0aaaaa;
             margin-bottom: 4px;
           }
 
@@ -385,7 +385,7 @@ export class PrintService {
 
           .section h3 {
             font-size: 13px;
-            color: var(--pharma-teal-500);
+            color: #0aaaaa;
             margin-bottom: 8px;
             text-transform: uppercase;
             letter-spacing: 0.5px;

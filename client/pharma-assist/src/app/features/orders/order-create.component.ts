@@ -310,7 +310,7 @@ interface CartItem {
     </div>
   `,
   styles: [`
-    :host{--c1:#1a1a2e;--c2:#6b7280;--c3:#e5e7eb;--c4:#f3f4f6;--c5:#0aaaaa;--c6:#059669;--c7:#dc2626}
+    :host{--c1:#1a1a2e;--c2:#6b7280;--c3:#e5e7eb;--c4:#f3f4f6;--c5:#0aaaaa;--c6:#088888;--c7:#dc2626}
     .order-create{padding:1.5rem;max-width:1200px;margin:0 auto}
     .page-header{margin-bottom:1.5rem}
     .breadcrumb{font-size:.875rem;color:var(--c2);margin-bottom:.5rem;display:flex;gap:.5rem}

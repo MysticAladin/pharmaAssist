@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { trigger, transition, style, animate } from '@angular/animations';
 
 import { ProductService } from '../../core/services/product.service';
 import { CatalogService } from '../../core/services/catalog.service';
@@ -28,6 +29,18 @@ import { ConfirmDialogComponent } from '../../shared/components/confirm-dialog';
     PaginationComponent,
     EmptyStateComponent,
     ConfirmDialogComponent
+  ],
+  animations: [
+    trigger('slideDown', [
+      transition(':enter', [
+        style({ height: 0, opacity: 0, overflow: 'hidden' }),
+        animate('200ms ease-out', style({ height: '*', opacity: 1 }))
+      ]),
+      transition(':leave', [
+        style({ height: '*', opacity: 1, overflow: 'hidden' }),
+        animate('200ms ease-in', style({ height: 0, opacity: 0 }))
+      ])
+    ])
   ],
   template: `
     <div class="products-page">
@@ -888,9 +901,17 @@ export class ProductsListComponent implements OnInit {
   loadCategories(): void {
     this.catalogService.getCategories().subscribe({
       next: (response) => {
-        if (response.success && response.data) {
+        // Handle both wrapped response {success, data} and direct array
+        if (Array.isArray(response)) {
+          this.categories.set(response);
+        } else if (response.success && response.data) {
+          this.categories.set(response.data);
+        } else if (response.data) {
           this.categories.set(response.data);
         }
+      },
+      error: (error) => {
+        console.error('Error loading categories:', error);
       }
     });
   }
@@ -898,9 +919,17 @@ export class ProductsListComponent implements OnInit {
   loadManufacturers(): void {
     this.catalogService.getManufacturers().subscribe({
       next: (response) => {
-        if (response.success && response.data) {
+        // Handle both wrapped response {success, data} and direct array
+        if (Array.isArray(response)) {
+          this.manufacturers.set(response);
+        } else if (response.success && response.data) {
+          this.manufacturers.set(response.data);
+        } else if (response.data) {
           this.manufacturers.set(response.data);
         }
+      },
+      error: (error) => {
+        console.error('Error loading manufacturers:', error);
       }
     });
   }

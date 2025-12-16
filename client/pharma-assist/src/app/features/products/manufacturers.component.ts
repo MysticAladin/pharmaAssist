@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, signal, ViewChild, TemplateRef } from '@angular/core';
+import { Component, OnInit, AfterViewInit, inject, signal, ViewChild, TemplateRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
@@ -742,7 +742,7 @@ interface ManufacturerFormData {
     }
   `]
 })
-export class ManufacturersComponent implements OnInit {
+export class ManufacturersComponent implements OnInit, AfterViewInit {
   private readonly catalogService = inject(CatalogService);
 
   // State
@@ -775,21 +775,22 @@ export class ManufacturersComponent implements OnInit {
 
   ngOnInit(): void {
     this.loadManufacturers();
+  }
+
+  ngAfterViewInit(): void {
     this.setupColumns();
   }
 
   private setupColumns(): void {
-    setTimeout(() => {
-      this.columns = [
-        { key: 'name', label: 'manufacturers.table.name', sortable: true, template: this.nameTemplate },
-        { key: 'country', label: 'manufacturers.table.country', sortable: true, template: this.countryTemplate },
-        { key: 'contact', label: 'manufacturers.table.contact', template: this.contactTemplate },
-        { key: 'website', label: 'manufacturers.table.website', template: this.websiteTemplate },
-        { key: 'productCount', label: 'manufacturers.table.products', sortable: true, template: this.productsTemplate, width: '100px' },
-        { key: 'isActive', label: 'manufacturers.table.status', template: this.statusTemplate, width: '100px' },
-        { key: 'actions', label: '', template: this.actionsTemplate, width: '100px' }
-      ];
-    });
+    this.columns = [
+      { key: 'name', label: 'manufacturers.table.name', sortable: true, template: this.nameTemplate },
+      { key: 'country', label: 'manufacturers.table.country', sortable: true, template: this.countryTemplate },
+      { key: 'contact', label: 'manufacturers.table.contact', template: this.contactTemplate },
+      { key: 'website', label: 'manufacturers.table.website', template: this.websiteTemplate },
+      { key: 'productCount', label: 'manufacturers.table.products', sortable: true, template: this.productsTemplate, width: '100px' },
+      { key: 'isActive', label: 'manufacturers.table.status', template: this.statusTemplate, width: '100px' },
+      { key: 'actions', label: '', template: this.actionsTemplate, width: '100px' }
+    ];
   }
 
   loadManufacturers(): void {

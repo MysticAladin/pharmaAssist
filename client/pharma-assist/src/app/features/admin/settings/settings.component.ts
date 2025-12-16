@@ -108,7 +108,7 @@ interface ConfigurableFlag {
               <div class="feature-category">
                 <h3 class="category-title">
                   <span class="material-symbols-rounded">{{ getCategoryIcon(category) }}</span>
-                  {{ category | titlecase }}
+                  {{ getCategoryName(category) }}
                 </h3>
 
                 <div class="settings-card">
@@ -241,31 +241,37 @@ interface ConfigurableFlag {
       display: flex;
       gap: 0.5rem;
       margin-bottom: 2rem;
-      border-bottom: 1px solid var(--border-color);
-      padding-bottom: 0.5rem;
+      border-bottom: 2px solid #d1d5db;
+      padding-bottom: 0;
 
       .tab {
         display: flex;
         align-items: center;
         gap: 0.5rem;
-        padding: 0.75rem 1rem;
+        padding: 0.75rem 1.25rem;
         background: transparent;
         border: none;
-        border-radius: 8px;
-        color: var(--text-secondary);
-        font-size: 0.875rem;
+        border-bottom: 3px solid transparent;
+        margin-bottom: -2px;
+        color: #64748b;
+        font-size: 0.9rem;
+        font-weight: 500;
         cursor: pointer;
         transition: all 0.2s;
 
+        .material-symbols-rounded {
+          font-size: 20px;
+        }
+
         &:hover {
-          background: var(--bg-hover);
-          color: var(--text-primary);
+          color: #0aaaaa;
+          background: rgba(10, 170, 170, 0.05);
         }
 
         &.active {
-          background: var(--primary-light);
-          color: var(--primary-color);
-          font-weight: 500;
+          color: #0aaaaa;
+          border-bottom-color: #0aaaaa;
+          background: transparent;
         }
       }
     }
@@ -286,9 +292,10 @@ interface ConfigurableFlag {
     }
 
     .settings-card {
-      background: var(--card-bg);
+      background: var(--card-bg, white);
       border-radius: 12px;
-      box-shadow: var(--shadow-sm);
+      border: 1px solid #d1d5db;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
       overflow: hidden;
     }
 
@@ -297,7 +304,7 @@ interface ConfigurableFlag {
       justify-content: space-between;
       align-items: center;
       padding: 1rem 1.25rem;
-      border-bottom: 1px solid var(--border-color);
+      border-bottom: 1px solid #e5e7eb;
       gap: 1rem;
 
       &:last-child {
@@ -371,22 +378,23 @@ interface ConfigurableFlag {
     .form-input,
     .form-select {
       padding: 0.5rem 0.75rem;
-      border: 1px solid var(--border-color);
+      border: 1px solid #d1d5db;
       border-radius: 6px;
-      background: var(--bg-primary);
+      background: white;
       color: var(--text-primary);
       font-size: 0.875rem;
       min-width: 200px;
 
       &:focus {
         outline: none;
-        border-color: var(--primary-color);
-        box-shadow: 0 0 0 3px var(--primary-light);
+        border-color: #0aaaaa;
+        box-shadow: 0 0 0 3px rgba(10, 170, 170, 0.15);
       }
     }
 
     .toggle-switch {
       position: relative;
+      display: inline-block;
       width: 48px;
       height: 26px;
       flex-shrink: 0;
@@ -395,35 +403,46 @@ interface ConfigurableFlag {
         opacity: 0;
         width: 0;
         height: 0;
+        position: absolute;
       }
 
       .slider {
         position: absolute;
         cursor: pointer;
-        inset: 0;
-        background: var(--border-color);
-        border-radius: 13px;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: #cbd5e1;
+        border-radius: 26px;
         transition: 0.3s;
+        border: 1px solid #9ca3af;
 
         &::before {
           content: '';
           position: absolute;
           height: 20px;
           width: 20px;
-          left: 3px;
-          bottom: 3px;
+          left: 2px;
+          bottom: 2px;
           background: white;
           border-radius: 50%;
           transition: 0.3s;
+          box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
         }
       }
 
       input:checked + .slider {
-        background: var(--success-color);
+        background-color: #0aaaaa;
+        border-color: #088888;
       }
 
       input:checked + .slider::before {
         transform: translateX(22px);
+      }
+
+      input:focus + .slider {
+        box-shadow: 0 0 0 3px rgba(10, 170, 170, 0.2);
       }
 
       &.disabled {
@@ -550,6 +569,26 @@ export class SettingsComponent implements OnInit {
   private readonly featureFlagService = inject(DbFeatureFlagService);
   private readonly authState = inject(AuthStateService);
 
+  // Category mapping for numeric enum values from backend
+  private readonly categoryMap: Record<number | string, string> = {
+    1: 'Portal',
+    2: 'Billing',
+    3: 'Inventory',
+    4: 'Orders',
+    5: 'Reports',
+    6: 'Integration',
+    7: 'UI',
+    8: 'Experimental',
+    'portal': 'Portal',
+    'billing': 'Billing',
+    'inventory': 'Inventory',
+    'orders': 'Orders',
+    'reports': 'Reports',
+    'integration': 'Integration',
+    'ui': 'UI',
+    'experimental': 'Experimental'
+  };
+
   // State
   readonly activeTab = signal<'general' | 'features' | 'notifications'>('general');
   readonly loading = signal(false);
@@ -613,6 +652,10 @@ export class SettingsComponent implements OnInit {
 
   getFlagsByCategory(category: FlagCategory): ConfigurableFlag[] {
     return this.configurableFlags().filter(f => f.category === category);
+  }
+
+  getCategoryName(category: FlagCategory | number | string): string {
+    return this.categoryMap[category as keyof typeof this.categoryMap] || String(category);
   }
 
   toggleFlag(flag: ConfigurableFlag): void {
@@ -691,8 +734,8 @@ export class SettingsComponent implements OnInit {
     });
   }
 
-  getCategoryIcon(category: FlagCategory): string {
-    const icons: Record<FlagCategory, string> = {
+  getCategoryIcon(category: FlagCategory | number | string): string {
+    const icons: Record<string | number, string> = {
       [FlagCategory.Portal]: 'storefront',
       [FlagCategory.Billing]: 'receipt',
       [FlagCategory.Inventory]: 'inventory_2',
@@ -700,7 +743,16 @@ export class SettingsComponent implements OnInit {
       [FlagCategory.Reports]: 'analytics',
       [FlagCategory.Integration]: 'cable',
       [FlagCategory.UI]: 'palette',
-      [FlagCategory.Experimental]: 'science'
+      [FlagCategory.Experimental]: 'science',
+      // Numeric mappings for backend enum values
+      1: 'storefront',      // Portal
+      2: 'receipt',         // Billing
+      3: 'inventory_2',     // Inventory
+      4: 'shopping_cart',   // Orders
+      5: 'analytics',       // Reports
+      6: 'cable',           // Integration
+      7: 'palette',         // UI
+      8: 'science'          // Experimental
     };
     return icons[category] || 'flag';
   }

@@ -58,7 +58,9 @@
     "locked": "Locked",
     "value": "Value",
     "reason": "Reason",
-    "remove": "Remove"
+    "remove": "Remove",
+    "days": "days",
+    "day": "day"
   },
   "commands": {
     "searchPlaceholder": "Search commands...",
@@ -1268,7 +1270,10 @@
     "tabs": {
       "general": "General",
       "features": "Features",
-      "notifications": "Notifications"
+      "notifications": "Notifications",
+      "appearance": "Appearance",
+      "regional": "Regional",
+      "privacy": "Privacy & Security"
     },
     "general": {
       "title": "General Settings",

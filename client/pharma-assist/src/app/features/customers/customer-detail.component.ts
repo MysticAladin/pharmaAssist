@@ -151,7 +151,7 @@ import { BadgeVariant } from '../../shared/components/status-badge';
                   </span>
                 </div>
                 <div class="stat-item">
-                  <span class="stat-label">{{ 'customers.paymentTerms' | translate }}</span>
+                  <span class="stat-label">{{ 'customers.form.paymentTerms' | translate }}</span>
                   <span class="stat-value">{{ customer()!.paymentTermDays }} {{ 'common.days' | translate }}</span>
                 </div>
               </div>

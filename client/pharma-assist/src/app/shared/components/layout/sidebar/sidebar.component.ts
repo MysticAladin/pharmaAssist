@@ -89,6 +89,7 @@ interface NavItem {
                             <a
                               [routerLink]="child.route"
                               routerLinkActive="active"
+                              [routerLinkActiveOptions]="{ exact: child.route === item.route }"
                               class="nav-sublink">
                               {{ child.labelKey | translate }}
                             </a>

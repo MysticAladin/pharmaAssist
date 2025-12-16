@@ -58,7 +58,9 @@
     "locked": "Zaključano",
     "value": "Vrijednost",
     "reason": "Razlog",
-    "remove": "Ukloni"
+    "remove": "Ukloni",
+    "days": "dana",
+    "day": "dan"
   },
   "commands": {
     "searchPlaceholder": "Pretraži komande...",
@@ -1264,9 +1266,44 @@
   "settings": {
     "title": "Postavke",
     "subtitle": "Upravljajte postavkama aplikacije",
-    "general": "Općenito",
+    "tabs": {
+      "general": "Općenito",
+      "features": "Funkcije",
+      "notifications": "Obavještenja",
+      "appearance": "Izgled",
+      "regional": "Regionalne",
+      "privacy": "Privatnost i Sigurnost"
+    },
+    "general": {
+      "title": "Opće Postavke",
+      "description": "Konfigurirajte osnovne postavke aplikacije za vašu organizaciju",
+      "companyName": "Naziv Firme",
+      "companyNameDesc": "Naziv vaše firme ili apoteke",
+      "timezone": "Vremenska Zona",
+      "timezoneDesc": "Vaša lokalna vremenska zona za rasporede i izvještaje"
+    },
+    "features": {
+      "title": "Postavke Funkcija",
+      "description": "Omogućite ili onemogućite opcione funkcije za vašu organizaciju. Neke funkcije mogu biti kontrolirane na sistemskom nivou.",
+      "customized": "Prilagođeno",
+      "systemDisabled": "Ova funkcija je onemogućena na sistemskom nivou",
+      "unsavedChanges": "Imate nespremljene promjene",
+      "empty": {
+        "title": "Nema Konfigurabilnih Funkcija",
+        "description": "Trenutno nema funkcija dostupnih za konfiguraciju."
+      }
+    },
+    "notifications": {
+      "title": "Postavke Obavještenja",
+      "description": "Kontrolirajte kako primate upozorenja i ažuriranja",
+      "orderUpdates": "Ažuriranja Narudžbi",
+      "orderUpdatesDesc": "Budite obaviješteni kada se narudžbe kreiraju, ažuriraju ili završe",
+      "lowStock": "Upozorenja o Niskim Zalihama",
+      "lowStockDesc": "Upozorenje kada proizvodi padnu ispod nivoa za narudžbu",
+      "expiry": "Upozorenja o Isteku",
+      "expiryDesc": "Upozorenje za proizvode kojima se približava rok trajanja"
+    },
     "appearance": "Izgled",
-    "notifications": "Obavještenja",
     "regional": "Regionalne",
     "privacy": "Privatnost i Sigurnost",
     "generalSettings": "Opće Postavke",

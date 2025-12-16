@@ -150,22 +150,22 @@ import { EmptyStateComponent } from '../../shared/components/empty-state/empty-s
               <tr>
                 <th class="sortable" (click)="sortBy('name')">
                   {{ 'lowStock.columns.product' | translate }}
-                  @if (sortColumn === 'name') {
-                    <span class="sort-icon">{{ sortDirection === 'asc' ? '↑' : '↓' }}</span>
+                  @if (sortColumn() === 'name') {
+                    <span class="sort-icon">{{ sortDirection() === 'asc' ? '↑' : '↓' }}</span>
                   }
                 </th>
                 <th>{{ 'lowStock.columns.sku' | translate }}</th>
                 <th>{{ 'lowStock.columns.category' | translate }}</th>
                 <th class="text-right sortable" (click)="sortBy('stockQuantity')">
                   {{ 'lowStock.columns.currentStock' | translate }}
-                  @if (sortColumn === 'stockQuantity') {
-                    <span class="sort-icon">{{ sortDirection === 'asc' ? '↑' : '↓' }}</span>
+                  @if (sortColumn() === 'stockQuantity') {
+                    <span class="sort-icon">{{ sortDirection() === 'asc' ? '↑' : '↓' }}</span>
                   }
                 </th>
                 <th class="text-right sortable" (click)="sortBy('reorderLevel')">
                   {{ 'lowStock.columns.reorderLevel' | translate }}
-                  @if (sortColumn === 'reorderLevel') {
-                    <span class="sort-icon">{{ sortDirection === 'asc' ? '↑' : '↓' }}</span>
+                  @if (sortColumn() === 'reorderLevel') {
+                    <span class="sort-icon">{{ sortDirection() === 'asc' ? '↑' : '↓' }}</span>
                   }
                 </th>
                 <th class="text-center">{{ 'lowStock.columns.status' | translate }}</th>
@@ -317,8 +317,8 @@ export class LowStockComponent implements OnInit {
   searchTerm = '';
   selectedSeverity = 'all';
   threshold = 10;
-  sortColumn = 'stockQuantity';
-  sortDirection: 'asc' | 'desc' = 'asc';
+  sortColumn = signal('stockQuantity');
+  sortDirection = signal<'asc' | 'desc'>('asc');
 
   // Computed values
   filteredProducts = computed(() => {
@@ -340,10 +340,12 @@ export class LowStockComponent implements OnInit {
     }
 
     // Sort
+    const column = this.sortColumn();
+    const direction = this.sortDirection();
     result = [...result].sort((a, b) => {
-      const aVal = a[this.sortColumn as keyof Product];
-      const bVal = b[this.sortColumn as keyof Product];
-      const modifier = this.sortDirection === 'asc' ? 1 : -1;
+      const aVal = a[column as keyof Product];
+      const bVal = b[column as keyof Product];
+      const modifier = direction === 'asc' ? 1 : -1;
 
       if (typeof aVal === 'string' && typeof bVal === 'string') {
         return aVal.localeCompare(bVal) * modifier;
@@ -401,11 +403,11 @@ export class LowStockComponent implements OnInit {
   }
 
   sortBy(column: string): void {
-    if (this.sortColumn === column) {
-      this.sortDirection = this.sortDirection === 'asc' ? 'desc' : 'asc';
+    if (this.sortColumn() === column) {
+      this.sortDirection.update(d => d === 'asc' ? 'desc' : 'asc');
     } else {
-      this.sortColumn = column;
-      this.sortDirection = 'asc';
+      this.sortColumn.set(column);
+      this.sortDirection.set('asc');
     }
   }
 

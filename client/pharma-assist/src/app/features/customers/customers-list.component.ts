@@ -133,7 +133,7 @@ import { ModalComponent } from '../../shared/components/modal/modal.component';
           <table class="data-table">
             <thead>
               <tr>
-                <th class="sortable" (click)="sortBy('name')">{{ 'customers.columns.name' | translate }} @if(sortColumn==='name'){<span class="sort-icon">{{sortDirection==='asc'?'↑':'↓'}}</span>}</th>
+                <th class="sortable" (click)="sortBy('name')">{{ 'customers.columns.name' | translate }} @if(sortColumn()==='name'){<span class="sort-icon">{{sortDirection()==='asc'?'↑':'↓'}}</span>}</th>
                 <th>{{ 'customers.columns.code' | translate }}</th>
                 <th>{{ 'customers.columns.type' | translate }}</th>
                 <th>{{ 'customers.columns.tier' | translate }}</th>
@@ -380,8 +380,8 @@ export class CustomersListComponent implements OnInit {
   selectedType = '';
   selectedTier = '';
   activeOnly = false;
-  sortColumn = 'name';
-  sortDirection: 'asc' | 'desc' = 'asc';
+  sortColumn = signal('name');
+  sortDirection = signal<'asc' | 'desc'>('asc');
 
   // Form
   formData = this.getEmptyFormData();
@@ -423,10 +423,12 @@ export class CustomersListComponent implements OnInit {
       result = result.filter(c => c.isActive);
     }
 
+    const column = this.sortColumn();
+    const direction = this.sortDirection();
     result = [...result].sort((a, b) => {
-      const aVal = a[this.sortColumn as keyof Customer];
-      const bVal = b[this.sortColumn as keyof Customer];
-      const modifier = this.sortDirection === 'asc' ? 1 : -1;
+      const aVal = a[column as keyof Customer];
+      const bVal = b[column as keyof Customer];
+      const modifier = direction === 'asc' ? 1 : -1;
       if (typeof aVal === 'string' && typeof bVal === 'string') {
         return aVal.localeCompare(bVal) * modifier;
       }
@@ -466,11 +468,11 @@ export class CustomersListComponent implements OnInit {
   }
 
   sortBy(column: string): void {
-    if (this.sortColumn === column) {
-      this.sortDirection = this.sortDirection === 'asc' ? 'desc' : 'asc';
+    if (this.sortColumn() === column) {
+      this.sortDirection.update(d => d === 'asc' ? 'desc' : 'asc');
     } else {
-      this.sortColumn = column;
-      this.sortDirection = 'asc';
+      this.sortColumn.set(column);
+      this.sortDirection.set('asc');
     }
   }
 

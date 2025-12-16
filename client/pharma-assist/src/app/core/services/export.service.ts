@@ -42,8 +42,8 @@ export class ExportService {
   }
 
   /**
-   * Export data to Excel-compatible format (using HTML table)
-   * For proper Excel export, consider using a library like xlsx or exceljs
+   * Export data to Excel format using simple HTML table
+   * This format is widely compatible with Excel, LibreOffice, and Google Sheets
    */
   exportToExcel<T>(
     data: T[],
@@ -53,30 +53,23 @@ export class ExportService {
     const headers = columns.map(col => col.header);
     const rows = data.map(row => this.formatRow(row, columns));
 
-    let html = `
-      <html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel">
-      <head>
-        <meta charset="utf-8">
-        <style>
-          table { border-collapse: collapse; }
-          th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
-          th { background-color: var(--pharma-teal-500); color: white; font-weight: bold; }
-          tr:nth-child(even) { background-color: #f9f9f9; }
-        </style>
-      </head>
-      <body>
-        <table>
-    `;
+    // Build simple HTML table that Excel can open
+    let html = '<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40">';
+    html += '<head><meta http-equiv="Content-Type" content="text/html; charset=utf-8">';
+    html += '<style>td, th { mso-number-format:"\@"; } th { background-color: #0aaaaa; color: white; font-weight: bold; } td { border: 1px solid #ddd; }</style>';
+    html += '</head><body>';
+    html += '<table border="1">';
 
+    // Header row
     if (options.includeHeaders !== false) {
-      html += '<thead><tr>';
+      html += '<tr>';
       headers.forEach(header => {
         html += `<th>${this.escapeHTML(header)}</th>`;
       });
-      html += '</tr></thead>';
+      html += '</tr>';
     }
 
-    html += '<tbody>';
+    // Data rows
     rows.forEach(row => {
       html += '<tr>';
       row.forEach(cell => {
@@ -84,9 +77,10 @@ export class ExportService {
       });
       html += '</tr>';
     });
-    html += '</tbody></table></body></html>';
 
-    const blob = new Blob([html], { type: 'application/vnd.ms-excel;charset=utf-8;' });
+    html += '</table></body></html>';
+
+    const blob = new Blob(['\ufeff' + html], { type: 'application/vnd.ms-excel' });
     this.downloadBlob(blob, `${options.filename}.xls`);
   }
 
@@ -120,11 +114,11 @@ export class ExportService {
           @page { size: A4; margin: 20mm; }
           body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 12px; }
           .header { margin-bottom: 20px; }
-          .header h1 { color: var(--pharma-teal-500); margin: 0 0 5px; font-size: 24px; }
+          .header h1 { color: #0aaaaa; margin: 0 0 5px; font-size: 24px; }
           .header p { color: #666; margin: 0; font-size: 14px; }
           table { width: 100%; border-collapse: collapse; margin-top: 20px; }
           th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
-          th { background-color: var(--pharma-teal-500); color: white; font-weight: 600; font-size: 11px; text-transform: uppercase; }
+          th { background-color: #0aaaaa; color: white; font-weight: 600; font-size: 11px; text-transform: uppercase; }
           tr:nth-child(even) { background-color: #f9f9f9; }
           .footer { margin-top: 30px; font-size: 10px; color: #888; text-align: center; }
           @media print { body { print-color-adjust: exact; -webkit-print-color-adjust: exact; } }
