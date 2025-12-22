@@ -174,10 +174,10 @@ interface TopItem {
     .page-description{color:var(--c2);margin:0;font-size:.9rem}
     .header-actions{display:flex;gap:.75rem}
     .btn-primary,.btn-secondary{display:flex;align-items:center;gap:.5rem;padding:.625rem 1rem;border-radius:8px;font-size:.875rem;font-weight:500;cursor:pointer;transition:all .2s}
-    .btn-primary{background:var(--c5);color:#fff;border:none}
-    .btn-primary:hover{background:#088888}
-    .btn-secondary{background:#fff;color:var(--c1);border:1px solid var(--c3)}
-    .btn-secondary:hover{border-color:var(--c5);color:var(--c5)}
+    .btn-primary{background:var(--primary-600);color:#fff;border:none}
+    .btn-primary:hover{background:var(--primary-700)}
+    .btn-secondary{background:#fff;color:var(--text-primary);border:1px solid var(--border-color)}
+    .btn-secondary:hover{background:var(--bg-hover);border-color:var(--border-color)}
     .filters-bar{background:#fff;border-radius:12px;padding:1rem;border:1px solid var(--c3);margin-bottom:1.5rem;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:1rem}
     .date-range label{font-size:.75rem;text-transform:uppercase;font-weight:600;color:var(--c2);display:block;margin-bottom:.375rem}
     .date-inputs{display:flex;align-items:center;gap:.5rem}

@@ -1917,6 +1917,8 @@
     "lastLogin": "Last Login",
     "neverLoggedIn": "Never",
     "isActive": "Active",
+    "rolesColumn": "Roles",
+    "selectRoles": "Select Roles",
     "roles": {
       "superAdmin": "Super Admin",
       "admin": "Administrator",

@@ -1,0 +1,265 @@
+<div class="tenders-page">
+  <!-- Page Header -->
+  <div class="page-header">
+    <div>
+      <h1 class="page-title">{{ 'TENDERS.TITLE' | translate }}</h1>
+      <p class="page-subtitle">{{ 'TENDERS.SUBTITLE' | translate }}</p>
+    </div>
+    <div class="header-actions">
+      <button class="btn btn-primary" [routerLink]="['/tenders/new']">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="12" y1="5" x2="12" y2="19"/>
+          <line x1="5" y1="12" x2="19" y2="12"/>
+        </svg>
+        {{ 'TENDERS.NEW_TENDER' | translate }}
+      </button>
+    </div>
+  </div>
+
+  <!-- Stats Cards -->
+  <div class="stats-row">
+    <div class="stat-card">
+      <div class="stat-icon draft">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+          <polyline points="14 2 14 8 20 8"/>
+        </svg>
+      </div>
+      <div class="stat-content">
+        <div class="stat-value">{{ stats().draft }}</div>
+        <div class="stat-label">{{ 'TENDERS.STATS.DRAFT' | translate }}</div>
+      </div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-icon open">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="10"/>
+          <polyline points="12 6 12 12 16 14"/>
+        </svg>
+      </div>
+      <div class="stat-content">
+        <div class="stat-value">{{ stats().open }}</div>
+        <div class="stat-label">{{ 'TENDERS.STATS.OPEN' | translate }}</div>
+      </div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-icon awarded">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="8" r="6"/>
+          <path d="M15.477 12.89 17 22l-5-3-5 3 1.523-9.11"/>
+        </svg>
+      </div>
+      <div class="stat-content">
+        <div class="stat-value">{{ stats().awarded }}</div>
+        <div class="stat-label">{{ 'TENDERS.STATS.AWARDED' | translate }}</div>
+      </div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-icon total">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="12" y1="1" x2="12" y2="23"/>
+          <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
+        </svg>
+      </div>
+      <div class="stat-content">
+        <div class="stat-value">{{ stats().totalValue | currency:'BAM':'symbol':'1.0-0' }}</div>
+        <div class="stat-label">{{ 'TENDERS.STATS.TOTAL_VALUE' | translate }}</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Filters -->
+  <div class="filters-section">
+    <div class="filters-row">
+      <app-search-input
+        [placeholder]="'TENDERS.SEARCH_PLACEHOLDER' | translate"
+        [debounceTime]="300"
+        (search)="onSearch($event)">
+      </app-search-input>
+
+      <div class="filter-group">
+        <select class="form-select" [(ngModel)]="selectedStatus" (change)="loadTenders()">
+          <option [ngValue]="null">{{ 'TENDERS.FILTER.ALL_STATUSES' | translate }}</option>
+          @for (status of statuses; track status) {
+            <option [ngValue]="status">{{ tenderStatusLabels[status] | translate }}</option>
+          }
+        </select>
+
+        <select class="form-select" [(ngModel)]="selectedType" (change)="loadTenders()">
+          <option [ngValue]="null">{{ 'TENDERS.FILTER.ALL_TYPES' | translate }}</option>
+          @for (type of types; track type) {
+            <option [ngValue]="type">{{ tenderTypeLabels[type] | translate }}</option>
+          }
+        </select>
+
+        <select class="form-select" [(ngModel)]="selectedPriority" (change)="loadTenders()">
+          <option [ngValue]="null">{{ 'TENDERS.FILTER.ALL_PRIORITIES' | translate }}</option>
+          @for (priority of priorities; track priority) {
+            <option [ngValue]="priority">{{ tenderPriorityLabels[priority] | translate }}</option>
+          }
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tenders Table -->
+  @if (loading()) {
+    <div class="loading-container">
+      <div class="loading-spinner"></div>
+      <p>{{ 'COMMON.LOADING' | translate }}</p>
+    </div>
+  } @else if (tenders().length === 0) {
+    <app-empty-state
+      icon="file-text"
+      [title]="'TENDERS.EMPTY.TITLE' | translate"
+      [description]="'TENDERS.EMPTY.DESCRIPTION' | translate"
+      [actionLabel]="'TENDERS.NEW_TENDER' | translate"
+      (action)="router.navigate(['/tenders/new'])">
+    </app-empty-state>
+  } @else {
+    <div class="tenders-table-container">
+      <table class="tenders-table">
+        <thead>
+          <tr>
+            <th class="sortable" (click)="sortBy('tenderNumber')">
+              {{ 'TENDERS.TABLE.NUMBER' | translate }}
+              @if (sortField === 'tenderNumber') {
+                <span class="sort-icon">{{ sortDescending ? '↓' : '↑' }}</span>
+              }
+            </th>
+            <th class="sortable" (click)="sortBy('title')">
+              {{ 'TENDERS.TABLE.TITLE' | translate }}
+              @if (sortField === 'title') {
+                <span class="sort-icon">{{ sortDescending ? '↓' : '↑' }}</span>
+              }
+            </th>
+            <th>{{ 'TENDERS.TABLE.CUSTOMER' | translate }}</th>
+            <th>{{ 'TENDERS.TABLE.TYPE' | translate }}</th>
+            <th>{{ 'TENDERS.TABLE.STATUS' | translate }}</th>
+            <th>{{ 'TENDERS.TABLE.PRIORITY' | translate }}</th>
+            <th class="sortable" (click)="sortBy('submissionDeadline')">
+              {{ 'TENDERS.TABLE.DEADLINE' | translate }}
+              @if (sortField === 'submissionDeadline') {
+                <span class="sort-icon">{{ sortDescending ? '↓' : '↑' }}</span>
+              }
+            </th>
+            <th class="sortable text-right" (click)="sortBy('estimatedValue')">
+              {{ 'TENDERS.TABLE.VALUE' | translate }}
+              @if (sortField === 'estimatedValue') {
+                <span class="sort-icon">{{ sortDescending ? '↓' : '↑' }}</span>
+              }
+            </th>
+            <th class="text-center">{{ 'TENDERS.TABLE.BIDS' | translate }}</th>
+            <th>{{ 'TENDERS.TABLE.ACTIONS' | translate }}</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (tender of tenders(); track tender.id) {
+            <tr [class.urgent]="tender.priority === 'Critical' || tender.priority === 'High'">
+              <td class="tender-number">
+                <a [routerLink]="['/tenders', tender.id]">{{ tender.tenderNumber }}</a>
+              </td>
+              <td class="tender-title">
+                <div class="title-cell">
+                  <span class="title">{{ tender.title }}</span>
+                  @if (tender.isOpen) {
+                    <span class="badge badge-success">{{ 'TENDERS.OPEN_FOR_BIDS' | translate }}</span>
+                  }
+                </div>
+              </td>
+              <td>{{ tender.customerName }}</td>
+              <td>
+                <span class="type-badge">{{ tenderTypeLabels[tender.type] | translate }}</span>
+              </td>
+              <td>
+                <span class="status-badge" [class]="tenderStatusColors[tender.status]">
+                  {{ tenderStatusLabels[tender.status] | translate }}
+                </span>
+              </td>
+              <td>
+                <span class="priority-indicator" [class]="tenderPriorityColors[tender.priority]">
+                  {{ tenderPriorityLabels[tender.priority] | translate }}
+                </span>
+              </td>
+              <td [class.deadline-warning]="isDeadlineSoon(tender)" [class.deadline-passed]="isDeadlinePassed(tender)">
+                {{ tender.submissionDeadline | date:'shortDate' }}
+                @if (isDeadlineSoon(tender)) {
+                  <span class="deadline-badge">{{ getDaysRemaining(tender) }}d</span>
+                }
+              </td>
+              <td class="text-right">
+                {{ tender.estimatedValue | currency:tender.currency:'symbol':'1.0-0' }}
+              </td>
+              <td class="text-center">
+                <span class="bid-count" [class.has-bids]="tender.bidCount > 0">
+                  {{ tender.bidCount }}
+                </span>
+              </td>
+              <td>
+                <div class="action-buttons">
+                  <button class="btn-icon" title="{{ 'COMMON.VIEW' | translate }}"
+                          [routerLink]="['/tenders', tender.id]">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                      <circle cx="12" cy="12" r="3"/>
+                    </svg>
+                  </button>
+                  @if (tender.status === 'Draft') {
+                    <button class="btn-icon" title="{{ 'COMMON.EDIT' | translate }}"
+                            [routerLink]="['/tenders', tender.id, 'edit']">
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+                        <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+                      </svg>
+                    </button>
+                    <button class="btn-icon btn-danger" title="{{ 'COMMON.DELETE' | translate }}"
+                            (click)="confirmDelete(tender)">
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="3 6 5 6 21 6"/>
+                        <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+                      </svg>
+                    </button>
+                  }
+                  @if (tender.isOpen) {
+                    <button class="btn-icon btn-primary" title="{{ 'TENDERS.CREATE_BID' | translate }}"
+                            [routerLink]="['/tenders', tender.id, 'bid']">
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                        <polyline points="14 2 14 8 20 8"/>
+                        <line x1="12" y1="18" x2="12" y2="12"/>
+                        <line x1="9" y1="15" x2="15" y2="15"/>
+                      </svg>
+                    </button>
+                  }
+                </div>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Pagination -->
+    <app-pagination
+      [page]="currentPage"
+      [size]="pageSize"
+      [totalItems]="totalItems()"
+      (pageChange)="onPageChange($event)">
+    </app-pagination>
+  }
+
+  <!-- Delete Confirmation Dialog -->
+  <app-confirm-dialog
+    [open]="showDeleteDialog()"
+    [title]="'TENDERS.DELETE.TITLE' | translate"
+    [message]="'TENDERS.DELETE.MESSAGE' | translate"
+    [confirmLabel]="'COMMON.DELETE' | translate"
+    [cancelLabel]="'COMMON.CANCEL' | translate"
+    type="danger"
+    (confirm)="deleteTender()"
+    (cancel)="showDeleteDialog.set(false)">
+  </app-confirm-dialog>
+</div>

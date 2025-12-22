@@ -2,6 +2,7 @@
 
 // Import centralized theme (single source of truth for all colors)
 @use './styles/theme';
+@use './styles/icons';
 
 // =============================================================================
 // NOTE: All color tokens are now defined in styles/_theme.scss
@@ -167,8 +168,8 @@ button {
   align-items: center;
   justify-content: center;
   gap: var(--spacing-sm);
-  padding: var(--spacing-sm) var(--spacing-lg);
-  font-size: var(--font-size-base);
+  padding: 0.5rem 1rem;  /* Reduced from 0.75rem 1.5rem */
+  font-size: var(--font-size-sm);
   font-weight: 500;
   border-radius: var(--radius-md);
   transition: all var(--transition-fast);

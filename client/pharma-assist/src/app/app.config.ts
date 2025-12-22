@@ -1,13 +1,18 @@
-import { ApplicationConfig, provideBrowserGlobalErrorListeners, provideZoneChangeDetection, APP_INITIALIZER, inject } from '@angular/core';
+import { ApplicationConfig, provideBrowserGlobalErrorListeners, provideZoneChangeDetection, APP_INITIALIZER, inject, LOCALE_ID } from '@angular/core';
 import { provideRouter, withComponentInputBinding, withViewTransitions } from '@angular/router';
 import { provideHttpClient, withInterceptors, withFetch } from '@angular/common/http';
 import { provideAnimations } from '@angular/platform-browser/animations';
 import { provideTranslateService, TranslateService } from '@ngx-translate/core';
 import { provideTranslateHttpLoader } from '@ngx-translate/http-loader';
+import { registerLocaleData } from '@angular/common';
+import localeBs from '@angular/common/locales/bs';
 
 import { routes } from './app.routes';
 import { authInterceptor, errorInterceptor, loadingInterceptor } from './core/interceptors';
 import { AuthService } from './core/services/auth.service';
+
+// Register Bosnian locale for date formatting
+registerLocaleData(localeBs);
 
 /**
  * Initialize authentication state on app startup
@@ -35,6 +40,9 @@ export const appConfig: ApplicationConfig = {
   providers: [
     provideBrowserGlobalErrorListeners(),
     provideZoneChangeDetection({ eventCoalescing: true }),
+
+    // Set default locale to Bosnian for DatePipe
+    { provide: LOCALE_ID, useValue: 'bs-BA' },
 
     // Router with component input binding and view transitions
     provideRouter(

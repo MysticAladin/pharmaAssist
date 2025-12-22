@@ -103,7 +103,101 @@ public class InventoryController : ControllerBase
 
     #endregion
 
+    #region Locations
+
+    /// <summary>
+    /// Get active locations (warehouses)
+    /// </summary>
+    [HttpGet("locations/active")]
+    [ProducesResponseType(typeof(ApiResponse<IEnumerable<WarehouseDto>>), StatusCodes.Status200OK)]
+    public async Task<IActionResult> GetActiveLocations(CancellationToken cancellationToken = default)
+    {
+        var result = await _inventoryService.GetAllWarehousesAsync(activeOnly: true, cancellationToken);
+        return result.Success ? Ok(result) : BadRequest(result);
+    }
+
+    /// <summary>
+    /// Get location by ID
+    /// </summary>
+    [HttpGet("locations/{id:int}")]
+    [ProducesResponseType(typeof(ApiResponse<WarehouseDto>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiResponse<WarehouseDto>), StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> GetLocationById(int id, CancellationToken cancellationToken)
+    {
+        var result = await _inventoryService.GetWarehouseByIdAsync(id, cancellationToken);
+        return result.Success ? Ok(result) : NotFound(result);
+    }
+
+    #endregion
+
     #region Stock
+
+    /// <summary>
+    /// Get stock levels with pagination and filtering
+    /// </summary>
+    [HttpGet("stock-levels")]
+    [ProducesResponseType(typeof(PagedResponse<InventoryStockDto>), StatusCodes.Status200OK)]
+    public async Task<IActionResult> GetStockLevels(
+        [FromQuery] int page = 1,
+        [FromQuery] int pageSize = 20,
+        [FromQuery] string? search = null,
+        [FromQuery] int? locationId = null,
+        [FromQuery] bool? lowStockOnly = null,
+        [FromQuery] bool? expiringSoonOnly = null,
+        CancellationToken cancellationToken = default)
+    {
+        // If warehouse/location filter is provided, get stock by warehouse
+        if (locationId.HasValue)
+        {
+            var stockResult = await _inventoryService.GetStockByWarehouseAsync(locationId.Value, cancellationToken);
+            if (stockResult.Success && stockResult.Data != null)
+            {
+                var stockList = stockResult.Data.ToList();
+                
+                // Apply filters
+                if (!string.IsNullOrEmpty(search))
+                {
+                    stockList = stockList.Where(s => 
+                        s.ProductName.Contains(search, StringComparison.OrdinalIgnoreCase) ||
+                        s.ProductSku.Contains(search, StringComparison.OrdinalIgnoreCase)
+                    ).ToList();
+                }
+
+                if (lowStockOnly == true)
+                {
+                    stockList = stockList.Where(s => s.AvailableQuantity <= s.ReorderLevel).ToList();
+                }
+
+                // Simple pagination
+                var totalCount = stockList.Count;
+                var items = stockList
+                    .Skip((page - 1) * pageSize)
+                    .Take(pageSize)
+                    .ToList();
+
+                return Ok(new PagedResponse<InventoryStockDto>
+                {
+                    Data = items,
+                    Page = page,
+                    PageSize = pageSize,
+                    TotalCount = totalCount,
+                    TotalPages = (int)Math.Ceiling(totalCount / (double)pageSize),
+                    Success = true
+                });
+            }
+        }
+
+        // Default: Return empty paged result
+        return Ok(new PagedResponse<InventoryStockDto>
+        {
+            Data = new List<InventoryStockDto>(),
+            Page = page,
+            PageSize = pageSize,
+            TotalCount = 0,
+            TotalPages = 0,
+            Success = true
+        });
+    }
 
     /// <summary>
     /// Get stock by ID

@@ -1,0 +1,213 @@
+@use '../../../../styles/buttons';
+@use '../../../../styles/cards';
+@use '../../../../styles/layouts';
+@use '../../../../styles/filters';
+
+.tenders-page {
+  padding: 1.5rem;
+}
+
+.tenders-table-container {
+  background: var(--bg-primary);
+  border-radius: 0.5rem;
+  border: 1px solid var(--border-color);
+  overflow-x: auto;
+}
+
+.tenders-table {
+  width: 100%;
+  border-collapse: collapse;
+
+  th {
+    padding: 0.75rem 1rem;
+    text-align: left;
+    font-weight: 600;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    color: var(--text-secondary);
+    background: var(--bg-secondary);
+    border-bottom: 1px solid var(--border-color);
+
+    &.sortable {
+      cursor: pointer;
+      user-select: none;
+
+      &:hover {
+        color: var(--text-primary);
+      }
+    }
+  }
+
+  td {
+    padding: 0.75rem 1rem;
+    border-bottom: 1px solid var(--border-color);
+    font-size: 0.875rem;
+  }
+
+  tr:hover {
+    background: var(--bg-secondary);
+  }
+
+  tr.urgent {
+    background: var(--color-error-bg);
+  }
+}
+
+.sort-icon {
+  margin-left: 0.25rem;
+}
+
+.tender-number a {
+  color: var(--primary);
+  font-weight: 500;
+  text-decoration: none;
+
+  &:hover {
+    text-decoration: underline;
+  }
+}
+
+.title-cell {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.title {
+  max-width: 250px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.badge {
+  padding: 0.125rem 0.5rem;
+  border-radius: 9999px;
+  font-size: 0.625rem;
+  font-weight: 500;
+  text-transform: uppercase;
+
+  &.badge-success {
+    background: var(--color-success-bg);
+    color: var(--color-success-dark);
+  }
+}
+
+.type-badge {
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.25rem;
+  font-size: 0.75rem;
+  background: var(--bg-secondary);
+}
+
+.status-badge {
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.25rem;
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+.priority-indicator {
+  font-weight: 500;
+}
+
+.deadline-warning {
+  color: var(--status-pending-text);
+}
+
+.deadline-passed {
+  color: var(--color-error-dark);
+}
+
+.deadline-badge {
+  margin-left: 0.25rem;
+  padding: 0.125rem 0.25rem;
+  background: var(--status-pending-bg);
+  color: var(--status-pending-text);
+  border-radius: 0.25rem;
+  font-size: 0.625rem;
+  font-weight: 600;
+}
+
+.text-right {
+  text-align: right;
+}
+
+.text-center {
+  text-align: center;
+}
+
+.bid-count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 24px;
+  height: 24px;
+  padding: 0 0.25rem;
+  background: var(--bg-secondary);
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 500;
+
+  &.has-bids {
+    background: var(--primary);
+    color: white;
+  }
+}
+
+.action-buttons {
+  display: flex;
+  gap: 0.25rem;
+}
+
+.btn-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border: none;
+  background: transparent;
+  border-radius: 0.25rem;
+  cursor: pointer;
+  color: var(--text-secondary);
+  transition: all 0.15s;
+
+  &:hover {
+    background: var(--bg-secondary);
+    color: var(--text-primary);
+  }
+
+  &.btn-danger:hover {
+    background: var(--color-error-bg);
+    color: var(--color-error-dark);
+  }
+
+  &.btn-primary:hover {
+    background: var(--primary);
+    color: white;
+  }
+}
+
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 4rem 2rem;
+  color: var(--text-secondary);
+}
+
+.loading-spinner {
+  width: 40px;
+  height: 40px;
+  border: 3px solid var(--border-color);
+  border-top-color: var(--primary);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-bottom: 1rem;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}

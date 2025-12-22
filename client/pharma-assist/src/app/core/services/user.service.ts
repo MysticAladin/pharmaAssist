@@ -64,11 +64,11 @@ export class UserService {
 
     if (filters.search) params = params.set('search', filters.search);
     if (filters.role) params = params.set('role', filters.role);
-    if (filters.isActive !== undefined) params = params.set('isActive', filters.isActive.toString());
+    if (filters.isActive !== undefined) params = params.set('activeOnly', filters.isActive.toString());
     if (filters.page) params = params.set('page', filters.page.toString());
     if (filters.pageSize) params = params.set('pageSize', filters.pageSize.toString());
 
-    return this.http.get<PagedResponse<UserSummary>>(this.apiUrl, { params });
+    return this.http.get<PagedResponse<UserSummary>>(`${this.apiUrl}/paged`, { params });
   }
 
   /**

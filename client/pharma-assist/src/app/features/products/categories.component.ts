@@ -62,9 +62,9 @@ interface CategoryFormData {
 
         <div class="filter-group">
           <label class="toggle-filter">
-            <input 
-              type="checkbox" 
-              [(ngModel)]="showActiveOnly" 
+            <input
+              type="checkbox"
+              [(ngModel)]="showActiveOnly"
               (ngModelChange)="filterCategories()"
             >
             <span>{{ 'common.activeOnly' | translate }}</span>
@@ -151,8 +151,8 @@ interface CategoryFormData {
                   <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
                 </svg>
               </button>
-              <button 
-                class="btn-icon btn-icon-danger" 
+              <button
+                class="btn-icon btn-icon-danger"
                 (click)="confirmDelete(row); $event.stopPropagation()"
                 [title]="'common.delete' | translate"
                 [disabled]="(row.productCount || 0) > 0"
@@ -181,10 +181,10 @@ interface CategoryFormData {
             <div class="form-row">
               <div class="form-group">
                 <label for="name">{{ 'categories.form.name' | translate }} *</label>
-                <input 
-                  type="text" 
-                  id="name" 
-                  [(ngModel)]="formData.name" 
+                <input
+                  type="text"
+                  id="name"
+                  [(ngModel)]="formData.name"
                   name="name"
                   class="form-control"
                   required
@@ -193,10 +193,10 @@ interface CategoryFormData {
               </div>
               <div class="form-group">
                 <label for="nameLocal">{{ 'categories.form.nameLocal' | translate }}</label>
-                <input 
-                  type="text" 
-                  id="nameLocal" 
-                  [(ngModel)]="formData.nameLocal" 
+                <input
+                  type="text"
+                  id="nameLocal"
+                  [(ngModel)]="formData.nameLocal"
                   name="nameLocal"
                   class="form-control"
                   [placeholder]="'categories.form.nameLocalPlaceholder' | translate"
@@ -206,9 +206,9 @@ interface CategoryFormData {
 
             <div class="form-group">
               <label for="description">{{ 'categories.form.description' | translate }}</label>
-              <textarea 
-                id="description" 
-                [(ngModel)]="formData.description" 
+              <textarea
+                id="description"
+                [(ngModel)]="formData.description"
                 name="description"
                 class="form-control"
                 rows="3"
@@ -219,9 +219,9 @@ interface CategoryFormData {
             <div class="form-row">
               <div class="form-group">
                 <label for="parentId">{{ 'categories.form.parent' | translate }}</label>
-                <select 
-                  id="parentId" 
-                  [(ngModel)]="formData.parentId" 
+                <select
+                  id="parentId"
+                  [(ngModel)]="formData.parentId"
                   name="parentId"
                   class="form-control"
                 >
@@ -233,10 +233,10 @@ interface CategoryFormData {
               </div>
               <div class="form-group">
                 <label for="sortOrder">{{ 'categories.form.sortOrder' | translate }}</label>
-                <input 
-                  type="number" 
-                  id="sortOrder" 
-                  [(ngModel)]="formData.sortOrder" 
+                <input
+                  type="number"
+                  id="sortOrder"
+                  [(ngModel)]="formData.sortOrder"
                   name="sortOrder"
                   class="form-control"
                   min="0"
@@ -246,9 +246,9 @@ interface CategoryFormData {
 
             <div class="form-group">
               <label class="checkbox-label">
-                <input 
-                  type="checkbox" 
-                  [(ngModel)]="formData.isActive" 
+                <input
+                  type="checkbox"
+                  [(ngModel)]="formData.isActive"
                   name="isActive"
                 >
                 <span>{{ 'categories.form.isActive' | translate }}</span>
@@ -260,9 +260,9 @@ interface CategoryFormData {
           <button type="button" class="btn btn-secondary" (click)="closeFormModal()">
             {{ 'common.cancel' | translate }}
           </button>
-          <button 
-            type="button" 
-            class="btn btn-primary" 
+          <button
+            type="button"
+            class="btn btn-primary"
             (click)="saveCategory()"
             [disabled]="saving() || !formData.name"
           >
@@ -306,16 +306,16 @@ interface CategoryFormData {
     }
 
     .page-title {
-      font-size: 1.75rem;
+      font-size: var(--font-size-2xl);
       font-weight: 600;
-      color: var(--pharma-teal-900);
+      color: var(--text-primary);
       margin: 0 0 4px 0;
     }
 
     .page-subtitle {
-      color: var(--pharma-teal-600);
+      color: var(--text-secondary);
       margin: 0;
-      font-size: 0.9rem;
+      font-size: var(--font-size-sm);
     }
 
     .btn {

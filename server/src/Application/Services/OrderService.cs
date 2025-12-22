@@ -65,7 +65,12 @@ public class OrderService : IOrderService
         DateTime? toDate = null,
         CancellationToken cancellationToken = default)
     {
-        var allOrders = await _unitOfWork.Orders.GetAllAsync(cancellationToken);
+        // Get all orders with required navigation properties
+        var allOrders = await _unitOfWork.Orders.GetAllWithIncludesAsync(
+            cancellationToken,
+            o => o.Customer,
+            o => o.OrderItems
+        );
         
         // Apply filters
         var filtered = allOrders.AsEnumerable();

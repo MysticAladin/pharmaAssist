@@ -1916,6 +1916,8 @@
     "lastLogin": "Posljednja Prijava",
     "neverLoggedIn": "Nikada",
     "isActive": "Aktivan",
+    "rolesColumn": "Uloge",
+    "selectRoles": "Odaberi Uloge",
     "roles": {
       "superAdmin": "Super Admin",
       "admin": "Administrator",

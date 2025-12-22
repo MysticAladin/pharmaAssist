@@ -1,0 +1,149 @@
+<div class="transfers-page">
+  <!-- Header -->
+  <header class="page-header">
+    <div class="header-content">
+      <div class="breadcrumb">
+        <a routerLink="/inventory">{{ 'inventory.title' | translate }}</a>
+        <i class="icon-chevron-right"></i>
+        <span>{{ 'inventory.transfers' | translate }}</span>
+      </div>
+      <div class="title-row">
+        <h1>{{ 'inventory.stockTransfers' | translate }}</h1>
+        <button class="btn btn-primary" routerLink="new">
+          <i class="icon-plus"></i>
+          {{ 'inventory.newTransfer' | translate }}
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Filters -->
+  <section class="filters-section">
+    <div class="filter-row">
+      <select class="form-select" [(ngModel)]="selectedStatus" (change)="applyFilters()">
+        <option [value]="null">{{ 'inventory.allStatuses' | translate }}</option>
+        @for (status of transferStatuses; track status) {
+          <option [value]="status">{{ getStatusLabel(status) | translate }}</option>
+        }
+      </select>
+
+      <select class="form-select" [(ngModel)]="selectedSourceLocation" (change)="applyFilters()">
+        <option [value]="null">{{ 'inventory.allSourceLocations' | translate }}</option>
+        @for (location of locations(); track location.id) {
+          <option [value]="location.id">{{ location.name }}</option>
+        }
+      </select>
+
+      <select class="form-select" [(ngModel)]="selectedDestLocation" (change)="applyFilters()">
+        <option [value]="null">{{ 'inventory.allDestLocations' | translate }}</option>
+        @for (location of locations(); track location.id) {
+          <option [value]="location.id">{{ location.name }}</option>
+        }
+      </select>
+
+      @if (hasFilters()) {
+        <button class="btn btn-text" (click)="clearFilters()">
+          <i class="icon-x"></i>
+          {{ 'common.clearFilters' | translate }}
+        </button>
+      }
+    </div>
+  </section>
+
+  <!-- Transfers Table -->
+  <section class="table-section">
+    @if (loading()) {
+      <div class="loading-container">
+        <div class="spinner"></div>
+        <span>{{ 'common.loading' | translate }}</span>
+      </div>
+    } @else if (transfers().length === 0) {
+      <app-empty-state
+        icon="truck"
+        [title]="'inventory.noTransfers' | translate"
+        [description]="'inventory.noTransfersDescription' | translate">
+      </app-empty-state>
+    } @else {
+      <div class="table-container">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>{{ 'inventory.reference' | translate }}</th>
+              <th>{{ 'inventory.from' | translate }}</th>
+              <th>{{ 'inventory.to' | translate }}</th>
+              <th class="text-center">{{ 'inventory.items' | translate }}</th>
+              <th class="text-center">{{ 'inventory.status' | translate }}</th>
+              <th>{{ 'inventory.createdAt' | translate }}</th>
+              <th>{{ 'inventory.createdBy' | translate }}</th>
+              <th class="text-center">{{ 'common.actions' | translate }}</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (transfer of transfers(); track transfer.id) {
+              <tr>
+                <td>
+                  <a class="reference-link" [routerLink]="[transfer.id]">
+                    {{ transfer.referenceNumber }}
+                  </a>
+                </td>
+                <td>{{ transfer.sourceLocationName }}</td>
+                <td>{{ transfer.destinationLocationName }}</td>
+                <td class="text-center">
+                  <span class="items-count">{{ transfer.items.length }}</span>
+                </td>
+                <td class="text-center">
+                  <app-status-badge
+                    [variant]="getStatusColor(transfer.status)"
+                    [label]="getStatusLabel(transfer.status) | translate">
+                  </app-status-badge>
+                </td>
+                <td>{{ transfer.createdAt | europeanDate:'datetime' }}</td>
+                <td>{{ transfer.createdBy }}</td>
+                <td class="text-center">
+                  <div class="action-buttons">
+                    <button
+                      class="btn btn-icon btn-sm"
+                      [title]="'common.view' | translate"
+                      [routerLink]="[transfer.id]">
+                      <i class="icon-eye"></i>
+                    </button>
+                    @if (transfer.status === 'pending') {
+                      <button
+                        class="btn btn-icon btn-sm success"
+                        [title]="'inventory.markInTransit' | translate"
+                        (click)="markInTransit(transfer)">
+                        <i class="icon-truck"></i>
+                      </button>
+                      <button
+                        class="btn btn-icon btn-sm danger"
+                        [title]="'common.cancel' | translate"
+                        (click)="cancelTransfer(transfer)">
+                        <i class="icon-x"></i>
+                      </button>
+                    }
+                    @if (transfer.status === 'in_transit') {
+                      <button
+                        class="btn btn-icon btn-sm success"
+                        [title]="'inventory.receive' | translate"
+                        (click)="receiveTransfer(transfer)">
+                        <i class="icon-check"></i>
+                      </button>
+                    }
+                  </div>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Pagination -->
+      <app-pagination
+        [page]="currentPage()"
+        [size]="pageSize()"
+        [totalItems]="totalItems()"
+        (pageChange)="onPageChange($event)">
+      </app-pagination>
+    }
+  </section>
+</div>

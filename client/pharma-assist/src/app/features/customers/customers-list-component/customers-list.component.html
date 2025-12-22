@@ -1,0 +1,247 @@
+<div class="customers-page">
+  <!-- Header -->
+  <div class="page-header">
+    <div class="header-content">
+      <h1 class="page-title">{{ 'customers.title' | translate }}</h1>
+      <p class="page-description">{{ 'customers.subtitle' | translate }}</p>
+    </div>
+    <div class="header-actions">
+      <button class="btn btn-secondary" (click)="exportCustomers()">
+        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+          <polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>
+        </svg>
+        {{ 'common.export' | translate }}
+      </button>
+      <button class="btn btn-primary" (click)="openModal()">
+        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+        </svg>
+        {{ 'customers.addCustomer' | translate }}
+      </button>
+    </div>
+  </div>
+
+  <!-- Stats Cards -->
+  <div class="stats-grid">
+    <div class="stat-card">
+      <div class="stat-icon total"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></div>
+      <div class="stat-content"><span class="stat-value">{{ totalCustomers() }}</span><span class="stat-label">{{ 'customers.stats.total' | translate }}</span></div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon active"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg></div>
+      <div class="stat-content"><span class="stat-value">{{ activeCustomers() }}</span><span class="stat-label">{{ 'customers.stats.active' | translate }}</span></div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon premium"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></div>
+      <div class="stat-content"><span class="stat-value">{{ premiumCustomers() }}</span><span class="stat-label">{{ 'customers.stats.premium' | translate }}</span></div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon pharmacy"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21V5a2 2 0 0 0-2-2H7a2 2 0 0 0-2 2v16"/><path d="M3 21h18"/><path d="M9 7h1"/><path d="M9 11h1"/><path d="M9 15h1"/><path d="M14 7h1"/><path d="M14 11h1"/><path d="M14 15h1"/></svg></div>
+      <div class="stat-content"><span class="stat-value">{{ pharmacyCount() }}</span><span class="stat-label">{{ 'customers.stats.pharmacies' | translate }}</span></div>
+    </div>
+  </div>
+
+  <!-- Filters -->
+  <div class="filters-section">
+    <app-search-input
+      [placeholder]="'customers.searchPlaceholder' | translate"
+      (search)="onSearch($event)"
+    ></app-search-input>
+
+    <div class="filter-group">
+      <select class="filter-select" [(ngModel)]="selectedType" (change)="applyFilters()">
+        <option value="">{{ 'customers.allTypes' | translate }}</option>
+        <option [value]="CustomerType.Retail">{{ 'customers.types.retail' | translate }}</option>
+        <option [value]="CustomerType.Pharmacy">{{ 'customers.types.pharmacy' | translate }}</option>
+        <option [value]="CustomerType.Hospital">{{ 'customers.types.hospital' | translate }}</option>
+        <option [value]="CustomerType.Wholesale">{{ 'customers.types.wholesale' | translate }}</option>
+        <option [value]="CustomerType.Clinic">{{ 'customers.types.clinic' | translate }}</option>
+      </select>
+
+      <select class="filter-select" [(ngModel)]="selectedTier" (change)="applyFilters()">
+        <option value="">{{ 'customers.allTiers' | translate }}</option>
+        <option [value]="CustomerTier.A">{{ 'customers.tiers.premium' | translate }}</option>
+        <option [value]="CustomerTier.B">{{ 'customers.tiers.standard' | translate }}</option>
+        <option [value]="CustomerTier.C">{{ 'customers.tiers.basic' | translate }}</option>
+      </select>
+
+      <label class="filter-checkbox">
+        <input type="checkbox" [(ngModel)]="activeOnly" (change)="applyFilters()">
+        <span>{{ 'customers.activeOnly' | translate }}</span>
+      </label>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  @if (loading()) {
+    <div class="loading-container">
+      <div class="loading-grid">
+        @for (i of [1,2,3,4,5]; track i) {
+          <div class="skeleton-row"><div class="skeleton skeleton-cell"></div><div class="skeleton skeleton-cell wide"></div><div class="skeleton skeleton-cell"></div><div class="skeleton skeleton-cell"></div><div class="skeleton skeleton-cell"></div></div>
+        }
+      </div>
+    </div>
+  } @else if (filteredCustomers().length === 0) {
+    <app-empty-state
+      icon="users"
+      [title]="'customers.empty.title' | translate"
+      [description]="'customers.empty.description' | translate"
+      [actionLabel]="'customers.addCustomer' | translate"
+      (actionClick)="openModal()"
+    ></app-empty-state>
+  } @else {
+    <!-- Customers Table -->
+    <div class="table-card">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th class="sortable" (click)="sortBy('name')">{{ 'customers.columns.name' | translate }} @if(sortColumn()==='name'){<span class="sort-icon">{{sortDirection()==='asc'?'↑':'↓'}}</span>}</th>
+            <th>{{ 'customers.columns.code' | translate }}</th>
+            <th>{{ 'customers.columns.type' | translate }}</th>
+            <th>{{ 'customers.columns.tier' | translate }}</th>
+            <th>{{ 'customers.columns.contact' | translate }}</th>
+            <th class="text-center">{{ 'common.status' | translate }}</th>
+            <th class="text-center">{{ 'common.actions' | translate }}</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (customer of filteredCustomers(); track customer.id) {
+            <tr>
+              <td>
+                <div class="customer-info">
+                  <div class="customer-avatar" [class]="getTierClass(customer.tier)">
+                    {{ customer.name.charAt(0) }}
+                  </div>
+                  <div class="customer-details">
+                    <a [routerLink]="['/customers', customer.id]" class="customer-name">{{ customer.name }}</a>
+                    <span class="customer-tier-label">{{ getTierLabel(customer.tier) | translate }}</span>
+                  </div>
+                </div>
+              </td>
+              <td class="code-cell">{{ customer.customerCode }}</td>
+              <td>
+                <span class="type-badge" [class]="'type-' + customer.customerType">
+                  {{ getCustomerTypeLabel(customer.customerType) | translate }}
+                </span>
+              </td>
+              <td>
+                <span class="tier-badge" [class]="getTierClass(customer.tier)">
+                  {{ getTierLabel(customer.tier) | translate }}
+                </span>
+              </td>
+              <td>
+                @if (customer.contactPerson) {
+                  <div class="contact-info">{{ customer.contactPerson }}</div>
+                } @else {
+                  <span class="text-muted">-</span>
+                }
+              </td>
+              <td class="text-center">
+                <app-status-badge
+                  [variant]="customer.isActive ? 'success' : 'neutral'"
+                  [label]="(customer.isActive ? 'common.active' : 'common.inactive') | translate"
+                ></app-status-badge>
+              </td>
+              <td class="text-center">
+                <div class="action-buttons">
+                  <button class="btn-icon" [routerLink]="['/customers', customer.id]" [title]="'common.view' | translate">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                  </button>
+                  <button class="btn-icon" (click)="editCustomer(customer)" [title]="'common.edit' | translate">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                  </button>
+                  <button class="btn-icon btn-danger" (click)="confirmDelete(customer)" [title]="'common.delete' | translate">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+                  </button>
+                </div>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Pagination -->
+    <app-pagination
+      [page]="currentPage"
+      [size]="pageSize"
+      [totalItems]="totalItems()"
+      [sizeOptions]="[10, 25, 50]"
+      (pageChange)="onPageChange($event)"
+    ></app-pagination>
+  }
+
+  <!-- Customer Modal -->
+  <app-modal
+    [isOpen]="showModal()"
+    [title]="(editingCustomer() ? 'customers.editCustomer' : 'customers.addCustomer') | translate"
+    (close)="closeModal()"
+  >
+    <form (ngSubmit)="saveCustomer()" #customerForm="ngForm" class="customer-form">
+      <div class="form-grid">
+        <div class="form-group">
+          <label for="name">{{ 'customers.form.name' | translate }} *</label>
+          <input type="text" id="name" name="name" [(ngModel)]="formData.name" required>
+        </div>
+        <div class="form-group">
+          <label for="customerType">{{ 'customers.form.type' | translate }} *</label>
+          <select id="customerType" name="customerType" [(ngModel)]="formData.customerType" required>
+            <option [value]="CustomerType.Retail">{{ 'customers.types.retail' | translate }}</option>
+            <option [value]="CustomerType.Pharmacy">{{ 'customers.types.pharmacy' | translate }}</option>
+            <option [value]="CustomerType.Hospital">{{ 'customers.types.hospital' | translate }}</option>
+            <option [value]="CustomerType.Wholesale">{{ 'customers.types.wholesale' | translate }}</option>
+            <option [value]="CustomerType.Clinic">{{ 'customers.types.clinic' | translate }}</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="email">{{ 'customers.form.email' | translate }} *</label>
+          <input type="email" id="email" name="email" [(ngModel)]="formData.email" required>
+        </div>
+        <div class="form-group">
+          <label for="phone">{{ 'customers.form.phone' | translate }}</label>
+          <input type="tel" id="phone" name="phone" [(ngModel)]="formData.phone">
+        </div>
+        <div class="form-group">
+          <label for="contactPerson">{{ 'customers.form.contactPerson' | translate }}</label>
+          <input type="text" id="contactPerson" name="contactPerson" [(ngModel)]="formData.contactPerson">
+        </div>
+        <div class="form-group">
+          <label for="tier">{{ 'customers.form.tier' | translate }}</label>
+          <select id="tier" name="tier" [(ngModel)]="formData.tier">
+            <option [value]="CustomerTier.A">{{ 'customers.tiers.premium' | translate }}</option>
+            <option [value]="CustomerTier.B">{{ 'customers.tiers.standard' | translate }}</option>
+            <option [value]="CustomerTier.C">{{ 'customers.tiers.basic' | translate }}</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="taxId">{{ 'customers.form.taxId' | translate }}</label>
+          <input type="text" id="taxId" name="taxId" [(ngModel)]="formData.taxId">
+        </div>
+        <div class="form-group">
+          <label for="discountPercentage">{{ 'customers.form.discount' | translate }} (%)</label>
+          <input type="number" id="discountPercentage" name="discountPercentage" [(ngModel)]="formData.discountPercentage" min="0" max="100" step="0.1">
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" (click)="closeModal()">{{ 'common.cancel' | translate }}</button>
+        <button type="submit" class="btn btn-primary" [disabled]="!customerForm.valid || saving()">
+          @if (saving()) { <span class="spinner"></span> }
+          {{ (editingCustomer() ? 'common.save' : 'common.create') | translate }}
+        </button>
+      </div>
+    </form>
+  </app-modal>
+
+  <!-- Delete Confirmation -->
+  <app-confirm-dialog
+    [isOpen]="showDeleteConfirm()"
+    [title]="'customers.delete.title' | translate"
+    [message]="'customers.delete.message' | translate:{ name: customerToDelete()?.name }"
+    [confirmLabel]="'common.delete' | translate"
+    [cancelLabel]="'common.cancel' | translate"
+    variant="danger"
+    (confirm)="deleteCustomer()"
+    (cancel)="showDeleteConfirm.set(false)"
+  ></app-confirm-dialog>
+</div>

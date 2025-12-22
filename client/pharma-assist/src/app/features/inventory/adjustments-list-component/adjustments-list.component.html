@@ -1,0 +1,142 @@
+<div class="page-container">
+  <!-- Page Header -->
+  <div class="page-header">
+    <nav class="breadcrumb" aria-label="Breadcrumb">
+      <a routerLink="/dashboard">{{ 'common.home' | translate }}</a>
+      <span class="separator">/</span>
+      <a routerLink="/inventory">{{ 'inventory.title' | translate }}</a>
+      <span class="separator">/</span>
+      <span class="current">{{ 'inventory.adjustments' | translate }}</span>
+    </nav>
+  </div>
+
+  <!-- Title and Actions -->
+  <div class="title-row">
+    <h1>{{ 'inventory.adjustmentsHistory' | translate }}</h1>
+    <a routerLink="/inventory/adjustment/new" class="btn btn-primary">
+      <i class="icon-plus"></i>
+      {{ 'inventory.newAdjustment' | translate }}
+    </a>
+  </div>
+
+  <!-- Filters -->
+  <div class="filters-card">
+    <div class="filter-row">
+      <div class="filter-group">
+        <label for="typeFilter">{{ 'inventory.type' | translate }}</label>
+        <select id="typeFilter" [(ngModel)]="selectedType" (change)="applyFilters()">
+          <option [ngValue]="null">{{ 'common.allTypes' | translate }}</option>
+          @for (type of adjustmentTypes; track type) {
+            <option [value]="type">{{ getTypeLabel(type) | translate }}</option>
+          }
+        </select>
+      </div>
+
+      <div class="date-range">
+        <div class="filter-group">
+          <label for="startDate">{{ 'common.from' | translate }}</label>
+          <input
+            type="date"
+            id="startDate"
+            [(ngModel)]="startDate"
+            (change)="applyFilters()"
+          />
+        </div>
+
+        <div class="filter-group">
+          <label for="endDate">{{ 'common.to' | translate }}</label>
+          <input
+            type="date"
+            id="endDate"
+            [(ngModel)]="endDate"
+            (change)="applyFilters()"
+          />
+        </div>
+      </div>
+
+      @if (hasFilters()) {
+        <button type="button" class="btn-text" (click)="clearFilters()">
+          <i class="icon-x"></i>
+          {{ 'common.clearFilters' | translate }}
+        </button>
+      }
+    </div>
+  </div>
+
+  <!-- Adjustments Table -->
+  <div class="table-section">
+    @if (loading()) {
+      <div class="loading-state">
+        <div class="spinner"></div>
+        <p>{{ 'common.loading' | translate }}</p>
+      </div>
+    } @else if (adjustments().length === 0) {
+      <app-empty-state
+        [title]="'inventory.noAdjustments' | translate"
+        [message]="'inventory.noAdjustmentsMessage' | translate"
+        icon="icon-package"
+      />
+    } @else {
+      <div class="table-container">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>{{ 'common.date' | translate }}</th>
+              <th>{{ 'inventory.product' | translate }}</th>
+              <th>{{ 'inventory.type' | translate }}</th>
+              <th class="text-right">{{ 'inventory.quantityChange' | translate }}</th>
+              <th class="text-right">{{ 'inventory.previousStock' | translate }}</th>
+              <th class="text-right">{{ 'inventory.newStock' | translate }}</th>
+              <th>{{ 'inventory.reason' | translate }}</th>
+              <th>{{ 'inventory.adjustedBy' | translate }}</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (adjustment of adjustments(); track adjustment.id) {
+              <tr>
+                <td class="date">{{ adjustment.adjustedAt | europeanDate }}</td>
+                <td>
+                  <div class="product-info">
+                    <span class="product-name">{{ adjustment.productName }}</span>
+                    <span class="sku">{{ adjustment.productSku }}</span>
+                  </div>
+                </td>
+                <td>
+                  <app-status-badge
+                    [status]="getTypeLabel(adjustment.adjustmentType)"
+                    [variant]="getTypeColor(adjustment.adjustmentType)"
+                  />
+                </td>
+                <td class="text-right">
+                  <span
+                    class="quantity-change"
+                    [class.positive]="isAdditionType(adjustment.adjustmentType)"
+                    [class.negative]="!isAdditionType(adjustment.adjustmentType)"
+                  >
+                    {{ isAdditionType(adjustment.adjustmentType) ? '+' : '-' }}{{ adjustment.quantityChanged }}
+                  </span>
+                </td>
+                <td class="text-right">{{ adjustment.previousStock }}</td>
+                <td class="text-right">{{ adjustment.newStock }}</td>
+                <td>
+                  <span class="reason">{{ adjustment.reason }}</span>
+                  @if (adjustment.notes) {
+                    <i class="icon-info notes" [title]="adjustment.notes"></i>
+                  }
+                </td>
+                <td>{{ adjustment.adjustedBy }}</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+
+      <app-pagination
+        [currentPage]="currentPage()"
+        [pageSize]="pageSize()"
+        [totalItems]="totalItems()"
+        (pageChange)="onPageChange($event)"
+      />
+    }
+  </div>
+</div>

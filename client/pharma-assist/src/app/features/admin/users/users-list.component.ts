@@ -23,78 +23,28 @@ import { BadgeVariant } from '../../../shared/components/status-badge';
     StatusBadgeComponent,
     EmptyStateComponent
   ],
-  template: `
-    <div class="users-page">
-      <!-- Header -->
-      <header class="page-header">
-        <div class="header-content">
-          <div>
-            <h1>{{ 'users.title' | translate }}</h1>
-            <p class="subtitle">{{ 'users.subtitle' | translate }}</p>
-          </div>
-          <button class="btn btn-primary" (click)="openCreateModal()">
-            <i class="icon-plus"></i>
-            {{ 'users.addUser' | translate }}
-          </button>
-        </div>
-      </header>
+  templateUrl: './users-list-component/users-list.component.html',
+  styleUrls: ['./users-list-component/users-list.component.scss']
+})
+export class UsersListComponent implements OnInit {
+  private readonly userService = inject(UserService);
+  private readonly notificationService = inject(NotificationService);
+  private readonly confirmationService = inject(ConfirmationService);
+  private readonly translateService = inject(TranslateService);
 
-      <!-- Filters -->
-      <section class="filters-section">
-        <div class="filter-row">
-          <div class="search-box">
-            <i class="icon-search"></i>
-            <input
-              type="text"
-              [(ngModel)]="searchTerm"
-              (input)="onSearchChange()"
-              [placeholder]="'users.searchPlaceholder' | translate"
-              class="form-control">
-          </div>
-
-          <select class="form-select" [(ngModel)]="selectedRole" (change)="applyFilters()">
-            <option [value]="''">{{ 'users.allRoles' | translate }}</option>
-            @for (role of roles; track role) {
-              <option [value]="role">{{ getRoleName(role) | translate }}</option>
-            }
-          </select>
-
-          <select class="form-select" [(ngModel)]="selectedStatus" (change)="applyFilters()">
-            <option [value]="''">{{ 'users.allStatuses' | translate }}</option>
-            <option [value]="true">{{ 'common.active' | translate }}</option>
-            <option [value]="false">{{ 'common.inactive' | translate }}</option>
-          </select>
-
-          @if (hasFilters()) {
-            <button class="btn btn-text" (click)="clearFilters()">
-              <i class="icon-x"></i>
-              {{ 'common.clearFilters' | translate }}
-            </button>
-          }
-        </div>
-      </section>
-
-      <!-- Users Table -->
-      <section class="table-section">
-        @if (loading()) {
-          <div class="loading-container">
-            <div class="spinner"></div>
-            <span>{{ 'common.loading' | translate }}</span>
-          </div>
-        } @else if (users().length === 0) {
-          <app-empty-state
-            icon="users"
-            [title]="'users.noUsers' | translate"
-            [description]="'users.noUsersDescription' | translate">
-          </app-empty-state>
-        } @else {
-          <div class="table-container">
+  // State
+  users = signal<UserSummary[]>([]);
+  loading = signal(true);
+  currentPage = signal(1);
+  pageSize = signal(20);
+  totalItems = signal(0);
+  saving = signal(false);
             <table class="data-table">
               <thead>
                 <tr>
                   <th>{{ 'users.user' | translate }}</th>
                   <th>{{ 'users.email' | translate }}</th>
-                  <th>{{ 'users.roles' | translate }}</th>
+                  <th>{{ 'users.rolesColumn' | translate }}</th>
                   <th class="text-center">{{ 'common.status' | translate }}</th>
                   <th>{{ 'users.lastLogin' | translate }}</th>
                   <th class="text-center">{{ 'common.actions' | translate }}</th>
@@ -144,39 +94,57 @@ import { BadgeVariant } from '../../../shared/components/status-badge';
                       }
                     </td>
                     <td class="text-center">
-                      <div class="action-buttons">
+                      <div class="row-actions">
                         <button
-                          class="btn btn-icon btn-sm"
+                          class="action-btn"
                           [title]="'common.edit' | translate"
                           (click)="openEditModal(user)">
-                          <i class="icon-edit"></i>
+                          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+                            <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+                          </svg>
                         </button>
                         @if (user.isActive) {
                           <button
-                            class="btn btn-icon btn-sm warning"
+                            class="action-btn action-btn-warning"
                             [title]="'users.deactivate' | translate"
                             (click)="toggleUserStatus(user)">
-                            <i class="icon-user-x"></i>
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                              <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/>
+                              <circle cx="9" cy="7" r="4"/>
+                              <line x1="17" x2="22" y1="8" y2="13"/>
+                              <line x1="22" x2="17" y1="8" y2="13"/>
+                            </svg>
                           </button>
                         } @else {
                           <button
-                            class="btn btn-icon btn-sm success"
+                            class="action-btn action-btn-success"
                             [title]="'users.activate' | translate"
                             (click)="toggleUserStatus(user)">
-                            <i class="icon-user-check"></i>
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                              <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/>
+                              <circle cx="9" cy="7" r="4"/>
+                              <polyline points="16 11 18 13 22 9"/>
+                            </svg>
                           </button>
                         }
                         <button
-                          class="btn btn-icon btn-sm"
+                          class="action-btn"
                           [title]="'users.resetPassword' | translate"
                           (click)="openResetPasswordModal(user)">
-                          <i class="icon-key"></i>
+                          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="7.5" cy="15.5" r="5.5"/>
+                            <path d="m21 2-9.6 9.6"/>
+                            <path d="m15.5 7.5 3 3L22 7l-3-3"/>
+                          </svg>
                         </button>
                         <button
-                          class="btn btn-icon btn-sm danger"
+                          class="action-btn action-btn-danger"
                           [title]="'common.delete' | translate"
                           (click)="deleteUser(user)">
-                          <i class="icon-trash-2"></i>
+                          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+                          </svg>
                         </button>
                       </div>
                     </td>
@@ -267,7 +235,7 @@ import { BadgeVariant } from '../../../shared/components/status-badge';
                 }
 
                 <div class="form-group">
-                  <label>{{ 'users.roles' | translate }} *</label>
+                  <label>{{ 'users.selectRoles' | translate }} *</label>
                   <div class="roles-checkboxes">
                     @for (role of roles; track role) {
                       <label class="checkbox-label">
@@ -607,38 +575,46 @@ import { BadgeVariant } from '../../../shared/components/status-badge';
       color: var(--color-success);
     }
 
-    /* Actions */
-    .action-buttons {
+    /* Actions - matching Products page style */
+    .row-actions {
       display: flex;
-      gap: 0.25rem;
+      align-items: center;
+      gap: 4px;
       justify-content: center;
     }
 
-    .btn-icon {
-      padding: 0.375rem;
-      background: transparent;
+    .action-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 32px;
+      height: 32px;
       border: none;
-      border-radius: 4px;
+      background: transparent;
       color: var(--text-secondary);
+      border-radius: 6px;
       cursor: pointer;
-      transition: all 0.2s;
-    }
+      transition: all 0.15s;
 
-    .btn-icon:hover {
-      background: var(--surface-hover);
-      color: var(--primary);
-    }
+      &:hover {
+        background: var(--surface-hover);
+        color: var(--text);
+      }
 
-    .btn-icon.warning:hover {
-      color: var(--color-warning);
-    }
+      &.action-btn-danger:hover {
+        background: var(--color-error-bg);
+        color: var(--color-error-dark);
+      }
 
-    .btn-icon.success:hover {
-      color: var(--color-success);
-    }
+      &.action-btn-warning:hover {
+        background: var(--color-warning-bg);
+        color: var(--color-warning-dark);
+      }
 
-    .btn-icon.danger:hover {
-      color: var(--color-danger);
+      &.action-btn-success:hover {
+        background: var(--color-success-bg);
+        color: var(--color-success-dark);
+      }
     }
 
     .btn-sm {
@@ -750,25 +726,38 @@ import { BadgeVariant } from '../../../shared/components/status-badge';
     .roles-checkboxes {
       display: grid;
       grid-template-columns: repeat(2, 1fr);
-      gap: 0.5rem;
+      gap: 0.75rem 1.5rem;
+      padding: 0.75rem;
+      background: var(--bg-secondary);
+      border-radius: 8px;
+      border: 1px solid var(--border-color);
     }
 
     .checkbox-label {
       display: flex;
       align-items: center;
-      gap: 0.5rem;
+      gap: 0.625rem;
       cursor: pointer;
       font-size: 0.875rem;
+      padding: 0.25rem 0;
     }
 
-    .checkbox-label input {
+    .checkbox-label input[type="checkbox"] {
       width: 18px;
       height: 18px;
       accent-color: var(--primary);
+      cursor: pointer;
+      flex-shrink: 0;
+    }
+
+    .checkbox-label span {
+      user-select: none;
     }
 
     .checkbox-group {
-      margin-top: 0.5rem;
+      margin-top: 1rem;
+      padding-top: 1rem;
+      border-top: 1px solid var(--border-color);
     }
 
     .reset-info {
@@ -897,8 +886,10 @@ export class UsersListComponent implements OnInit {
 
     this.userService.getUsers(filters).subscribe({
       next: (response: PagedResponse<UserSummary>) => {
-        this.users.set(response.data);
-        this.totalItems.set(response.totalCount);
+        this.users.set(response.data || []);
+        // Handle different property names from API
+        const total = response.totalCount ?? (response as any).total ?? (response as any).totalItems ?? 0;
+        this.totalItems.set(total);
         this.loading.set(false);
       },
       error: () => {
