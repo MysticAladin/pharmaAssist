@@ -1,0 +1,236 @@
+﻿<div class="prescription-detail">
+  @if (loading()) {
+    <div class="loading-state">
+      <div class="spinner"></div>
+      <p>{{ 'common.loading' | translate }}</p>
+    </div>
+  } @else if (prescription()) {
+    <!-- Header -->
+    <div class="detail-header">
+      <button class="btn-back" (click)="goBack()">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="m15 18-6-6 6-6"/>
+        </svg>
+        {{ 'common.back' | translate }}
+      </button>
+      <div class="header-content">
+        <div class="title-row">
+          <h1>{{ prescription()!.prescriptionNumber }}</h1>
+          <div class="badges">
+            @if (prescription()!.isControlled) {
+              <span class="controlled-badge">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+                  <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                </svg>
+                {{ 'prescriptions.controlled' | translate }}
+              </span>
+            }
+            <app-status-badge [variant]="getStatusColor(prescription()!.status)" [label]="getStatusLabel(prescription()!.status) | translate"></app-status-badge>
+          </div>
+        </div>
+        <p class="subtitle">{{ 'prescriptions.submittedOn' | translate }} {{ prescription()!.createdAt | date:'medium' }}</p>
+      </div>
+      <div class="header-actions">
+        @if (canReview()) {
+          <button class="btn btn-success" (click)="approve()">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polyline points="20 6 9 17 4 12"/>
+            </svg>
+            {{ 'prescriptions.approve' | translate }}
+          </button>
+          <button class="btn btn-danger" (click)="reject()">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+            </svg>
+            {{ 'prescriptions.reject' | translate }}
+          </button>
+        }
+        @if (canDispense()) {
+          <button class="btn btn-primary" (click)="dispense()">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+            </svg>
+            {{ 'prescriptions.dispense' | translate }}
+          </button>
+        }
+      </div>
+    </div>
+
+    <!-- Content Grid -->
+    <div class="detail-grid">
+      <!-- Left Column: Prescription Image -->
+      <div class="prescription-image-card">
+        <h2>{{ 'prescriptions.prescriptionImage' | translate }}</h2>
+        @if (prescription()!.fileUrl) {
+          <div class="image-container">
+            <img [src]="prescription()!.fileUrl" [alt]="prescription()!.prescriptionNumber">
+            <div class="image-actions">
+              <button class="btn-icon" (click)="zoomImage()">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+                  <line x1="11" y1="8" x2="11" y2="14"/><line x1="8" y1="11" x2="14" y2="11"/>
+                </svg>
+              </button>
+              <button class="btn-icon" (click)="downloadFile()">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                  <polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>
+                </svg>
+              </button>
+            </div>
+          </div>
+        } @else {
+          <div class="no-image">
+            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+              <circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/>
+            </svg>
+            <p>{{ 'prescriptions.noImageAvailable' | translate }}</p>
+          </div>
+        }
+      </div>
+
+      <!-- Right Column: Details -->
+      <div class="details-column">
+        <!-- Prescription Info -->
+        <div class="info-card">
+          <h2>{{ 'prescriptions.prescriptionDetails' | translate }}</h2>
+          <div class="info-grid">
+            <div class="info-item">
+              <span class="label">{{ 'prescriptions.rxNumber' | translate }}</span>
+              <span class="value">{{ prescription()!.prescriptionNumber }}</span>
+            </div>
+            <div class="info-item">
+              <span class="label">{{ 'prescriptions.issueDate' | translate }}</span>
+              <span class="value">{{ prescription()!.issueDate | date:'mediumDate' }}</span>
+            </div>
+            <div class="info-item">
+              <span class="label">{{ 'prescriptions.expiryDate' | translate }}</span>
+              <span class="value" [class.expired]="isExpired()">{{ prescription()!.expiryDate | date:'mediumDate' }}</span>
+            </div>
+            <div class="info-item">
+              <span class="label">{{ 'prescriptions.priorityLabel' | translate }}</span>
+              <app-status-badge [variant]="getPriorityColor(prescription()!.priority)" [label]="getPriorityLabel(prescription()!.priority) | translate"></app-status-badge>
+            </div>
+          </div>
+        </div>
+
+        <!-- Patient Info -->
+        <div class="info-card">
+          <h2>{{ 'prescriptions.patientInfo' | translate }}</h2>
+          <div class="info-grid">
+            <div class="info-item">
+              <span class="label">{{ 'prescriptions.patientName' | translate }}</span>
+              <span class="value">{{ prescription()!.patientName }}</span>
+            </div>
+            @if (prescription()!.patientDateOfBirth) {
+              <div class="info-item">
+                <span class="label">{{ 'prescriptions.dateOfBirth' | translate }}</span>
+                <span class="value">{{ prescription()!.patientDateOfBirth | date:'mediumDate' }}</span>
+              </div>
+            }
+          </div>
+        </div>
+
+        <!-- Doctor Info -->
+        <div class="info-card">
+          <h2>{{ 'prescriptions.doctorInfo' | translate }}</h2>
+          <div class="info-grid">
+            <div class="info-item">
+              <span class="label">{{ 'prescriptions.doctorName' | translate }}</span>
+              <span class="value">{{ prescription()!.doctorName }}</span>
+            </div>
+            @if (prescription()!.doctorLicenseNumber) {
+              <div class="info-item">
+                <span class="label">{{ 'prescriptions.licenseNumber' | translate }}</span>
+                <span class="value">{{ prescription()!.doctorLicenseNumber }}</span>
+              </div>
+            }
+            @if (prescription()!.healthFacility) {
+              <div class="info-item full-width">
+                <span class="label">{{ 'prescriptions.healthFacility' | translate }}</span>
+                <span class="value">{{ prescription()!.healthFacility }}</span>
+              </div>
+            }
+          </div>
+        </div>
+
+        <!-- Customer Info -->
+        <div class="info-card">
+          <h2>{{ 'prescriptions.customerInfo' | translate }}</h2>
+          <div class="info-grid">
+            <div class="info-item full-width">
+              <span class="label">{{ 'prescriptions.customer' | translate }}</span>
+              <span class="value">{{ prescription()!.customerName }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Prescription Items -->
+    <div class="items-card">
+      <h2>{{ 'prescriptions.prescribedMedications' | translate }}</h2>
+      <div class="items-table">
+        <div class="table-header">
+          <span>{{ 'prescriptions.medication' | translate }}</span>
+          <span>{{ 'prescriptions.dosage' | translate }}</span>
+          <span>{{ 'prescriptions.quantity' | translate }}</span>
+          <span>{{ 'prescriptions.instructions' | translate }}</span>
+          <span>{{ 'prescriptions.refills' | translate }}</span>
+          <span>{{ 'prescriptions.status' | translate }}</span>
+        </div>
+        @for (item of prescription()!.items; track item.id) {
+          <div class="table-row">
+            <div class="medication-info">
+              <span class="name">{{ item.productName }}</span>
+              <span class="sku">{{ item.productSku }}</span>
+            </div>
+            <span>{{ item.dosage }}</span>
+            <span>{{ item.quantity }}</span>
+            <span class="instructions">{{ item.instructions }}</span>
+            <span>{{ item.refillsUsed }}/{{ item.refillsAllowed }}</span>
+            <span>
+              @if (item.isDispensed) {
+                <span class="dispensed-badge">{{ 'prescriptions.dispensed' | translate }}</span>
+              } @else {
+                <span class="pending-badge">{{ 'prescriptions.pending' | translate }}</span>
+              }
+            </span>
+          </div>
+        }
+      </div>
+    </div>
+
+    <!-- Review History -->
+    @if (prescription()!.reviewedAt) {
+      <div class="review-card">
+        <h2>{{ 'prescriptions.reviewHistory' | translate }}</h2>
+        <div class="review-item">
+          <div class="review-icon">
+            @if (prescription()!.status === 2) {
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="20 6 9 17 4 12"/>
+              </svg>
+            } @else {
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+              </svg>
+            }
+          </div>
+          <div class="review-content">
+            <p class="review-action">
+              {{ prescription()!.status === 2 ? ('prescriptions.approvedBy' | translate) : ('prescriptions.rejectedBy' | translate) }}
+              <strong>{{ prescription()!.reviewedBy }}</strong>
+            </p>
+            <p class="review-date">{{ prescription()!.reviewedAt | date:'medium' }}</p>
+            @if (prescription()!.reviewNotes) {
+              <p class="review-notes">{{ prescription()!.reviewNotes }}</p>
+            }
+          </div>
+        </div>
+      </div>
+    }
+  }
+</div>

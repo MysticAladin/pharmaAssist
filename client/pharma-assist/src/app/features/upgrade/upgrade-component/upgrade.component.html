@@ -1,0 +1,85 @@
+<div class="upgrade-page">
+  <div class="upgrade-header">
+    <h1>Nadogradite svoj plan</h1>
+    <p>Otključajte napredne funkcije i unaprijedite svoje poslovanje</p>
+  </div>
+
+  <div class="plans-grid">
+    <!-- Basic Plan -->
+    <div class="plan-card" [class.current]="currentTier === 'basic'">
+      @if (currentTier === 'basic') {
+        <div class="current-badge">Trenutni plan</div>
+      }
+      <div class="plan-header">
+        <h3 class="plan-name">Basic</h3>
+        <div class="plan-price">
+          <span class="price">99</span>
+          <span class="currency">KM/mj</span>
+        </div>
+      </div>
+      <ul class="plan-features">
+        <li><i class="icon-check"></i> Upravljanje inventarom</li>
+        <li><i class="icon-check"></i> Upravljanje kupcima</li>
+        <li><i class="icon-check"></i> Osnovni izvještaji</li>
+        <li><i class="icon-check"></i> Email podrška</li>
+      </ul>
+      <button class="btn btn-outline" [disabled]="currentTier === 'basic'">
+        {{ currentTier === 'basic' ? 'Trenutni plan' : 'Izaberi' }}
+      </button>
+    </div>
+
+    <!-- Professional Plan -->
+    <div class="plan-card featured" [class.current]="currentTier === 'professional'">
+      <div class="popular-badge">Najpopularniji</div>
+      @if (currentTier === 'professional') {
+        <div class="current-badge">Trenutni plan</div>
+      }
+      <div class="plan-header">
+        <h3 class="plan-name">Professional</h3>
+        <div class="plan-price">
+          <span class="price">249</span>
+          <span class="currency">KM/mj</span>
+        </div>
+      </div>
+      <ul class="plan-features">
+        <li><i class="icon-check"></i> Sve iz Basic plana</li>
+        <li><i class="icon-check"></i> Napredni dashboard</li>
+        <li><i class="icon-check"></i> Upravljanje receptima</li>
+        <li><i class="icon-check"></i> Napredni izvještaji</li>
+        <li><i class="icon-check"></i> Export u PDF/CSV</li>
+        <li><i class="icon-check"></i> Upozorenja o zalihama</li>
+        <li><i class="icon-check"></i> Prioritetna podrška</li>
+      </ul>
+      <button class="btn btn-primary" [disabled]="currentTier === 'professional'">
+        {{ currentTier === 'professional' ? 'Trenutni plan' : 'Nadogradi' }}
+      </button>
+    </div>
+
+    <!-- Enterprise Plan -->
+    <div class="plan-card" [class.current]="currentTier === 'enterprise'">
+      @if (currentTier === 'enterprise') {
+        <div class="current-badge">Trenutni plan</div>
+      }
+      <div class="plan-header">
+        <h3 class="plan-name">Enterprise</h3>
+        <div class="plan-price">
+          <span class="price">Po dogovoru</span>
+        </div>
+      </div>
+      <ul class="plan-features">
+        <li><i class="icon-check"></i> Sve iz Professional plana</li>
+        <li><i class="icon-check"></i> Multi-warehouse</li>
+        <li><i class="icon-check"></i> AI analitika</li>
+        <li><i class="icon-check"></i> API pristup</li>
+        <li><i class="icon-check"></i> SSO integracija</li>
+        <li><i class="icon-check"></i> Revizijski dnevnik</li>
+        <li><i class="icon-check"></i> Posvećeni account manager</li>
+      </ul>
+      <button class="btn btn-outline">Kontaktirajte nas</button>
+    </div>
+  </div>
+
+  <div class="back-link">
+    <a routerLink="/dashboard">← Nazad na kontrolnu ploču</a>
+  </div>
+</div>

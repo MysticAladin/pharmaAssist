@@ -1,0 +1,128 @@
+<div class="profile-page">
+  <div class="page-header">
+    <h1 class="page-title">{{ 'profile.title' | translate }}</h1>
+    <p class="page-subtitle">{{ 'profile.subtitle' | translate }}</p>
+  </div>
+
+  <div class="profile-layout">
+    <!-- Profile Card -->
+    <div class="profile-card">
+      <div class="avatar-section">
+        <div class="avatar">
+          @if (profile.avatar) {
+            <img [src]="profile.avatar" [alt]="profile.firstName">
+          } @else {
+            <span class="avatar-initials">{{ getInitials() }}</span>
+          }
+        </div>
+        <button class="btn-change-avatar" (click)="triggerFileInput()">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+          {{ 'profile.changePhoto' | translate }}
+        </button>
+        <input type="file" #fileInput accept="image/*" (change)="onFileSelected($event)" style="display: none">
+      </div>
+      <div class="profile-info">
+        <h2>{{ profile.firstName }} {{ profile.lastName }}</h2>
+        <p class="role">{{ getUserRole() }}</p>
+        <p class="email">{{ profile.email }}</p>
+      </div>
+    </div>
+
+    <!-- Edit Forms -->
+    <div class="edit-sections">
+      <!-- Personal Information -->
+      <div class="edit-card">
+        <div class="card-header">
+          <h3>{{ 'profile.personalInfo' | translate }}</h3>
+          <p>{{ 'profile.personalInfoDesc' | translate }}</p>
+        </div>
+        <div class="form-grid">
+          <div class="form-group">
+            <label>{{ 'profile.firstName' | translate }}</label>
+            <input type="text" class="input" [(ngModel)]="profile.firstName">
+          </div>
+          <div class="form-group">
+            <label>{{ 'profile.lastName' | translate }}</label>
+            <input type="text" class="input" [(ngModel)]="profile.lastName">
+          </div>
+          <div class="form-group">
+            <label>{{ 'profile.email' | translate }}</label>
+            <input type="email" class="input" [(ngModel)]="profile.email" disabled>
+            <span class="input-hint">{{ 'profile.emailHint' | translate }}</span>
+          </div>
+          <div class="form-group">
+            <label>{{ 'profile.phone' | translate }}</label>
+            <input type="tel" class="input" [(ngModel)]="profile.phone" placeholder="+387 XX XXX XXX">
+          </div>
+          <div class="form-group">
+            <label>{{ 'profile.jobTitle' | translate }}</label>
+            <input type="text" class="input" [(ngModel)]="profile.jobTitle" placeholder="e.g., Pharmacist">
+          </div>
+          <div class="form-group">
+            <label>{{ 'profile.department' | translate }}</label>
+            <input type="text" class="input" [(ngModel)]="profile.department" placeholder="e.g., Sales">
+          </div>
+        </div>
+        <div class="card-actions">
+          <button class="btn-primary" (click)="saveProfile()" [disabled]="savingProfile()">
+            @if (savingProfile()) {
+              <span class="spinner"></span>
+            }
+            {{ 'profile.saveChanges' | translate }}
+          </button>
+        </div>
+      </div>
+
+      <!-- Change Password -->
+      <div class="edit-card">
+        <div class="card-header">
+          <h3>{{ 'profile.changePassword' | translate }}</h3>
+          <p>{{ 'profile.changePasswordDesc' | translate }}</p>
+        </div>
+        <div class="form-grid single-column">
+          <div class="form-group">
+            <label>{{ 'profile.currentPassword' | translate }}</label>
+            <input type="password" class="input" [(ngModel)]="passwords.currentPassword">
+          </div>
+          <div class="form-group">
+            <label>{{ 'profile.newPassword' | translate }}</label>
+            <input type="password" class="input" [(ngModel)]="passwords.newPassword">
+            <span class="input-hint">{{ 'profile.passwordRequirements' | translate }}</span>
+          </div>
+          <div class="form-group">
+            <label>{{ 'profile.confirmPassword' | translate }}</label>
+            <input type="password" class="input" [(ngModel)]="passwords.confirmPassword">
+          </div>
+        </div>
+        @if (passwordError()) {
+          <div class="error-message">{{ passwordError() }}</div>
+        }
+        <div class="card-actions">
+          <button class="btn-primary" (click)="changePassword()" [disabled]="savingPassword()">
+            @if (savingPassword()) {
+              <span class="spinner"></span>
+            }
+            {{ 'profile.updatePassword' | translate }}
+          </button>
+        </div>
+      </div>
+
+      <!-- Account Actions -->
+      <div class="edit-card danger-zone">
+        <div class="card-header">
+          <h3>{{ 'profile.dangerZone' | translate }}</h3>
+          <p>{{ 'profile.dangerZoneDesc' | translate }}</p>
+        </div>
+        <div class="danger-actions">
+          <div class="danger-action">
+            <div class="action-info">
+              <h4>{{ 'profile.deactivateAccount' | translate }}</h4>
+              <p>{{ 'profile.deactivateAccountDesc' | translate }}</p>
+            </div>
+            <button class="btn-outline-danger">{{ 'profile.deactivate' | translate }}</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

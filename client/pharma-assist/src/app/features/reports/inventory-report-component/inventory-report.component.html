@@ -1,0 +1,144 @@
+﻿<div class="inventory-report">
+  <div class="page-header">
+    <div class="breadcrumb">
+      <a routerLink="/reports">{{ 'reports.title' | translate }}</a>
+      <span class="separator">/</span>
+      <span>{{ 'reports.inventory.title' | translate }}</span>
+    </div>
+    <div class="header-main">
+      <div class="header-content">
+        <h1 class="page-title">{{ 'reports.inventory.title' | translate }}</h1>
+        <p class="page-description">{{ 'reports.inventory.subtitle' | translate }}</p>
+      </div>
+      <div class="header-actions">
+        <button class="btn-secondary">
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          {{ 'reports.actions.export' | translate }}
+        </button>
+        <button class="btn-primary">
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/></svg>
+          {{ 'reports.actions.refresh' | translate }}
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Summary Stats -->
+  <div class="stats-grid">
+    <div class="stat-card">
+      <div class="stat-icon items"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/></svg></div>
+      <div class="stat-content">
+        <span class="stat-label">{{ 'reports.inventory.totalItems' | translate }}</span>
+        <span class="stat-value">{{ totalItems() | number }}</span>
+      </div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon value"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></div>
+      <div class="stat-content">
+        <span class="stat-label">{{ 'reports.inventory.totalValue' | translate }}</span>
+        <span class="stat-value">{{ totalValue() | number:'1.2-2' }} KM</span>
+      </div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon in"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 18 13.5 8.5 8.5 13.5 1 6"/><polyline points="17 18 23 18 23 12"/></svg></div>
+      <div class="stat-content">
+        <span class="stat-label">{{ 'reports.inventory.stockIn' | translate }}</span>
+        <span class="stat-value positive">+{{ stockIn() | number }}</span>
+      </div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon out"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg></div>
+      <div class="stat-content">
+        <span class="stat-label">{{ 'reports.inventory.stockOut' | translate }}</span>
+        <span class="stat-value negative">-{{ stockOut() | number }}</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Stock Status Overview -->
+  <div class="status-section">
+    <h3 class="section-title">{{ 'reports.inventory.status' | translate }}</h3>
+    <div class="status-cards">
+      <div class="status-card ok">
+        <div class="status-count">{{ statusCounts().ok }}</div>
+        <div class="status-label">In Stock</div>
+        <div class="status-bar"><div class="bar-fill" [style.width.%]="(statusCounts().ok / totalItems()) * 100"></div></div>
+      </div>
+      <div class="status-card low">
+        <div class="status-count">{{ statusCounts().low }}</div>
+        <div class="status-label">Low Stock</div>
+        <div class="status-bar"><div class="bar-fill" [style.width.%]="(statusCounts().low / totalItems()) * 100"></div></div>
+      </div>
+      <div class="status-card critical">
+        <div class="status-count">{{ statusCounts().critical }}</div>
+        <div class="status-label">Critical</div>
+        <div class="status-bar"><div class="bar-fill" [style.width.%]="(statusCounts().critical / totalItems()) * 100"></div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Category Breakdown -->
+  <div class="breakdown-section">
+    <div class="breakdown-card">
+      <h3 class="section-title">{{ 'reports.inventory.byCategory' | translate }}</h3>
+      <div class="breakdown-list">
+        @for (cat of categoryBreakdown(); track cat.name) {
+          <div class="breakdown-item">
+            <div class="breakdown-info">
+              <span class="breakdown-name">{{ cat.name }}</span>
+              <span class="breakdown-count">{{ cat.count }} items</span>
+            </div>
+            <div class="breakdown-bar">
+              <div class="bar-fill" [style.width.%]="cat.percentage" [style.background]="cat.color"></div>
+            </div>
+            <span class="breakdown-value">{{ cat.value | number:'1.0-0' }} KM</span>
+          </div>
+        }
+      </div>
+    </div>
+    <div class="breakdown-card">
+      <h3 class="section-title">{{ 'reports.inventory.byManufacturer' | translate }}</h3>
+      <div class="breakdown-list">
+        @for (mfr of manufacturerBreakdown(); track mfr.name) {
+          <div class="breakdown-item">
+            <div class="breakdown-info">
+              <span class="breakdown-name">{{ mfr.name }}</span>
+              <span class="breakdown-count">{{ mfr.count }} items</span>
+            </div>
+            <div class="breakdown-bar">
+              <div class="bar-fill" [style.width.%]="mfr.percentage" [style.background]="mfr.color"></div>
+            </div>
+            <span class="breakdown-value">{{ mfr.value | number:'1.0-0' }} KM</span>
+          </div>
+        }
+      </div>
+    </div>
+  </div>
+
+  <!-- Low Stock Alert List -->
+  <div class="alerts-section">
+    <h3 class="section-title">{{ 'reports.inventory.lowStock' | translate }}</h3>
+    <div class="alerts-table">
+      <div class="table-header">
+        <span>Product</span>
+        <span>SKU</span>
+        <span>Category</span>
+        <span>Stock</span>
+        <span>Value</span>
+        <span>Status</span>
+      </div>
+      @for (item of lowStockItems(); track item.sku) {
+        <div class="table-row">
+          <span class="cell-name">{{ item.name }}</span>
+          <span class="cell-sku">{{ item.sku }}</span>
+          <span class="cell-category">{{ item.category }}</span>
+          <span class="cell-stock">{{ item.stock }}</span>
+          <span class="cell-value">{{ item.value | number:'1.2-2' }} KM</span>
+          <span class="cell-status">
+            <span class="status-badge" [class]="item.status">{{ item.status === 'critical' ? 'Critical' : 'Low' }}</span>
+          </span>
+        </div>
+      }
+    </div>
+  </div>
+</div>

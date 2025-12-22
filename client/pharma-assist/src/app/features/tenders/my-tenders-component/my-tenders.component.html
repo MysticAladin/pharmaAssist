@@ -1,0 +1,52 @@
+<div class="my-tenders-page">
+  <div class="page-header">
+    <h1 class="page-title">{{ 'TENDERS.MY_TENDERS.TITLE' | translate }}</h1>
+    <p class="page-subtitle">{{ 'TENDERS.MY_TENDERS.SUBTITLE' | translate }}</p>
+  </div>
+
+  @if (loading()) {
+    <div class="loading-container">
+      <div class="loading-spinner"></div>
+    </div>
+  } @else if (tenders().length === 0) {
+    <app-empty-state
+      icon="file-text"
+      [title]="'TENDERS.MY_TENDERS.EMPTY_TITLE' | translate"
+      [description]="'TENDERS.MY_TENDERS.EMPTY_DESC' | translate">
+    </app-empty-state>
+  } @else {
+    <div class="tenders-grid">
+      @for (tender of tenders(); track tender.id) {
+        <a class="tender-card" [routerLink]="['/tenders', tender.id]">
+          <div class="card-header">
+            <span class="tender-number">{{ tender.tenderNumber }}</span>
+            <span class="status-badge" [class]="tenderStatusColors[tender.status]">
+              {{ tenderStatusLabels[tender.status] | translate }}
+            </span>
+          </div>
+          <h3 class="tender-title">{{ tender.title }}</h3>
+          <p class="customer-name">{{ tender.customerName }}</p>
+          <div class="card-footer">
+            <div class="deadline" [class.urgent]="isDeadlineSoon(tender)">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10"/>
+                <polyline points="12 6 12 12 16 14"/>
+              </svg>
+              {{ tender.submissionDeadline | date:'shortDate' }}
+            </div>
+            <div class="value">
+              {{ tender.estimatedValue | currency:tender.currency:'symbol':'1.0-0' }}
+            </div>
+          </div>
+        </a>
+      }
+    </div>
+
+    <app-pagination
+      [page]="currentPage"
+      [size]="pageSize"
+      [totalItems]="totalItems()"
+      (pageChange)="onPageChange($event)">
+    </app-pagination>
+  }
+</div>

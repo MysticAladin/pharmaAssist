@@ -1,0 +1,232 @@
+﻿<div class="report-builder">
+  <!-- Header -->
+  <header class="page-header">
+    <div class="header-left">
+      <a routerLink="/reports" class="back-btn">
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <polyline points="15 18 9 12 15 6"/>
+        </svg>
+      </a>
+      <div>
+        <h1>{{ 'reports.builder.title' | translate }}</h1>
+        <p class="subtitle">{{ 'reports.builder.subtitle' | translate }}</p>
+      </div>
+    </div>
+    <div class="header-actions">
+      <button class="btn btn-outline" (click)="resetConfig()">
+        <i class="icon-refresh"></i>
+        {{ 'common.reset' | translate }}
+      </button>
+      <button class="btn btn-outline" (click)="saveReport()" [disabled]="!config().name">
+        <i class="icon-save"></i>
+        {{ 'common.save' | translate }}
+      </button>
+      <button class="btn btn-primary" (click)="runReport()" [disabled]="loading()">
+        @if (loading()) {
+          <span class="spinner-sm"></span>
+        } @else {
+          <i class="icon-play"></i>
+        }
+        {{ 'reports.builder.runReport' | translate }}
+      </button>
+    </div>
+  </header>
+
+  <div class="builder-layout">
+    <!-- Configuration Panel -->
+    <aside class="config-panel">
+      <!-- Report Name -->
+      <div class="config-section">
+        <h3>{{ 'reports.builder.reportInfo' | translate }}</h3>
+        <div class="form-group">
+          <label>{{ 'reports.builder.reportName' | translate }}</label>
+          <input type="text" class="form-control" [(ngModel)]="configName" placeholder="My Custom Report">
+        </div>
+        <div class="form-group">
+          <label>{{ 'reports.builder.description' | translate }}</label>
+          <textarea class="form-control" [(ngModel)]="configDescription" rows="2"></textarea>
+        </div>
+      </div>
+
+      <!-- Data Source -->
+      <div class="config-section">
+        <h3>{{ 'reports.builder.dataSource' | translate }}</h3>
+        <div class="data-source-grid">
+          @for (ds of dataSources; track ds.value) {
+            <button
+              class="data-source-btn"
+              [class.active]="selectedDataSource() === ds.value"
+              (click)="selectDataSource(ds.value)">
+              <i [class]="ds.icon"></i>
+              <span>{{ ds.labelKey | translate }}</span>
+            </button>
+          }
+        </div>
+      </div>
+
+      <!-- Columns -->
+      <div class="config-section">
+        <h3>{{ 'reports.builder.columns' | translate }}</h3>
+        <div class="column-list">
+          @for (field of availableFields(); track field.field) {
+            <label class="column-item">
+              <input type="checkbox" [checked]="isColumnSelected(field.field)" (change)="toggleColumn(field)">
+              <span class="column-name">{{ field.label }}</span>
+              <span class="column-type">{{ getColumnTypeLabel(field.type) }}</span>
+            </label>
+          }
+          @if (availableFields().length === 0) {
+            <p class="no-fields">{{ 'reports.builder.selectDataSource' | translate }}</p>
+          }
+        </div>
+      </div>
+
+      <!-- Date Range -->
+      <div class="config-section">
+        <h3>{{ 'reports.builder.dateRange' | translate }}</h3>
+        <div class="form-row">
+          <div class="form-group">
+            <label>{{ 'common.from' | translate }}</label>
+            <input type="date" class="form-control" [(ngModel)]="startDateStr">
+          </div>
+          <div class="form-group">
+            <label>{{ 'common.to' | translate }}</label>
+            <input type="date" class="form-control" [(ngModel)]="endDateStr">
+          </div>
+        </div>
+      </div>
+
+      <!-- Filters -->
+      <div class="config-section">
+        <h3>
+          {{ 'reports.builder.filters' | translate }}
+          <button class="btn btn-sm btn-icon" (click)="addFilter()">
+            <i class="icon-plus"></i>
+          </button>
+        </h3>
+        @for (filter of filters(); track $index) {
+          <div class="filter-row">
+            <select class="form-select" [(ngModel)]="filter.field">
+              @for (field of availableFields(); track field.field) {
+                <option [value]="field.field">{{ field.label }}</option>
+              }
+            </select>
+            <select class="form-select" [(ngModel)]="filter.operator">
+              <option [value]="FilterOperator.Equals">Equals</option>
+              <option [value]="FilterOperator.Contains">Contains</option>
+              <option [value]="FilterOperator.GreaterThan">></option>
+              <option [value]="FilterOperator.LessThan"><</option>
+            </select>
+            <input type="text" class="form-control" [(ngModel)]="filter.value" placeholder="Value">
+            <button class="btn btn-icon btn-danger" (click)="removeFilter($index)">
+              <i class="icon-x"></i>
+            </button>
+          </div>
+        }
+      </div>
+
+      <!-- Export Options -->
+      <div class="config-section">
+        <h3>{{ 'reports.builder.export' | translate }}</h3>
+        <div class="export-buttons">
+          <button class="btn btn-outline" (click)="exportReport(ReportFormat.Csv)" [disabled]="!result() || loading()">
+            <i class="icon-file-text"></i>
+            CSV
+          </button>
+          <button class="btn btn-outline" (click)="exportReport(ReportFormat.Excel)" [disabled]="!result() || loading()">
+            <i class="icon-file-spreadsheet"></i>
+            Excel
+          </button>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Results Panel -->
+    <main class="results-panel">
+      @if (!result() && !loading()) {
+        <div class="empty-state">
+          <div class="empty-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+              <line x1="3" y1="9" x2="21" y2="9"/>
+              <line x1="9" y1="21" x2="9" y2="9"/>
+            </svg>
+          </div>
+          <h2>{{ 'reports.builder.emptyTitle' | translate }}</h2>
+          <p>{{ 'reports.builder.emptyDescription' | translate }}</p>
+        </div>
+      }
+
+      @if (loading()) {
+        <div class="loading-state">
+          <div class="spinner"></div>
+          <p>{{ 'reports.builder.generating' | translate }}</p>
+        </div>
+      }
+
+      @if (result() && !loading()) {
+        <!-- Results Summary -->
+        <div class="results-header">
+          <div class="results-info">
+            <strong>{{ result()!.totalCount | number }}</strong> {{ 'reports.builder.records' | translate }}
+            <span class="separator"></span>
+            {{ 'reports.builder.page' | translate }} {{ result()!.page }} {{ 'common.of' | translate }} {{ result()!.totalPages }}
+          </div>
+          <div class="pagination">
+            <button class="btn btn-sm" [disabled]="currentPage() <= 1" (click)="previousPage()">
+              <i class="icon-chevron-left"></i>
+            </button>
+            <span>{{ currentPage() }}</span>
+            <button class="btn btn-sm" [disabled]="currentPage() >= result()!.totalPages" (click)="nextPage()">
+              <i class="icon-chevron-right"></i>
+            </button>
+          </div>
+        </div>
+
+        <!-- Data Table -->
+        <div class="table-container">
+          <table class="data-table">
+            <thead>
+              <tr>
+                @for (col of selectedColumns(); track col.field) {
+                  <th (click)="sortBy(col.field)" class="sortable">
+                    {{ col.label || col.field }}
+                    @if (currentSort()?.field === col.field) {
+                      <i [class]="currentSort()?.descending ? 'icon-arrow-down' : 'icon-arrow-up'"></i>
+                    }
+                  </th>
+                }
+              </tr>
+            </thead>
+            <tbody>
+              @for (row of result()!.data; track $index) {
+                <tr>
+                  @for (col of selectedColumns(); track col.field) {
+                    <td [class]="getColumnClass(col.type)">
+                      {{ formatValue(row[col.field], col.type) }}
+                    </td>
+                  }
+                </tr>
+              }
+            </tbody>
+            @if (result()!.totals) {
+              <tfoot>
+                <tr class="totals-row">
+                  @for (col of selectedColumns(); track col.field; let i = $index) {
+                    <td [class]="getColumnClass(col.type)">
+                      @if (i === 0) {
+                        <strong>{{ 'common.total' | translate }}</strong>
+                      } @else if (result()!.totals![col.field] !== undefined) {
+                        <strong>{{ formatValue(result()!.totals![col.field], col.type) }}</strong>
+                      }
+                    </td>
+                  }
+                </tr>
+              </tfoot>
+            }
+          </table>
+        </div>
+      }
+    </main>
+  </div>
+</div>
