@@ -1,0 +1,52 @@
+<div class="favorites-page">
+  <div class="page-header">
+    <h1>{{ 'portal.favorites.title' | translate }}</h1>
+    <p class="subtitle">{{ 'portal.favorites.subtitle' | translate }}</p>
+  </div>
+
+  @if (loading()) {
+    <div class="loading">
+      <div class="spinner"></div>
+      <p>{{ 'common.loading' | translate }}</p>
+    </div>
+  } @else if (favorites().length === 0) {
+    <div class="empty-state">
+      <span class="icon">❤️</span>
+      <h3>{{ 'portal.favorites.noFavorites' | translate }}</h3>
+      <p>{{ 'portal.favorites.noFavoritesDesc' | translate }}</p>
+      <a routerLink="/portal/catalog" class="btn btn-primary">{{ 'portal.favorites.browseCatalog' | translate }}</a>
+    </div>
+  } @else {
+    <div class="favorites-grid">
+      @for (fav of favorites(); track fav.productId) {
+        <div class="favorite-card">
+          <button class="remove-btn" (click)="removeFavorite(fav.productId)" [title]="'portal.favorites.remove' | translate">
+            ✕
+          </button>
+          <div class="product-image" [routerLink]="['/portal/product', fav.product.id]">
+            @if (fav.product.imageUrl) {
+              <img [src]="fav.product.imageUrl" [alt]="fav.product.name" />
+            } @else {
+              <div class="placeholder-img">💊</div>
+            }
+          </div>
+          <div class="product-info">
+            <h3 [routerLink]="['/portal/product', fav.product.id]">{{ fav.product.name }}</h3>
+            <p class="sku">SKU: {{ fav.product.code }}</p>
+            <div class="price-row">
+              <span class="price">{{ fav.product.unitPrice | kmCurrency }}</span>
+              @if (!fav.product.isAvailable) {
+                <span class="out-of-stock">{{ 'portal.catalog.outOfStock' | translate }}</span>
+              }
+            </div>
+          </div>
+          <div class="card-actions">
+            <button class="btn btn-primary" [disabled]="!fav.product.isAvailable" (click)="addToCart(fav.product)">
+              {{ 'portal.product.addToCart' | translate }}
+            </button>
+          </div>
+        </div>
+      }
+    </div>
+  }
+</div>

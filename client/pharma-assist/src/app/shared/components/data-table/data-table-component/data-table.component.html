@@ -1,0 +1,118 @@
+<div class="data-table-container" [class.hoverable]="hoverable()" [class.striped]="striped()">
+  <div class="table-wrapper">
+    <table class="data-table">
+      <thead>
+        <tr>
+          @if (selectable()) {
+            <th class="checkbox-cell">
+              <input
+                type="checkbox"
+                [checked]="allSelected()"
+                [indeterminate]="someSelected()"
+                (change)="toggleSelectAll()"
+              />
+            </th>
+          }
+          @for (column of columns(); track column.key) {
+            <th
+              [style.width]="column.width"
+              [class.sortable]="column.sortable"
+              [class.sorted]="sortColumn() === column.key"
+              [class.align-center]="column.align === 'center'"
+              [class.align-right]="column.align === 'right'"
+              (click)="column.sortable ? sort(column.key) : null"
+            >
+              <div class="th-content">
+                <span>{{ column.label | translate }}</span>
+                @if (column.sortable) {
+                  <span class="sort-icon">
+                    @if (sortColumn() === column.key) {
+                      @if (sortDirection() === 'asc') {
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                          <path d="M12 19V5M5 12l7-7 7 7"/>
+                        </svg>
+                      } @else {
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                          <path d="M12 5v14M5 12l7 7 7-7"/>
+                        </svg>
+                      }
+                    } @else {
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" opacity="0.3">
+                        <path d="M12 5v14M5 12l7 7 7-7"/>
+                      </svg>
+                    }
+                  </span>
+                }
+              </div>
+            </th>
+          }
+          @if (showActions()) {
+            <th class="actions-cell">{{ 'common.actions' | translate }}</th>
+          }
+        </tr>
+      </thead>
+      <tbody>
+        @if (loading()) {
+          @for (i of [1,2,3,4,5]; track i) {
+            <tr class="skeleton-row">
+              @if (selectable()) {
+                <td><div class="skeleton skeleton-checkbox"></div></td>
+              }
+              @for (column of columns(); track column.key) {
+                <td><div class="skeleton skeleton-text"></div></td>
+              }
+              @if (showActions()) {
+                <td><div class="skeleton skeleton-actions"></div></td>
+              }
+            </tr>
+          }
+        } @else if (data().length === 0) {
+          <tr class="empty-row">
+            <td [attr.colspan]="totalColumns()">
+              <ng-content select="[emptyState]"></ng-content>
+            </td>
+          </tr>
+        } @else {
+          @for (row of data(); track trackByFn()(row); let i = $index) {
+            <tr
+              [class.selected]="isSelected(row)"
+              [class.clickable]="rowClickable()"
+              (click)="onRowClick(row)"
+            >
+              @if (selectable()) {
+                <td class="checkbox-cell" (click)="$event.stopPropagation()">
+                  <input
+                    type="checkbox"
+                    [checked]="isSelected(row)"
+                    (change)="toggleSelect(row)"
+                  />
+                </td>
+              }
+              @for (column of columns(); track column.key) {
+                <td
+                  [class.align-center]="column.align === 'center'"
+                  [class.align-right]="column.align === 'right'"
+                >
+                  @if (column.template) {
+                    <ng-container
+                      *ngTemplateOutlet="column.template; context: { $implicit: row, row: row, value: getValue(row, column.key), index: i }"
+                    ></ng-container>
+                  } @else {
+                    {{ getValue(row, column.key) }}
+                  }
+                </td>
+              }
+              @if (showActions()) {
+                <td class="actions-cell" (click)="$event.stopPropagation()">
+                  <ng-container
+                    *ngTemplateOutlet="actionsTemplate; context: { $implicit: row, row: row, index: i }"
+                  ></ng-container>
+                </td>
+              }
+            </tr>
+          }
+        }
+      </tbody>
+    </table>
+  </div>
+</div>

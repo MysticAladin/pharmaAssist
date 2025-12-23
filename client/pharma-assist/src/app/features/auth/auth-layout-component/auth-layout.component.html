@@ -1,0 +1,48 @@
+<div class="auth-container">
+  <!-- Left side - Branding -->
+  <div class="auth-branding">
+    <div class="branding-content">
+      <div class="logo-container">
+        <div class="logo-icon">
+          <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="24" cy="24" r="22" stroke="currentColor" stroke-width="2" fill="none"/>
+            <path d="M24 12v24M12 24h24" stroke="currentColor" stroke-width="3" stroke-linecap="round"/>
+            <circle cx="24" cy="24" r="8" fill="currentColor" opacity="0.3"/>
+          </svg>
+        </div>
+        <span class="logo-text">{{ 'common.appName' | translate }}</span>
+      </div>
+
+      <h1 class="branding-title">{{ 'auth.branding.title' | translate }}</h1>
+      <p class="branding-subtitle">{{ 'auth.branding.subtitle' | translate }}</p>
+
+      <div class="features-list">
+        <div class="feature-item">
+          <div class="feature-icon">✓</div>
+          <span>{{ 'auth.branding.features.inventory' | translate }}</span>
+        </div>
+        <div class="feature-item">
+          <div class="feature-icon">✓</div>
+          <span>{{ 'auth.branding.features.orders' | translate }}</span>
+        </div>
+        <div class="feature-item">
+          <div class="feature-icon">✓</div>
+          <span>{{ 'auth.branding.features.reports' | translate }}</span>
+        </div>
+        <div class="feature-item">
+          <div class="feature-icon">✓</div>
+          <span>{{ 'auth.branding.features.compliance' | translate }}</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="branding-footer">
+      <p>{{ 'auth.branding.copyright' | translate: { year: currentYear } }}</p>
+    </div>
+  </div>
+
+  <!-- Right side - Auth Form -->
+  <div class="auth-form-container">
+    <router-outlet />
+  </div>
+</div>

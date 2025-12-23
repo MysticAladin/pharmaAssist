@@ -1,0 +1,124 @@
+<aside
+  class="sidebar"
+  [class.collapsed]="uiState.sidebarCollapsed()"
+  [class.mobile-open]="uiState.sidebarMobileOpen()">
+
+  <!-- Logo -->
+  <div class="sidebar-header">
+    <div class="logo-wrapper">
+      <img
+        src="assets/images/logo.svg"
+        alt="PharmaAssist"
+        class="logo"
+        [class.hidden]="uiState.sidebarCollapsed()">
+      <img
+        src="assets/images/logo-icon.svg"
+        alt="PA"
+        class="logo-icon"
+        [class.visible]="uiState.sidebarCollapsed()">
+    </div>
+    <button
+      class="mobile-close"
+      (click)="uiState.closeMobileSidebar()"
+      aria-label="Close sidebar">
+      <i class="icon-x"></i>
+    </button>
+  </div>
+
+  <!-- Navigation -->
+  <nav class="sidebar-nav">
+    <!-- Main Menu -->
+    <div class="nav-section">
+      @if (!uiState.sidebarCollapsed()) {
+        <span class="nav-section-title">{{ 'sidebar.menu' | translate }}</span>
+      }
+
+      <ul class="nav-list">
+        @for (item of mainNavItems; track item.route) {
+          @if (canShowNavItem(item)) {
+            <li class="nav-item" [class.has-children]="item.children?.length">
+              <a
+                [routerLink]="item.route"
+                routerLinkActive="active"
+                [routerLinkActiveOptions]="{ exact: item.route === '/dashboard' }"
+                class="nav-link"
+                [title]="uiState.sidebarCollapsed() ? (item.labelKey | translate) : ''">
+                <i class="nav-icon" [class]="item.icon"></i>
+                @if (!uiState.sidebarCollapsed()) {
+                  <span class="nav-label">{{ item.labelKey | translate }}</span>
+                  @if (item.badge) {
+                    <span class="nav-badge" [class]="'badge-' + (item.badgeType || 'info')">
+                      {{ item.badge }}
+                    </span>
+                  }
+                }
+              </a>
+
+              @if (item.children?.length && !uiState.sidebarCollapsed()) {
+                <ul class="nav-submenu">
+                  @for (child of item.children; track child.route) {
+                    @if (canShowNavItem(child)) {
+                      <li class="nav-subitem">
+                        <a
+                          [routerLink]="child.route"
+                          routerLinkActive="active"
+                          [routerLinkActiveOptions]="{ exact: child.route === item.route }"
+                          class="nav-sublink">
+                          {{ child.labelKey | translate }}
+                        </a>
+                      </li>
+                    }
+                  }
+                </ul>
+              }
+            </li>
+          }
+        }
+      </ul>
+    </div>
+
+    <!-- Admin Section -->
+    @if (isAdminOrManager()) {
+      <div class="nav-section">
+        @if (!uiState.sidebarCollapsed()) {
+          <span class="nav-section-title">{{ 'sidebar.administration' | translate }}</span>
+        }
+
+        <ul class="nav-list">
+          @for (item of adminNavItems; track item.route) {
+            @if (canShowNavItem(item)) {
+              <li class="nav-item">
+                <a
+                  [routerLink]="item.route"
+                  routerLinkActive="active"
+                  class="nav-link"
+                  [title]="uiState.sidebarCollapsed() ? (item.labelKey | translate) : ''">
+                  <i class="nav-icon" [class]="item.icon"></i>
+                  @if (!uiState.sidebarCollapsed()) {
+                    <span class="nav-label">{{ item.labelKey | translate }}</span>
+                  }
+                </a>
+              </li>
+            }
+          }
+        </ul>
+      </div>
+    }
+  </nav>
+
+  <!-- Sidebar Footer -->
+  <div class="sidebar-footer">
+    @if (!uiState.sidebarCollapsed()) {
+      <div class="tier-badge" [class]="'tier-' + featureFlags.getTier()">
+        {{ 'sidebar.plan' | translate:{ tier: featureFlags.getTier() | titlecase } }}
+      </div>
+    }
+
+    <button
+      class="collapse-btn"
+      (click)="uiState.toggleSidebar()"
+      [attr.aria-label]="uiState.sidebarCollapsed() ? ('sidebar.expand' | translate) : ('sidebar.collapse' | translate)">
+      <i [class]="uiState.sidebarCollapsed() ? 'icon-chevron-right' : 'icon-chevron-left'"></i>
+    </button>
+  </div>
+</aside>

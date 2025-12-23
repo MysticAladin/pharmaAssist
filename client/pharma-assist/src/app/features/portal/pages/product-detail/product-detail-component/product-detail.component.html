@@ -1,0 +1,88 @@
+<div class="product-detail">
+  @if (isLoading()) {
+    <div class="loading">{{ 'common.loading' | translate }}...</div>
+  } @else if (product()) {
+    <div class="product-content">
+      <div class="product-gallery">
+        <div class="main-image">
+          @if (product()!.imageUrl) {
+            <img [src]="product()!.imageUrl" [alt]="product()!.name" />
+          } @else {
+            <div class="image-placeholder">💊</div>
+          }
+        </div>
+      </div>
+
+      <div class="product-info">
+        <p class="product-code">{{ product()!.code }}</p>
+        <h1>{{ product()!.name }}</h1>
+        @if (product()!.genericName) {
+          <p class="generic-name">{{ product()!.genericName }}</p>
+        }
+        <p class="manufacturer">{{ 'portal.product.by' | translate }} {{ product()!.manufacturer }}</p>
+
+        <div class="price-section">
+          <span class="price">{{ (product()!.customerPrice ?? product()!.unitPrice) | kmCurrency }}</span>
+          @if (product()?.customerPrice && product()!.customerPrice! < product()!.unitPrice) {
+            <span class="original-price">{{ product()!.unitPrice | kmCurrency }}</span>
+          }
+        </div>
+
+        <div class="stock-info" [class.low]="product()!.stockQuantity < 10" [class.out]="!product()!.isAvailable">
+          @if (product()!.isAvailable) {
+            ✓ {{ product()!.stockQuantity }} {{ 'portal.product.inStock' | translate }}
+          } @else {
+            ✗ {{ 'portal.product.outOfStock' | translate }}
+          }
+        </div>
+
+        @if (product()!.requiresPrescription) {
+          <div class="prescription-warning">
+            ⚠️ {{ 'portal.product.requiresPrescription' | translate }}
+          </div>
+        }
+
+        <div class="add-to-cart-section">
+          <div class="quantity-control">
+            <button (click)="decrementQty()" [disabled]="quantity() <= 1">-</button>
+            <span>{{ quantity() }}</span>
+            <button (click)="incrementQty()" [disabled]="quantity() >= product()!.stockQuantity">+</button>
+          </div>
+          <button
+            class="btn btn-primary btn-lg"
+            [disabled]="!product()!.isAvailable"
+            (click)="addToCart()">
+            🛒 {{ 'portal.product.addToCart' | translate }}
+          </button>
+        </div>
+
+        <div class="product-details">
+          <h3>{{ 'portal.product.details' | translate }}</h3>
+          <dl>
+            @if (product()!.dosageForm) {
+              <dt>{{ 'portal.product.dosageForm' | translate }}</dt>
+              <dd>{{ product()!.dosageForm }}</dd>
+            }
+            @if (product()!.strength) {
+              <dt>{{ 'portal.product.strength' | translate }}</dt>
+              <dd>{{ product()!.strength }}</dd>
+            }
+            @if (product()!.packSize) {
+              <dt>{{ 'portal.product.packSize' | translate }}</dt>
+              <dd>{{ product()!.packSize }}</dd>
+            }
+            <dt>{{ 'portal.product.category' | translate }}</dt>
+            <dd>{{ product()!.category }}</dd>
+          </dl>
+        </div>
+
+        @if (product()!.description) {
+          <div class="product-description">
+            <h3>{{ 'portal.product.description' | translate }}</h3>
+            <p>{{ product()!.description }}</p>
+          </div>
+        }
+      </div>
+    </div>
+  }
+</div>

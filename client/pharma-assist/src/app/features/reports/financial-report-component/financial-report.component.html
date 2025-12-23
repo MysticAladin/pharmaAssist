@@ -1,0 +1,147 @@
+<div class="financial-report">
+  <div class="page-header">
+    <div class="breadcrumb">
+      <a routerLink="/reports">{{ 'reports.title' | translate }}</a>
+      <span class="separator">/</span>
+      <span>{{ 'reports.financial.title' | translate }}</span>
+    </div>
+    <div class="header-main">
+      <div class="header-content">
+        <h1 class="page-title">{{ 'reports.financial.title' | translate }}</h1>
+        <p class="page-description">{{ 'reports.financial.subtitle' | translate }}</p>
+      </div>
+      <div class="header-actions">
+        <select [(ngModel)]="selectedPeriod" (ngModelChange)="loadReport()">
+          <option value="this_month">{{ 'reports.periods.thisMonth' | translate }}</option>
+          <option value="last_month">{{ 'reports.periods.lastMonth' | translate }}</option>
+          <option value="this_quarter">{{ 'reports.periods.thisQuarter' | translate }}</option>
+          <option value="this_year">{{ 'reports.periods.thisYear' | translate }}</option>
+        </select>
+        <button class="btn btn-secondary" (click)="exportReport()">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+            <polyline points="7 10 12 15 17 10"/>
+            <line x1="12" y1="15" x2="12" y2="3"/>
+          </svg>
+          {{ 'common.export' | translate }}
+        </button>
+      </div>
+    </div>
+  </div>
+
+  @if (loading()) {
+    <div class="loading">
+      <div class="spinner"></div>
+      <span>{{ 'common.loading' | translate }}</span>
+    </div>
+  } @else if (report()) {
+    <!-- Key Metrics -->
+    <section class="metrics-section">
+      <div class="metric-card primary">
+        <div class="metric-icon">💵</div>
+        <div class="metric-content">
+          <span class="metric-value">{{ report()!.metrics.grossRevenue | currency:'BAM':'symbol':'1.0-0' }}</span>
+          <span class="metric-label">{{ 'reports.financial.grossRevenue' | translate }}</span>
+        </div>
+      </div>
+      <div class="metric-card success">
+        <div class="metric-icon">📈</div>
+        <div class="metric-content">
+          <span class="metric-value">{{ report()!.metrics.grossProfit | currency:'BAM':'symbol':'1.0-0' }}</span>
+          <span class="metric-label">{{ 'reports.financial.grossProfit' | translate }}</span>
+        </div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-icon">📊</div>
+        <div class="metric-content">
+          <span class="metric-value">{{ report()!.metrics.grossMargin | number:'1.1-1' }}%</span>
+          <span class="metric-label">{{ 'reports.financial.grossMargin' | translate }}</span>
+        </div>
+      </div>
+      <div class="metric-card warning">
+        <div class="metric-icon">⏳</div>
+        <div class="metric-content">
+          <span class="metric-value">{{ report()!.metrics.pendingPayments | currency:'BAM':'symbol':'1.0-0' }}</span>
+          <span class="metric-label">{{ 'reports.financial.pendingPayments' | translate }}</span>
+        </div>
+      </div>
+      <div class="metric-card danger">
+        <div class="metric-icon">🚨</div>
+        <div class="metric-content">
+          <span class="metric-value">{{ report()!.metrics.overduePayments | currency:'BAM':'symbol':'1.0-0' }}</span>
+          <span class="metric-label">{{ 'reports.financial.overduePayments' | translate }}</span>
+        </div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-icon">🧾</div>
+        <div class="metric-content">
+          <span class="metric-value">{{ report()!.metrics.taxCollected | currency:'BAM':'symbol':'1.0-0' }}</span>
+          <span class="metric-label">{{ 'reports.financial.taxCollected' | translate }}</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- Payment Methods -->
+    <section class="charts-section">
+      <div class="chart-card">
+        <h3>{{ 'reports.financial.byPaymentMethod' | translate }}</h3>
+        <div class="payment-list">
+          @for (method of report()!.byPaymentMethod; track method.method) {
+            <div class="payment-item">
+              <div class="payment-info">
+                <span class="payment-method">{{ method.method }}</span>
+                <span class="payment-count">{{ method.count }} {{ 'reports.transactions' | translate }}</span>
+              </div>
+              <div class="payment-bar">
+                <div class="payment-fill" [style.width.%]="method.percentage"></div>
+              </div>
+              <span class="payment-amount">{{ method.amount | currency:'BAM':'symbol':'1.0-0' }}</span>
+            </div>
+          }
+        </div>
+      </div>
+
+      <div class="chart-card">
+        <h3>{{ 'reports.financial.revenueBreakdown' | translate }}</h3>
+        <div class="breakdown-list">
+          @for (item of report()!.revenueBreakdown; track item.category) {
+            <div class="breakdown-item">
+              <span class="breakdown-category">{{ item.category }}</span>
+              <span class="breakdown-amount">{{ item.amount | currency:'BAM':'symbol':'1.0-0' }}</span>
+              <span class="breakdown-percent">{{ item.percentage | number:'1.1-1' }}%</span>
+            </div>
+          }
+        </div>
+      </div>
+    </section>
+
+    <!-- Profit Trends -->
+    <section class="table-section">
+      <div class="table-card">
+        <h3>{{ 'reports.financial.profitTrends' | translate }}</h3>
+        <table>
+          <thead>
+            <tr>
+              <th>{{ 'reports.month' | translate }}</th>
+              <th>{{ 'reports.revenue' | translate }}</th>
+              <th>{{ 'reports.cost' | translate }}</th>
+              <th>{{ 'reports.profit' | translate }}</th>
+              <th>{{ 'reports.margin' | translate }}</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (trend of report()!.profitTrends; track trend.date) {
+              <tr>
+                <td>{{ trend.date }}</td>
+                <td>{{ trend.revenue | currency:'BAM':'symbol':'1.0-0' }}</td>
+                <td>{{ trend.cost | currency:'BAM':'symbol':'1.0-0' }}</td>
+                <td class="profit">{{ trend.profit | currency:'BAM':'symbol':'1.0-0' }}</td>
+                <td>{{ trend.margin }}%</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </section>
+  }
+</div>

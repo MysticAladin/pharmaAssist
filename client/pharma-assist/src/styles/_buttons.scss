@@ -1,6 +1,39 @@
 // Shared Button Styles Module
 // Use this module in components: @use '../../../styles/buttons';
 
+// Mixins for components that need to apply button styles programmatically
+@mixin base-button {
+  @extend .btn;
+}
+
+@mixin primary-button {
+  @extend .btn-primary;
+}
+
+@mixin secondary-button {
+  @extend .btn-secondary;
+}
+
+@mixin success-button {
+  @extend .btn-success;
+}
+
+@mixin danger-button {
+  @extend .btn-danger;
+}
+
+@mixin outline-button {
+  @extend .btn-outline;
+}
+
+@mixin ghost-button {
+  @extend .btn-ghost;
+}
+
+@mixin icon-button {
+  @extend .btn-icon;
+}
+
 // Base button styles
 .btn {
   display: inline-flex;

@@ -1,0 +1,337 @@
+<div class="dispense-page">
+  @if (loading()) {
+    <div class="loading-state">
+      <div class="spinner"></div>
+      <p>{{ 'common.loading' | translate }}</p>
+    </div>
+  } @else if (prescription()) {
+    <!-- Header -->
+    <div class="page-header">
+      <button class="btn-back" (click)="goBack()">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="m15 18-6-6 6-6"/>
+        </svg>
+        {{ 'common.back' | translate }}
+      </button>
+      <div class="header-content">
+        <h1>{{ 'prescriptions.dispenseMedications' | translate }}</h1>
+        <p class="subtitle">{{ prescription()!.prescriptionNumber }} - {{ prescription()!.patientName }}</p>
+      </div>
+      @if (prescription()!.isControlled) {
+        <span class="controlled-badge">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+            <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+          </svg>
+          {{ 'prescriptions.controlled' | translate }}
+        </span>
+      }
+    </div>
+
+    <!-- Progress Steps -->
+    <div class="progress-steps">
+      <div class="step" [class.active]="currentStep() >= 1" [class.completed]="currentStep() > 1">
+        <div class="step-number">1</div>
+        <span>{{ 'prescriptions.steps.verify' | translate }}</span>
+      </div>
+      <div class="step-connector" [class.active]="currentStep() > 1"></div>
+      <div class="step" [class.active]="currentStep() >= 2" [class.completed]="currentStep() > 2">
+        <div class="step-number">2</div>
+        <span>{{ 'prescriptions.steps.prepare' | translate }}</span>
+      </div>
+      <div class="step-connector" [class.active]="currentStep() > 2"></div>
+      <div class="step" [class.active]="currentStep() >= 3" [class.completed]="currentStep() > 3">
+        <div class="step-number">3</div>
+        <span>{{ 'prescriptions.steps.counsel' | translate }}</span>
+      </div>
+      <div class="step-connector" [class.active]="currentStep() > 3"></div>
+      <div class="step" [class.active]="currentStep() >= 4">
+        <div class="step-number">4</div>
+        <span>{{ 'prescriptions.steps.confirm' | translate }}</span>
+      </div>
+    </div>
+
+    <!-- Step 1: Verification -->
+    @if (currentStep() === 1) {
+      <div class="step-card">
+        <div class="card-header">
+          <h2>{{ 'prescriptions.verifyPrescription' | translate }}</h2>
+          <p class="info-text">{{ 'prescriptions.verifyInfo' | translate }}</p>
+        </div>
+
+        <div class="info-grid">
+          <div class="info-item">
+            <span class="label">{{ 'prescriptions.patient' | translate }}</span>
+            <span class="value">{{ prescription()!.patientName }}</span>
+          </div>
+          <div class="info-item">
+            <span class="label">{{ 'prescriptions.doctor' | translate }}</span>
+            <span class="value">{{ prescription()!.doctorName }}</span>
+          </div>
+          <div class="info-item">
+            <span class="label">{{ 'prescriptions.issueDate' | translate }}</span>
+            <span class="value">{{ prescription()!.issueDate | date:'mediumDate' }}</span>
+          </div>
+          <div class="info-item">
+            <span class="label">{{ 'prescriptions.expiryDate' | translate }}</span>
+            <span class="value" [class.expiring-soon]="isExpiringSoon()">{{ prescription()!.expiryDate | date:'mediumDate' }}</span>
+          </div>
+        </div>
+
+        <div class="verification-section">
+          <h3>{{ 'prescriptions.verificationChecklist' | translate }}</h3>
+          <div class="checklist">
+            <label class="check-item" [class.checked]="verification.prescriptionValid">
+              <input type="checkbox" [(ngModel)]="verification.prescriptionValid">
+              <span class="checkmark"></span>
+              <span>{{ 'prescriptions.verify.prescriptionValid' | translate }}</span>
+            </label>
+            <label class="check-item" [class.checked]="verification.patientIdentified">
+              <input type="checkbox" [(ngModel)]="verification.patientIdentified">
+              <span class="checkmark"></span>
+              <span>{{ 'prescriptions.verify.patientIdentified' | translate }}</span>
+            </label>
+            <label class="check-item" [class.checked]="verification.doctorVerified">
+              <input type="checkbox" [(ngModel)]="verification.doctorVerified">
+              <span class="checkmark"></span>
+              <span>{{ 'prescriptions.verify.doctorVerified' | translate }}</span>
+            </label>
+            <label class="check-item" [class.checked]="verification.notExpired">
+              <input type="checkbox" [(ngModel)]="verification.notExpired">
+              <span class="checkmark"></span>
+              <span>{{ 'prescriptions.verify.notExpired' | translate }}</span>
+            </label>
+            @if (prescription()!.isControlled) {
+              <label class="check-item controlled" [class.checked]="verification.controlledSubstanceCheck">
+                <input type="checkbox" [(ngModel)]="verification.controlledSubstanceCheck">
+                <span class="checkmark"></span>
+                <span>{{ 'prescriptions.verify.controlledSubstanceCheck' | translate }}</span>
+              </label>
+            }
+          </div>
+        </div>
+
+        <div class="payment-section">
+          <h3>{{ 'prescriptions.paymentInfo' | translate }}</h3>
+          <div class="payment-options">
+            <label class="radio-item" [class.selected]="paymentType === 'invoice'">
+              <input type="radio" name="payment" value="invoice" [(ngModel)]="paymentType">
+              <span>{{ 'prescriptions.paymentTypes.invoice' | translate }}</span>
+            </label>
+            <label class="radio-item" [class.selected]="paymentType === 'bankTransfer'">
+              <input type="radio" name="payment" value="bankTransfer" [(ngModel)]="paymentType">
+              <span>{{ 'prescriptions.paymentTypes.bankTransfer' | translate }}</span>
+            </label>
+            <label class="radio-item" [class.selected]="paymentType === 'insurance'">
+              <input type="radio" name="payment" value="insurance" [(ngModel)]="paymentType">
+              <span>{{ 'prescriptions.paymentTypes.insurance' | translate }}</span>
+            </label>
+          </div>
+        </div>
+
+        <div class="step-actions">
+          <button class="btn btn-secondary" (click)="goBack()">{{ 'common.cancel' | translate }}</button>
+          <button class="btn btn-primary" [disabled]="!isVerificationComplete()" (click)="nextStep()">
+            {{ 'common.next' | translate }}
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 18 6-6-6-6"/></svg>
+          </button>
+        </div>
+      </div>
+    }
+
+    <!-- Step 2: Prepare Items -->
+    @if (currentStep() === 2) {
+      <div class="step-card">
+        <div class="card-header">
+          <h2>{{ 'prescriptions.prepareItems' | translate }}</h2>
+          <p class="info-text">{{ 'prescriptions.prepareInfo' | translate }}</p>
+        </div>
+
+        @if (!stockChecked()) {
+          <div class="stock-check-section">
+            <button class="btn btn-outline" (click)="checkStock()" [disabled]="checkingStock()">
+              @if (checkingStock()) {<span class="spinner-sm"></span>}
+              {{ 'prescriptions.checkStock' | translate }}
+            </button>
+          </div>
+        }
+
+        <div class="items-list">
+          @for (item of dispenseFormItems(); track item.prescriptionItemId; let i = $index) {
+            <div class="item-card" [class.insufficient]="item.stockChecked && !item.stockSufficient">
+              <div class="item-header">
+                <div class="item-info">
+                  <span class="item-name">{{ item.productName }}</span>
+                  <span class="item-sku">{{ item.productSku }}</span>
+                </div>
+                @if (item.stockChecked) {
+                  <app-status-badge [variant]="item.stockSufficient ? 'success' : 'danger'" [label]="item.stockSufficient ? ('prescriptions.inStock' | translate) : ('prescriptions.lowStock' | translate)"></app-status-badge>
+                }
+              </div>
+              <div class="item-details">
+                <div class="detail"><span class="label">{{ 'prescriptions.prescribedQty' | translate }}</span><span class="value">{{ item.prescribedQty }}</span></div>
+                <div class="detail"><span class="label">{{ 'prescriptions.dosage' | translate }}</span><span class="value">{{ item.dosage }}</span></div>
+                @if (item.stockChecked) {<div class="detail"><span class="label">{{ 'prescriptions.availableStock' | translate }}</span><span class="value" [class.danger]="!item.stockSufficient">{{ item.availableStock }}</span></div>}
+              </div>
+              <div class="item-instructions"><span class="label">{{ 'prescriptions.instructions' | translate }}:</span> {{ item.instructions }}</div>
+              <div class="dispense-inputs">
+                <div class="input-group">
+                  <label>{{ 'prescriptions.quantityToDispense' | translate }} *</label>
+                  <input type="number" [min]="1" [max]="item.availableStock || item.prescribedQty" [(ngModel)]="item.quantityDispensed">
+                </div>
+                <div class="input-group">
+                  <label>{{ 'prescriptions.batchNumber' | translate }} *</label>
+                  @if (item.batchOptions.length > 0) {
+                    <select [(ngModel)]="item.batchNumber">
+                      <option value="">{{ 'prescriptions.selectBatch' | translate }}</option>
+                      @for (batch of item.batchOptions; track batch.batchNumber) {
+                        <option [value]="batch.batchNumber">{{ batch.batchNumber }} ({{ batch.quantity }}) - {{ batch.expiryDate | date:'MM/yy' }}</option>
+                      }
+                    </select>
+                  } @else {
+                    <input type="text" [(ngModel)]="item.batchNumber" placeholder="LOT-2024-001">
+                  }
+                </div>
+              </div>
+            </div>
+          }
+        </div>
+
+        <div class="summary-box">
+          <div class="summary-row"><span>{{ 'prescriptions.totalItems' | translate }}</span><span>{{ dispenseFormItems().length }}</span></div>
+          <div class="summary-row"><span>{{ 'prescriptions.totalUnits' | translate }}</span><span>{{ totalUnitsToDispense() }}</span></div>
+          <div class="summary-row total"><span>{{ 'prescriptions.estimatedValue' | translate }}</span><span>{{ estimatedValue() | number:'1.2-2' }} KM</span></div>
+        </div>
+
+        <div class="step-actions">
+          <button class="btn btn-secondary" (click)="prevStep()"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m15 18-6-6 6-6"/></svg> {{ 'common.back' | translate }}</button>
+          <button class="btn btn-primary" [disabled]="!isPrepareComplete()" (click)="nextStep()">{{ 'common.next' | translate }} <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 18 6-6-6-6"/></svg></button>
+        </div>
+      </div>
+    }
+
+    <!-- Step 3: Counseling -->
+    @if (currentStep() === 3) {
+      <div class="step-card">
+        <div class="card-header">
+          <h2>{{ 'prescriptions.patientCounseling' | translate }}</h2>
+          <p class="info-text">{{ 'prescriptions.counselingInfo' | translate }}</p>
+        </div>
+
+        <div class="checklist">
+          <label class="check-item" [class.checked]="counseling.dosageExplained">
+            <input type="checkbox" [(ngModel)]="counseling.dosageExplained">
+            <span class="checkmark"></span>
+            <div class="check-content"><span class="check-title">{{ 'prescriptions.counseling.dosageExplained' | translate }}</span><span class="check-desc">{{ 'prescriptions.counseling.dosageExplainedDesc' | translate }}</span></div>
+          </label>
+          <label class="check-item" [class.checked]="counseling.sideEffectsDiscussed">
+            <input type="checkbox" [(ngModel)]="counseling.sideEffectsDiscussed">
+            <span class="checkmark"></span>
+            <div class="check-content"><span class="check-title">{{ 'prescriptions.counseling.sideEffectsDiscussed' | translate }}</span><span class="check-desc">{{ 'prescriptions.counseling.sideEffectsDiscussedDesc' | translate }}</span></div>
+          </label>
+          <label class="check-item" [class.checked]="counseling.interactionsReviewed">
+            <input type="checkbox" [(ngModel)]="counseling.interactionsReviewed">
+            <span class="checkmark"></span>
+            <div class="check-content"><span class="check-title">{{ 'prescriptions.counseling.interactionsReviewed' | translate }}</span><span class="check-desc">{{ 'prescriptions.counseling.interactionsReviewedDesc' | translate }}</span></div>
+          </label>
+          <label class="check-item" [class.checked]="counseling.storageInstructionsGiven">
+            <input type="checkbox" [(ngModel)]="counseling.storageInstructionsGiven">
+            <span class="checkmark"></span>
+            <div class="check-content"><span class="check-title">{{ 'prescriptions.counseling.storageInstructionsGiven' | translate }}</span><span class="check-desc">{{ 'prescriptions.counseling.storageInstructionsGivenDesc' | translate }}</span></div>
+          </label>
+          <label class="check-item" [class.checked]="counseling.patientQuestionsAnswered">
+            <input type="checkbox" [(ngModel)]="counseling.patientQuestionsAnswered">
+            <span class="checkmark"></span>
+            <div class="check-content"><span class="check-title">{{ 'prescriptions.counseling.patientQuestionsAnswered' | translate }}</span><span class="check-desc">{{ 'prescriptions.counseling.patientQuestionsAnsweredDesc' | translate }}</span></div>
+          </label>
+          @if (prescription()!.isControlled) {
+            <label class="check-item controlled" [class.checked]="counseling.controlledSubstanceWarning">
+              <input type="checkbox" [(ngModel)]="counseling.controlledSubstanceWarning">
+              <span class="checkmark"></span>
+              <div class="check-content"><span class="check-title">{{ 'prescriptions.counseling.controlledSubstanceWarning' | translate }}</span><span class="check-desc">{{ 'prescriptions.counseling.controlledSubstanceWarningDesc' | translate }}</span></div>
+            </label>
+          }
+        </div>
+
+        <div class="notes-section">
+          <label>{{ 'prescriptions.dispenseNotes' | translate }}</label>
+          <textarea [(ngModel)]="notes" rows="3" [placeholder]="'prescriptions.dispenseNotesPlaceholder' | translate"></textarea>
+        </div>
+
+        <div class="step-actions">
+          <button class="btn btn-secondary" (click)="prevStep()"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m15 18-6-6 6-6"/></svg> {{ 'common.back' | translate }}</button>
+          <button class="btn btn-primary" [disabled]="!isCounselingComplete()" (click)="nextStep()">{{ 'common.next' | translate }} <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 18 6-6-6-6"/></svg></button>
+        </div>
+      </div>
+    }
+
+    <!-- Step 4: Confirm -->
+    @if (currentStep() === 4) {
+      <div class="step-card confirmation">
+        <div class="card-header">
+          <h2>{{ 'prescriptions.confirmDispense' | translate }}</h2>
+          <p class="info-text">{{ 'prescriptions.confirmInfo' | translate }}</p>
+        </div>
+
+        <div class="final-summary">
+          <div class="summary-section">
+            <h3>{{ 'prescriptions.prescriptionDetails' | translate }}</h3>
+            <div class="summary-grid">
+              <div><span class="label">{{ 'prescriptions.prescriptionNumber' | translate }}</span><span class="value">{{ prescription()!.prescriptionNumber }}</span></div>
+              <div><span class="label">{{ 'prescriptions.patient' | translate }}</span><span class="value">{{ prescription()!.patientName }}</span></div>
+              <div><span class="label">{{ 'prescriptions.doctor' | translate }}</span><span class="value">{{ prescription()!.doctorName }}</span></div>
+              <div><span class="label">{{ 'prescriptions.paymentMethod' | translate }}</span><span class="value">{{ getPaymentLabel() | translate }}</span></div>
+            </div>
+          </div>
+
+          <div class="summary-section">
+            <h3>{{ 'prescriptions.itemsToDispense' | translate }}</h3>
+            <div class="items-summary">
+              @for (item of dispenseFormItems(); track item.prescriptionItemId) {
+                <div class="item-row">
+                  <div><span class="name">{{ item.productName }}</span><span class="batch">{{ item.batchNumber }}</span></div>
+                  <span class="qty">× {{ item.quantityDispensed }}</span>
+                </div>
+              }
+            </div>
+          </div>
+
+          <div class="total-box">
+            <div class="total-row"><span>{{ 'prescriptions.totalUnits' | translate }}</span><span>{{ totalUnitsToDispense() }}</span></div>
+            <div class="total-row grand"><span>{{ 'prescriptions.estimatedValue' | translate }}</span><span>{{ estimatedValue() | number:'1.2-2' }} KM</span></div>
+          </div>
+        </div>
+
+        <div class="pharmacist-confirm">
+          <label class="check-item confirmation" [class.checked]="pharmacistConfirmed">
+            <input type="checkbox" [(ngModel)]="pharmacistConfirmed">
+            <span class="checkmark"></span>
+            <div class="check-content">
+              <span class="check-title">{{ 'prescriptions.pharmacistConfirmText' | translate }}</span>
+              <span class="check-desc">{{ 'prescriptions.pharmacistConfirmDesc' | translate }}</span>
+            </div>
+          </label>
+        </div>
+
+        <div class="print-options">
+          <label class="check-item"><input type="checkbox" [(ngModel)]="printLabel"><span class="checkmark"></span><span>{{ 'prescriptions.printLabel' | translate }}</span></label>
+          <label class="check-item"><input type="checkbox" [(ngModel)]="printReceipt"><span class="checkmark"></span><span>{{ 'prescriptions.printReceipt' | translate }}</span></label>
+        </div>
+
+        <div class="step-actions final">
+          <button class="btn btn-secondary" (click)="prevStep()"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m15 18-6-6 6-6"/></svg> {{ 'common.back' | translate }}</button>
+          <button class="btn btn-success" [disabled]="!canSubmit() || submitting()" (click)="submitDispense()">
+            @if (submitting()) {<span class="spinner-sm"></span>}
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+            {{ 'prescriptions.completeDispense' | translate }}
+          </button>
+        </div>
+      </div>
+    }
+  } @else {
+    <div class="error-state">
+      <h2>{{ 'prescriptions.notFound' | translate }}</h2>
+      <button class="btn btn-primary" (click)="goBack()">{{ 'common.goBack' | translate }}</button>
+    </div>
+  }
+</div>

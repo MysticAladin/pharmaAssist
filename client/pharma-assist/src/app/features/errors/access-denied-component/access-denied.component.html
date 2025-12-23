@@ -1,0 +1,15 @@
+<div class="error-page">
+  <div class="error-content">
+    <div class="error-icon">
+      <i class="icon-lock"></i>
+    </div>
+    <h1>Pristup odbijen</h1>
+    <p>Nemate dozvolu za pristup ovoj stranici.</p>
+    <div class="error-actions">
+      <a [routerLink]="homeRoute()" class="btn btn-primary">
+        <i class="icon-home"></i>
+        {{ homeLabel() }}
+      </a>
+    </div>
+  </div>
+</div>

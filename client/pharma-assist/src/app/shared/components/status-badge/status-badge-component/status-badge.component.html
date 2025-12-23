@@ -1,0 +1,13 @@
+<span
+  class="badge"
+  [class]="badgeClasses()"
+  [class.with-dot]="showDot()"
+>
+  @if (showDot()) {
+    <span class="dot"></span>
+  }
+  @if (icon()) {
+    <span class="icon" [innerHTML]="icon()"></span>
+  }
+  <span class="label">{{ translateLabel() ? (label | translate) : label }}</span>
+</span>

@@ -1,0 +1,610 @@
+﻿
+> pharma-assist@0.0.0 build
+> ng build
+
+[33mÔŁ»[39m Building...
+[32mÔťö[39m Building...
+Application bundle generation failed. [5.630 seconds] - 2025-12-23T11:17:49.909Z
+
+node.exe : [1m[33m[33mÔľ▓ [43;33m[[43;30mWARNING[43;33m][0m [
+1mNG8113: DatePipe is not used within the template of OrdersListCompo
+nent[0m [1m[35m[plugin angular-compiler][0m
+At line:1 char:1
++ & "C:\Program Files\nodejs/node.exe" "C:\Users\Korisnik\AppData\Roa
+mi ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~
+    + CategoryInfo          : NotSpecified: ([1m[33m[33mÔ...r-com 
+   piler][0m:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+
+    src/app/features/orders/orders-list.component.ts:35:4:
+[37m      35 Ôöé     [32mDatePipe[37m,
+         ÔĽÁ     [32m~~~~~~~~[0m
+
+[39m[22m
+[1m[31m[31mX [41;31m[[41;97mERROR[41;31m][0m [1mUndefined var
+iable.
+   ÔĽĚ
+15 Ôöé   color: theme.$text-secondary;
+   Ôöé          ^^^^^^^^^^^^^^^^^^^^^
+   ÔĽÁ
+  src\app\features\products\product-form-component\product-form.compo
+nent.scss 15:10  root stylesheet[0m [1m[35m[plugin angular-sass][
+0m
+
+
+[31mX [41;31m[[41;97mERROR[41;31m][0m [1mUndefined variable.
+   ÔĽĚ
+15 Ôöé   color: theme.$text-secondary;
+   Ôöé          ^^^^^^^^^^^^^^^^^^^^^
+   ÔĽÁ
+  src\app\features\prescriptions\prescription-dispense-component\pres
+cription-dispense.component.scss 15:10  root stylesheet[0m [1m[35m
+[plugin angular-sass][0m
+
+
+[31mX [41;31m[[41;97mERROR[41;31m][0m [1mUndefined mixin.
+   ÔĽĚ
+12 Ôöé   @include cards.stats-grid(4);
+   Ôöé   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   ÔĽÁ
+  src\app\features\customers\customers-list-component\customers-list.
+component.scss 12:3  root stylesheet[0m [1m[35m[plugin angular-sas
+s][0m
+
+
+[31mX [41;31m[[41;97mERROR[41;31m][0m [1mUndefined mixin.
+   ÔĽĚ
+50 Ôöé   @include cards.stat-card;
+   Ôöé   ^^^^^^^^^^^^^^^^^^^^^^^^
+   ÔĽÁ
+  src\app\features\inventory\inventory-list-component\inventory-list.
+component.scss 50:3  root stylesheet[0m [1m[35m[plugin angular-sas
+s][0m
+
+
+[31mX [41;31m[[41;97mERROR[41;31m][0m [1mCan't find stylesheet 
+to import.
+  ÔĽĚ
+2 Ôöé @use '../../../styles/cards';
+  Ôöé ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  ÔĽÁ
+  src\app\features\reports\inventory-report-component\inventory-repor
+t.component.scss 2:1  root stylesheet[0m [1m[35m[plugin angular-sa
+ss][0m
+
+
+[31mX [41;31m[[41;97mERROR[41;31m][0m [1mCan't find stylesheet 
+to import.
+  ÔĽĚ
+2 Ôöé @use '../../../styles/cards';
+  Ôöé ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  ÔĽÁ
+  src\app\features\orders\orders-list\orders-list.component.scss 2:1 
+ root stylesheet[0m [1m[35m[plugin angular-sass][0m
+
+
+[31mX [41;31m[[41;97mERROR[41;31m][0m [1mUndefined mixin.
+   ÔĽĚ
+43 Ôöé   @include cards.stat-card;
+   Ôöé   ^^^^^^^^^^^^^^^^^^^^^^^^
+   ÔĽÁ
+  src\app\features\prescriptions\prescriptions-list-component\prescri
+ptions-list.component.scss 43:3  root stylesheet[0m [1m[35m[plugin
+ angular-sass][0m
+
+
+[31mX [41;31m[[41;97mERROR[41;31m][0m [1mCan't find stylesheet 
+to import.
+  ÔĽĚ
+2 Ôöé @use '../../../styles/cards';
+  Ôöé ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  ÔĽÁ
+  src\app\features\profile\profile-component\profile.component.scss 2
+:1  root stylesheet[0m [1m[35m[plugin angular-sass][0m
+
+
+[31mX [41;31m[[41;97mERROR[41;31m][0m [1mCan't find stylesheet 
+to import.
+  ÔĽĚ
+2 Ôöé @use '../../../styles/cards';
+  Ôöé ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  ÔĽÁ
+  src\app\features\settings\settings-component\settings.component.scs
+s 2:1  root stylesheet[0m [1m[35m[plugin angular-sass][0m
+
+
+[31mX [41;31m[[41;97mERROR[41;31m][0m [1mCan't find stylesheet 
+to import.
+  ÔĽĚ
+1 Ôöé @use '../../../../styles/theme';
+  Ôöé ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  ÔĽÁ
+  src\app\features\admin\settings\settings-component\settings.compone
+nt.scss 1:1  root stylesheet[0m [1m[35m[plugin angular-sass][0m
+
+
+[31mX [41;31m[[41;97mERROR[41;31m][0m [1mCan't find stylesheet 
+to import.
+  ÔĽĚ
+2 Ôöé @use '../../../styles/buttons';
+  Ôöé ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  ÔĽÁ
+  src\app\features\tenders\my-tenders-component\my-tenders.component.
+scss 2:1  root stylesheet[0m [1m[35m[plugin angular-sass][0m
+
+
+[31mX [41;31m[[41;97mERROR[41;31m][0m [1mCan't find stylesheet 
+to import.
+  ÔĽĚ
+1 Ôöé ´╗┐@use '../../../../../styles/buttons';
+  Ôöé  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  ÔĽÁ
+  src\app\features\reports\sales-report-component\sales-report.compon
+ent.scss 1:2  root stylesheet[0m [1m[35m[plugin angular-sass][0m
+
+
+[31mX [41;31m[[41;97mERROR[41;31m][0m [1mTS2339: Property 'trim
+' does not exist on type 'WritableSignal<string>'.[0m [1m[35m[plug
+in angular-compiler][0m
+
+    src/app/features/customers/customer-detail-component/customer-det
+ail.component.html:257:46:
+[37m      257 Ôöé ...             [disabled]="!newNoteContent.[32mt
+rim[37m() || savingNote()">
+          ÔĽÁ                                             [32m~~~~[
+0m
+
+  Error occurs in the template of component CustomerDetailComponent.
+
+    src/app/features/customers/customer-detail.component.ts:26:15:
+[37m      26 Ôöé ...plateUrl: [32m'./customer-detail-component/cust
+omer-detail.componen[37m...
+         ÔĽÁ              [32m~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~[0m
+
+
+[31mX [41;31m[[41;97mERROR[41;31m][0m [1mTS2459: Module '"../..
+/core/services/order.service"' declares 'OrderSummary' locally, but i
+t is not exported.[0m [1m[35m[plugin angular-compiler][0m
+
+    src/app/features/customers/customer-detail.component.ts:7:23:
+[37m      7 Ôöé import { OrderService, [32mOrderSummary[37m, Order
+Status } from '../../core...
+        ÔĽÁ                        [32m~~~~~~~~~~~~[0m
+
+  'OrderSummary' is declared here.
+
+    src/app/core/services/order.service.ts:7:2:
+[37m      7 Ôöé   [32mOrderSummary[37m,
+        ÔĽÁ   [32m~~~~~~~~~~~~[0m
+
+
+[31mX [41;31m[[41;97mERROR[41;31m][0m [1mTS2724: '"../../core/s
+ervices/order.service"' has no exported member named 'OrderStatus'. D
+id you mean 'OrderStats'?[0m [1m[35m[plugin angular-compiler][0m
+
+    src/app/features/customers/customer-detail.component.ts:7:37:
+[37m      7 Ôöé ...rderService, OrderSummary, [32mOrderStatus[37m 
+} from '../../core/servic...
+        ÔĽÁ                               [32m~~~~~~~~~~~[0m
+
+
+[31mX [41;31m[[41;97mERROR[41;31m][0m [1mTS2345: Argument of ty
+pe 'number' is not assignable to parameter of type 'string'.[0m [1m
+[35m[plugin angular-compiler][0m
+
+    src/app/features/customers/customer-detail.component.ts:77:37:
+[37m      77 Ôöé     this.customerService.getCustomer([32mid[37m).
+subscribe({
+         ÔĽÁ                                      [32m~~[0m
+
+
+[31mX [41;31m[[41;97mERROR[41;31m][0m [1mTS2345: Argument of ty
+pe 'ApiResponse<Customer>' is not assignable to parameter of type 'Cu
+stomer'.
+  Type 'ApiResponse<Customer>' is missing the following properties fr
+om type 'Customer': id, customerCode, name, customerType, and 13 more
+.[0m [1m[35m[plugin angular-compiler][0m
+
+    src/app/features/customers/customer-detail.component.ts:79:26:
+[37m      79 Ôöé         this.customer.set([32mcustomer[37m);
+         ÔĽÁ                           [32m~~~~~~~~[0m
+
+
+[31mX [41;31m[[41;97mERROR[41;31m][0m [1mTS2339: Property 'id' 
+does not exist on type 'ApiResponse<Customer>'.[0m [1m[35m[plugin 
+angular-compiler][0m
+
+    src/app/features/customers/customer-detail.component.ts:81:33:
+[37m      81 Ôöé         this.loadOrders(customer.[32mid[37m);
+         ÔĽÁ                                  [32m~~[0m
+
+
+[31mX [41;31m[[41;97mERROR[41;31m][0m [1mTS2339: Property 'id' 
+does not exist on type 'ApiResponse<Customer>'.[0m [1m[35m[plugin 
+angular-compiler][0m
+
+    src/app/features/customers/customer-detail.component.ts:82:32:
+[37m      82 Ôöé         this.loadNotes(customer.[32mid[37m);
+         ÔĽÁ                                 [32m~~[0m
+
+
+[31mX [41;31m[[41;97mERROR[41;31m][0m [1mTS2339: Property 'id' 
+does not exist on type 'ApiResponse<Customer>'.[0m [1m[35m[plugin 
+angular-compiler][0m
+
+    src/app/features/customers/customer-detail.component.ts:83:37:
+[37m      83 Ôöé         this.loadOrderStats(customer.[32mid[37m);
+         ÔĽÁ                                      [32m~~[0m
+
+
+[31mX [41;31m[[41;97mERROR[41;31m][0m [1mTS2322: Type 'number' 
+is not assignable to type 'string'.[0m [1m[35m[plugin angular-comp
+iler][0m
+
+    src/app/features/customers/customer-detail.component.ts:93:56:
+[37m      93 Ôöé ...ervice.getOrders(this.ordersPage(), 5, { [32mcu
+stomerId[37m }).subscribe({
+         ÔĽÁ                                             [32m~~~~~~~
+~~~[0m
+
+
+[31mX [41;31m[[41;97mERROR[41;31m][0m [1mTS2339: Property 'tota
+lItems' does not exist on type 'PaginatedResult<OrderSummary>'.[0m 
+[1m[35m[plugin angular-compiler][0m
+
+    src/app/features/customers/customer-detail.component.ts:96:43:
+[37m      96 Ôöé         this.ordersTotalItems.set(response.[32mtot
+alItems[37m);
+         ÔĽÁ                                            [32m~~~~~~~~
+~~[0m
+
+
+[31mX [41;31m[[41;97mERROR[41;31m][0m [1mTS2345: Argument of ty
+pe 'number' is not assignable to parameter of type 'string'.[0m [1m
+[35m[plugin angular-compiler][0m
+
+    src/app/features/customers/customer-detail.component.ts:107:42:
+[37m      107 Ôöé     this.customerService.getCustomerNotes([32mcus
+tomerId[37m).subscribe({
+          ÔĽÁ                                           [32m~~~~~~~~
+~~[0m
+
+
+[31mX [41;31m[[41;97mERROR[41;31m][0m [1mTS2345: Argument of ty
+pe 'ApiResponse<CustomerNote[]>' is not assignable to parameter of ty
+pe 'CustomerNote[]'.
+  Type 'ApiResponse<CustomerNote[]>' is missing the following propert
+ies from type 'CustomerNote[]': length, pop, push, concat, and 29 mor
+e.[0m [1m[35m[plugin angular-compiler][0m
+
+    src/app/features/customers/customer-detail.component.ts:109:23:
+[37m      109 Ôöé         this.notes.set([32mnotes[37m);
+          ÔĽÁ                        [32m~~~~~[0m
+
+
+[31mX [41;31m[[41;97mERROR[41;31m][0m [1mTS2345: Argument of ty
+pe 'number' is not assignable to parameter of type 'string'.[0m [1m
+[35m[plugin angular-compiler][0m
+
+    src/app/features/customers/customer-detail.component.ts:119:42:
+[37m      119 Ôöé     this.customerService.getCustomerStats([32mcus
+tomerId[37m).subscribe({
+          ÔĽÁ                                           [32m~~~~~~~~
+~~[0m
+
+
+[31mX [41;31m[[41;97mERROR[41;31m][0m [1mTS2345: Argument of ty
+pe 'ApiResponse<CustomerStats>' is not assignable to parameter of typ
+e '{ totalOrders: number; totalRevenue: number; averageOrderValue: nu
+mber; lastOrderDate: string | null; }'.
+  Type 'ApiResponse<CustomerStats>' is missing the following properti
+es from type '{ totalOrders: number; totalRevenue: number; averageOrd
+erValue: number; lastOrderDate: string | null; }': totalOrders, total
+Revenue, averageOrderValue, lastOrderDate[0m [1m[35m[plugin angula
+r-compiler][0m
+
+    src/app/features/customers/customer-detail.component.ts:121:28:
+[37m      121 Ôöé         this.orderStats.set([32mstats[37m);
+          ÔĽÁ                             [32m~~~~~[0m
+
+
+[31mX [41;31m[[41;97mERROR[41;31m][0m [1mTS2339: Property 'city
+' does not exist on type 'CustomerAddress'.[0m [1m[35m[plugin angu
+lar-compiler][0m
+
+    src/app/features/customers/customer-detail.component.ts:140:21:
+[37m      140 Ôöé       primaryAddress.[32mcity[37m
+          ÔĽÁ                      [32m~~~~[0m
+
+
+[31mX [41;31m[[41;97mERROR[41;31m][0m [1mTS2345: Argument of ty
+pe 'number' is not assignable to parameter of type 'string'.[0m [1m
+[35m[plugin angular-compiler][0m
+
+    src/app/features/customers/customer-detail.component.ts:188:41:
+[37m      188 Ôöé ...customerService.addCustomerNote([32mcustomer.i
+d[37m, request).subscribe({
+          ÔĽÁ                                    [32m~~~~~~~~~~~[0m
+
+
+[31mX [41;31m[[41;97mERROR[41;31m][0m [1mTS2353: Object literal
+ may only specify known properties, and 'confirmButtonClass' does not
+ exist in type 'ConfirmOptions'.[0m [1m[35m[plugin angular-compile
+r][0m
+
+    src/app/features/customers/customer-detail.component.ts:210:6:
+[37m      210 Ôöé       [32mconfirmButtonClass[37m: 'btn-danger'
+          ÔĽÁ       [32m~~~~~~~~~~~~~~~~~~[0m
+
+
+[31mX [41;31m[[41;97mERROR[41;31m][0m [1mTS2339: Property 'subs
+cribe' does not exist on type 'Promise<boolean>'.[0m [1m[35m[plugi
+n angular-compiler][0m
+
+    src/app/features/customers/customer-detail.component.ts:211:7:
+[37m      211 Ôöé     }).[32msubscribe[37m((confirmed) => {
+          ÔĽÁ        [32m~~~~~~~~~[0m
+
+
+[31mX [41;31m[[41;97mERROR[41;31m][0m [1mTS7006: Parameter 'con
+firmed' implicitly has an 'any' type.[0m [1m[35m[plugin angular-co
+mpiler][0m
+
+    src/app/features/customers/customer-detail.component.ts:211:18:
+[37m      211 Ôöé     }).subscribe(([32mconfirmed[37m) => {
+          ÔĽÁ                   [32m~~~~~~~~~[0m
+
+
+[31mX [41;31m[[41;97mERROR[41;31m][0m [1mTS2345: Argument of ty
+pe 'number' is not assignable to parameter of type 'string'.[0m [1m
+[35m[plugin angular-compiler][0m
+
+    src/app/features/customers/customer-detail.component.ts:213:48:
+[37m      213 Ôöé ...tomerService.deleteCustomerNote([32mcustomer.i
+d[37m, note.id).subscribe({
+          ÔĽÁ                                    [32m~~~~~~~~~~~[0m
+
+
+[31mX [41;31m[[41;97mERROR[41;31m][0m [1mNG8002: Can't bind to 
+'message' since it isn't a known property of 'app-empty-state'.
+1. If 'app-empty-state' is an Angular component and it has 'message' 
+input, then verify that it is included in the '@Component.imports' of
+ this component.
+2. If 'app-empty-state' is a Web Component then add 'CUSTOM_ELEMENTS_
+SCHEMA' to the '@Component.schemas' of this component to suppress thi
+s message.
+3. To allow any property add 'NO_ERRORS_SCHEMA' to the '@Component.sc
+hemas' of this component.[0m [1m[35m[plugin angular-compiler][0m
+
+    src/app/features/inventory/adjustments-list-component/adjustments
+-list.component.html:76:8:
+[37m      76 Ôöé         [32m[message]="'inventory.noAdjustmentsMes
+sage' | translate"[37m
+         ÔĽÁ         [32m~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~[0m
+
+  Error occurs in the template of component AdjustmentsListComponent.
+
+    src/app/features/inventory/adjustments-list.component.ts:35:15:
+[37m      35 Ôöé ...plateUrl: [32m'./adjustments-list-component/adj
+ustments-list.compon[37m...
+         ÔĽÁ              [32m~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~[0m
+
+
+[31mX [41;31m[[41;97mERROR[41;31m][0m [1mNG8002: Can't bind to 
+'status' since it isn't a known property of 'app-status-badge'.
+1. If 'app-status-badge' is an Angular component and it has 'status' 
+input, then verify that it is included in the '@Component.imports' of
+ this component.
+2. If 'app-status-badge' is a Web Component then add 'CUSTOM_ELEMENTS
+_SCHEMA' to the '@Component.schemas' of this component to suppress th
+is message.
+3. To allow any property add 'NO_ERRORS_SCHEMA' to the '@Component.sc
+hemas' of this component.[0m [1m[35m[plugin angular-compiler][0m
+
+    src/app/features/inventory/adjustments-list-component/adjustments
+-list.component.html:106:20:
+[37m      106 Ôöé ...               [32m[status]="getTypeLabel(adju
+stment.adjustmentType)"[37m
+          ÔĽÁ                   [32m~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~[0m
+
+  Error occurs in the template of component AdjustmentsListComponent.
+
+    src/app/features/inventory/adjustments-list.component.ts:35:15:
+[37m      35 Ôöé ...plateUrl: [32m'./adjustments-list-component/adj
+ustments-list.compon[37m...
+         ÔĽÁ              [32m~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~[0m
+
+
+[31mX [41;31m[[41;97mERROR[41;31m][0m [1mTS2339: Property 'quan
+tityChanged' does not exist on type 'StockAdjustment'.[0m [1m[35m[
+plugin angular-compiler][0m
+
+    src/app/features/inventory/adjustments-list-component/adjustments
+-list.component.html:116:93:
+[37m      116 Ôöé ...nt.adjustmentType) ? '+' : '-' }}{{ adjustment.
+[32mquantityChanged[37m }}
+          ÔĽÁ                                                   [32m
+~~~~~~~~~~~~~~~[0m
+
+  Error occurs in the template of component AdjustmentsListComponent.
+
+    src/app/features/inventory/adjustments-list.component.ts:35:15:
+[37m      35 Ôöé ...plateUrl: [32m'./adjustments-list-component/adj
+ustments-list.compon[37m...
+         ÔĽÁ              [32m~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~[0m
+
+
+[31mX [41;31m[[41;97mERROR[41;31m][0m [1mTS2339: Property 'prev
+iousStock' does not exist on type 'StockAdjustment'.[0m [1m[35m[pl
+ugin angular-compiler][0m
+
+    src/app/features/inventory/adjustments-list-component/adjustments
+-list.component.html:119:53:
+[37m      119 Ôöé ...       <td class="text-right">{{ adjustment.[3
+2mpreviousStock[37m }}</td>
+          ÔĽÁ                                                [32m~~~
+~~~~~~~~~~[0m
+
+  Error occurs in the template of component AdjustmentsListComponent.
+
+    src/app/features/inventory/adjustments-list.component.ts:35:15:
+[37m      35 Ôöé ...plateUrl: [32m'./adjustments-list-component/adj
+ustments-list.compon[37m...
+         ÔĽÁ              [32m~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~[0m
+
+
+[31mX [41;31m[[41;97mERROR[41;31m][0m [1mTS2339: Property 'newS
+tock' does not exist on type 'StockAdjustment'.[0m [1m[35m[plugin 
+angular-compiler][0m
+
+    src/app/features/inventory/adjustments-list-component/adjustments
+-list.component.html:120:53:
+[37m      120 Ôöé ...            <td class="text-right">{{ adjustmen
+t.[32mnewStock[37m }}</td>
+          ÔĽÁ                                                     [3
+2m~~~~~~~~[0m
+
+  Error occurs in the template of component AdjustmentsListComponent.
+
+    src/app/features/inventory/adjustments-list.component.ts:35:15:
+[37m      35 Ôöé ...plateUrl: [32m'./adjustments-list-component/adj
+ustments-list.compon[37m...
+         ÔĽÁ              [32m~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~[0m
+
+
+[31mX [41;31m[[41;97mERROR[41;31m][0m [1mNG8002: Can't bind to 
+'currentPage' since it isn't a known property of 'app-pagination'.
+1. If 'app-pagination' is an Angular component and it has 'currentPag
+e' input, then verify that it is included in the '@Component.imports'
+ of this component.
+2. If 'app-pagination' is a Web Component then add 'CUSTOM_ELEMENTS_S
+CHEMA' to the '@Component.schemas' of this component to suppress this
+ message.
+3. To allow any property add 'NO_ERRORS_SCHEMA' to the '@Component.sc
+hemas' of this component.[0m [1m[35m[plugin angular-compiler][0m
+
+    src/app/features/inventory/adjustments-list-component/adjustments
+-list.component.html:135:8:
+[37m      135 Ôöé         [32m[currentPage]="currentPage()"[37m
+          ÔĽÁ         [32m~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+
+  Error occurs in the template of component AdjustmentsListComponent.
+
+    src/app/features/inventory/adjustments-list.component.ts:35:15:
+[37m      35 Ôöé ...plateUrl: [32m'./adjustments-list-component/adj
+ustments-list.compon[37m...
+         ÔĽÁ              [32m~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~[0m
+
+
+[31mX [41;31m[[41;97mERROR[41;31m][0m [1mNG8002: Can't bind to 
+'pageSize' since it isn't a known property of 'app-pagination'.
+1. If 'app-pagination' is an Angular component and it has 'pageSize' 
+input, then verify that it is included in the '@Component.imports' of
+ this component.
+2. If 'app-pagination' is a Web Component then add 'CUSTOM_ELEMENTS_S
+CHEMA' to the '@Component.schemas' of this component to suppress this
+ message.
+3. To allow any property add 'NO_ERRORS_SCHEMA' to the '@Component.sc
+hemas' of this component.[0m [1m[35m[plugin angular-compiler][0m
+
+    src/app/features/inventory/adjustments-list-component/adjustments
+-list.component.html:136:8:
+[37m      136 Ôöé         [32m[pageSize]="pageSize()"[37m
+          ÔĽÁ         [32m~~~~~~~~~~~~~~~~~~~~~~~[0m
+
+  Error occurs in the template of component AdjustmentsListComponent.
+
+    src/app/features/inventory/adjustments-list.component.ts:35:15:
+[37m      35 Ôöé ...plateUrl: [32m'./adjustments-list-component/adj
+ustments-list.compon[37m...
+         ÔĽÁ              [32m~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~[0m
+
+
+[31mX [41;31m[[41;97mERROR[41;31m][0m [1mTS2531: Object is poss
+ibly 'null'.[0m [1m[35m[plugin angular-compiler][0m
+
+    src/app/features/tenders/tenders-list-component/tenders-list.comp
+onent.html:29:43:
+[37m      29 Ôöé         <div class="stat-value">{{ stats().[32mdra
+ftTenders[37m }}</div>
+         ÔĽÁ                                            [32m~~~~~~~~
+~~~~[0m
+
+  Error occurs in the template of component TendersListComponent.
+
+    src/app/features/tenders/tenders-list.component.ts:42:15:
+[37m      42 Ôöé ...mplateUrl: [32m'./tenders-list-component/tender
+s-list.component.html'[37m,
+         ÔĽÁ               [32m~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~[0m
+
+
+[31mX [41;31m[[41;97mERROR[41;31m][0m [1mTS2531: Object is poss
+ibly 'null'.[0m [1m[35m[plugin angular-compiler][0m
+
+    src/app/features/tenders/tenders-list-component/tenders-list.comp
+onent.html:42:43:
+[37m      42 Ôöé         <div class="stat-value">{{ stats().[32mope
+nTenders[37m }}</div>
+         ÔĽÁ                                            [32m~~~~~~~~
+~~~[0m
+
+  Error occurs in the template of component TendersListComponent.
+
+    src/app/features/tenders/tenders-list.component.ts:42:15:
+[37m      42 Ôöé ...mplateUrl: [32m'./tenders-list-component/tender
+s-list.component.html'[37m,
+         ÔĽÁ               [32m~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~[0m
+
+
+[31mX [41;31m[[41;97mERROR[41;31m][0m [1mTS2531: Object is poss
+ibly 'null'.[0m [1m[35m[plugin angular-compiler][0m
+
+    src/app/features/tenders/tenders-list-component/tenders-list.comp
+onent.html:55:43:
+[37m      55 Ôöé         <div class="stat-value">{{ stats().[32mawa
+rdedTenders[37m }}</div>
+         ÔĽÁ                                            [32m~~~~~~~~
+~~~~~~[0m
+
+  Error occurs in the template of component TendersListComponent.
+
+    src/app/features/tenders/tenders-list.component.ts:42:15:
+[37m      42 Ôöé ...mplateUrl: [32m'./tenders-list-component/tender
+s-list.component.html'[37m,
+         ÔĽÁ               [32m~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~[0m
+
+
+[31mX [41;31m[[41;97mERROR[41;31m][0m [1mTS2531: Object is poss
+ibly 'null'.[0m [1m[35m[plugin angular-compiler][0m
+
+    src/app/features/tenders/tenders-list-component/tenders-list.comp
+onent.html:68:43:
+[37m      68 Ôöé ...ss="stat-value">{{ stats().[32mtotalValue[37m 
+| currency:'BAM':'symbol'...
+         ÔĽÁ                               [32m~~~~~~~~~~[0m
+
+  Error occurs in the template of component TendersListComponent.
+
+    src/app/features/tenders/tenders-list.component.ts:42:15:
+[37m      42 Ôöé ...mplateUrl: [32m'./tenders-list-component/tender
+s-list.component.html'[37m,
+         ÔĽÁ               [32m~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~[0m
+
+[39m[22m

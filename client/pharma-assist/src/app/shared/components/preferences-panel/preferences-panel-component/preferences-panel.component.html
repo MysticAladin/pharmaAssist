@@ -1,0 +1,295 @@
+<div class="preferences-panel">
+  <!-- Appearance Section -->
+  <section class="pref-section">
+    <h3 class="section-title">
+      <span class="section-icon"></span>
+      {{ 'preferences.appearance.title' | translate }}
+    </h3>
+
+    <div class="pref-group">
+      <div class="pref-item">
+        <div class="pref-info">
+          <label>{{ 'preferences.appearance.theme' | translate }}</label>
+          <span class="pref-desc">{{ 'preferences.appearance.themeDesc' | translate }}</span>
+        </div>
+        <div class="pref-control">
+          <div class="theme-selector">
+            @for (option of themeOptions; track option.value) {
+              <button
+                class="theme-option"
+                [class.active]="preferencesService.theme() === option.value"
+                (click)="preferencesService.setTheme(option.value)"
+              >
+                <span class="theme-icon">{{ option.icon }}</span>
+                <span class="theme-label">{{ option.label | translate }}</span>
+              </button>
+            }
+          </div>
+        </div>
+      </div>
+
+      <div class="pref-item">
+        <div class="pref-info">
+          <label>{{ 'preferences.appearance.language' | translate }}</label>
+          <span class="pref-desc">{{ 'preferences.appearance.languageDesc' | translate }}</span>
+        </div>
+        <div class="pref-control">
+          <select
+            [ngModel]="preferencesService.language()"
+            (ngModelChange)="preferencesService.setLanguage($event)"
+          >
+            <option value="en">English</option>
+            <option value="bs">Bosanski</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="pref-item">
+        <div class="pref-info">
+          <label>{{ 'preferences.appearance.fontSize' | translate }}</label>
+          <span class="pref-desc">{{ 'preferences.appearance.fontSizeDesc' | translate }}</span>
+        </div>
+        <div class="pref-control">
+          <select
+            [ngModel]="preferencesService.fontSize()"
+            (ngModelChange)="preferencesService.setFontSize($event)"
+          >
+            <option value="small">{{ 'preferences.fontSize.small' | translate }}</option>
+            <option value="medium">{{ 'preferences.fontSize.medium' | translate }}</option>
+            <option value="large">{{ 'preferences.fontSize.large' | translate }}</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="pref-item">
+        <div class="pref-info">
+          <label>{{ 'preferences.appearance.compactMode' | translate }}</label>
+          <span class="pref-desc">{{ 'preferences.appearance.compactModeDesc' | translate }}</span>
+        </div>
+        <div class="pref-control">
+          <label class="toggle">
+            <input
+              type="checkbox"
+              [ngModel]="preferencesService.compactMode()"
+              (ngModelChange)="preferencesService.setCompactMode($event)"
+            />
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Notifications Section -->
+  <section class="pref-section">
+    <h3 class="section-title">
+      <span class="section-icon"></span>
+      {{ 'preferences.notifications.title' | translate }}
+    </h3>
+
+    <div class="pref-group">
+      <div class="pref-item">
+        <div class="pref-info">
+          <label>{{ 'preferences.notifications.email' | translate }}</label>
+          <span class="pref-desc">{{ 'preferences.notifications.emailDesc' | translate }}</span>
+        </div>
+        <div class="pref-control">
+          <label class="toggle">
+            <input
+              type="checkbox"
+              [ngModel]="preferencesService.notificationSettings().emailNotifications"
+              (ngModelChange)="updateNotification('emailNotifications', $event)"
+            />
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+      </div>
+
+      <div class="pref-item">
+        <div class="pref-info">
+          <label>{{ 'preferences.notifications.push' | translate }}</label>
+          <span class="pref-desc">{{ 'preferences.notifications.pushDesc' | translate }}</span>
+        </div>
+        <div class="pref-control">
+          <label class="toggle">
+            <input
+              type="checkbox"
+              [ngModel]="preferencesService.notificationSettings().pushNotifications"
+              (ngModelChange)="updateNotification('pushNotifications', $event)"
+            />
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+      </div>
+
+      <div class="pref-item">
+        <div class="pref-info">
+          <label>{{ 'preferences.notifications.sound' | translate }}</label>
+          <span class="pref-desc">{{ 'preferences.notifications.soundDesc' | translate }}</span>
+        </div>
+        <div class="pref-control">
+          <label class="toggle">
+            <input
+              type="checkbox"
+              [ngModel]="preferencesService.notificationSettings().soundEnabled"
+              (ngModelChange)="updateNotification('soundEnabled', $event)"
+            />
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+      </div>
+
+      <div class="pref-subsection">
+        <h4>{{ 'preferences.notifications.categories' | translate }}</h4>
+        @for (category of notificationCategories; track category.key) {
+          <div class="pref-item compact">
+            <div class="pref-info">
+              <label>{{ category.label | translate }}</label>
+            </div>
+            <div class="pref-control">
+              <label class="toggle small">
+                <input
+                  type="checkbox"
+                  [ngModel]="preferencesService.notificationSettings().categories[category.key]"
+                  (ngModelChange)="preferencesService.toggleNotificationCategory(category.key, $event)"
+                />
+                <span class="toggle-slider"></span>
+              </label>
+            </div>
+          </div>
+        }
+      </div>
+    </div>
+  </section>
+
+  <!-- Table Settings Section -->
+  <section class="pref-section">
+    <h3 class="section-title">
+      <span class="section-icon"></span>
+      {{ 'preferences.tables.title' | translate }}
+    </h3>
+
+    <div class="pref-group">
+      <div class="pref-item">
+        <div class="pref-info">
+          <label>{{ 'preferences.tables.pageSize' | translate }}</label>
+          <span class="pref-desc">{{ 'preferences.tables.pageSizeDesc' | translate }}</span>
+        </div>
+        <div class="pref-control">
+          <select
+            [ngModel]="preferencesService.tableSettings().defaultPageSize"
+            (ngModelChange)="preferencesService.setDefaultPageSize($event)"
+          >
+            <option [value]="10">10</option>
+            <option [value]="25">25</option>
+            <option [value]="50">50</option>
+            <option [value]="100">100</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="pref-item">
+        <div class="pref-info">
+          <label>{{ 'preferences.tables.striped' | translate }}</label>
+        </div>
+        <div class="pref-control">
+          <label class="toggle">
+            <input
+              type="checkbox"
+              [ngModel]="preferencesService.tableSettings().striped"
+              (ngModelChange)="updateTable('striped', $event)"
+            />
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+      </div>
+
+      <div class="pref-item">
+        <div class="pref-info">
+          <label>{{ 'preferences.tables.compact' | translate }}</label>
+        </div>
+        <div class="pref-control">
+          <label class="toggle">
+            <input
+              type="checkbox"
+              [ngModel]="preferencesService.tableSettings().compact"
+              (ngModelChange)="updateTable('compact', $event)"
+            />
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Accessibility Section -->
+  <section class="pref-section">
+    <h3 class="section-title">
+      <span class="section-icon"></span>
+      {{ 'preferences.accessibility.title' | translate }}
+    </h3>
+
+    <div class="pref-group">
+      <div class="pref-item">
+        <div class="pref-info">
+          <label>{{ 'preferences.accessibility.reduceMotion' | translate }}</label>
+          <span class="pref-desc">{{ 'preferences.accessibility.reduceMotionDesc' | translate }}</span>
+        </div>
+        <div class="pref-control">
+          <label class="toggle">
+            <input
+              type="checkbox"
+              [ngModel]="preferencesService.accessibilitySettings().reduceMotion"
+              (ngModelChange)="updateAccessibility('reduceMotion', $event)"
+            />
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+      </div>
+
+      <div class="pref-item">
+        <div class="pref-info">
+          <label>{{ 'preferences.accessibility.highContrast' | translate }}</label>
+          <span class="pref-desc">{{ 'preferences.accessibility.highContrastDesc' | translate }}</span>
+        </div>
+        <div class="pref-control">
+          <label class="toggle">
+            <input
+              type="checkbox"
+              [ngModel]="preferencesService.accessibilitySettings().highContrast"
+              (ngModelChange)="updateAccessibility('highContrast', $event)"
+            />
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+      </div>
+
+      <div class="pref-item">
+        <div class="pref-info">
+          <label>{{ 'preferences.accessibility.keyboardNav' | translate }}</label>
+          <span class="pref-desc">{{ 'preferences.accessibility.keyboardNavDesc' | translate }}</span>
+        </div>
+        <div class="pref-control">
+          <label class="toggle">
+            <input
+              type="checkbox"
+              [ngModel]="preferencesService.accessibilitySettings().keyboardNavigation"
+              (ngModelChange)="updateAccessibility('keyboardNavigation', $event)"
+            />
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Actions -->
+  <div class="pref-actions">
+    <button class="btn btn-secondary" (click)="resetPreferences()">
+      {{ 'preferences.reset' | translate }}
+    </button>
+    <button class="btn btn-secondary" (click)="exportPreferences()">
+      {{ 'preferences.export' | translate }}
+    </button>
+  </div>
+</div>

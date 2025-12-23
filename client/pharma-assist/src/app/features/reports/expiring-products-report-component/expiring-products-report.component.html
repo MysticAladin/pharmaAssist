@@ -1,0 +1,234 @@
+<div class="expiring-products-report">
+  <div class="page-header">
+    <div class="breadcrumb">
+      <a routerLink="/reports">{{ 'reports.title' | translate }}</a>
+      <span class="separator">/</span>
+      <span>{{ 'reports.expiring.title' | translate }}</span>
+    </div>
+    <div class="header-main">
+      <div class="header-content">
+        <h1 class="page-title">{{ 'reports.expiring.title' | translate }}</h1>
+        <p class="page-description">{{ 'reports.expiring.subtitle' | translate }}</p>
+      </div>
+      <div class="header-actions">
+        <button class="btn btn-secondary" (click)="exportReport()">
+          <i class="icon-download"></i>
+          {{ 'reports.actions.export' | translate }}
+        </button>
+        <button class="btn btn-primary" (click)="loadData()">
+          <i class="icon-refresh-cw"></i>
+          {{ 'reports.actions.refresh' | translate }}
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Alert Summary -->
+  <div class="alert-summary">
+    <div class="alert-card expired">
+      <div class="alert-icon">
+        <i class="icon-alert-octagon"></i>
+      </div>
+      <div class="alert-content">
+        <span class="alert-count">{{ expiredCount() }}</span>
+        <span class="alert-label">{{ 'reports.expiring.expired' | translate }}</span>
+      </div>
+      <div class="alert-value">{{ expiredValue() | currency:'BAM ':'symbol':'1.0-0' }}</div>
+    </div>
+    <div class="alert-card critical">
+      <div class="alert-icon">
+        <i class="icon-alert-triangle"></i>
+      </div>
+      <div class="alert-content">
+        <span class="alert-count">{{ criticalCount() }}</span>
+        <span class="alert-label">{{ 'reports.expiring.critical30' | translate }}</span>
+      </div>
+      <div class="alert-value">{{ criticalValue() | currency:'BAM ':'symbol':'1.0-0' }}</div>
+    </div>
+    <div class="alert-card warning">
+      <div class="alert-icon">
+        <i class="icon-clock"></i>
+      </div>
+      <div class="alert-content">
+        <span class="alert-count">{{ warningCount() }}</span>
+        <span class="alert-label">{{ 'reports.expiring.warning90' | translate }}</span>
+      </div>
+      <div class="alert-value">{{ warningValue() | currency:'BAM ':'symbol':'1.0-0' }}</div>
+    </div>
+    <div class="alert-card total">
+      <div class="alert-icon">
+        <i class="icon-package"></i>
+      </div>
+      <div class="alert-content">
+        <span class="alert-count">{{ totalAtRisk() }}</span>
+        <span class="alert-label">{{ 'reports.expiring.totalAtRisk' | translate }}</span>
+      </div>
+      <div class="alert-value">{{ totalRiskValue() | currency:'BAM ':'symbol':'1.0-0' }}</div>
+    </div>
+  </div>
+
+  <!-- Filters -->
+  <div class="filters-section">
+    <div class="filter-group">
+      <label>{{ 'reports.expiring.expiryRange' | translate }}</label>
+      <select [(ngModel)]="expiryRange" (change)="applyFilters()" class="form-select">
+        <option value="all">{{ 'reports.expiring.ranges.all' | translate }}</option>
+        <option value="expired">{{ 'reports.expiring.ranges.expired' | translate }}</option>
+        <option value="30">{{ 'reports.expiring.ranges.next30' | translate }}</option>
+        <option value="60">{{ 'reports.expiring.ranges.next60' | translate }}</option>
+        <option value="90">{{ 'reports.expiring.ranges.next90' | translate }}</option>
+        <option value="180">{{ 'reports.expiring.ranges.next180' | translate }}</option>
+      </select>
+    </div>
+    <div class="filter-group search">
+      <i class="icon-search"></i>
+      <input
+        type="text"
+        [(ngModel)]="searchTerm"
+        (input)="onSearchChange()"
+        [placeholder]="'reports.expiring.searchPlaceholder' | translate"
+        class="form-control">
+    </div>
+    <div class="filter-group">
+      <label>{{ 'reports.expiring.sortBy' | translate }}</label>
+      <select [(ngModel)]="sortBy" (change)="applyFilters()" class="form-select">
+        <option value="daysAsc">{{ 'reports.expiring.sort.daysAsc' | translate }}</option>
+        <option value="daysDesc">{{ 'reports.expiring.sort.daysDesc' | translate }}</option>
+        <option value="valueDesc">{{ 'reports.expiring.sort.valueDesc' | translate }}</option>
+        <option value="quantityDesc">{{ 'reports.expiring.sort.quantityDesc' | translate }}</option>
+      </select>
+    </div>
+  </div>
+
+  <!-- Products Table -->
+  <div class="table-section">
+    @if (loading()) {
+      <div class="loading-container">
+        <div class="spinner"></div>
+        <span>{{ 'common.loading' | translate }}</span>
+      </div>
+    } @else if (filteredProducts().length === 0) {
+      <app-empty-state
+        icon="check-circle"
+        [title]="'reports.expiring.noProducts' | translate"
+        [description]="'reports.expiring.noProductsDescription' | translate">
+      </app-empty-state>
+    } @else {
+      <div class="table-container">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>{{ 'reports.expiring.columns.product' | translate }}</th>
+              <th>{{ 'reports.expiring.columns.batch' | translate }}</th>
+              <th>{{ 'reports.expiring.columns.expiryDate' | translate }}</th>
+              <th class="text-center">{{ 'reports.expiring.columns.daysLeft' | translate }}</th>
+              <th class="text-right">{{ 'reports.expiring.columns.quantity' | translate }}</th>
+              <th>{{ 'reports.expiring.columns.location' | translate }}</th>
+              <th class="text-right">{{ 'reports.expiring.columns.value' | translate }}</th>
+              <th class="text-center">{{ 'common.status' | translate }}</th>
+              <th class="text-center">{{ 'common.actions' | translate }}</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (product of paginatedProducts(); track product.id) {
+              <tr [class.expired-row]="product.status === 'expired'">
+                <td>
+                  <div class="product-info">
+                    <span class="product-name">{{ product.productName }}</span>
+                    <span class="product-sku">{{ product.productSku }}</span>
+                  </div>
+                </td>
+                <td class="batch-number">{{ product.batchNumber }}</td>
+                <td>{{ product.expiryDate | date:'mediumDate' }}</td>
+                <td class="text-center">
+                  <span class="days-badge" [class]="'days-' + product.status">
+                    @if (product.daysUntilExpiry < 0) {
+                      {{ 'reports.expiring.expiredDaysAgo' | translate:{ days: Math.abs(product.daysUntilExpiry) } }}
+                    } @else if (product.daysUntilExpiry === 0) {
+                      {{ 'reports.expiring.today' | translate }}
+                    } @else {
+                      {{ product.daysUntilExpiry }} {{ 'common.days' | translate }}
+                    }
+                  </span>
+                </td>
+                <td class="text-right">{{ product.quantity | number }}</td>
+                <td>{{ product.location }}</td>
+                <td class="text-right value">{{ product.value | currency:'BAM ':'symbol':'1.2-2' }}</td>
+                <td class="text-center">
+                  <app-status-badge
+                    [variant]="getStatusVariant(product.status)"
+                    [label]="'reports.expiring.statuses.' + product.status | translate">
+                  </app-status-badge>
+                </td>
+                <td class="text-center">
+                  <div class="action-buttons">
+                    <button
+                      class="btn btn-icon btn-sm"
+                      [title]="'reports.expiring.actions.transfer' | translate"
+                      (click)="createTransfer(product)">
+                      <i class="icon-arrow-right-circle"></i>
+                    </button>
+                    <button
+                      class="btn btn-icon btn-sm"
+                      [title]="'reports.expiring.actions.adjust' | translate"
+                      (click)="createAdjustment(product)">
+                      <i class="icon-edit-3"></i>
+                    </button>
+                    @if (product.status === 'expired') {
+                      <button
+                        class="btn btn-icon btn-sm danger"
+                        [title]="'reports.expiring.actions.writeOff' | translate"
+                        (click)="writeOff(product)">
+                        <i class="icon-trash-2"></i>
+                      </button>
+                    }
+                  </div>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+
+      <app-pagination
+        [page]="currentPage()"
+        [size]="pageSize()"
+        [totalItems]="filteredProducts().length"
+        (pageChange)="onPageChange($event)">
+      </app-pagination>
+    }
+  </div>
+
+  <!-- Recommendations Section -->
+  @if (!loading() && hasExpiredOrCritical()) {
+    <div class="recommendations-section">
+      <h3>{{ 'reports.expiring.recommendations.title' | translate }}</h3>
+      <div class="recommendations-list">
+        @if (expiredCount() > 0) {
+          <div class="recommendation expired">
+            <i class="icon-alert-octagon"></i>
+            <div class="recommendation-content">
+              <strong>{{ 'reports.expiring.recommendations.expired.title' | translate }}</strong>
+              <p>{{ 'reports.expiring.recommendations.expired.description' | translate:{ count: expiredCount() } }}</p>
+            </div>
+            <button class="btn btn-sm btn-danger" (click)="writeOffAllExpired()">
+              {{ 'reports.expiring.recommendations.expired.action' | translate }}
+            </button>
+          </div>
+        }
+        @if (criticalCount() > 0) {
+          <div class="recommendation critical">
+            <i class="icon-alert-triangle"></i>
+            <div class="recommendation-content">
+              <strong>{{ 'reports.expiring.recommendations.critical.title' | translate }}</strong>
+              <p>{{ 'reports.expiring.recommendations.critical.description' | translate:{ count: criticalCount() } }}</p>
+            </div>
+            <button class="btn btn-sm btn-warning" (click)="prioritizeForSale()">
+              {{ 'reports.expiring.recommendations.critical.action' | translate }}
+            </button>
+          </div>
+        }
+      </div>
+    </div>
+  }
+</div>

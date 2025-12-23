@@ -1,0 +1,17 @@
+<div class="error-page">
+  <div class="error-content">
+    <div class="error-code">404</div>
+    <h1>Stranica nije pronađena</h1>
+    <p>Stranica koju tražite ne postoji ili je premještena.</p>
+    <div class="error-actions">
+      <a routerLink="/dashboard" class="btn btn-primary">
+        <i class="icon-home"></i>
+        Nazad na kontrolnu ploču
+      </a>
+      <button type="button" class="btn btn-secondary" (click)="goBack()">
+        <i class="icon-arrow-left"></i>
+        Vrati se nazad
+      </button>
+    </div>
+  </div>
+</div>

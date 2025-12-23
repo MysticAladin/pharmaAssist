@@ -1,0 +1,79 @@
+<div class="pagination-container">
+  <div class="pagination-info">
+    <span class="showing-text">
+      {{ 'common.showing' | translate }}
+      <strong>{{ startItem() }}</strong> - <strong>{{ endItem() }}</strong>
+      {{ 'common.of' | translate }}
+      <strong>{{ total() }}</strong>
+    </span>
+  </div>
+
+  <div class="pagination-controls">
+    <div class="page-size-selector">
+      <label>{{ 'common.perPage' | translate }}:</label>
+      <select [ngModel]="pageSize()" (ngModelChange)="onPageSizeChange($event)">
+        @for (size of pageSizeOptions(); track size) {
+          <option [value]="size">{{ size }}</option>
+        }
+      </select>
+    </div>
+
+    <div class="page-buttons">
+      <button
+        class="page-btn"
+        [disabled]="currentPage() === 1"
+        (click)="goToPage(1)"
+        title="First page"
+      >
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="m11 17-5-5 5-5M18 17l-5-5 5-5"/>
+        </svg>
+      </button>
+      <button
+        class="page-btn"
+        [disabled]="currentPage() === 1"
+        (click)="goToPage(currentPage() - 1)"
+        title="Previous page"
+      >
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="m15 18-6-6 6-6"/>
+        </svg>
+      </button>
+
+      @for (page of visiblePages(); track page) {
+        @if (page === '...') {
+          <span class="ellipsis">...</span>
+        } @else {
+          <button
+            class="page-btn page-number"
+            [class.active]="page === currentPage()"
+            (click)="goToPage(+page)"
+          >
+            {{ page }}
+          </button>
+        }
+      }
+
+      <button
+        class="page-btn"
+        [disabled]="currentPage() === totalPages()"
+        (click)="goToPage(currentPage() + 1)"
+        title="Next page"
+      >
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="m9 18 6-6-6-6"/>
+        </svg>
+      </button>
+      <button
+        class="page-btn"
+        [disabled]="currentPage() === totalPages()"
+        (click)="goToPage(totalPages())"
+        title="Last page"
+      >
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="m6 17 5-5-5-5M13 17l5-5-5-5"/>
+        </svg>
+      </button>
+    </div>
+  </div>
+</div>

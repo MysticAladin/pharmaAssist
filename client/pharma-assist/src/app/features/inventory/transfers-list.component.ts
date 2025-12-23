@@ -63,9 +63,6 @@ export class TransfersListComponent implements OnInit {
     this.loadLocations();
     this.loadTransfers();
   }
-    this.loadLocations();
-    this.loadTransfers();
-  }
 
   loadLocations(): void {
     this.inventoryService.getActiveLocations().subscribe({

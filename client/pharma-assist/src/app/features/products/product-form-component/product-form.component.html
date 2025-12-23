@@ -1,0 +1,237 @@
+<div class="product-form-page">
+  <!-- Header -->
+  <div class="page-header">
+    <div class="breadcrumb">
+      <a routerLink="/products">{{ 'products.title' | translate }}</a>
+      <span class="separator">/</span>
+      <span>{{ isEditMode() ? ('products.form.editProduct' | translate) : ('products.form.addProduct' | translate) }}</span>
+    </div>
+    <div class="header-main">
+      <h1 class="page-title">{{ isEditMode() ? ('products.form.editProduct' | translate) : ('products.form.addProduct' | translate) }}</h1>
+      <div class="header-actions">
+        <button type="button" class="btn-secondary" routerLink="/products">
+          {{ 'common.cancel' | translate }}
+        </button>
+        <button type="button" class="btn-primary" (click)="save()" [disabled]="saving()">
+          @if (saving()) {
+            <span class="spinner"></span>
+          }
+          {{ 'common.save' | translate }}
+        </button>
+      </div>
+    </div>
+  </div>
+
+  @if (loading()) {
+    <div class="loading-container">
+      <div class="loading-spinner"></div>
+      <p>{{ 'common.loading' | translate }}</p>
+    </div>
+  } @else {
+    <form class="form-container" (ngSubmit)="save()">
+      <!-- Basic Information -->
+      <section class="form-section">
+        <h2 class="section-title">{{ 'products.form.basicInfo' | translate }}</h2>
+        <div class="form-grid">
+          <div class="form-group">
+            <label for="name">{{ 'products.form.name' | translate }} *</label>
+            <input type="text" id="name" [(ngModel)]="form.name" name="name" required
+                   [placeholder]="'products.form.namePlaceholder' | translate">
+          </div>
+          <div class="form-group">
+            <label for="nameLocal">{{ 'products.form.nameLocal' | translate }} *</label>
+            <input type="text" id="nameLocal" [(ngModel)]="form.nameLocal" name="nameLocal" required
+                   [placeholder]="'products.form.nameLocalPlaceholder' | translate">
+          </div>
+          <div class="form-group">
+            <label for="genericName">{{ 'products.form.genericName' | translate }}</label>
+            <input type="text" id="genericName" [(ngModel)]="form.genericName" name="genericName"
+                   [placeholder]="'products.form.genericNamePlaceholder' | translate">
+          </div>
+          <div class="form-group">
+            <label for="sku">{{ 'products.form.sku' | translate }} *</label>
+            <input type="text" id="sku" [(ngModel)]="form.sku" name="sku" required
+                   [placeholder]="'products.form.skuPlaceholder' | translate">
+          </div>
+          <div class="form-group">
+            <label for="barcode">{{ 'products.form.barcode' | translate }}</label>
+            <input type="text" id="barcode" [(ngModel)]="form.barcode" name="barcode"
+                   placeholder="1234567890123">
+          </div>
+          <div class="form-group">
+            <label for="atcCode">{{ 'products.form.atcCode' | translate }}</label>
+            <input type="text" id="atcCode" [(ngModel)]="form.atcCode" name="atcCode"
+                   placeholder="A01AA01">
+          </div>
+          <div class="form-group full-width">
+            <label for="description">{{ 'products.form.description' | translate }}</label>
+            <textarea id="description" [(ngModel)]="form.description" name="description" rows="3"
+                      [placeholder]="'products.form.descriptionPlaceholder' | translate"></textarea>
+          </div>
+          <div class="form-group full-width">
+            <label for="descriptionLocal">{{ 'products.form.descriptionLocal' | translate }}</label>
+            <textarea id="descriptionLocal" [(ngModel)]="form.descriptionLocal" name="descriptionLocal" rows="3"
+                      [placeholder]="'products.form.descriptionLocalPlaceholder' | translate"></textarea>
+          </div>
+        </div>
+      </section>
+
+      <!-- Classification -->
+      <section class="form-section">
+        <h2 class="section-title">{{ 'products.form.classification' | translate }}</h2>
+        <div class="form-grid">
+          <div class="form-group">
+            <label for="categoryId">{{ 'products.form.category' | translate }} *</label>
+            <select id="categoryId" [(ngModel)]="form.categoryId" name="categoryId" required>
+              <option [ngValue]="null">{{ 'products.form.selectCategory' | translate }}</option>
+              @for (category of categories(); track category.id) {
+                <option [ngValue]="category.id">{{ category.name }}</option>
+              }
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="manufacturerId">{{ 'products.form.manufacturer' | translate }} *</label>
+            <select id="manufacturerId" [(ngModel)]="form.manufacturerId" name="manufacturerId" required>
+              <option [ngValue]="null">{{ 'products.form.selectManufacturer' | translate }}</option>
+              @for (mfr of manufacturers(); track mfr.id) {
+                <option [ngValue]="mfr.id">{{ mfr.name }}</option>
+              }
+            </select>
+          </div>
+        </div>
+      </section>
+
+      <!-- Pharmaceutical Details -->
+      <section class="form-section">
+        <h2 class="section-title">{{ 'products.form.pharmaDetails' | translate }}</h2>
+        <div class="form-grid">
+          <div class="form-group">
+            <label for="dosageForm">{{ 'products.form.dosageForm' | translate }}</label>
+            <select id="dosageForm" [(ngModel)]="form.dosageForm" name="dosageForm">
+              <option value="">{{ 'products.form.selectDosageForm' | translate }}</option>
+              <option value="Tablet">{{ 'products.dosageForms.tablet' | translate }}</option>
+              <option value="Capsule">{{ 'products.dosageForms.capsule' | translate }}</option>
+              <option value="Syrup">{{ 'products.dosageForms.syrup' | translate }}</option>
+              <option value="Injection">{{ 'products.dosageForms.injection' | translate }}</option>
+              <option value="Cream">{{ 'products.dosageForms.cream' | translate }}</option>
+              <option value="Ointment">{{ 'products.dosageForms.ointment' | translate }}</option>
+              <option value="Drops">{{ 'products.dosageForms.drops' | translate }}</option>
+              <option value="Inhaler">{{ 'products.dosageForms.inhaler' | translate }}</option>
+              <option value="Powder">{{ 'products.dosageForms.powder' | translate }}</option>
+              <option value="Suppository">{{ 'products.dosageForms.suppository' | translate }}</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="strength">{{ 'products.form.strength' | translate }}</label>
+            <input type="text" id="strength" [(ngModel)]="form.strength" name="strength"
+                   placeholder="500mg">
+          </div>
+          <div class="form-group">
+            <label for="packageSize">{{ 'products.form.packageSize' | translate }}</label>
+            <input type="text" id="packageSize" [(ngModel)]="form.packageSize" name="packageSize"
+                   placeholder="30 tablets">
+          </div>
+          <div class="form-group checkbox-group">
+            <label class="checkbox-label">
+              <input type="checkbox" [(ngModel)]="form.requiresPrescription" name="requiresPrescription">
+              <span>{{ 'products.form.requiresPrescription' | translate }}</span>
+            </label>
+          </div>
+          <div class="form-group checkbox-group">
+            <label class="checkbox-label">
+              <input type="checkbox" [(ngModel)]="form.isControlled" name="isControlled">
+              <span>{{ 'products.form.isControlled' | translate }}</span>
+            </label>
+          </div>
+        </div>
+      </section>
+
+      <!-- Pricing -->
+      <section class="form-section">
+        <h2 class="section-title">{{ 'products.form.pricing' | translate }}</h2>
+        <div class="form-grid">
+          <div class="form-group">
+            <label for="unitPrice">{{ 'products.form.unitPrice' | translate }} (KM) *</label>
+            <input type="number" id="unitPrice" [(ngModel)]="form.unitPrice" name="unitPrice" required
+                   step="0.01" min="0" placeholder="0.00">
+          </div>
+          <div class="form-group">
+            <label for="costPrice">{{ 'products.form.costPrice' | translate }} (KM)</label>
+            <input type="number" id="costPrice" [(ngModel)]="form.costPrice" name="costPrice"
+                   step="0.01" min="0" placeholder="0.00">
+          </div>
+          <div class="form-group">
+            <label for="taxRate">{{ 'products.form.taxRate' | translate }} (%)</label>
+            <input type="number" id="taxRate" [(ngModel)]="form.taxRate" name="taxRate"
+                   step="0.01" min="0" max="100" placeholder="17">
+          </div>
+          @if (form.unitPrice && form.costPrice) {
+            <div class="form-group">
+              <label>{{ 'products.form.margin' | translate }}</label>
+              <div class="calculated-value">{{ calculateMargin() | number:'1.2-2' }}%</div>
+            </div>
+          }
+        </div>
+      </section>
+
+      <!-- Inventory -->
+      <section class="form-section">
+        <h2 class="section-title">{{ 'products.form.inventory' | translate }}</h2>
+        <div class="form-grid">
+          <div class="form-group">
+            <label for="reorderLevel">{{ 'products.form.reorderLevel' | translate }} *</label>
+            <input type="number" id="reorderLevel" [(ngModel)]="form.reorderLevel" name="reorderLevel" required
+                   min="0" placeholder="10">
+          </div>
+          <div class="form-group">
+            <label for="reorderQuantity">{{ 'products.form.reorderQuantity' | translate }} *</label>
+            <input type="number" id="reorderQuantity" [(ngModel)]="form.reorderQuantity" name="reorderQuantity" required
+                   min="0" placeholder="50">
+          </div>
+        </div>
+      </section>
+
+      <!-- Image & Status -->
+      <section class="form-section">
+        <h2 class="section-title">{{ 'products.form.imageStatus' | translate }}</h2>
+        <div class="form-grid">
+          <div class="form-group full-width">
+            <label for="imageUrl">{{ 'products.form.imageUrl' | translate }}</label>
+            <input type="url" id="imageUrl" [(ngModel)]="form.imageUrl" name="imageUrl"
+                   placeholder="https://example.com/image.jpg">
+            @if (form.imageUrl) {
+              <div class="image-preview">
+                <img [src]="form.imageUrl" alt="Product preview" (error)="onImageError($event)">
+              </div>
+            }
+          </div>
+          <div class="form-group checkbox-group">
+            <label class="checkbox-label">
+              <input type="checkbox" [(ngModel)]="form.isActive" name="isActive">
+              <span>{{ 'products.form.isActive' | translate }}</span>
+            </label>
+          </div>
+          <div class="form-group checkbox-group">
+            <label class="checkbox-label">
+              <input type="checkbox" [(ngModel)]="form.isFeatured" name="isFeatured">
+              <span>{{ 'products.form.isFeatured' | translate }}</span>
+            </label>
+          </div>
+        </div>
+      </section>
+
+      <!-- Form Actions (Mobile) -->
+      <div class="form-actions-mobile">
+        <button type="button" class="btn-secondary" routerLink="/products">
+          {{ 'common.cancel' | translate }}
+        </button>
+        <button type="submit" class="btn-primary" [disabled]="saving()">
+          @if (saving()) {
+            <span class="spinner"></span>
+          }
+          {{ 'common.save' | translate }}
+        </button>
+      </div>
+    </form>
+  }
+</div>

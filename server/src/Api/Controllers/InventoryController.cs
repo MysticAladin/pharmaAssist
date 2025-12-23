@@ -165,7 +165,7 @@ public class InventoryController : ControllerBase
 
                 if (lowStockOnly == true)
                 {
-                    stockList = stockList.Where(s => s.AvailableQuantity <= s.ReorderLevel).ToList();
+                    stockList = stockList.Where(s => s.QuantityAvailable <= s.ReorderPoint).ToList();
                 }
 
                 // Simple pagination
@@ -178,7 +178,7 @@ public class InventoryController : ControllerBase
                 return Ok(new PagedResponse<InventoryStockDto>
                 {
                     Data = items,
-                    Page = page,
+                    CurrentPage = page,
                     PageSize = pageSize,
                     TotalCount = totalCount,
                     TotalPages = (int)Math.Ceiling(totalCount / (double)pageSize),
@@ -191,7 +191,7 @@ public class InventoryController : ControllerBase
         return Ok(new PagedResponse<InventoryStockDto>
         {
             Data = new List<InventoryStockDto>(),
-            Page = page,
+            CurrentPage = page,
             PageSize = pageSize,
             TotalCount = 0,
             TotalPages = 0,

@@ -1,0 +1,350 @@
+﻿<div class="customer-detail-page">
+  @if (loading()) {
+    <div class="loading-container">
+      <div class="spinner"></div>
+      <span>{{ 'common.loading' | translate }}</span>
+    </div>
+  } @else if (!customer()) {
+    <app-empty-state
+      icon="user-x"
+      [title]="'customers.notFound' | translate"
+      [description]="'customers.notFoundDescription' | translate"
+      [actionLabel]="'common.goBack' | translate"
+      (action)="goBack()">
+    </app-empty-state>
+  } @else {
+    <!-- Header -->
+    <header class="page-header">
+      <div class="header-content">
+        <div class="header-left">
+          <button class="btn btn-icon" (click)="goBack()">
+            <i class="icon-arrow-left"></i>
+          </button>
+          <div class="customer-header-info">
+            <h1>{{ customer()!.name }}</h1>
+            <div class="customer-meta">
+              <span class="customer-code">{{ customer()!.customerCode }}</span>
+              <app-status-badge
+                [variant]="customer()!.isActive ? 'success' : 'danger'"
+                [label]="(customer()!.isActive ? 'common.active' : 'common.inactive') | translate">
+              </app-status-badge>
+            </div>
+          </div>
+        </div>
+        <div class="header-actions">
+          <button class="btn btn-secondary" [routerLink]="['/customers', customer()!.id, 'edit']">
+            <i class="icon-edit"></i>
+            {{ 'common.edit' | translate }}
+          </button>
+          <button class="btn btn-primary" [routerLink]="['/orders/new']" [queryParams]="{customerId: customer()!.id}">
+            <i class="icon-shopping-cart"></i>
+            {{ 'customers.createOrder' | translate }}
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <!-- Content Grid -->
+    <div class="content-grid">
+      <!-- Customer Info Card -->
+      <section class="card info-card">
+        <div class="card-header">
+          <h2>{{ 'customers.details.info' | translate }}</h2>
+        </div>
+        <div class="card-body">
+          <dl class="info-list">
+            <div class="info-item">
+              <dt><i class="icon-building"></i>{{ 'customers.name' | translate }}</dt>
+              <dd>{{ customer()!.name }}</dd>
+            </div>
+            <div class="info-item">
+              <dt><i class="icon-hash"></i>{{ 'customers.code' | translate }}</dt>
+              <dd>{{ customer()!.customerCode }}</dd>
+            </div>
+            <div class="info-item">
+              <dt><i class="icon-mail"></i>{{ 'customers.email' | translate }}</dt>
+              <dd>
+                @if (customer()!.email) {
+                  <a [href]="'mailto:' + customer()!.email">{{ customer()!.email }}</a>
+                } @else {
+                  <span class="text-muted">-</span>
+                }
+              </dd>
+            </div>
+            <div class="info-item">
+              <dt><i class="icon-phone"></i>{{ 'customers.phone' | translate }}</dt>
+              <dd>{{ customer()!.phone || '-' }}</dd>
+            </div>
+            <div class="info-item">
+              <dt><i class="icon-map-pin"></i>{{ 'customers.address' | translate }}</dt>
+              <dd>{{ getFullAddress() || '-' }}</dd>
+            </div>
+            <div class="info-item">
+              <dt><i class="icon-file-text"></i>{{ 'customers.taxId' | translate }}</dt>
+              <dd>{{ customer()!.taxId || '-' }}</dd>
+            </div>
+            <div class="info-item">
+              <dt><i class="icon-tag"></i>{{ 'customers.type' | translate }}</dt>
+              <dd>
+                <span class="badge badge-{{ getTypeClass(customer()!.customerTypeName) }}">
+                  {{ customer()!.customerTypeName }}
+                </span>
+              </dd>
+            </div>
+            <div class="info-item">
+              <dt><i class="icon-calendar"></i>{{ 'customers.createdAt' | translate }}</dt>
+              <dd>{{ customer()!.createdAt | date:'mediumDate' }}</dd>
+            </div>
+          </dl>
+        </div>
+      </section>
+
+      <!-- Credit & Payment Info -->
+      <section class="card credit-card">
+        <div class="card-header">
+          <h2>{{ 'customers.details.credit' | translate }}</h2>
+        </div>
+        <div class="card-body">
+          <div class="credit-stats">
+            <div class="stat-item">
+              <span class="stat-label">{{ 'customers.creditLimit' | translate }}</span>
+              <span class="stat-value">{{ customer()!.creditLimit | currency:'BAM ':'symbol':'1.2-2' }}</span>
+            </div>
+            <div class="stat-item">
+              <span class="stat-label">{{ 'customers.currentBalance' | translate }}</span>
+              <span class="stat-value" [class.text-danger]="customer()!.currentBalance > 0">
+                {{ customer()!.currentBalance | currency:'BAM ':'symbol':'1.2-2' }}
+              </span>
+            </div>
+            <div class="stat-item">
+              <span class="stat-label">{{ 'customers.availableCredit' | translate }}</span>
+              <span class="stat-value text-success">
+                {{ availableCredit() | currency:'BAM ':'symbol':'1.2-2' }}
+              </span>
+            </div>
+            <div class="stat-item">
+              <span class="stat-label">{{ 'customers.form.paymentTerms' | translate }}</span>
+              <span class="stat-value">{{ customer()!.paymentTermDays }} {{ 'common.days' | translate }}</span>
+            </div>
+          </div>
+
+          <div class="credit-bar">
+            <div class="credit-bar-label">
+              <span>{{ 'customers.creditUtilization' | translate }}</span>
+              <span>{{ creditUtilization() | number:'1.0-1' }}%</span>
+            </div>
+            <div class="credit-bar-track">
+              <div
+                class="credit-bar-fill"
+                [style.width.%]="creditUtilization()"
+                [class.warning]="creditUtilization() >= 75 && creditUtilization() < 90"
+                [class.danger]="creditUtilization() >= 90">
+              </div>
+            </div>
+          </div>
+
+          <div class="payment-methods">
+            <h4>{{ 'customers.preferredPayment' | translate }}</h4>
+            <div class="payment-badges">
+              @if (customer()!.acceptsInvoice) {
+                <span class="payment-badge">
+                  <i class="icon-file-text"></i>
+                  {{ 'payments.methods.invoice' | translate }}
+                </span>
+              }
+              @if (customer()!.acceptsBankTransfer) {
+                <span class="payment-badge">
+                  <i class="icon-building"></i>
+                  {{ 'payments.methods.bankTransfer' | translate }}
+                </span>
+              }
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Order History -->
+      <section class="card orders-card">
+        <div class="card-header">
+          <h2>{{ 'customers.details.orderHistory' | translate }}</h2>
+          <button class="btn btn-text" [routerLink]="['/orders']" [queryParams]="{customerId: customer()!.id}">
+            {{ 'common.viewAll' | translate }}
+            <i class="icon-arrow-right"></i>
+          </button>
+        </div>
+        <div class="card-body">
+          @if (loadingOrders()) {
+            <div class="loading-container small">
+              <div class="spinner"></div>
+            </div>
+          } @else if (orders().length === 0) {
+            <div class="empty-orders">
+              <i class="icon-shopping-bag"></i>
+              <p>{{ 'customers.noOrders' | translate }}</p>
+            </div>
+          } @else {
+            <div class="orders-table">
+              <table>
+                <thead>
+                  <tr>
+                    <th>{{ 'orders.orderNumber' | translate }}</th>
+                    <th>{{ 'orders.date' | translate }}</th>
+                    <th>{{ 'orders.total' | translate }}</th>
+                    <th>{{ 'common.status' | translate }}</th>
+                    <th></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  @for (order of orders(); track order.id) {
+                    <tr>
+                      <td class="order-number">{{ order.orderNumber }}</td>
+                      <td>{{ order.orderDate | date:'shortDate' }}</td>
+                      <td class="order-total">{{ order.totalAmount | currency:'BAM ':'symbol':'1.2-2' }}</td>
+                      <td>
+                        <app-status-badge
+                          [variant]="getOrderStatusVariant(order.status.toString())"
+                          [label]="'orders.statuses.' + getStatusName(order.status) | translate">
+                        </app-status-badge>
+                      </td>
+                      <td>
+                        <button class="btn btn-icon btn-sm" [routerLink]="['/orders', order.id]">
+                          <i class="icon-eye"></i>
+                        </button>
+                      </td>
+                    </tr>
+                  }
+                </tbody>
+              </table>
+            </div>
+
+            @if (ordersTotalItems() > 5) {
+              <app-pagination
+                [page]="ordersPage()"
+                [size]="5"
+                [totalItems]="ordersTotalItems()"
+                (pageChange)="onOrdersPageChange($event)">
+              </app-pagination>
+            }
+          }
+        </div>
+      </section>
+
+      <!-- Notes Section -->
+      <section class="card notes-card">
+        <div class="card-header">
+          <h2>{{ 'customers.details.notes' | translate }}</h2>
+          <button class="btn btn-sm btn-primary" (click)="showNoteForm.set(true)" *ngIf="!showNoteForm()">
+            <i class="icon-plus"></i>
+            {{ 'customers.addNote' | translate }}
+          </button>
+        </div>
+        <div class="card-body">
+          @if (showNoteForm()) {
+            <div class="note-form">
+              <textarea
+                [(ngModel)]="newNoteContent"
+                [placeholder]="'customers.notePlaceholder' | translate"
+                class="form-control"
+                rows="3">
+              </textarea>
+              <div class="note-form-actions">
+                <button class="btn btn-secondary btn-sm" (click)="cancelNote()">
+                  {{ 'common.cancel' | translate }}
+                </button>
+                <button
+                  class="btn btn-primary btn-sm"
+                  (click)="saveNote()"
+                  [disabled]="!newNoteContent.trim() || savingNote()">
+                  @if (savingNote()) {
+                    <span class="spinner-sm"></span>
+                  }
+                  {{ 'common.save' | translate }}
+                </button>
+              </div>
+            </div>
+          }
+
+          @if (loadingNotes()) {
+            <div class="loading-container small">
+              <div class="spinner"></div>
+            </div>
+          } @else if (notes().length === 0) {
+            <div class="empty-notes">
+              <i class="icon-message-square"></i>
+              <p>{{ 'customers.noNotes' | translate }}</p>
+            </div>
+          } @else {
+            <div class="notes-list">
+              @for (note of notes(); track note.id) {
+                <div class="note-item">
+                  <div class="note-header">
+                    <span class="note-author">{{ note.createdByName }}</span>
+                    <span class="note-date">{{ note.createdAt | date:'medium' }}</span>
+                    <button
+                      class="btn btn-icon btn-sm danger"
+                      (click)="deleteNote(note)"
+                      [title]="'common.delete' | translate">
+                      <i class="icon-trash-2"></i>
+                    </button>
+                  </div>
+                  <p class="note-content">{{ note.content }}</p>
+                </div>
+              }
+            </div>
+          }
+        </div>
+      </section>
+
+      <!-- Activity Summary -->
+      <section class="card activity-card">
+        <div class="card-header">
+          <h2>{{ 'customers.details.activitySummary' | translate }}</h2>
+        </div>
+        <div class="card-body">
+          <div class="activity-stats">
+            <div class="activity-item">
+              <div class="activity-icon orders">
+                <i class="icon-shopping-cart"></i>
+              </div>
+              <div class="activity-info">
+                <span class="activity-value">{{ orderStats().totalOrders }}</span>
+                <span class="activity-label">{{ 'customers.totalOrders' | translate }}</span>
+              </div>
+            </div>
+            <div class="activity-item">
+              <div class="activity-icon revenue">
+                <i class="icon-dollar-sign"></i>
+              </div>
+              <div class="activity-info">
+                <span class="activity-value">{{ orderStats().totalRevenue | currency:'BAM ':'symbol':'1.0-0' }}</span>
+                <span class="activity-label">{{ 'customers.totalRevenue' | translate }}</span>
+              </div>
+            </div>
+            <div class="activity-item">
+              <div class="activity-icon average">
+                <i class="icon-trending-up"></i>
+              </div>
+              <div class="activity-info">
+                <span class="activity-value">{{ orderStats().averageOrderValue | currency:'BAM ':'symbol':'1.0-0' }}</span>
+                <span class="activity-label">{{ 'customers.avgOrderValue' | translate }}</span>
+              </div>
+            </div>
+            <div class="activity-item">
+              <div class="activity-icon last-order">
+                <i class="icon-clock"></i>
+              </div>
+              <div class="activity-info">
+                @if (orderStats().lastOrderDate) {
+                  <span class="activity-value">{{ orderStats().lastOrderDate | date:'shortDate' }}</span>
+                } @else {
+                  <span class="activity-value">-</span>
+                }
+                <span class="activity-label">{{ 'customers.lastOrder' | translate }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+  }
+</div>

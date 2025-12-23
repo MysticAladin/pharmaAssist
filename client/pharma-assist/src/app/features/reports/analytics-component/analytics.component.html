@@ -1,0 +1,129 @@
+<div class="analytics">
+  <div class="page-header">
+    <div class="breadcrumb">
+      <a routerLink="/reports">{{ 'reports.title' | translate }}</a>
+      <span class="separator">/</span>
+      <span>{{ 'reports.analytics.title' | translate }}</span>
+    </div>
+    <div class="header-main">
+      <div class="header-content">
+        <h1 class="page-title">{{ 'reports.analytics.title' | translate }}</h1>
+        <p class="page-description">{{ 'reports.analytics.subtitle' | translate }}</p>
+      </div>
+      <div class="header-actions">
+        <div class="period-selector">
+          <button [class.active]="period === 'week'" (click)="setPeriod('week')">Week</button>
+          <button [class.active]="period === 'month'" (click)="setPeriod('month')">Month</button>
+          <button [class.active]="period === 'quarter'" (click)="setPeriod('quarter')">Quarter</button>
+          <button [class.active]="period === 'year'" (click)="setPeriod('year')">Year</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- KPI Grid -->
+  <div class="section-title">{{ 'reports.analytics.kpis' | translate }}</div>
+  <div class="kpi-grid">
+    @for (kpi of kpis(); track kpi.label) {
+      <div class="kpi-card">
+        <div class="kpi-header">
+          <span class="kpi-label">{{ kpi.label }}</span>
+          <span class="kpi-trend" [class]="kpi.trend">
+            @if (kpi.trend === 'up') { ↑ } @else if (kpi.trend === 'down') { ↓ }
+            {{ kpi.change > 0 ? '+' : '' }}{{ kpi.change }}%
+          </span>
+        </div>
+        <div class="kpi-value">{{ kpi.value }}</div>
+        @if (kpi.target) {
+          <div class="kpi-target">Target: {{ kpi.target }}</div>
+        }
+      </div>
+    }
+  </div>
+
+  <!-- Trends Chart -->
+  <div class="trends-section">
+    <h3 class="section-title">{{ 'reports.analytics.trends' | translate }}</h3>
+    <div class="trend-chart">
+      <div class="chart-legend">
+        <span class="legend-item"><span class="dot revenue"></span> Revenue</span>
+        <span class="legend-item"><span class="dot orders"></span> Orders</span>
+      </div>
+      <div class="chart-area">
+        <div class="y-axis">
+          <span>50K</span><span>40K</span><span>30K</span><span>20K</span><span>10K</span><span>0</span>
+        </div>
+        <div class="chart-lines">
+          @for (point of trendData(); track $index) {
+            <div class="chart-column">
+              <div class="column-bars">
+                <div class="bar revenue" [style.height.%]="(point.revenue / 50000) * 100"></div>
+                <div class="bar orders" [style.height.%]="(point.orders / 200) * 100"></div>
+              </div>
+              <span class="x-label">{{ point.label }}</span>
+            </div>
+          }
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Insights & Recommendations -->
+  <div class="bottom-section">
+    <div class="insights-card">
+      <h3 class="section-title">{{ 'reports.analytics.insights' | translate }}</h3>
+      <div class="insights-list">
+        @for (insight of insights(); track insight.title) {
+          <div class="insight-item" [class]="insight.type">
+            <div class="insight-icon">
+              @switch (insight.type) {
+                @case ('success') { <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg> }
+                @case ('warning') { <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg> }
+                @case ('info') { <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg> }
+              }
+            </div>
+            <div class="insight-content">
+              <span class="insight-title">{{ insight.title }}</span>
+              <span class="insight-desc">{{ insight.description }}</span>
+            </div>
+          </div>
+        }
+      </div>
+    </div>
+
+    <div class="recommendations-card">
+      <h3 class="section-title">{{ 'reports.analytics.recommendations' | translate }}</h3>
+      <div class="recommendations-list">
+        @for (rec of recommendations(); track rec; let i = $index) {
+          <div class="recommendation-item">
+            <span class="rec-number">{{ i + 1 }}</span>
+            <span class="rec-text">{{ rec }}</span>
+          </div>
+        }
+      </div>
+    </div>
+  </div>
+
+  <!-- Period Comparison -->
+  <div class="comparison-section">
+    <h3 class="section-title">{{ 'reports.analytics.comparison' | translate }}</h3>
+    <div class="comparison-table">
+      <div class="comp-header">
+        <span>Metric</span>
+        <span>Current Period</span>
+        <span>Previous Period</span>
+        <span>Change</span>
+      </div>
+      @for (row of comparisonData(); track row.metric) {
+        <div class="comp-row">
+          <span class="comp-metric">{{ row.metric }}</span>
+          <span class="comp-current">{{ row.current }}</span>
+          <span class="comp-previous">{{ row.previous }}</span>
+          <span class="comp-change" [class.positive]="row.changePercent > 0" [class.negative]="row.changePercent < 0">
+            {{ row.changePercent > 0 ? '+' : '' }}{{ row.changePercent }}%
+          </span>
+        </div>
+      }
+    </div>
+  </div>
+</div>

@@ -1,0 +1,176 @@
+﻿<div class="bid-form-page">
+  @if (loading()) {
+    <div class="loading-container">
+      <div class="loading-spinner"></div>
+    </div>
+  } @else if (tender()) {
+    <div class="page-header">
+      <div class="header-left">
+        <button class="btn-back" (click)="goBack()">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="15 18 9 12 15 6"/>
+          </svg>
+        </button>
+        <div class="header-content">
+          <h1 class="page-title">{{ 'TENDERS.BID_FORM.TITLE' | translate }}</h1>
+          <p class="page-subtitle">{{ tender()?.tenderNumber }} - {{ tender()?.title }}</p>
+        </div>
+      </div>
+    </div>
+
+    <form [formGroup]="form" (ngSubmit)="onSubmit()">
+      <!-- Tender Items -->
+      <div class="form-section">
+        <h2 class="section-title">{{ 'TENDERS.BID_FORM.ITEMS' | translate }}</h2>
+
+        <div class="items-table-container">
+          <table class="items-table">
+            <thead>
+              <tr>
+                <th>{{ 'TENDERS.ITEMS.DESCRIPTION' | translate }}</th>
+                <th class="text-right">{{ 'TENDERS.ITEMS.QUANTITY' | translate }}</th>
+                <th class="text-right">{{ 'TENDERS.BID_FORM.UNIT_PRICE' | translate }}</th>
+                <th class="text-right">{{ 'TENDERS.BID_FORM.DISCOUNT' | translate }}</th>
+                <th class="text-right">{{ 'TENDERS.BID_FORM.FINAL_PRICE' | translate }}</th>
+                <th class="text-right">{{ 'TENDERS.BID_FORM.TOTAL' | translate }}</th>
+              </tr>
+            </thead>
+            <tbody formArrayName="items">
+              @for (item of bidItems.controls; track $index; let i = $index) {
+                <tr [formGroupName]="i">
+                  <td>
+                    <div class="item-info">
+                      <span class="description">{{ tender()!.items[i].description }}</span>
+                      @if (tender()!.items[i].specification) {
+                        <span class="specification">{{ tender()!.items[i].specification }}</span>
+                      }
+                    </div>
+                  </td>
+                  <td class="text-right">
+                    <input type="number" formControlName="quantity" class="form-input narrow" step="1">
+                  </td>
+                  <td class="text-right">
+                    <input type="number" formControlName="unitPrice" class="form-input narrow" step="0.01"
+                           (input)="calculateItemTotal(i)">
+                  </td>
+                  <td class="text-right">
+                    <div class="input-group narrow">
+                      <input type="number" formControlName="discountPercent" class="form-input" step="0.01"
+                             (input)="calculateItemTotal(i)">
+                      <span class="input-suffix">%</span>
+                    </div>
+                  </td>
+                  <td class="text-right">
+                    {{ item.get('finalUnitPrice')?.value | currency:tender()!.currency:'symbol':'1.2-2' }}
+                  </td>
+                  <td class="text-right font-semibold">
+                    {{ getItemTotal(i) | currency:tender()!.currency:'symbol':'1.2-2' }}
+                  </td>
+                </tr>
+              }
+            </tbody>
+            <tfoot>
+              <tr>
+                <td colspan="5" class="text-right"><strong>{{ 'TENDERS.BID_FORM.SUBTOTAL' | translate }}</strong></td>
+                <td class="text-right"><strong>{{ subtotal() | currency:tender()!.currency:'symbol':'1.2-2' }}</strong></td>
+              </tr>
+            </tfoot>
+          </table>
+        </div>
+      </div>
+
+      <!-- Bid Summary -->
+      <div class="form-section">
+        <h2 class="section-title">{{ 'TENDERS.BID_FORM.SUMMARY' | translate }}</h2>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">{{ 'TENDERS.BID_FORM.TOTAL_AMOUNT' | translate }}</label>
+            <div class="input-group">
+              <input type="number" formControlName="totalAmount" class="form-input" step="0.01">
+              <span class="input-suffix">{{ tender()!.currency }}</span>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">{{ 'TENDERS.BID_FORM.DISCOUNT_AMOUNT' | translate }}</label>
+            <div class="input-group">
+              <input type="number" formControlName="discountAmount" class="form-input" step="0.01"
+                     (input)="calculateFinalAmount()">
+              <span class="input-suffix">{{ tender()!.currency }}</span>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">{{ 'TENDERS.BID_FORM.FINAL_AMOUNT' | translate }}</label>
+            <div class="input-group">
+              <input type="number" formControlName="finalAmount" class="form-input" step="0.01">
+              <span class="input-suffix">{{ tender()!.currency }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Bid Details -->
+      <div class="form-section">
+        <h2 class="section-title">{{ 'TENDERS.BID_FORM.DETAILS' | translate }}</h2>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">{{ 'TENDERS.BID_FORM.VALIDITY_DAYS' | translate }}</label>
+            <div class="input-group">
+              <input type="number" formControlName="validityDays" class="form-input" min="1">
+              <span class="input-suffix">{{ 'COMMON.DAYS' | translate }}</span>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">{{ 'TENDERS.BID_FORM.DELIVERY_DAYS' | translate }}</label>
+            <div class="input-group">
+              <input type="number" formControlName="deliveryDays" class="form-input" min="1">
+              <span class="input-suffix">{{ 'COMMON.DAYS' | translate }}</span>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">{{ 'TENDERS.BID_FORM.WARRANTY_MONTHS' | translate }}</label>
+            <div class="input-group">
+              <input type="number" formControlName="warrantyMonths" class="form-input" min="0">
+              <span class="input-suffix">{{ 'COMMON.MONTHS' | translate }}</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group flex-2">
+            <label class="form-label">{{ 'TENDERS.BID_FORM.PAYMENT_TERMS' | translate }}</label>
+            <input type="text" formControlName="paymentTerms" class="form-input">
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group flex-2">
+            <label class="form-label">{{ 'TENDERS.BID_FORM.TECHNICAL_PROPOSAL' | translate }}</label>
+            <textarea formControlName="technicalProposal" class="form-textarea" rows="4"></textarea>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group flex-2">
+            <label class="form-label">{{ 'TENDERS.BID_FORM.NOTES' | translate }}</label>
+            <textarea formControlName="notes" class="form-textarea" rows="3"></textarea>
+          </div>
+        </div>
+      </div>
+
+      <!-- Actions -->
+      <div class="form-actions">
+        <button type="button" class="btn btn-secondary" (click)="goBack()">
+          {{ 'COMMON.CANCEL' | translate }}
+        </button>
+        <button type="submit" class="btn btn-primary" [disabled]="form.invalid || saving()">
+          @if (saving()) {
+            <span class="spinner"></span>
+          }
+          {{ 'TENDERS.BID_FORM.SUBMIT' | translate }}
+        </button>
+      </div>
+    </form>
+  }
+</div>

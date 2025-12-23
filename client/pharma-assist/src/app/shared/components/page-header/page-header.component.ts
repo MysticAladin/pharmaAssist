@@ -1,5 +1,6 @@
 import { Component, Input, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { RouterLink } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 
 export interface PageHeaderAction {
@@ -13,7 +14,7 @@ export interface PageHeaderAction {
 @Component({
   selector: 'app-page-header',
   standalone: true,
-  imports: [CommonModule, TranslateModule],
+  imports: [CommonModule, RouterLink, TranslateModule],
   templateUrl: './page-header.component.html',
   styleUrls: ['./page-header.component.scss']
 })

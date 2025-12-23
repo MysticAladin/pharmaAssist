@@ -1,0 +1,185 @@
+<div class="settings-page">
+  <header class="page-header">
+    <h1>
+      <span class="material-symbols-rounded">settings</span>
+      {{ 'settings.title' | translate }}
+    </h1>
+    <p class="subtitle">{{ 'settings.subtitle' | translate }}</p>
+  </header>
+
+  <!-- Settings Tabs -->
+  <div class="settings-tabs">
+    <button
+      class="tab"
+      [class.active]="activeTab() === 'general'"
+      (click)="setActiveTab('general')">
+      <span class="material-symbols-rounded">tune</span>
+      {{ 'settings.tabs.general' | translate }}
+    </button>
+    <button
+      class="tab"
+      [class.active]="activeTab() === 'features'"
+      (click)="setActiveTab('features')">
+      <span class="material-symbols-rounded">toggle_on</span>
+      {{ 'settings.tabs.features' | translate }}
+    </button>
+    <button
+      class="tab"
+      [class.active]="activeTab() === 'notifications'"
+      (click)="setActiveTab('notifications')">
+      <span class="material-symbols-rounded">notifications</span>
+      {{ 'settings.tabs.notifications' | translate }}
+    </button>
+  </div>
+
+  <!-- General Settings Tab -->
+  @if (activeTab() === 'general') {
+    <div class="settings-section">
+      <h2>{{ 'settings.general.title' | translate }}</h2>
+      <p class="section-description">{{ 'settings.general.description' | translate }}</p>
+
+      <div class="settings-card">
+        <div class="setting-item">
+          <div class="setting-info">
+            <span class="setting-label">{{ 'settings.general.companyName' | translate }}</span>
+            <span class="setting-description">{{ 'settings.general.companyNameDesc' | translate }}</span>
+          </div>
+          <input type="text" class="form-input" placeholder="Company name...">
+        </div>
+
+        <div class="setting-item">
+          <div class="setting-info">
+            <span class="setting-label">{{ 'settings.general.timezone' | translate }}</span>
+            <span class="setting-description">{{ 'settings.general.timezoneDesc' | translate }}</span>
+          </div>
+          <select class="form-select">
+            <option value="Europe/Sarajevo">Europe/Sarajevo (CET)</option>
+            <option value="Europe/London">Europe/London (GMT)</option>
+            <option value="America/New_York">America/New_York (EST)</option>
+          </select>
+        </div>
+      </div>
+    </div>
+  }
+
+  <!-- Feature Flags Tab (Client Admin) -->
+  @if (activeTab() === 'features') {
+    <div class="settings-section">
+      <h2>{{ 'settings.features.title' | translate }}</h2>
+      <p class="section-description">{{ 'settings.features.description' | translate }}</p>
+
+      @if (loading()) {
+        <div class="loading-state">
+          <div class="spinner"></div>
+          <p>{{ 'common.loading' | translate }}</p>
+        </div>
+      } @else if (configurableFlags().length === 0) {
+        <div class="empty-state">
+          <span class="material-symbols-rounded">toggle_off</span>
+          <h3>{{ 'settings.features.empty.title' | translate }}</h3>
+          <p>{{ 'settings.features.empty.description' | translate }}</p>
+        </div>
+      } @else {
+        <!-- Group by category -->
+        @for (category of flagCategories(); track category) {
+          <div class="feature-category">
+            <h3 class="category-title">
+              <span class="material-symbols-rounded">{{ getCategoryIcon(category) }}</span>
+              {{ getCategoryName(category) }}
+            </h3>
+
+            <div class="settings-card">
+              @for (flag of getFlagsByCategory(category); track flag.key) {
+                <div class="setting-item feature-toggle">
+                  <div class="setting-info">
+                    <span class="setting-label">
+                      {{ flag.name }}
+                      @if (flag.hasOverride) {
+                        <span class="override-badge">{{ 'settings.features.customized' | translate }}</span>
+                      }
+                    </span>
+                    <span class="setting-description">{{ flag.description }}</span>
+                    @if (!flag.systemEnabled) {
+                      <span class="system-disabled-notice">
+                        <span class="material-symbols-rounded">info</span>
+                        {{ 'settings.features.systemDisabled' | translate }}
+                      </span>
+                    }
+                  </div>
+                  <label class="toggle-switch" [class.disabled]="!flag.systemEnabled">
+                    <input
+                      type="checkbox"
+                      [checked]="flag.clientEnabled"
+                      [disabled]="!flag.systemEnabled"
+                      (change)="toggleFlag(flag)">
+                    <span class="slider"></span>
+                  </label>
+                </div>
+              }
+            </div>
+          </div>
+        }
+
+        @if (hasChanges()) {
+          <div class="save-bar">
+            <span>{{ 'settings.features.unsavedChanges' | translate }}</span>
+            <div class="save-actions">
+              <button class="btn btn-secondary" (click)="discardChanges()">
+                {{ 'common.cancel' | translate }}
+              </button>
+              <button class="btn btn-primary" (click)="saveChanges()" [disabled]="saving()">
+                @if (saving()) {
+                  <span class="spinner-sm"></span>
+                }
+                {{ 'common.save' | translate }}
+              </button>
+            </div>
+          </div>
+        }
+      }
+    </div>
+  }
+
+  <!-- Notifications Tab -->
+  @if (activeTab() === 'notifications') {
+    <div class="settings-section">
+      <h2>{{ 'settings.notifications.title' | translate }}</h2>
+      <p class="section-description">{{ 'settings.notifications.description' | translate }}</p>
+
+      <div class="settings-card">
+        <div class="setting-item">
+          <div class="setting-info">
+            <span class="setting-label">{{ 'settings.notifications.orderUpdates' | translate }}</span>
+            <span class="setting-description">{{ 'settings.notifications.orderUpdatesDesc' | translate }}</span>
+          </div>
+          <label class="toggle-switch">
+            <input type="checkbox" checked>
+            <span class="slider"></span>
+          </label>
+        </div>
+
+        <div class="setting-item">
+          <div class="setting-info">
+            <span class="setting-label">{{ 'settings.notifications.lowStock' | translate }}</span>
+            <span class="setting-description">{{ 'settings.notifications.lowStockDesc' | translate }}</span>
+          </div>
+          <label class="toggle-switch">
+            <input type="checkbox" checked>
+            <span class="slider"></span>
+          </label>
+        </div>
+
+        <div class="setting-item">
+          <div class="setting-info">
+            <span class="setting-label">{{ 'settings.notifications.expiry' | translate }}</span>
+            <span class="setting-description">{{ 'settings.notifications.expiryDesc' | translate }}</span>
+          </div>
+          <label class="toggle-switch">
+            <input type="checkbox">
+            <span class="slider"></span>
+          </label>
+        </div>
+      </div>
+    </div>
+  }
+</div>

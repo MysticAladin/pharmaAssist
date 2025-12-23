@@ -1,0 +1,95 @@
+@use '../../../styles/theme';
+
+.confirm-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 8px 0 24px;
+}
+
+.icon-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  margin-bottom: 16px;
+}
+
+.icon-danger {
+  background: var(--color-error-bg);
+  color: var(--color-error-dark);
+}
+
+.icon-warning {
+  background: var(--status-pending-bg);
+  color: var(--status-pending-text);
+}
+
+.icon-info {
+  background: var(--status-processing-bg);
+  color: var(--brand-primary-dark);
+}
+
+.message {
+  margin: 0;
+  font-size: 14px;
+  color: var(--text-secondary);
+  line-height: 1.5;
+  max-width: 320px;
+}
+
+.confirm-actions {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  padding-top: 8px;
+}
+
+.btn {
+  padding: 10px 20px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+  border: none;
+}
+
+.btn-secondary {
+  background: var(--surface-tertiary);
+  color: #475569;
+}
+
+.btn-secondary:hover {
+  background: var(--neutral-200);
+}
+
+.btn-danger {
+  background: #dc2626;
+  color: white;
+}
+
+.btn-danger:hover {
+  background: #b91c1c;
+}
+
+.btn-warning {
+  background: #d97706;
+  color: white;
+}
+
+.btn-warning:hover {
+  background: #b45309;
+}
+
+.btn-info {
+  background: var(--brand-primary-dark);
+  color: white;
+}
+
+.btn-info:hover {
+  background: #1d4ed8;
+}

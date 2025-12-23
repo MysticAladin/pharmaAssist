@@ -1,0 +1,275 @@
+<div class="tender-form-page">
+  <div class="page-header">
+    <div class="header-left">
+      <button class="btn-back" (click)="goBack()">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <polyline points="15 18 9 12 15 6"/>
+        </svg>
+      </button>
+      <div class="header-content">
+        <h1 class="page-title">
+          {{ isEditMode ? ('TENDERS.FORM.EDIT_TITLE' | translate) : ('TENDERS.FORM.CREATE_TITLE' | translate) }}
+        </h1>
+        @if (isEditMode && tender()) {
+          <p class="page-subtitle">{{ tender()?.tenderNumber }}</p>
+        }
+      </div>
+    </div>
+  </div>
+
+  <form [formGroup]="form" (ngSubmit)="onSubmit()">
+    <div class="form-sections">
+      <!-- Basic Information -->
+      <div class="form-section">
+        <h2 class="section-title">{{ 'TENDERS.FORM.BASIC_INFO' | translate }}</h2>
+
+        <div class="form-row">
+          <div class="form-group flex-2">
+            <label for="title" class="form-label required">{{ 'TENDERS.FIELD.TITLE' | translate }}</label>
+            <input type="text" id="title" formControlName="title" class="form-input"
+                   [class.invalid]="form.get('title')?.invalid && form.get('title')?.touched">
+            @if (form.get('title')?.invalid && form.get('title')?.touched) {
+              <span class="error-message">{{ 'VALIDATION.REQUIRED' | translate }}</span>
+            }
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="type" class="form-label required">{{ 'TENDERS.FIELD.TYPE' | translate }}</label>
+            <select id="type" formControlName="type" class="form-select">
+              @for (type of types; track type) {
+                <option [value]="type">{{ tenderTypeLabels[type] | translate }}</option>
+              }
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="priority" class="form-label required">{{ 'TENDERS.FIELD.PRIORITY' | translate }}</label>
+            <select id="priority" formControlName="priority" class="form-select">
+              @for (priority of priorities; track priority) {
+                <option [value]="priority">{{ tenderPriorityLabels[priority] | translate }}</option>
+              }
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="customerId" class="form-label required">{{ 'TENDERS.FIELD.CUSTOMER' | translate }}</label>
+            <select id="customerId" formControlName="customerId" class="form-select"
+                    [class.invalid]="form.get('customerId')?.invalid && form.get('customerId')?.touched">
+              <option [ngValue]="null">{{ 'TENDERS.FORM.SELECT_CUSTOMER' | translate }}</option>
+              @for (customer of customers(); track customer.id) {
+                <option [value]="customer.id">{{ customer.name }}</option>
+              }
+            </select>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group flex-2">
+            <label for="description" class="form-label">{{ 'TENDERS.FIELD.DESCRIPTION' | translate }}</label>
+            <textarea id="description" formControlName="description" class="form-textarea" rows="4"></textarea>
+          </div>
+        </div>
+      </div>
+
+      <!-- Dates -->
+      <div class="form-section">
+        <h2 class="section-title">{{ 'TENDERS.FORM.DATES' | translate }}</h2>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="submissionDeadline" class="form-label required">{{ 'TENDERS.FIELD.DEADLINE' | translate }}</label>
+            <input type="datetime-local" id="submissionDeadline" formControlName="submissionDeadline" class="form-input"
+                   [class.invalid]="form.get('submissionDeadline')?.invalid && form.get('submissionDeadline')?.touched">
+          </div>
+          <div class="form-group">
+            <label for="openingDate" class="form-label">{{ 'TENDERS.FIELD.OPENING_DATE' | translate }}</label>
+            <input type="datetime-local" id="openingDate" formControlName="openingDate" class="form-input">
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="contractStartDate" class="form-label">{{ 'TENDERS.FIELD.CONTRACT_START' | translate }}</label>
+            <input type="date" id="contractStartDate" formControlName="contractStartDate" class="form-input">
+          </div>
+          <div class="form-group">
+            <label for="contractEndDate" class="form-label">{{ 'TENDERS.FIELD.CONTRACT_END' | translate }}</label>
+            <input type="date" id="contractEndDate" formControlName="contractEndDate" class="form-input">
+          </div>
+        </div>
+      </div>
+
+      <!-- Financial -->
+      <div class="form-section">
+        <h2 class="section-title">{{ 'TENDERS.FORM.FINANCIAL' | translate }}</h2>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="estimatedValue" class="form-label">{{ 'TENDERS.FIELD.ESTIMATED_VALUE' | translate }}</label>
+            <div class="input-group">
+              <input type="number" id="estimatedValue" formControlName="estimatedValue" class="form-input" step="0.01">
+              <span class="input-suffix">{{ form.get('currency')?.value }}</span>
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="budget" class="form-label">{{ 'TENDERS.FIELD.BUDGET' | translate }}</label>
+            <div class="input-group">
+              <input type="number" id="budget" formControlName="budget" class="form-input" step="0.01">
+              <span class="input-suffix">{{ form.get('currency')?.value }}</span>
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="bidSecurityAmount" class="form-label">{{ 'TENDERS.FIELD.BID_SECURITY' | translate }}</label>
+            <div class="input-group">
+              <input type="number" id="bidSecurityAmount" formControlName="bidSecurityAmount" class="form-input" step="0.01">
+              <span class="input-suffix">{{ form.get('currency')?.value }}</span>
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="currency" class="form-label">{{ 'TENDERS.FIELD.CURRENCY' | translate }}</label>
+            <select id="currency" formControlName="currency" class="form-select">
+              <option value="BAM">BAM</option>
+              <option value="EUR">EUR</option>
+              <option value="USD">USD</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <!-- Delivery & Terms -->
+      <div class="form-section">
+        <h2 class="section-title">{{ 'TENDERS.FORM.TERMS' | translate }}</h2>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="deliveryLocation" class="form-label">{{ 'TENDERS.FIELD.DELIVERY_LOCATION' | translate }}</label>
+            <input type="text" id="deliveryLocation" formControlName="deliveryLocation" class="form-input">
+          </div>
+          <div class="form-group">
+            <label for="deliveryTerms" class="form-label">{{ 'TENDERS.FIELD.DELIVERY_TERMS' | translate }}</label>
+            <input type="text" id="deliveryTerms" formControlName="deliveryTerms" class="form-input">
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="paymentTerms" class="form-label">{{ 'TENDERS.FIELD.PAYMENT_TERMS' | translate }}</label>
+            <input type="text" id="paymentTerms" formControlName="paymentTerms" class="form-input">
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group flex-2">
+            <label for="specialConditions" class="form-label">{{ 'TENDERS.FIELD.SPECIAL_CONDITIONS' | translate }}</label>
+            <textarea id="specialConditions" formControlName="specialConditions" class="form-textarea" rows="3"></textarea>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group flex-2">
+            <label for="evaluationCriteria" class="form-label">{{ 'TENDERS.FIELD.EVALUATION_CRITERIA' | translate }}</label>
+            <textarea id="evaluationCriteria" formControlName="evaluationCriteria" class="form-textarea" rows="3"
+                      placeholder="{{ 'TENDERS.FORM.EVALUATION_PLACEHOLDER' | translate }}"></textarea>
+          </div>
+        </div>
+      </div>
+
+      <!-- Contact -->
+      <div class="form-section">
+        <h2 class="section-title">{{ 'TENDERS.FORM.CONTACT' | translate }}</h2>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="contactPerson" class="form-label">{{ 'TENDERS.FIELD.CONTACT_PERSON' | translate }}</label>
+            <input type="text" id="contactPerson" formControlName="contactPerson" class="form-input">
+          </div>
+          <div class="form-group">
+            <label for="contactEmail" class="form-label">{{ 'TENDERS.FIELD.CONTACT_EMAIL' | translate }}</label>
+            <input type="email" id="contactEmail" formControlName="contactEmail" class="form-input">
+          </div>
+          <div class="form-group">
+            <label for="contactPhone" class="form-label">{{ 'TENDERS.FIELD.CONTACT_PHONE' | translate }}</label>
+            <input type="tel" id="contactPhone" formControlName="contactPhone" class="form-input">
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="assignedUserId" class="form-label">{{ 'TENDERS.FIELD.ASSIGNED_TO' | translate }}</label>
+            <select id="assignedUserId" formControlName="assignedUserId" class="form-select">
+              <option [ngValue]="null">{{ 'TENDERS.FORM.SELECT_USER' | translate }}</option>
+              @for (user of users(); track user.id) {
+                <option [value]="user.id">{{ user.fullName }}</option>
+              }
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <!-- Items (Edit mode only) -->
+      @if (isEditMode) {
+        <div class="form-section">
+          <div class="section-header">
+            <h2 class="section-title">{{ 'TENDERS.FORM.ITEMS' | translate }}</h2>
+            <button type="button" class="btn btn-secondary btn-sm" (click)="addItem()">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M12 5v14M5 12h14"/>
+              </svg>
+              {{ 'TENDERS.FORM.ADD_ITEM' | translate }}
+            </button>
+          </div>
+
+          @if (items.length === 0) {
+            <div class="empty-items">
+              <p>{{ 'TENDERS.FORM.NO_ITEMS' | translate }}</p>
+            </div>
+          } @else {
+            <div class="items-list">
+              @for (item of items.controls; track $index; let i = $index) {
+                <div class="item-row" [formGroupName]="i">
+                  <div class="item-fields">
+                    <div class="form-group flex-2">
+                      <label class="form-label required">{{ 'TENDERS.ITEMS.DESCRIPTION' | translate }}</label>
+                      <input type="text" formControlName="description" class="form-input">
+                    </div>
+                    <div class="form-group">
+                      <label class="form-label">{{ 'TENDERS.ITEMS.QUANTITY' | translate }}</label>
+                      <input type="number" formControlName="quantity" class="form-input" step="1">
+                    </div>
+                    <div class="form-group">
+                      <label class="form-label">{{ 'TENDERS.ITEMS.UNIT' | translate }}</label>
+                      <input type="text" formControlName="unit" class="form-input" placeholder="kom">
+                    </div>
+                    <div class="form-group">
+                      <label class="form-label">{{ 'TENDERS.ITEMS.UNIT_PRICE' | translate }}</label>
+                      <input type="number" formControlName="estimatedUnitPrice" class="form-input" step="0.01">
+                    </div>
+                  </div>
+                  <button type="button" class="btn-remove" (click)="removeItem(i)">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <polyline points="3 6 5 6 21 6"/>
+                      <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+                    </svg>
+                  </button>
+                </div>
+              }
+            </div>
+          }
+        </div>
+      }
+    </div>
+
+    <!-- Form Actions -->
+    <div class="form-actions">
+      <button type="button" class="btn btn-secondary" (click)="goBack()">
+        {{ 'COMMON.CANCEL' | translate }}
+      </button>
+      <button type="submit" class="btn btn-primary" [disabled]="form.invalid || saving()">
+        @if (saving()) {
+          <span class="spinner"></span>
+        }
+        {{ isEditMode ? ('COMMON.SAVE' | translate) : ('TENDERS.FORM.CREATE' | translate) }}
+      </button>
+    </div>
+  </form>
+</div>

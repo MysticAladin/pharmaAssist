@@ -374,3 +374,43 @@
   --pharma-teal-dark: var(--brand-primary-dark);
   --pharma-teal-light: var(--brand-primary-light);
 }
+// =============================================================================
+// SCSS Variable Mappings for Components
+// =============================================================================
+// These variables allow components to use SCSS module syntax (theme.$variable)
+// while still referencing the CSS custom properties defined above.
+//
+// Usage in component SCSS:
+//   @use '../../../../styles/theme';
+//   color: theme.$primary-color;  // Becomes: color: var(--brand-primary);
+// =============================================================================
+
+// Text colors
+$text-primary: var(--text-primary);
+$text-secondary: var(--text-secondary);
+$text-tertiary: var(--text-tertiary);
+$text-inverse: var(--text-inverse);
+
+// Brand/Primary colors
+$primary-color: var(--brand-primary);
+$primary-light: var(--brand-primary-light);
+$primary-dark: var(--brand-primary-dark);
+$primary-hover: var(--brand-primary-light);
+
+// Semantic colors
+$success-color: var(--color-success);
+$warning-color: var(--color-warning);
+$danger-color: var(--color-danger);
+$error-color: var(--color-error);
+$info-color: var(--color-info);
+
+// Backgrounds
+$background-light: var(--surface-secondary);
+$surface-primary: var(--surface-primary);
+$surface-secondary: var(--surface-secondary);
+
+// Borders
+$border-color: var(--border-light);
+$border-light: var(--border-light);
+$border-medium: var(--border-medium);
+$border-dark: var(--border-dark);
