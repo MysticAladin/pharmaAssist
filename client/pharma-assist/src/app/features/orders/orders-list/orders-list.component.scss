@@ -86,6 +86,76 @@
   }
 }
 
+// Add spacing between search input and filter row
+.search-bar {
+  margin-bottom: 1.5rem;
+}
+
+.filters-bar {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+  margin-bottom: 1.5rem;
+
+  .filter-group {
+    display: flex;
+    gap: 0.75rem;
+    align-items: center;
+    flex: 1;
+  }
+
+  .filter-select.date-filter {
+    min-width: 150px;
+  }
+}
+
+// Export dropdown
+.export-dropdown {
+  position: relative;
+}
+
+.export-menu {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  margin-top: 0.5rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+  min-width: 140px;
+  z-index: 50;
+  overflow: hidden;
+
+  .export-menu-item {
+    display: flex;
+    align-items: center;
+    gap: 0.625rem;
+    width: 100%;
+    padding: 0.625rem 0.875rem;
+    border: none;
+    background: transparent;
+    color: var(--text);
+    font-size: 0.875rem;
+    cursor: pointer;
+    transition: all 0.15s;
+    text-align: left;
+
+    &:hover {
+      background: var(--surface-hover);
+    }
+
+    svg {
+      color: var(--text-secondary);
+    }
+  }
+}
+
+// Date filter alignment
+.date-filter {
+  min-width: 150px;
+}
+
 // Pagination Container
 .pagination-container {
   margin-top: 1.5rem;

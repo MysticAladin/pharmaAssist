@@ -23,6 +23,7 @@ import { SearchInputComponent } from '../../shared/components/search-input';
 import { EmptyStateComponent } from '../../shared/components/empty-state';
 import { PaginationComponent, PageEvent } from '../../shared/components/pagination';
 import { ConfirmDialogComponent } from '../../shared/components/confirm-dialog';
+import { EuropeanDatePipe } from '../../core/pipes';
 
 @Component({
   selector: 'app-tenders-list',
@@ -37,7 +38,8 @@ import { ConfirmDialogComponent } from '../../shared/components/confirm-dialog';
     SearchInputComponent,
     EmptyStateComponent,
     PaginationComponent,
-    ConfirmDialogComponent
+    ConfirmDialogComponent,
+    EuropeanDatePipe
   ],
   templateUrl: './tenders-list-component/tenders-list.component.html',
   styleUrls: ['./tenders-list-component/tenders-list.component.scss']

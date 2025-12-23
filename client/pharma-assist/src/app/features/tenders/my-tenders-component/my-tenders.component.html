@@ -32,7 +32,7 @@
                 <circle cx="12" cy="12" r="10"/>
                 <polyline points="12 6 12 12 16 14"/>
               </svg>
-              {{ tender.submissionDeadline | date:'shortDate' }}
+              {{ tender.submissionDeadline | europeanDate }}
             </div>
             <div class="value">
               {{ tender.estimatedValue | currency:tender.currency:'symbol':'1.0-0' }}

@@ -3,6 +3,8 @@ import { CommonModule, DatePipe, CurrencyPipe } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 
+import { EuropeanDatePipe } from '../../core/pipes';
+
 import { TenderService } from '../../core/services/tender.service';
 import {
   TenderDto,
@@ -24,6 +26,7 @@ import { PaginationComponent, PageEvent } from '../../shared/components/paginati
     TranslateModule,
     DatePipe,
     CurrencyPipe,
+    EuropeanDatePipe,
     EmptyStateComponent,
     PaginationComponent
   ],

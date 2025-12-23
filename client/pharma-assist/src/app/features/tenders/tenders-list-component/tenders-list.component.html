@@ -26,7 +26,7 @@
         </svg>
       </div>
       <div class="stat-content">
-        <div class="stat-value">{{ stats().draftTenders }}</div>
+        <div class="stat-value">{{ stats()?.draftTenders || 0 }}</div>
         <div class="stat-label">{{ 'TENDERS.STATS.DRAFT' | translate }}</div>
       </div>
     </div>
@@ -39,7 +39,7 @@
         </svg>
       </div>
       <div class="stat-content">
-        <div class="stat-value">{{ stats().openTenders }}</div>
+        <div class="stat-value">{{ stats()?.openTenders || 0 }}</div>
         <div class="stat-label">{{ 'TENDERS.STATS.OPEN' | translate }}</div>
       </div>
     </div>
@@ -52,7 +52,7 @@
         </svg>
       </div>
       <div class="stat-content">
-        <div class="stat-value">{{ stats().awardedTenders }}</div>
+        <div class="stat-value">{{ stats()?.awardedTenders || 0 }}</div>
         <div class="stat-label">{{ 'TENDERS.STATS.AWARDED' | translate }}</div>
       </div>
     </div>
@@ -65,7 +65,7 @@
         </svg>
       </div>
       <div class="stat-content">
-        <div class="stat-value">{{ stats().totalValue | currency:'BAM':'symbol':'1.0-0' }}</div>
+        <div class="stat-value">{{ stats()?.totalValue || 0 | currency:'BAM':'symbol':'1.0-0' }}</div>
         <div class="stat-label">{{ 'TENDERS.STATS.TOTAL_VALUE' | translate }}</div>
       </div>
     </div>
@@ -185,7 +185,7 @@
                 </span>
               </td>
               <td [class.deadline-warning]="isDeadlineSoon(tender)" [class.deadline-passed]="isDeadlinePassed(tender)">
-                {{ tender.submissionDeadline | date:'shortDate' }}
+                {{ tender.submissionDeadline | europeanDate }}
                 @if (isDeadlineSoon(tender)) {
                   <span class="deadline-badge">{{ getDaysRemaining(tender) }}d</span>
                 }

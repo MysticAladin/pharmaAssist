@@ -70,11 +70,11 @@
           </div>
           <div class="info-item">
             <span class="label">{{ 'prescriptions.issueDate' | translate }}</span>
-            <span class="value">{{ prescription()!.issueDate | date:'mediumDate' }}</span>
+            <span class="value">{{ prescription()!.issueDate | europeanDate }}</span>
           </div>
           <div class="info-item">
             <span class="label">{{ 'prescriptions.expiryDate' | translate }}</span>
-            <span class="value" [class.expiring-soon]="isExpiringSoon()">{{ prescription()!.expiryDate | date:'mediumDate' }}</span>
+            <span class="value" [class.expiring-soon]="isExpiringSoon()">{{ prescription()!.expiryDate | europeanDate }}</span>
           </div>
         </div>
 
@@ -185,7 +185,7 @@
                     <select [(ngModel)]="item.batchNumber">
                       <option value="">{{ 'prescriptions.selectBatch' | translate }}</option>
                       @for (batch of item.batchOptions; track batch.batchNumber) {
-                        <option [value]="batch.batchNumber">{{ batch.batchNumber }} ({{ batch.quantity }}) - {{ batch.expiryDate | date:'MM/yy' }}</option>
+                        <option [value]="batch.batchNumber">{{ batch.batchNumber }} ({{ batch.quantity }}) - {{ batch.expiryDate | europeanDate:'short' }}</option>
                       }
                     </select>
                   } @else {
@@ -290,7 +290,7 @@
               @for (item of dispenseFormItems(); track item.prescriptionItemId) {
                 <div class="item-row">
                   <div><span class="name">{{ item.productName }}</span><span class="batch">{{ item.batchNumber }}</span></div>
-                  <span class="qty">× {{ item.quantityDispensed }}</span>
+                  <span class="qty">ï¿½ {{ item.quantityDispensed }}</span>
                 </div>
               }
             </div>

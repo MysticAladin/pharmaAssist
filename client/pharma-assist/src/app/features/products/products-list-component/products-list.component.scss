@@ -53,6 +53,117 @@
   }
 }
 
+// Advanced filters panel
+.advanced-filters-panel {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.filters-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1.25rem;
+  margin-bottom: 1.5rem;
+}
+
+.filter-section {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.filter-label {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.025em;
+}
+
+.filter-input {
+  padding: 0.625rem 0.875rem;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: white;
+  font-size: 0.875rem;
+  color: var(--text);
+  transition: all 0.15s;
+
+  &:focus {
+    outline: none;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(13, 148, 136, 0.1);
+  }
+
+  &:hover {
+    border-color: var(--primary);
+  }
+}
+
+.price-range {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+
+  .range-separator {
+    color: var(--text-secondary);
+    font-weight: 500;
+  }
+}
+
+.full-width {
+  width: 100%;
+}
+
+.sort-controls {
+  display: flex;
+  gap: 0.5rem;
+
+  .filter-select {
+    flex: 1;
+  }
+
+  .sort-direction-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: white;
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: all 0.15s;
+
+    &:hover {
+      background: var(--surface-hover);
+      border-color: var(--primary);
+      color: var(--primary);
+    }
+
+    &.desc svg {
+      transform: rotate(180deg);
+    }
+
+    svg {
+      transition: transform 0.2s;
+    }
+  }
+}
+
+.filter-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--border);
+}
+
 // Row actions (component-specific)
 .row-actions {
   display: flex;

@@ -45,6 +45,8 @@ export interface ProductSummary {
   sku: string;
   categoryName?: string;
   manufacturerName?: string;
+  dosageForm?: string;
+  packageSize?: string;
   unitPrice: number;
   stockQuantity: number;
   requiresPrescription: boolean;

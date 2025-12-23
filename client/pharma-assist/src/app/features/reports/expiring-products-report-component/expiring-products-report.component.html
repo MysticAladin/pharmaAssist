@@ -139,7 +139,7 @@
                   </div>
                 </td>
                 <td class="batch-number">{{ product.batchNumber }}</td>
-                <td>{{ product.expiryDate | date:'mediumDate' }}</td>
+                <td>{{ product.expiryDate | europeanDate }}</td>
                 <td class="text-center">
                   <span class="days-badge" [class]="'days-' + product.status">
                     @if (product.daysUntilExpiry < 0) {

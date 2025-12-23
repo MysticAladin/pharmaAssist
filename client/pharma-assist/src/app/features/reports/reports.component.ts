@@ -2,6 +2,7 @@ import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
+import { EuropeanDatePipe } from '../../core/pipes';
 
 interface ReportCard {
   id: string;
@@ -23,7 +24,7 @@ interface QuickStat {
 @Component({
   selector: 'app-reports',
   standalone: true,
-  imports: [CommonModule, RouterLink, TranslateModule],
+  imports: [CommonModule, RouterLink, TranslateModule, EuropeanDatePipe],
   templateUrl: './reports-component/reports.component.html',
   styleUrls: ['./reports-component/reports.component.scss']
 })

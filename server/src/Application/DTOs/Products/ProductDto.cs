@@ -123,6 +123,8 @@ public class ProductSummaryDto
     public string SKU { get; set; } = string.Empty;
     public string? CategoryName { get; set; }
     public string? ManufacturerName { get; set; }
+    public string? DosageForm { get; set; }
+    public string? PackageSize { get; set; }
     public decimal UnitPrice { get; set; }
     public int StockQuantity { get; set; }
     public bool RequiresPrescription { get; set; }

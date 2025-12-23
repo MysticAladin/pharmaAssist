@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { FormsModule } from '@angular/forms';
+import { EuropeanDatePipe } from '../../core/pipes';
 import { InventoryService } from '../../core/services/inventory.service';
 import { NotificationService } from '../../core/services/notification.service';
 import { StatusBadgeComponent } from '../../shared/components/status-badge/status-badge.component';
@@ -32,6 +33,7 @@ interface ExpiringProduct {
     RouterLink,
     TranslateModule,
     FormsModule,
+    EuropeanDatePipe,
     StatusBadgeComponent,
     PaginationComponent,
     EmptyStateComponent

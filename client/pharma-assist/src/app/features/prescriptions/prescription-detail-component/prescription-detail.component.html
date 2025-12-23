@@ -29,7 +29,7 @@
             <app-status-badge [variant]="getStatusColor(prescription()!.status)" [label]="getStatusLabel(prescription()!.status) | translate"></app-status-badge>
           </div>
         </div>
-        <p class="subtitle">{{ 'prescriptions.submittedOn' | translate }} {{ prescription()!.createdAt | date:'medium' }}</p>
+        <p class="subtitle">{{ 'prescriptions.submittedOn' | translate }} {{ prescription()!.createdAt | europeanDate:'datetime' }}</p>
       </div>
       <div class="header-actions">
         @if (canReview()) {
@@ -103,11 +103,11 @@
             </div>
             <div class="info-item">
               <span class="label">{{ 'prescriptions.issueDate' | translate }}</span>
-              <span class="value">{{ prescription()!.issueDate | date:'mediumDate' }}</span>
+              <span class="value">{{ prescription()!.issueDate | europeanDate }}</span>
             </div>
             <div class="info-item">
               <span class="label">{{ 'prescriptions.expiryDate' | translate }}</span>
-              <span class="value" [class.expired]="isExpired()">{{ prescription()!.expiryDate | date:'mediumDate' }}</span>
+              <span class="value" [class.expired]="isExpired()">{{ prescription()!.expiryDate | europeanDate }}</span>
             </div>
             <div class="info-item">
               <span class="label">{{ 'prescriptions.priorityLabel' | translate }}</span>
@@ -127,7 +127,7 @@
             @if (prescription()!.patientDateOfBirth) {
               <div class="info-item">
                 <span class="label">{{ 'prescriptions.dateOfBirth' | translate }}</span>
-                <span class="value">{{ prescription()!.patientDateOfBirth | date:'mediumDate' }}</span>
+                <span class="value">{{ prescription()!.patientDateOfBirth | europeanDate }}</span>
               </div>
             }
           </div>
@@ -224,7 +224,7 @@
               {{ prescription()!.status === 2 ? ('prescriptions.approvedBy' | translate) : ('prescriptions.rejectedBy' | translate) }}
               <strong>{{ prescription()!.reviewedBy }}</strong>
             </p>
-            <p class="review-date">{{ prescription()!.reviewedAt | date:'medium' }}</p>
+            <p class="review-date">{{ prescription()!.reviewedAt | europeanDate:'datetime' }}</p>
             @if (prescription()!.reviewNotes) {
               <p class="review-notes">{{ prescription()!.reviewNotes }}</p>
             }

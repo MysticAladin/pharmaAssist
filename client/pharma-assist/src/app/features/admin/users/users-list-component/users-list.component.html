@@ -112,7 +112,7 @@
                 </td>
                 <td>
                   @if (user.lastLoginAt) {
-                    {{ user.lastLoginAt | date:'short' }}
+                    {{ user.lastLoginAt | europeanDate:'datetime' }}
                   } @else {
                     <span class="text-muted">{{ 'users.neverLoggedIn' | translate }}</span>
                   }

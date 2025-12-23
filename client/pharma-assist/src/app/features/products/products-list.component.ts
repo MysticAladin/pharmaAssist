@@ -139,9 +139,10 @@ export class ProductsListComponent implements OnInit {
     { key: 'name', label: 'products.columns.name', sortable: true },
     { key: 'categoryName', label: 'products.columns.category', sortable: true },
     { key: 'manufacturerName', label: 'products.columns.manufacturer', sortable: true },
+    { key: 'dosageForm', label: 'products.columns.form', sortable: true },
+    { key: 'packageSize', label: 'products.columns.packageSize', sortable: true },
     { key: 'unitPrice', label: 'products.columns.price', sortable: true, align: 'right' },
-    { key: 'stockQuantity', label: 'products.columns.stock', sortable: true, align: 'center' },
-    { key: 'isActive', label: 'products.columns.status', align: 'center' }
+    { key: 'stockQuantity', label: 'products.columns.stock', sortable: true, align: 'center' }
   ];
 
   ngOnInit(): void {

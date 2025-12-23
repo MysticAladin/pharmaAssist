@@ -119,19 +119,19 @@
               <div class="detail-row">
                 <span class="label">{{ 'TENDERS.FIELD.DEADLINE' | translate }}</span>
                 <span class="value" [class.deadline-warning]="isDeadlineSoon()" [class.deadline-passed]="isDeadlinePassed()">
-                  {{ tender()?.submissionDeadline | date:'medium' }}
+                  {{ tender()?.submissionDeadline | europeanDate:'datetime' }}
                 </span>
               </div>
               @if (tender()?.openingDate) {
                 <div class="detail-row">
                   <span class="label">{{ 'TENDERS.FIELD.OPENING_DATE' | translate }}</span>
-                  <span class="value">{{ tender()?.openingDate | date:'medium' }}</span>
+                  <span class="value">{{ tender()?.openingDate | europeanDate:'datetime' }}</span>
                 </div>
               }
               @if (tender()?.publishedDate) {
                 <div class="detail-row">
                   <span class="label">{{ 'TENDERS.FIELD.PUBLISHED_DATE' | translate }}</span>
-                  <span class="value">{{ tender()?.publishedDate | date:'medium' }}</span>
+                  <span class="value">{{ tender()?.publishedDate | europeanDate:'datetime' }}</span>
                 </div>
               }
               @if (tender()?.description) {
@@ -173,13 +173,13 @@
               @if (tender()?.contractStartDate) {
                 <div class="detail-row">
                   <span class="label">{{ 'TENDERS.FIELD.CONTRACT_START' | translate }}</span>
-                  <span class="value">{{ tender()?.contractStartDate | date:'shortDate' }}</span>
+                  <span class="value">{{ tender()?.contractStartDate | europeanDate }}</span>
                 </div>
               }
               @if (tender()?.contractEndDate) {
                 <div class="detail-row">
                   <span class="label">{{ 'TENDERS.FIELD.CONTRACT_END' | translate }}</span>
-                  <span class="value">{{ tender()?.contractEndDate | date:'shortDate' }}</span>
+                  <span class="value">{{ tender()?.contractEndDate | europeanDate }}</span>
                 </div>
               }
               @if (tender()?.deliveryLocation) {
@@ -354,7 +354,7 @@
                           <span>{{ 'TENDERS.BIDS.PREPARED_BY' | translate }}: {{ bid.preparedByName }}</span>
                         }
                         @if (bid.submittedDate) {
-                          <span>{{ 'TENDERS.BIDS.SUBMITTED' | translate }}: {{ bid.submittedDate | date:'short' }}</span>
+                          <span>{{ 'TENDERS.BIDS.SUBMITTED' | translate }}: {{ bid.submittedDate | europeanDate:'datetime' }}</span>
                         }
                       </div>
                     </div>
@@ -395,7 +395,7 @@
                         <span class="document-description">{{ doc.description }}</span>
                       }
                       <span class="document-meta">
-                        {{ doc.uploadedByName }} • {{ doc.createdAt | date:'short' }}
+                        {{ doc.uploadedByName }} • {{ doc.createdAt | europeanDate:'datetime' }}
                       </span>
                     </div>
                     <div class="document-actions">

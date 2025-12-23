@@ -554,6 +554,8 @@
       "name": "Product Name",
       "category": "Category",
       "manufacturer": "Manufacturer",
+      "form": "Form",
+      "packageSize": "Qty/Pack",
       "price": "Price (BAM)",
       "stock": "Stock",
       "status": "Status"

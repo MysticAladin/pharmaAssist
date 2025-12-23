@@ -2,6 +2,7 @@ import { Component, OnInit, inject, signal, computed } from '@angular/core';
 import { CommonModule, DatePipe, CurrencyPipe } from '@angular/common';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { EuropeanDatePipe } from '../../core/pipes';
 import { TenderService } from '../../core/services/tender.service';
 import {
   TenderDetailDto,
@@ -27,6 +28,7 @@ import { ConfirmDialogComponent } from '../../shared/components/confirm-dialog';
     TranslateModule,
     DatePipe,
     CurrencyPipe,
+    EuropeanDatePipe,
     ConfirmDialogComponent
   ],
   templateUrl: './tender-detail-component/tender-detail.component.html',

@@ -3,6 +3,8 @@ import { CommonModule, DatePipe } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 
+import { EuropeanDatePipe } from '../../core/pipes';
+
 import { PrescriptionService } from '../../core/services/prescription.service';
 import { NotificationService } from '../../core/services/notification.service';
 import { ConfirmationService } from '../../core/services/confirmation.service';
@@ -19,7 +21,7 @@ import { StatusBadgeComponent } from '../../shared/components/status-badge';
 @Component({
   selector: 'app-prescription-detail',
   standalone: true,
-  imports: [CommonModule, TranslateModule, DatePipe, StatusBadgeComponent],
+  imports: [CommonModule, TranslateModule, DatePipe, EuropeanDatePipe, StatusBadgeComponent],
   templateUrl: './prescription-detail-component/prescription-detail.component.html',
   styleUrls: ['./prescription-detail-component/prescription-detail.component.scss']
 })

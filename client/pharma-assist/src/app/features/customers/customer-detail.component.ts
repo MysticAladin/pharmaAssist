@@ -3,8 +3,11 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { map } from 'rxjs/operators';
+import { EuropeanDatePipe } from '../../core/pipes';
 import { CustomerService, Customer, CustomerNote, AddNoteRequest } from '../../core/services/customer.service';
-import { OrderService, OrderSummary, OrderStatus } from '../../core/services/order.service';
+import { OrderService, OrderSummary } from '../../core/services/order.service';
+import { OrderStatus } from '../../core/models/order.model';
 import { NotificationService } from '../../core/services/notification.service';
 import { ConfirmationService } from '../../core/services/confirmation.service';
 import { StatusBadgeComponent, BadgeVariant } from '../../shared/components/status-badge/status-badge.component';
@@ -19,6 +22,7 @@ import { PaginationComponent, PageEvent } from '../../shared/components/paginati
     FormsModule,
     RouterLink,
     TranslateModule,
+    EuropeanDatePipe,
     StatusBadgeComponent,
     EmptyStateComponent,
     PaginationComponent
@@ -46,11 +50,16 @@ export class CustomerDetailComponent implements OnInit {
   showNoteForm = signal(false);
   newNoteContent = signal('');
   savingNote = signal(false);
-  orderStats = signal({
+  orderStats = signal<{
+    totalOrders: number;
+    totalRevenue: number;
+    averageOrderValue: number;
+    lastOrderDate: Date | null;
+  }>({
     totalOrders: 0,
     totalRevenue: 0,
     averageOrderValue: 0,
-    lastOrderDate: null as string | null
+    lastOrderDate: null
   });
 
   availableCredit = computed(() => {
@@ -68,19 +77,21 @@ export class CustomerDetailComponent implements OnInit {
   ngOnInit(): void {
     const id = this.route.snapshot.paramMap.get('id');
     if (id) {
-      this.loadCustomer(+id);
+      this.loadCustomer(id);
     }
   }
 
-  loadCustomer(id: number): void {
+  loadCustomer(id: string): void {
     this.loading.set(true);
-    this.customerService.getCustomer(id).subscribe({
+    this.customerService.getCustomer(id).pipe(
+      map(response => response.data!)
+    ).subscribe({
       next: (customer) => {
         this.customer.set(customer);
         this.loading.set(false);
-        this.loadOrders(customer.id);
-        this.loadNotes(customer.id);
-        this.loadOrderStats(customer.id);
+        this.loadOrders(String(customer.id));
+        this.loadNotes(String(customer.id));
+        this.loadOrderStats(String(customer.id));
       },
       error: () => {
         this.loading.set(false);
@@ -88,12 +99,12 @@ export class CustomerDetailComponent implements OnInit {
     });
   }
 
-  loadOrders(customerId: number): void {
+  loadOrders(customerId: string): void {
     this.loadingOrders.set(true);
     this.orderService.getOrders(this.ordersPage(), 5, { customerId }).subscribe({
       next: (response) => {
         this.orders.set(response.items);
-        this.ordersTotalItems.set(response.totalItems);
+        this.ordersTotalItems.set(response.totalCount);
         this.loadingOrders.set(false);
       },
       error: () => {
@@ -102,9 +113,11 @@ export class CustomerDetailComponent implements OnInit {
     });
   }
 
-  loadNotes(customerId: number): void {
+  loadNotes(customerId: string): void {
     this.loadingNotes.set(true);
-    this.customerService.getCustomerNotes(customerId).subscribe({
+    this.customerService.getCustomerNotes(customerId).pipe(
+      map(response => response.data!)
+    ).subscribe({
       next: (notes) => {
         this.notes.set(notes);
         this.loadingNotes.set(false);
@@ -115,8 +128,10 @@ export class CustomerDetailComponent implements OnInit {
     });
   }
 
-  loadOrderStats(customerId: number): void {
-    this.customerService.getCustomerStats(customerId).subscribe({
+  loadOrderStats(customerId: string): void {
+    this.customerService.getCustomerStats(customerId).pipe(
+      map(response => response.data!)
+    ).subscribe({
       next: (stats) => {
         this.orderStats.set(stats);
       },
@@ -137,7 +152,7 @@ export class CustomerDetailComponent implements OnInit {
       primaryAddress.street,
       primaryAddress.buildingNumber,
       primaryAddress.postalCode,
-      primaryAddress.city
+      primaryAddress.cityName
     ].filter(Boolean);
 
     return parts.join(', ') || '-';
@@ -167,7 +182,7 @@ export class CustomerDetailComponent implements OnInit {
     this.ordersPage.set(event.page);
     const customer = this.customer();
     if (customer) {
-      this.loadOrders(customer.id);
+      this.loadOrders(String(customer.id));
     }
   }
 
@@ -185,13 +200,13 @@ export class CustomerDetailComponent implements OnInit {
     this.savingNote.set(true);
     const request: AddNoteRequest = { content };
 
-    this.customerService.addCustomerNote(customer.id, request).subscribe({
+    this.customerService.addCustomerNote(String(customer.id), request).subscribe({
       next: () => {
         this.notificationService.success(this.translateService.instant('CUSTOMERS.NOTE_ADDED'));
         this.newNoteContent.set('');
         this.showNoteForm.set(false);
         this.savingNote.set(false);
-        this.loadNotes(customer.id);
+        this.loadNotes(String(customer.id));
       },
       error: () => {
         this.savingNote.set(false);
@@ -207,13 +222,13 @@ export class CustomerDetailComponent implements OnInit {
       title: this.translateService.instant('COMMON.CONFIRM_DELETE'),
       message: this.translateService.instant('CUSTOMERS.CONFIRM_DELETE_NOTE'),
       confirmText: this.translateService.instant('COMMON.DELETE'),
-      confirmButtonClass: 'btn-danger'
-    }).subscribe((confirmed) => {
+      variant: 'danger'
+    }).then((confirmed) => {
       if (confirmed) {
-        this.customerService.deleteCustomerNote(customer.id, note.id).subscribe({
+        this.customerService.deleteCustomerNote(String(customer.id), note.id).subscribe({
           next: () => {
             this.notificationService.success(this.translateService.instant('CUSTOMERS.NOTE_DELETED'));
-            this.loadNotes(customer.id);
+            this.loadNotes(String(customer.id));
           }
         });
       }

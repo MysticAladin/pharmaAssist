@@ -4,6 +4,8 @@ import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 
+import { EuropeanDatePipe } from '../../core/pipes';
+
 import { PrescriptionService, PrescriptionStats } from '../../core/services/prescription.service';
 import {
   PrescriptionSummary,
@@ -30,6 +32,7 @@ import { PaginationComponent, PageEvent } from '../../shared/components/paginati
     FormsModule,
     TranslateModule,
     DatePipe,
+    EuropeanDatePipe,
     SearchInputComponent,
     StatusBadgeComponent,
     EmptyStateComponent,

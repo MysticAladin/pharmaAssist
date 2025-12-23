@@ -93,7 +93,7 @@
             </div>
             <div class="info-item">
               <dt><i class="icon-calendar"></i>{{ 'customers.createdAt' | translate }}</dt>
-              <dd>{{ customer()!.createdAt | date:'mediumDate' }}</dd>
+              <dd>{{ customer()!.createdAt | europeanDate }}</dd>
             </div>
           </dl>
         </div>
@@ -198,7 +198,7 @@
                   @for (order of orders(); track order.id) {
                     <tr>
                       <td class="order-number">{{ order.orderNumber }}</td>
-                      <td>{{ order.orderDate | date:'shortDate' }}</td>
+                      <td>{{ order.orderDate | europeanDate }}</td>
                       <td class="order-total">{{ order.totalAmount | currency:'BAM ':'symbol':'1.2-2' }}</td>
                       <td>
                         <app-status-badge
@@ -254,7 +254,7 @@
                 <button
                   class="btn btn-primary btn-sm"
                   (click)="saveNote()"
-                  [disabled]="!newNoteContent.trim() || savingNote()">
+                  [disabled]="!newNoteContent().trim() || savingNote()">
                   @if (savingNote()) {
                     <span class="spinner-sm"></span>
                   }
@@ -279,7 +279,7 @@
                 <div class="note-item">
                   <div class="note-header">
                     <span class="note-author">{{ note.createdByName }}</span>
-                    <span class="note-date">{{ note.createdAt | date:'medium' }}</span>
+                    <span class="note-date">{{ note.createdAt | europeanDate:'datetime' }}</span>
                     <button
                       class="btn btn-icon btn-sm danger"
                       (click)="deleteNote(note)"
@@ -335,7 +335,7 @@
               </div>
               <div class="activity-info">
                 @if (orderStats().lastOrderDate) {
-                  <span class="activity-value">{{ orderStats().lastOrderDate | date:'shortDate' }}</span>
+                  <span class="activity-value">{{ orderStats().lastOrderDate | europeanDate }}</span>
                 } @else {
                   <span class="activity-value">-</span>
                 }

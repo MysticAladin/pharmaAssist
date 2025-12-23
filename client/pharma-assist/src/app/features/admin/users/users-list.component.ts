@@ -2,6 +2,7 @@ import { Component, inject, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { EuropeanDatePipe } from '../../../core/pipes';
 import { UserService, UserSummary, UserFilters } from '../../../core/services/user.service';
 import { NotificationService } from '../../../core/services/notification.service';
 import { ConfirmationService } from '../../../core/services/confirmation.service';
@@ -19,6 +20,7 @@ import { BadgeVariant } from '../../../shared/components/status-badge';
     CommonModule,
     FormsModule,
     TranslateModule,
+    EuropeanDatePipe,
     PaginationComponent,
     StatusBadgeComponent,
     EmptyStateComponent

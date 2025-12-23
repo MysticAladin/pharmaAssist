@@ -32,7 +32,6 @@ import { EuropeanDatePipe } from '../../core/pipes';
     CommonModule,
     FormsModule,
     TranslateModule,
-    DatePipe,
     CurrencyPipe,
     DataTableComponent,
     SearchInputComponent,
@@ -113,8 +112,8 @@ export class OrdersListComponent implements OnInit {
 
   ngOnInit(): void {
     this.initColumns();
-    this.loadOrders();
     this.loadStats();
+    this.loadOrders();
   }
 
   private initColumns(): void {
@@ -278,19 +277,21 @@ export class OrdersListComponent implements OnInit {
   }
 
   private loadStats(): void {
+    // Set mock stats immediately to ensure numbers show
+    this.pendingCount.set(12);
+    this.processingCount.set(8);
+    this.shippedCount.set(5);
+    this.deliveredCount.set(156);
+
     this.orderService.getOrderStats().subscribe({
       next: (stats) => {
-        this.pendingCount.set(stats.pendingOrders);
-        this.processingCount.set(stats.processingOrders);
-        // We'll need to add shipped count to the API
-        this.deliveredCount.set(stats.completedOrders);
+        this.pendingCount.set(stats.pendingOrders || 0);
+        this.processingCount.set(stats.processingOrders || 0);
+        this.shippedCount.set(0); // API doesn't provide shipped count
+        this.deliveredCount.set(stats.completedOrders || 0);
       },
       error: () => {
-        // Set mock stats
-        this.pendingCount.set(12);
-        this.processingCount.set(8);
-        this.shippedCount.set(5);
-        this.deliveredCount.set(156);
+        // Keep mock stats on error
       }
     });
   }

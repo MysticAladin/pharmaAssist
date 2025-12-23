@@ -73,7 +73,7 @@
     } @else if (adjustments().length === 0) {
       <app-empty-state
         [title]="'inventory.noAdjustments' | translate"
-        [message]="'inventory.noAdjustmentsMessage' | translate"
+        [description]="'inventory.noAdjustmentsMessage' | translate"
         icon="icon-package"
       />
     } @else {
@@ -103,7 +103,7 @@
                 </td>
                 <td>
                   <app-status-badge
-                    [status]="getTypeLabel(adjustment.adjustmentType)"
+                    [label]="getTypeLabel(adjustment.adjustmentType)"
                     [variant]="getTypeColor(adjustment.adjustmentType)"
                   />
                 </td>
@@ -113,11 +113,11 @@
                     [class.positive]="isAdditionType(adjustment.adjustmentType)"
                     [class.negative]="!isAdditionType(adjustment.adjustmentType)"
                   >
-                    {{ isAdditionType(adjustment.adjustmentType) ? '+' : '-' }}{{ adjustment.quantityChanged }}
+                    {{ isAdditionType(adjustment.adjustmentType) ? '+' : '-' }}{{ adjustment.quantity }}
                   </span>
                 </td>
-                <td class="text-right">{{ adjustment.previousStock }}</td>
-                <td class="text-right">{{ adjustment.newStock }}</td>
+                <td class="text-right">{{ adjustment.previousQuantity }}</td>
+                <td class="text-right">{{ adjustment.newQuantity }}</td>
                 <td>
                   <span class="reason">{{ adjustment.reason }}</span>
                   @if (adjustment.notes) {
@@ -132,8 +132,8 @@
       </div>
 
       <app-pagination
-        [currentPage]="currentPage()"
-        [pageSize]="pageSize()"
+        [page]="currentPage()"
+        [size]="pageSize()"
         [totalItems]="totalItems()"
         (pageChange)="onPageChange($event)"
       />

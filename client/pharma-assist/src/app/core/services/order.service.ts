@@ -14,6 +14,8 @@ import {
   PaymentStatus
 } from '../models/order.model';
 
+export type { OrderSummary };
+
 export interface PaginatedResult<T> {
   items: T[];
   totalCount: number;

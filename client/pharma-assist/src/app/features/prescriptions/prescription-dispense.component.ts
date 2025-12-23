@@ -4,6 +4,8 @@ import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
+import { EuropeanDatePipe } from '../../core/pipes';
+
 import { PrescriptionService } from '../../core/services/prescription.service';
 import { InventoryService } from '../../core/services/inventory.service';
 import { NotificationService } from '../../core/services/notification.service';
@@ -36,7 +38,7 @@ interface BatchOption {
 @Component({
   selector: 'app-prescription-dispense',
   standalone: true,
-  imports: [CommonModule, FormsModule, TranslateModule, StatusBadgeComponent],
+  imports: [CommonModule, FormsModule, TranslateModule, EuropeanDatePipe, StatusBadgeComponent],
   templateUrl: './prescription-dispense-component/prescription-dispense.component.html',
   styleUrls: ['./prescription-dispense-component/prescription-dispense.component.scss']
 })
