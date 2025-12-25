@@ -63,6 +63,7 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser, Applicati
     public DbSet<PromotionProduct> PromotionProducts { get; set; } = null!;
     public DbSet<PromotionCategory> PromotionCategories { get; set; } = null!;
     public DbSet<PromotionUsage> PromotionUsages { get; set; } = null!;
+    public DbSet<ProductPrice> ProductPrices { get; set; } = null!;
 
     // Sales Targets & Budgets
     public DbSet<SalesTarget> SalesTargets { get; set; } = null!;

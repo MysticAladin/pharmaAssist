@@ -204,3 +204,12 @@ public enum FlagCategory
     UI = 7,           // User interface features
     Experimental = 8  // Experimental/beta features
 }
+
+/// <summary>
+/// Price type used for BiH-specific pricing rules (e.g., commercial vs essential medicines).
+/// </summary>
+public enum PriceType
+{
+    Commercial = 1,
+    Essential = 2
+}
