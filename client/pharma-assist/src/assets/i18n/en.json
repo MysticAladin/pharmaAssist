@@ -1700,6 +1700,7 @@
     "percentage": "Percentage",
     "filters": {
       "dateRange": "Date Range",
+      "predefined": "Predefined Filters",
       "startDate": "Start Date",
       "endDate": "End Date",
       "today": "Today",

@@ -2,10 +2,10 @@
   <!-- Header -->
   <header class="page-header">
     <div class="header-content">
-      <div>
-        <h1>{{ 'users.title' | translate }}</h1>
-        <p class="subtitle">{{ 'users.subtitle' | translate }}</p>
-      </div>
+      <h1 class="page-title">{{ 'users.title' | translate }}</h1>
+      <p class="page-subtitle">{{ 'users.subtitle' | translate }}</p>
+    </div>
+    <div class="header-actions">
       <button class="btn btn-primary" (click)="openCreateModal()">
         <i class="icon-plus"></i>
         {{ 'users.addUser' | translate }}

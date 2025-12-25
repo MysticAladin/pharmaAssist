@@ -8,5 +8,6 @@ export const ORDERS_ROUTES: Routes = [
     path: 'prescriptions',
     loadChildren: () => import('../prescriptions/prescriptions.routes').then(m => m.PRESCRIPTIONS_ROUTES)
   },
+  { path: ':id/edit', loadComponent: () => import('./order-detail.component').then(m => m.OrderDetailComponent) },
   { path: ':id', loadComponent: () => import('./order-detail.component').then(m => m.OrderDetailComponent) }
 ];

@@ -1,22 +1,21 @@
 <div class="analytics">
+  <div class="breadcrumb">
+    <a routerLink="/reports">{{ 'reports.title' | translate }}</a>
+    <span class="separator">/</span>
+    <span>{{ 'reports.analytics.title' | translate }}</span>
+  </div>
+
   <div class="page-header">
-    <div class="breadcrumb">
-      <a routerLink="/reports">{{ 'reports.title' | translate }}</a>
-      <span class="separator">/</span>
-      <span>{{ 'reports.analytics.title' | translate }}</span>
+    <div class="header-content">
+      <h1 class="page-title">{{ 'reports.analytics.title' | translate }}</h1>
+      <p class="page-subtitle">{{ 'reports.analytics.subtitle' | translate }}</p>
     </div>
-    <div class="header-main">
-      <div class="header-content">
-        <h1 class="page-title">{{ 'reports.analytics.title' | translate }}</h1>
-        <p class="page-description">{{ 'reports.analytics.subtitle' | translate }}</p>
-      </div>
-      <div class="header-actions">
-        <div class="period-selector">
-          <button [class.active]="period === 'week'" (click)="setPeriod('week')">Week</button>
-          <button [class.active]="period === 'month'" (click)="setPeriod('month')">Month</button>
-          <button [class.active]="period === 'quarter'" (click)="setPeriod('quarter')">Quarter</button>
-          <button [class.active]="period === 'year'" (click)="setPeriod('year')">Year</button>
-        </div>
+    <div class="header-actions">
+      <div class="period-selector">
+        <button [class.active]="period === 'week'" (click)="setPeriod('week')">Week</button>
+        <button [class.active]="period === 'month'" (click)="setPeriod('month')">Month</button>
+        <button [class.active]="period === 'quarter'" (click)="setPeriod('quarter')">Quarter</button>
+        <button [class.active]="period === 'year'" (click)="setPeriod('year')">Year</button>
       </div>
     </div>
   </div>

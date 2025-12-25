@@ -32,6 +32,7 @@ export class DataTableComponent<T = any> {
   rowClickable = signal(false);
   hoverable = signal(true);
   striped = signal(false);
+  compact = signal(false);
   trackByFn = signal<(item: T) => any>((item: any) => item.id);
 
   // Support both naming conventions
@@ -56,6 +57,8 @@ export class DataTableComponent<T = any> {
   @Input() set trackBy(value: (item: T) => any) { this.trackByFn.set(value); }
   @Input('hoverable') set hoverableInput(value: boolean) { this.hoverable.set(value); }
   @Input('striped') set stripedInput(value: boolean) { this.striped.set(value); }
+  @Input() set compactInput(value: boolean) { this.compact.set(value); }
+  @Input('compact') set compactAlias(value: boolean) { this.compact.set(value); }
   @Input() actionsTemplate!: TemplateRef<any>;
 
   @Output() sortChange = new EventEmitter<SortEvent>();

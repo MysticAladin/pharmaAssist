@@ -1,25 +1,24 @@
 ﻿<div class="inventory-report">
+  <div class="breadcrumb">
+    <a routerLink="/reports">{{ 'reports.title' | translate }}</a>
+    <span class="separator">/</span>
+    <span>{{ 'reports.inventory.title' | translate }}</span>
+  </div>
+
   <div class="page-header">
-    <div class="breadcrumb">
-      <a routerLink="/reports">{{ 'reports.title' | translate }}</a>
-      <span class="separator">/</span>
-      <span>{{ 'reports.inventory.title' | translate }}</span>
+    <div class="header-content">
+      <h1 class="page-title">{{ 'reports.inventory.title' | translate }}</h1>
+      <p class="page-subtitle">{{ 'reports.inventory.subtitle' | translate }}</p>
     </div>
-    <div class="header-main">
-      <div class="header-content">
-        <h1 class="page-title">{{ 'reports.inventory.title' | translate }}</h1>
-        <p class="page-description">{{ 'reports.inventory.subtitle' | translate }}</p>
-      </div>
-      <div class="header-actions">
-        <button class="btn btn-secondary">
-          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-          {{ 'reports.actions.export' | translate }}
-        </button>
-        <button class="btn btn-primary">
-          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/></svg>
-          {{ 'reports.actions.refresh' | translate }}
-        </button>
-      </div>
+    <div class="header-actions">
+      <button class="btn btn-secondary">
+        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        {{ 'reports.actions.export' | translate }}
+      </button>
+      <button class="btn btn-primary">
+        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/></svg>
+        {{ 'reports.actions.refresh' | translate }}
+      </button>
     </div>
   </div>
 

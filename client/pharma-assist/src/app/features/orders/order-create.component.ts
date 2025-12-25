@@ -627,13 +627,13 @@ export class OrderCreateComponent implements OnInit {
     this.submitting.set(true);
 
     const orderItems: CreateOrderItemDto[] = this.cartItems().map(item => ({
-      productId: item.product.id.toString(),
+      productId: item.product.id,
       quantity: item.quantity,
-      discountPercent: item.discountPercent
+      discountPercentage: item.discountPercent
     }));
 
     const order: CreateOrderDto = {
-      customerId: this.selectedCustomer()!.id.toString(),
+      customerId: this.selectedCustomer()!.id,
       paymentMethod: this.paymentMethod,
       requiredDate: this.requiredDate ? new Date(this.requiredDate) : undefined,
       notes: this.orderNotes || undefined,

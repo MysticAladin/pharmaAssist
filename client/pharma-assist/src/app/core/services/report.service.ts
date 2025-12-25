@@ -108,11 +108,7 @@ export class ReportService {
       .set('endDate', range.end.toISOString());
 
     return this.http.get<any>(`${this.apiUrl}/sales`, { params }).pipe(
-      map(response => this.mapSalesReportFromApi(response, filters)),
-      catchError(err => {
-        console.warn('Failed to fetch sales report from API, using mock data', err);
-        return of(this.generateMockSalesReport(filters)).pipe(delay(500));
-      })
+      map(response => this.mapSalesReportFromApi(response, filters))
     );
   }
 

@@ -101,9 +101,10 @@ export class CustomerDetailComponent implements OnInit {
 
   loadOrders(customerId: string): void {
     this.loadingOrders.set(true);
-    this.orderService.getOrders(this.ordersPage(), 5, { customerId }).subscribe({
+    const customerIdNum = parseInt(customerId, 10);
+    this.orderService.getOrders(this.ordersPage(), 5, { customerId: customerIdNum }).subscribe({
       next: (response) => {
-        this.orders.set(response.items);
+        this.orders.set(response.data);
         this.ordersTotalItems.set(response.totalCount);
         this.loadingOrders.set(false);
       },

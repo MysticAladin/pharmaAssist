@@ -1,43 +1,45 @@
 ﻿<div class="sales-report">
+  <div class="breadcrumb">
+    <a routerLink="/reports">{{ 'reports.title' | translate }}</a>
+    <span class="separator">/</span>
+    <span>{{ 'reports.sales.title' | translate }}</span>
+  </div>
+
   <div class="page-header">
-    <div class="breadcrumb">
-      <a routerLink="/reports">{{ 'reports.title' | translate }}</a>
-      <span class="separator">/</span>
-      <span>{{ 'reports.sales.title' | translate }}</span>
+    <div class="header-content">
+      <h1 class="page-title">{{ 'reports.sales.title' | translate }}</h1>
+      <p class="page-subtitle">{{ 'reports.sales.subtitle' | translate }}</p>
     </div>
-    <div class="header-main">
-      <div class="header-content">
-        <h1 class="page-title">{{ 'reports.sales.title' | translate }}</h1>
-        <p class="page-description">{{ 'reports.sales.subtitle' | translate }}</p>
-      </div>
-      <div class="header-actions">
-        <button class="btn-secondary">
-          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-          {{ 'reports.actions.export' | translate }}
-        </button>
-        <button class="btn-primary" (click)="generateReport()">
-          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/></svg>
-          {{ 'reports.actions.generate' | translate }}
-        </button>
-      </div>
+    <div class="header-actions">
+      <button class="btn-secondary">
+        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        {{ 'reports.actions.export' | translate }}
+      </button>
+      <button class="btn-primary" (click)="generateReport()">
+        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/></svg>
+        {{ 'reports.actions.generate' | translate }}
+      </button>
     </div>
   </div>
 
   <!-- Filters -->
-  <div class="filters-bar">
+  <div class="filters-bar filter-row">
     <div class="date-range">
       <label>{{ 'reports.filters.dateRange' | translate }}</label>
       <div class="date-inputs">
-        <input type="date" [(ngModel)]="startDate" class="date-input">
+        <input type="text" inputmode="numeric" placeholder="dd.MM.yyyy" [ngModel]="startDateText" (ngModelChange)="onStartDateChange($event)" class="date-input">
         <span class="date-separator">-</span>
-        <input type="date" [(ngModel)]="endDate" class="date-input">
+        <input type="text" inputmode="numeric" placeholder="dd.MM.yyyy" [ngModel]="endDateText" (ngModelChange)="onEndDateChange($event)" class="date-input">
       </div>
     </div>
-    <div class="quick-ranges">
-      <button class="range-btn" [class.active]="selectedRange === '7d'" (click)="setRange('7d')">{{ 'reports.filters.last7Days' | translate }}</button>
-      <button class="range-btn" [class.active]="selectedRange === '30d'" (click)="setRange('30d')">{{ 'reports.filters.last30Days' | translate }}</button>
-      <button class="range-btn" [class.active]="selectedRange === 'month'" (click)="setRange('month')">{{ 'reports.filters.thisMonth' | translate }}</button>
-      <button class="range-btn" [class.active]="selectedRange === 'year'" (click)="setRange('year')">{{ 'reports.filters.thisYear' | translate }}</button>
+    <div class="filter-block filter-right">
+      <label>{{ 'reports.filters.predefined' | translate }}</label>
+      <div class="quick-ranges">
+        <button class="range-btn" [class.active]="selectedRange === '7d'" (click)="setRange('7d')">{{ 'reports.filters.last7Days' | translate }}</button>
+        <button class="range-btn" [class.active]="selectedRange === '30d'" (click)="setRange('30d')">{{ 'reports.filters.last30Days' | translate }}</button>
+        <button class="range-btn" [class.active]="selectedRange === 'month'" (click)="setRange('month')">{{ 'reports.filters.thisMonth' | translate }}</button>
+        <button class="range-btn" [class.active]="selectedRange === 'year'" (click)="setRange('year')">{{ 'reports.filters.thisYear' | translate }}</button>
+      </div>
     </div>
   </div>
 
@@ -48,7 +50,9 @@
       <div class="stat-content">
         <span class="stat-label">{{ 'reports.sales.revenue' | translate }}</span>
         <span class="stat-value">{{ totalRevenue() | number:'1.2-2' }} KM</span>
-        <span class="stat-change positive"> 12.5%</span>
+        <span class="stat-change" [class.positive]="revenueGrowth() >= 0" [class.negative]="revenueGrowth() < 0">
+          {{ revenueGrowth() >= 0 ? '+' : '' }}{{ revenueGrowth() | number:'1.0-1' }}%
+        </span>
       </div>
     </div>
     <div class="stat-card">
@@ -56,7 +60,9 @@
       <div class="stat-content">
         <span class="stat-label">{{ 'reports.sales.orders' | translate }}</span>
         <span class="stat-value">{{ totalOrders() }}</span>
-        <span class="stat-change positive"> 8.2%</span>
+        <span class="stat-change" [class.positive]="ordersGrowth() >= 0" [class.negative]="ordersGrowth() < 0">
+          {{ ordersGrowth() >= 0 ? '+' : '' }}{{ ordersGrowth() | number:'1.0-1' }}%
+        </span>
       </div>
     </div>
     <div class="stat-card">

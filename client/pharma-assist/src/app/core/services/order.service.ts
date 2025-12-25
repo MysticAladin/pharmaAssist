@@ -1,6 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { Observable, map } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import {
   Order,
@@ -17,11 +17,14 @@ import {
 export type { OrderSummary };
 
 export interface PaginatedResult<T> {
-  items: T[];
+  data: T[];
   totalCount: number;
-  pageNumber: number;
+  currentPage: number;
   pageSize: number;
   totalPages: number;
+  success?: boolean;
+  hasPrevious?: boolean;
+  hasNext?: boolean;
 }
 
 @Injectable({
@@ -79,8 +82,16 @@ export class OrderService {
   /**
    * Get a single order by ID with full details
    */
-  getOrder(id: string): Observable<Order> {
-    return this.http.get<Order>(`${this.baseUrl}/${id}`);
+  getOrder(id: number | string): Observable<Order> {
+    return this.http.get<any>(`${this.baseUrl}/${id}`).pipe(
+      map((response) => {
+        // API typically returns ApiResponse<Order> { success, data }
+        if (response && typeof response === 'object' && 'data' in response) {
+          return (response as { data: Order }).data;
+        }
+        return response as Order;
+      })
+    );
   }
 
   /**
@@ -93,7 +104,7 @@ export class OrderService {
   /**
    * Get orders for a specific customer
    */
-  getCustomerOrders(customerId: string, page: number = 1, pageSize: number = 10): Observable<PaginatedResult<OrderSummary>> {
+  getCustomerOrders(customerId: number, page: number = 1, pageSize: number = 10): Observable<PaginatedResult<OrderSummary>> {
     const params = new HttpParams()
       .set('pageNumber', page.toString())
       .set('pageSize', pageSize.toString());
@@ -111,35 +122,35 @@ export class OrderService {
   /**
    * Update an existing order
    */
-  updateOrder(id: string, order: UpdateOrderDto): Observable<Order> {
+  updateOrder(id: number, order: UpdateOrderDto): Observable<Order> {
     return this.http.put<Order>(`${this.baseUrl}/${id}`, order);
   }
 
   /**
    * Update order status
    */
-  updateOrderStatus(id: string, statusUpdate: UpdateOrderStatusDto): Observable<Order> {
+  updateOrderStatus(id: number, statusUpdate: UpdateOrderStatusDto): Observable<Order> {
     return this.http.patch<Order>(`${this.baseUrl}/${id}/status`, statusUpdate);
   }
 
   /**
    * Update payment status
    */
-  updatePaymentStatus(id: string, paymentUpdate: UpdatePaymentStatusDto): Observable<Order> {
+  updatePaymentStatus(id: number, paymentUpdate: UpdatePaymentStatusDto): Observable<Order> {
     return this.http.patch<Order>(`${this.baseUrl}/${id}/payment-status`, paymentUpdate);
   }
 
   /**
    * Cancel an order
    */
-  cancelOrder(id: string, reason?: string): Observable<Order> {
+  cancelOrder(id: number, reason?: string): Observable<Order> {
     return this.http.post<Order>(`${this.baseUrl}/${id}/cancel`, { reason });
   }
 
   /**
    * Delete an order (soft delete)
    */
-  deleteOrder(id: string): Observable<void> {
+  deleteOrder(id: number): Observable<void> {
     return this.http.delete<void>(`${this.baseUrl}/${id}`);
   }
 
@@ -154,7 +165,8 @@ export class OrderService {
     if (toDate) {
       params = params.set('toDate', toDate.toISOString());
     }
-    return this.http.get<OrderStats>(`${this.baseUrl}/stats`, { params });
+    return this.http.get<{ success: boolean; data: OrderStats }>(`${this.baseUrl}/stats`, { params })
+      .pipe(map(response => response.data));
   }
 
   /**
@@ -259,6 +271,7 @@ export interface OrderStats {
   processingOrders: number;
   completedOrders: number;
   cancelledOrders: number;
+  shippedOrders: number;
   totalRevenue: number;
   averageOrderValue: number;
   ordersWithPrescription: number;

@@ -54,6 +54,20 @@ th {
   }
 }
 
+.data-table-container.compact {
+  th {
+    padding: 10px 12px;
+  }
+
+  td {
+    padding: 10px 12px;
+  }
+
+  .checkbox-cell {
+    width: 44px;
+  }
+}
+
 .th-content {
   display: flex;
   align-items: center;

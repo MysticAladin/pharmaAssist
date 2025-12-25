@@ -35,31 +35,29 @@ import { EmptyStateComponent } from '../../../shared/components/empty-state/empt
       <!-- Header -->
       <header class="page-header">
         <div class="header-content">
-          <div>
-            <h1>{{ 'targets.title' | translate }}</h1>
-            <p class="subtitle">{{ 'targets.subtitle' | translate }}</p>
-          </div>
+          <h1 class="page-title">{{ 'targets.title' | translate }}</h1>
+          <p class="page-subtitle">{{ 'targets.subtitle' | translate }}</p>
         </div>
       </header>
 
       <!-- Tabs -->
-      <div class="tabs-container">
+      <div class="pa-tabs">
         <button
-          class="tab-btn"
+          class="pa-tab"
           [class.active]="activeTab() === 'targets'"
           (click)="setActiveTab('targets')">
           <i class="icon-target"></i>
           {{ 'targets.salesTargets' | translate }}
         </button>
         <button
-          class="tab-btn"
+          class="pa-tab"
           [class.active]="activeTab() === 'budgets'"
           (click)="setActiveTab('budgets')">
           <i class="icon-dollar-sign"></i>
           {{ 'budgets.title' | translate }}
         </button>
         <button
-          class="tab-btn"
+          class="pa-tab"
           [class.active]="activeTab() === 'performance'"
           (click)="setActiveTab('performance')">
           <i class="icon-bar-chart-2"></i>
@@ -543,54 +541,41 @@ import { EmptyStateComponent } from '../../../shared/components/empty-state/empt
   styles: [`
     .targets-page {
       padding: 1.5rem;
+      max-width: 1400px;
+      margin: 0 auto;
     }
 
     .page-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
       margin-bottom: 1.5rem;
+      gap: 1rem;
+      flex-wrap: wrap;
     }
 
-    .page-header h1 {
-      font-size: 1.75rem;
+    .header-content {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .page-title {
+      font-size: var(--font-size-2xl);
       font-weight: 600;
       color: var(--text-primary);
+      margin: 0 0 0.25rem 0;
+    }
+
+    .page-subtitle {
+      font-size: var(--font-size-sm);
+      color: var(--text-secondary);
       margin: 0;
     }
 
-    .subtitle {
-      color: var(--text-secondary);
-      margin: 0.25rem 0 0;
-    }
-
-    .tabs-container {
-      display: flex;
-      gap: 0.5rem;
-      margin-bottom: 1.5rem;
-      border-bottom: 1px solid var(--border-color);
-      padding-bottom: 0.5rem;
-    }
-
-    .tab-btn {
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-      padding: 0.75rem 1.25rem;
-      border: none;
-      background: transparent;
-      color: var(--text-secondary);
-      font-weight: 500;
-      cursor: pointer;
-      border-radius: 0.5rem 0.5rem 0 0;
-      transition: all 0.2s;
-    }
-
-    .tab-btn:hover {
-      background: var(--bg-secondary);
-      color: var(--text-primary);
-    }
-
-    .tab-btn.active {
-      background: var(--primary-color);
-      color: white;
+    @media (max-width: 768px) {
+      .page-header {
+        flex-direction: column;
+      }
     }
 
     .content-section {

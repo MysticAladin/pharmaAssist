@@ -59,7 +59,7 @@ export class DashboardService {
     return forkJoin({
       orderStats: this.orderService.getOrderStats(today).pipe(catchError(() => of(this.getEmptyOrderStats()))),
       recentOrders: this.orderService.getOrders(1, 5).pipe(
-        map(response => response.items || []),
+        map(response => response.data || []),
         catchError(() => of([] as OrderSummary[]))
       ),
       lowStock: this.inventoryService.getLowStockProducts().pipe(
@@ -119,7 +119,7 @@ export class DashboardService {
    */
   getRecentOrders(count: number = 5): Observable<OrderSummary[]> {
     return this.orderService.getOrders(1, count).pipe(
-      map(response => response.items || []),
+      map(response => response.data || []),
       catchError(() => of([]))
     );
   }
@@ -202,6 +202,7 @@ export class DashboardService {
       processingOrders: 0,
       completedOrders: 0,
       cancelledOrders: 0,
+      shippedOrders: 0,
       totalRevenue: 0,
       averageOrderValue: 0,
       ordersWithPrescription: 0

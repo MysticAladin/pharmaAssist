@@ -1,54 +1,11 @@
 @use '../../../../styles/theme';
+@use '../../../../styles/layouts';
 
 .customer-report {
-  padding: 1.5rem;
-  max-width: 1400px;
-  margin: 0 auto;
-}
-
-.page-header {
-  margin-bottom: 2rem;
-}
-
-.breadcrumb {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  font-size: 0.875rem;
-  color: var(--text-secondary);
-  margin-bottom: 1rem;
-
-  a {
-    color: var(--primary);
-    text-decoration: none;
-
-    &:hover {
-      text-decoration: underline;
-    }
-  }
-}
-
-.header-main {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-}
-
-.page-title {
-  margin: 0;
-  font-size: 1.5rem;
-  font-weight: 600;
-}
-
-.page-description {
-  margin: 0.25rem 0 0;
-  color: var(--text-secondary);
+  @include layouts.page-container;
 }
 
 .header-actions {
-  display: flex;
-  gap: 0.75rem;
-
   select {
     padding: 0.5rem 1rem;
     border: 1px solid var(--border-color);

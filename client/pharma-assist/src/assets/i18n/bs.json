@@ -1697,6 +1697,7 @@
     "percentage": "Postotak",
     "filters": {
       "dateRange": "Raspon Datuma",
+      "predefined": "Predefinisani filteri",
       "startDate": "Početni Datum",
       "endDate": "Krajnji Datum",
       "today": "Danas",

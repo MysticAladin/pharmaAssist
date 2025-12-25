@@ -1,5 +1,5 @@
 import { Component, OnInit, inject, signal, computed } from '@angular/core';
-import { CommonModule, DatePipe, CurrencyPipe } from '@angular/common';
+import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
@@ -29,8 +29,6 @@ import { ConfirmDialogComponent } from '../../shared/components/confirm-dialog';
     CommonModule,
     RouterModule,
     TranslateModule,
-    DatePipe,
-    CurrencyPipe,
     StatusBadgeComponent,
     ConfirmDialogComponent
   ],
@@ -144,8 +142,8 @@ import { ConfirmDialogComponent } from '../../shared/components/confirm-dialog';
                         <td>
                           <div class="product-cell">
                             <span class="product-name">{{ item.productName }}</span>
-                            @if (item.sku) {
-                              <span class="product-sku">{{ item.sku }}</span>
+                            @if (item.productSku) {
+                              <span class="product-sku">{{ item.productSku }}</span>
                             }
                             @if (item.batchNumber) {
                               <span class="batch-info">{{ 'orders.detail.batch' | translate }}: {{ item.batchNumber }}</span>
@@ -153,15 +151,15 @@ import { ConfirmDialogComponent } from '../../shared/components/confirm-dialog';
                           </div>
                         </td>
                         <td class="text-right">{{ item.quantity }}</td>
-                        <td class="text-right">{{ item.unitPrice | currency:'BAM':'symbol':'1.2-2' }}</td>
+                        <td class="text-right">{{ item.unitPrice | number:'1.2-2' }} KM</td>
                         <td class="text-right">
-                          @if (item.discountPercent > 0) {
-                            <span class="discount">-{{ item.discountPercent }}%</span>
+                          @if (item.discountPercentage > 0) {
+                            <span class="discount">-{{ item.discountPercentage }}%</span>
                           } @else {
                             <span class="no-discount">—</span>
                           }
                         </td>
-                        <td class="text-right text-bold">{{ item.lineTotal | currency:'BAM':'symbol':'1.2-2' }}</td>
+                        <td class="text-right text-bold">{{ item.lineTotal | number:'1.2-2' }} KM</td>
                       </tr>
                     }
                   </tbody>
@@ -171,38 +169,38 @@ import { ConfirmDialogComponent } from '../../shared/components/confirm-dialog';
                 <div class="order-totals">
                   <div class="total-row">
                     <span>{{ 'orders.detail.subtotal' | translate }}</span>
-                    <span>{{ order()!.subtotal | currency:'BAM':'symbol':'1.2-2' }}</span>
+                    <span>{{ order()!.subtotal | number:'1.2-2' }} KM</span>
                   </div>
                   @if (order()!.discountAmount > 0) {
                     <div class="total-row discount">
                       <span>{{ 'orders.detail.discountTotal' | translate }}</span>
-                      <span>-{{ order()!.discountAmount | currency:'BAM':'symbol':'1.2-2' }}</span>
+                      <span>-{{ order()!.discountAmount | number:'1.2-2' }} KM</span>
                     </div>
                   }
                   @if (order()!.taxAmount > 0) {
                     <div class="total-row">
                       <span>{{ 'orders.detail.tax' | translate }}</span>
-                      <span>{{ order()!.taxAmount | currency:'BAM':'symbol':'1.2-2' }}</span>
+                      <span>{{ order()!.taxAmount | number:'1.2-2' }} KM</span>
                     </div>
                   }
                   @if (order()!.shippingAmount > 0) {
                     <div class="total-row">
                       <span>{{ 'orders.detail.shipping' | translate }}</span>
-                      <span>{{ order()!.shippingAmount | currency:'BAM':'symbol':'1.2-2' }}</span>
+                      <span>{{ order()!.shippingAmount | number:'1.2-2' }} KM</span>
                     </div>
                   }
                   <div class="total-row grand-total">
                     <span>{{ 'orders.detail.total' | translate }}</span>
-                    <span>{{ order()!.totalAmount | currency:'BAM':'symbol':'1.2-2' }}</span>
+                    <span>{{ order()!.totalAmount | number:'1.2-2' }} KM</span>
                   </div>
-                  @if (order()!.paidAmount > 0 && order()!.paidAmount < order()!.totalAmount) {
+                  @if (order()!.paidAmount && order()!.paidAmount! > 0 && order()!.paidAmount! < order()!.totalAmount) {
                     <div class="total-row paid">
                       <span>{{ 'orders.detail.paid' | translate }}</span>
-                      <span>{{ order()!.paidAmount | currency:'BAM':'symbol':'1.2-2' }}</span>
+                      <span>{{ order()!.paidAmount | number:'1.2-2' }} KM</span>
                     </div>
                     <div class="total-row due">
                       <span>{{ 'orders.detail.due' | translate }}</span>
-                      <span>{{ order()!.totalAmount - order()!.paidAmount | currency:'BAM':'symbol':'1.2-2' }}</span>
+                      <span>{{ order()!.totalAmount - order()!.paidAmount! | number:'1.2-2' }} KM</span>
                     </div>
                   }
                 </div>
@@ -245,7 +243,7 @@ import { ConfirmDialogComponent } from '../../shared/components/confirm-dialog';
                             <span><strong>{{ 'orders.detail.issued' | translate }}:</strong> {{ prescription.issueDate | date:'mediumDate' }}</span>
                           </div>
                         </div>
-                        @if (prescription.fileUrl) {
+                        @if (prescription.imageUrl) {
                           <button class="btn-icon" [title]="'common.view' | translate">
                             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                               <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
@@ -569,15 +567,19 @@ export class OrderDetailComponent implements OnInit {
   }
 
   private setMockOrder(id: string): void {
+    const orderId = parseInt(id, 10);
     const mockOrder: Order = {
-      id,
+      id: orderId,
       orderNumber: 'ORD-2024-0001',
-      customerId: 'c1',
+      customerId: 1,
       customerName: 'Apoteka Moja d.o.o.',
+      customerCode: 'APT-001',
       customerEmail: 'narudzbe@apotekamoja.ba',
       customerPhone: '+387 33 123 456',
       status: OrderStatus.Processing,
+      statusName: 'Processing',
       paymentStatus: PaymentStatus.Paid,
+      paymentStatusName: 'Paid',
       paymentMethod: PaymentMethod.BankTransfer,
       orderDate: new Date('2024-01-15'),
       requiredDate: new Date('2024-01-20'),
@@ -594,46 +596,45 @@ export class OrderDetailComponent implements OnInit {
       billingAddress: 'Ferhadija 12\n71000 Sarajevo\nBosnia and Herzegovina',
       items: [
         {
-          id: 'i1',
-          orderId: id,
-          productId: 'p1',
+          id: 1,
+          orderId: orderId,
+          productId: 1,
           productName: 'Paracetamol 500mg',
-          sku: 'PAR-500',
+          productSku: 'PAR-500',
           quantity: 100,
           unitPrice: 5.50,
-          discountPercent: 5,
+          discountPercentage: 5,
           discountAmount: 27.50,
-          taxPercent: 17,
+          taxRate: 17,
           taxAmount: 79.48,
           lineTotal: 522.50,
-          batchNumber: 'B2024-001',
-          expiryDate: new Date('2026-06-30')
+          batchNumber: 'B2024-001'
         },
         {
-          id: 'i2',
-          orderId: id,
-          productId: 'p2',
+          id: 2,
+          orderId: orderId,
+          productId: 2,
           productName: 'Ibuprofen 400mg',
-          sku: 'IBU-400',
+          productSku: 'IBU-400',
           quantity: 50,
           unitPrice: 8.00,
-          discountPercent: 0,
+          discountPercentage: 0,
           discountAmount: 0,
-          taxPercent: 17,
+          taxRate: 17,
           taxAmount: 68.00,
           lineTotal: 400.00
         },
         {
-          id: 'i3',
-          orderId: id,
-          productId: 'p3',
+          id: 3,
+          orderId: orderId,
+          productId: 3,
           productName: 'Amoxicillin 500mg',
-          sku: 'AMX-500',
+          productSku: 'AMX-500',
           quantity: 30,
           unitPrice: 12.00,
-          discountPercent: 10,
+          discountPercentage: 10,
           discountAmount: 36.00,
-          taxPercent: 17,
+          taxRate: 17,
           taxAmount: 55.08,
           lineTotal: 324.00,
           batchNumber: 'B2024-015'
@@ -641,8 +642,8 @@ export class OrderDetailComponent implements OnInit {
       ],
       prescriptions: [
         {
-          id: 'rx1',
-          orderId: id,
+          id: 1,
+          orderId: orderId,
           prescriptionNumber: 'RX-2024-00123',
           doctorName: 'Dr. Amira Hadžić',
           patientName: 'Edin Mujkić',
@@ -687,7 +688,7 @@ export class OrderDetailComponent implements OnInit {
 
     const printData: OrderPrintData = {
       orderNumber: order.orderNumber,
-      orderDate: new Date(order.createdAt).toLocaleDateString('bs-BA'),
+      orderDate: order.createdAt ? new Date(order.createdAt).toLocaleDateString('bs-BA') : new Date(order.orderDate).toLocaleDateString('bs-BA'),
       customer: {
         name: order.customerName || 'N/A',
         address: order.shippingAddress ? this.formatAddress(order.shippingAddress) : undefined,
@@ -696,7 +697,7 @@ export class OrderDetailComponent implements OnInit {
       },
       items: order.items.map(item => ({
         name: item.productName,
-        sku: item.sku || '',
+        sku: item.productSku || '',
         quantity: item.quantity,
         unitPrice: item.unitPrice,
         total: item.lineTotal

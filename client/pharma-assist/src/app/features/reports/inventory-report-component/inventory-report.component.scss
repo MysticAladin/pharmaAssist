@@ -1,63 +1,9 @@
 ﻿@use '../../../../styles/buttons';
 @use '../../../../styles/cards';
+@use '../../../../styles/layouts';
 
 .inventory-report {
-  padding: 1.5rem;
-  max-width: 1400px;
-  margin: 0 auto;
-}
-
-// Page Header
-.page-header {
-  margin-bottom: 1.5rem;
-}
-
-.breadcrumb {
-  font-size: 0.875rem;
-  color: var(--text-secondary);
-  margin-bottom: 0.75rem;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-
-  a {
-    color: var(--brand-primary);
-    text-decoration: none;
-
-    &:hover {
-      text-decoration: underline;
-    }
-  }
-}
-
-.separator {
-  color: var(--border-primary);
-}
-
-.header-main {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  gap: 1rem;
-  flex-wrap: wrap;
-}
-
-.page-title {
-  font-size: 1.5rem;
-  font-weight: 600;
-  color: var(--text-primary);
-  margin: 0 0 0.25rem;
-}
-
-.page-description {
-  color: var(--text-secondary);
-  margin: 0;
-  font-size: 0.9rem;
-}
-
-.header-actions {
-  display: flex;
-  gap: 0.75rem;
+  @include layouts.page-container;
 }
 
 .btn-primary,
@@ -415,12 +361,4 @@
   }
 }
 
-@media (max-width: 640px) {
-  .inventory-report {
-    padding: 1rem;
-  }
-
-  .header-main {
-    flex-direction: column;
-  }
-}
+// Responsive padding handled by shared layouts module

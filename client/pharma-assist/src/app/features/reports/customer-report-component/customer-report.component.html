@@ -1,31 +1,30 @@
 <div class="customer-report">
+  <div class="breadcrumb">
+    <a routerLink="/reports">{{ 'reports.title' | translate }}</a>
+    <span class="separator">/</span>
+    <span>{{ 'reports.customers.title' | translate }}</span>
+  </div>
+
   <div class="page-header">
-    <div class="breadcrumb">
-      <a routerLink="/reports">{{ 'reports.title' | translate }}</a>
-      <span class="separator">/</span>
-      <span>{{ 'reports.customers.title' | translate }}</span>
+    <div class="header-content">
+      <h1 class="page-title">{{ 'reports.customers.title' | translate }}</h1>
+      <p class="page-subtitle">{{ 'reports.customers.subtitle' | translate }}</p>
     </div>
-    <div class="header-main">
-      <div class="header-content">
-        <h1 class="page-title">{{ 'reports.customers.title' | translate }}</h1>
-        <p class="page-description">{{ 'reports.customers.subtitle' | translate }}</p>
-      </div>
-      <div class="header-actions">
-        <select [(ngModel)]="selectedPeriod" (ngModelChange)="loadReport()">
-          <option value="this_month">{{ 'reports.periods.thisMonth' | translate }}</option>
-          <option value="last_month">{{ 'reports.periods.lastMonth' | translate }}</option>
-          <option value="this_quarter">{{ 'reports.periods.thisQuarter' | translate }}</option>
-          <option value="this_year">{{ 'reports.periods.thisYear' | translate }}</option>
-        </select>
-        <button class="btn btn-secondary" (click)="exportReport()">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
-            <polyline points="7 10 12 15 17 10"/>
-            <line x1="12" y1="15" x2="12" y2="3"/>
-          </svg>
-          {{ 'common.export' | translate }}
-        </button>
-      </div>
+    <div class="header-actions">
+      <select [(ngModel)]="selectedPeriod" (ngModelChange)="loadReport()">
+        <option value="this_month">{{ 'reports.periods.thisMonth' | translate }}</option>
+        <option value="last_month">{{ 'reports.periods.lastMonth' | translate }}</option>
+        <option value="this_quarter">{{ 'reports.periods.thisQuarter' | translate }}</option>
+        <option value="this_year">{{ 'reports.periods.thisYear' | translate }}</option>
+      </select>
+      <button class="btn btn-secondary" (click)="exportReport()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+          <polyline points="7 10 12 15 17 10"/>
+          <line x1="12" y1="15" x2="12" y2="3"/>
+        </svg>
+        {{ 'common.export' | translate }}
+      </button>
     </div>
   </div>
 

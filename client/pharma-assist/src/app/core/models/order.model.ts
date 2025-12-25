@@ -30,109 +30,117 @@ export enum PaymentMethod {
 
 // Order item interface
 export interface OrderItem {
-  id: string;
-  orderId: string;
-  productId: string;
+  id: number;
+  orderId: number;
+  productId: number;
   productName: string;
-  sku?: string;
+  productSku: string;
+  productBatchId?: number;
+  batchNumber?: string;
   quantity: number;
   unitPrice: number;
-  discountPercent: number;
+  discountPercentage: number;
   discountAmount: number;
-  taxPercent: number;
+  taxRate: number;
   taxAmount: number;
   lineTotal: number;
-  batchNumber?: string;
-  expiryDate?: Date;
-  notes?: string;
+  prescriptionId?: number;
 }
 
 // Prescription interface
 export interface Prescription {
-  id: string;
-  orderId: string;
+  id: number;
+  orderId: number;
   prescriptionNumber: string;
   doctorName: string;
-  patientName: string;
-  issueDate: Date;
-  expiryDate?: Date;
-  fileUrl?: string;
+  doctorLicense?: string;
+  patientName?: string;
+  issueDate: Date | string;
+  expiryDate?: Date | string;
+  imageUrl?: string;
   isVerified: boolean;
   verifiedBy?: string;
-  verifiedAt?: Date;
+  verifiedAt?: Date | string;
   notes?: string;
 }
 
 // Full order interface
 export interface Order {
-  id: string;
+  id: number;
   orderNumber: string;
-  customerId: string;
+  customerId: number;
   customerName: string;
+  customerCode: string;
   customerEmail?: string;
   customerPhone?: string;
   status: OrderStatus;
+  statusName: string;
   paymentStatus: PaymentStatus;
+  paymentStatusName: string;
   paymentMethod?: PaymentMethod;
-  orderDate: Date;
-  requiredDate?: Date;
-  shippedDate?: Date;
-  deliveredDate?: Date;
+  orderDate: Date | string;
+  requiredDate?: Date | string;
+  shippedDate?: Date | string;
+  deliveredDate?: Date | string;
   subtotal: number;
   discountAmount: number;
   taxAmount: number;
   shippingAmount: number;
   totalAmount: number;
-  paidAmount: number;
+  paidAmount?: number;
   notes?: string;
+  internalNotes?: string;
+  shippingAddressId?: number;
   shippingAddress?: string;
+  billingAddressId?: number;
   billingAddress?: string;
   items: OrderItem[];
   prescriptions: Prescription[];
-  createdAt: Date;
-  updatedAt?: Date;
+  createdAt?: Date | string;
+  updatedAt?: Date | string;
 }
 
 // Summary interface for list view
 export interface OrderSummary {
-  id: string;
+  id: number;
   orderNumber: string;
-  customerId: string;
   customerName: string;
+  customerCode: string;
   status: OrderStatus;
+  statusName: string;
   paymentStatus: PaymentStatus;
-  orderDate: Date;
+  paymentStatusName: string;
+  orderDate: Date | string;
   totalAmount: number;
   itemCount: number;
-  hasPrescription: boolean;
 }
 
 // Create order DTO
 export interface CreateOrderDto {
-  customerId: string;
+  customerId: number;
+  shippingAddressId?: number;
+  billingAddressId?: number;
   paymentMethod?: PaymentMethod;
-  requiredDate?: Date;
+  requiredDate?: Date | string;
   notes?: string;
-  shippingAddressId?: string;
-  billingAddressId?: string;
   items: CreateOrderItemDto[];
 }
 
 export interface CreateOrderItemDto {
-  productId: string;
+  productId: number;
+  productBatchId?: number;
   quantity: number;
-  discountPercent?: number;
-  notes?: string;
-  batchId?: string;
+  discountPercentage?: number;
+  prescriptionId?: number;
 }
 
 // Update order DTO
 export interface UpdateOrderDto {
-  requiredDate?: Date;
+  shippingAddressId?: number;
+  billingAddressId?: number;
+  requiredDate?: Date | string;
   notes?: string;
-  paymentMethod?: PaymentMethod;
-  shippingAddressId?: string;
-  billingAddressId?: string;
+  internalNotes?: string;
 }
 
 // Update order status DTO
@@ -152,7 +160,7 @@ export interface UpdatePaymentStatusDto {
 // Order filter interface
 export interface OrderFilter {
   searchTerm?: string;
-  customerId?: string;
+  customerId?: number;
   status?: OrderStatus;
   paymentStatus?: PaymentStatus;
   fromDate?: Date;

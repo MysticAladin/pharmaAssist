@@ -1,4 +1,5 @@
 @use '../../../../styles/theme';
+@use '../../../../styles/layouts';
 
 :host {
   --c1: #1a1a2e;
@@ -13,52 +14,7 @@
 }
 
 .analytics {
-  padding: 1.5rem;
-  max-width: 1400px;
-  margin: 0 auto;
-}
-
-.page-header {
-  margin-bottom: 1.5rem;
-}
-
-.breadcrumb {
-  font-size: .875rem;
-  color: var(--c2);
-  margin-bottom: .75rem;
-  display: flex;
-  align-items: center;
-  gap: .5rem;
-
-  a {
-    color: var(--c5);
-    text-decoration: none;
-  }
-}
-
-.separator {
-  color: var(--c3);
-}
-
-.header-main {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  gap: 1rem;
-  flex-wrap: wrap;
-}
-
-.page-title {
-  font-size: 1.5rem;
-  font-weight: 600;
-  color: var(--c1);
-  margin: 0 0 .25rem;
-}
-
-.page-description {
-  color: var(--c2);
-  margin: 0;
-  font-size: .9rem;
+  @include layouts.page-container;
 }
 
 .period-selector {

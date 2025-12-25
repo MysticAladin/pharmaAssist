@@ -1,5 +1,5 @@
-import { Component, OnInit, inject, signal, ViewChild, TemplateRef } from '@angular/core';
-import { CommonModule, DatePipe, CurrencyPipe } from '@angular/common';
+import { Component, OnInit, AfterViewInit, ContentChild, inject, signal, ViewChild, TemplateRef } from '@angular/core';
+import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
@@ -32,7 +32,6 @@ import { EuropeanDatePipe } from '../../core/pipes';
     CommonModule,
     FormsModule,
     TranslateModule,
-    CurrencyPipe,
     DataTableComponent,
     SearchInputComponent,
     StatusBadgeComponent,
@@ -44,21 +43,21 @@ import { EuropeanDatePipe } from '../../core/pipes';
   templateUrl: './orders-list/orders-list.component.html',
   styleUrls: ['./orders-list/orders-list.component.scss']
 })
-export class OrdersListComponent implements OnInit {
+export class OrdersListComponent implements OnInit, AfterViewInit {
   private readonly orderService = inject(OrderService);
   private readonly exportService = inject(ExportService);
   private readonly router = inject(Router);
   private readonly translateService = inject(TranslateService);
 
   // Templates
-  @ViewChild('orderNumberTemplate', { static: true }) orderNumberTemplate!: TemplateRef<unknown>;
-  @ViewChild('customerTemplate', { static: true }) customerTemplate!: TemplateRef<unknown>;
-  @ViewChild('orderStatusTemplate', { static: true }) orderStatusTemplate!: TemplateRef<unknown>;
-  @ViewChild('paymentStatusTemplate', { static: true }) paymentStatusTemplate!: TemplateRef<unknown>;
-  @ViewChild('dateTemplate', { static: true }) dateTemplate!: TemplateRef<unknown>;
-  @ViewChild('amountTemplate', { static: true }) amountTemplate!: TemplateRef<unknown>;
-  @ViewChild('itemsTemplate', { static: true }) itemsTemplate!: TemplateRef<unknown>;
-  @ViewChild('actionsTemplate', { static: true }) actionsTemplate!: TemplateRef<unknown>;
+  @ViewChild('orderNumberTemplate', { static: false }) orderNumberTemplate!: TemplateRef<unknown>;
+  @ViewChild('customerTemplate', { static: false }) customerTemplate!: TemplateRef<unknown>;
+  @ViewChild('orderStatusTemplate', { static: false }) orderStatusTemplate!: TemplateRef<unknown>;
+  @ViewChild('paymentStatusTemplate', { static: false }) paymentStatusTemplate!: TemplateRef<unknown>;
+  @ViewChild('dateTemplate', { static: false }) dateTemplate!: TemplateRef<unknown>;
+  @ViewChild('amountTemplate', { static: false }) amountTemplate!: TemplateRef<unknown>;
+  @ViewChild('itemsTemplate', { static: false }) itemsTemplate!: TemplateRef<unknown>;
+  @ViewChild('actionsTemplate', { static: false }) actionsTemplate!: TemplateRef<unknown>;
 
   // State
   loading = signal(false);
@@ -111,53 +110,75 @@ export class OrdersListComponent implements OnInit {
   columns: TableColumn[] = [];
 
   ngOnInit(): void {
-    this.initColumns();
     this.loadStats();
     this.loadOrders();
   }
 
+  ngAfterViewInit(): void {
+    // Use setTimeout to ensure templates are available after change detection
+    setTimeout(() => {
+      this.initColumns();
+    });
+  }
+
   private initColumns(): void {
+    console.log('🔧 Template refs:', {
+      orderStatus: this.orderStatusTemplate,
+      paymentStatus: this.paymentStatusTemplate,
+      date: this.dateTemplate,
+      amount: this.amountTemplate
+    });
+
     this.columns = [
       {
         key: 'orderNumber',
         label: 'orders.orderNumber',
         sortable: true,
+        width: '160px',
         template: this.orderNumberTemplate
       },
       {
         key: 'customerName',
         label: 'orders.customer',
         sortable: true,
+        width: '220px',
         template: this.customerTemplate
       },
       {
         key: 'status',
         label: 'orders.status.label',
         sortable: true,
+        width: '140px',
         template: this.orderStatusTemplate
       },
       {
         key: 'paymentStatus',
         label: 'orders.paymentStatus.label',
         sortable: true,
+        width: '140px',
         template: this.paymentStatusTemplate
       },
       {
         key: 'orderDate',
         label: 'orders.orderDate',
         sortable: true,
+        width: '170px',
         template: this.dateTemplate
       },
       {
         key: 'totalAmount',
         label: 'orders.totalAmount',
         sortable: true,
+        align: 'right',
+        width: '120px',
         template: this.amountTemplate
       },
       {
         key: 'itemCount',
         label: 'orders.items',
         sortable: true,
+        align: 'center',
+        width: '80px',
         template: this.itemsTemplate
       },
       {
@@ -185,15 +206,43 @@ export class OrdersListComponent implements OnInit {
       filter.paymentStatus = this.selectedPaymentStatus;
     }
     if (this.fromDate) {
-      filter.fromDate = new Date(this.fromDate);
+      // Parse European format dd.MM.yyyy
+      const parts = this.fromDate.split('.');
+      if (parts.length === 3) {
+        const day = parseInt(parts[0], 10);
+        const month = parseInt(parts[1], 10) - 1; // Month is 0-indexed
+        const year = parseInt(parts[2], 10);
+        filter.fromDate = new Date(year, month, day);
+      }
     }
     if (this.toDate) {
-      filter.toDate = new Date(this.toDate);
+      // Parse European format dd.MM.yyyy
+      const parts = this.toDate.split('.');
+      if (parts.length === 3) {
+        const day = parseInt(parts[0], 10);
+        const month = parseInt(parts[1], 10) - 1; // Month is 0-indexed
+        const year = parseInt(parts[2], 10);
+        filter.toDate = new Date(year, month, day);
+      }
     }
 
     this.orderService.getOrders(this.currentPage(), this.pageSize, filter).subscribe({
       next: (result) => {
-        this.orders.set(result.items || []);
+        console.log('🔍 RAW API RESPONSE:', result);
+        console.log('🔍 Response keys:', Object.keys(result));
+        const firstOrder = result.data?.[0];
+        if (firstOrder) {
+          console.log('🔍 FIRST ORDER:', firstOrder);
+          console.log('🔍 Order keys:', Object.keys(firstOrder));
+          console.log('🔍 Status info:', {
+            status: firstOrder.status,
+            statusType: typeof firstOrder.status,
+            statusName: firstOrder.statusName,
+            paymentStatus: firstOrder.paymentStatus,
+            paymentStatusName: firstOrder.paymentStatusName
+          });
+        }
+        this.orders.set(result.data || []);
         this.totalPages.set(result.totalPages || 1);
         this.totalItems.set(result.totalCount || 0);
         this.loading.set(false);
@@ -210,64 +259,69 @@ export class OrdersListComponent implements OnInit {
   private setMockData(): void {
     const mockOrders: OrderSummary[] = [
       {
-        id: '1',
+        id: 1,
         orderNumber: 'ORD-2024-0001',
-        customerId: 'c1',
         customerName: 'Apoteka Moja',
+        customerCode: 'APT-001',
         status: OrderStatus.Processing,
+        statusName: 'Processing',
         paymentStatus: PaymentStatus.Paid,
+        paymentStatusName: 'Paid',
         orderDate: new Date('2024-01-15'),
         totalAmount: 1250.00,
-        itemCount: 5,
-        hasPrescription: true
+        itemCount: 5
       },
       {
-        id: '2',
+        id: 2,
         orderNumber: 'ORD-2024-0002',
-        customerId: 'c2',
         customerName: 'Pharmacy Plus',
+        customerCode: 'APT-002',
         status: OrderStatus.Pending,
+        statusName: 'Pending',
         paymentStatus: PaymentStatus.Pending,
+        paymentStatusName: 'Pending',
         orderDate: new Date('2024-01-16'),
         totalAmount: 890.50,
-        itemCount: 3,
-        hasPrescription: false
+        itemCount: 3
       },
       {
-        id: '3',
+        id: 3,
         orderNumber: 'ORD-2024-0003',
-        customerId: 'c3',
         customerName: 'HealthCare Sarajevo',
+        customerCode: 'APT-003',
         status: OrderStatus.Shipped,
+        statusName: 'Shipped',
         paymentStatus: PaymentStatus.Paid,
+        paymentStatusName: 'Paid',
         orderDate: new Date('2024-01-14'),
         totalAmount: 2340.75,
-        itemCount: 8,
-        hasPrescription: true
+        itemCount: 8
       },
       {
-        id: '4',
+        id: 4,
         orderNumber: 'ORD-2024-0004',
-        customerId: 'c4',
         customerName: 'MediPharm Tuzla',
+        customerCode: 'APT-004',
         status: OrderStatus.Delivered,
+        statusName: 'Delivered',
         paymentStatus: PaymentStatus.Paid,
+        paymentStatusName: 'Paid',
         orderDate: new Date('2024-01-12'),
         totalAmount: 560.00,
-        itemCount: 2,
-        hasPrescription: false
+        itemCount: 2
       },
       {
-        id: '5',
+        id: 5,
         orderNumber: 'ORD-2024-0005',
-        customerId: 'c5',
         customerName: 'PharmaNet Mostar',
+        customerCode: 'APT-005',
         status: OrderStatus.Cancelled,
+        statusName: 'Cancelled',
         paymentStatus: PaymentStatus.Refunded,
+        paymentStatusName: 'Refunded',
         orderDate: new Date('2024-01-10'),
         totalAmount: 1100.25,
-        itemCount: 4,
-        hasPrescription: false
+        itemCount: 4
       }
     ];
 
@@ -277,21 +331,33 @@ export class OrdersListComponent implements OnInit {
   }
 
   private loadStats(): void {
-    // Set mock stats immediately to ensure numbers show
-    this.pendingCount.set(12);
-    this.processingCount.set(8);
-    this.shippedCount.set(5);
-    this.deliveredCount.set(156);
-
     this.orderService.getOrderStats().subscribe({
       next: (stats) => {
+        console.log('📊 STATS API RESPONSE:', stats);
+        console.log('📊 Type of stats:', typeof stats);
+        console.log('📊 Stats keys:', Object.keys(stats));
+        console.log('📊 Stats JSON:', JSON.stringify(stats, null, 2));
+        console.log('📊 Direct access test:', {
+          'stats.pendingOrders': stats.pendingOrders,
+          'stats["pendingOrders"]': stats['pendingOrders'],
+          'all props': {
+            pending: stats.pendingOrders,
+            processing: stats.processingOrders,
+            shipped: stats.shippedOrders,
+            completed: stats.completedOrders
+          }
+        });
         this.pendingCount.set(stats.pendingOrders || 0);
         this.processingCount.set(stats.processingOrders || 0);
-        this.shippedCount.set(0); // API doesn't provide shipped count
+        this.shippedCount.set(stats.shippedOrders || 0);
         this.deliveredCount.set(stats.completedOrders || 0);
       },
       error: () => {
-        // Keep mock stats on error
+        // Set zeros on error
+        this.pendingCount.set(0);
+        this.processingCount.set(0);
+        this.shippedCount.set(0);
+        this.deliveredCount.set(0);
       }
     });
   }
@@ -318,6 +384,30 @@ export class OrdersListComponent implements OnInit {
   onDateFilterChange(): void {
     this.currentPage.set(1);
     this.loadOrders();
+  }
+
+  onNativeFromDateChange(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    if (input.value) {
+      const date = new Date(input.value);
+      const day = String(date.getDate()).padStart(2, '0');
+      const month = String(date.getMonth() + 1).padStart(2, '0');
+      const year = date.getFullYear();
+      this.fromDate = `${day}.${month}.${year}`;
+      this.onDateFilterChange();
+    }
+  }
+
+  onNativeToDateChange(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    if (input.value) {
+      const date = new Date(input.value);
+      const day = String(date.getDate()).padStart(2, '0');
+      const month = String(date.getMonth() + 1).padStart(2, '0');
+      const year = date.getFullYear();
+      this.toDate = `${day}.${month}.${year}`;
+      this.onDateFilterChange();
+    }
   }
 
   onPageChange(event: PageEvent): void {
@@ -407,11 +497,15 @@ export class OrdersListComponent implements OnInit {
 
   // Status helpers
   getOrderStatusLabel(status: OrderStatus): string {
-    return getOrderStatusLabel(status);
+    const label = getOrderStatusLabel(status);
+    console.log(`🏷️ Status: ${status} → Label: ${label}`);
+    return label;
   }
 
   getPaymentStatusLabel(status: PaymentStatus): string {
-    return getPaymentStatusLabel(status);
+    const label = getPaymentStatusLabel(status);
+    console.log(`💳 Payment Status: ${status} → Label: ${label}`);
+    return label;
   }
 
   getOrderStatusBadgeVariant(status: OrderStatus): 'success' | 'warning' | 'danger' | 'info' | 'neutral' {

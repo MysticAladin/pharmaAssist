@@ -6,13 +6,15 @@ import { provideTranslateService, TranslateService } from '@ngx-translate/core';
 import { provideTranslateHttpLoader } from '@ngx-translate/http-loader';
 import { registerLocaleData } from '@angular/common';
 import localeBs from '@angular/common/locales/bs';
+import localeDe from '@angular/common/locales/de';
 
 import { routes } from './app.routes';
 import { authInterceptor, errorInterceptor, loadingInterceptor } from './core/interceptors';
 import { AuthService } from './core/services/auth.service';
 
-// Register Bosnian locale for date formatting
+// Register Bosnian and German locales for formatting
 registerLocaleData(localeBs);
+registerLocaleData(localeDe, 'de');
 
 /**
  * Initialize authentication state on app startup
@@ -41,8 +43,8 @@ export const appConfig: ApplicationConfig = {
     provideBrowserGlobalErrorListeners(),
     provideZoneChangeDetection({ eventCoalescing: true }),
 
-    // Set default locale to Bosnian for DatePipe
-    { provide: LOCALE_ID, useValue: 'bs-BA' },
+    // Set default locale to German for number formatting (1.234,56)
+    { provide: LOCALE_ID, useValue: 'de' },
 
     // Router with component input binding and view transitions
     provideRouter(

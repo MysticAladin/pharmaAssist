@@ -134,40 +134,43 @@ export class DashboardComponent implements OnInit {
       },
       recentOrders: [
         {
-          id: '1',
+          id: 1,
           orderNumber: 'ORD-2024-0156',
-          customerId: '1',
           customerName: 'Apoteka Centar',
+          customerCode: 'APT-001',
           status: OrderStatus.Pending,
+          statusName: 'Pending',
           paymentStatus: PaymentStatus.Pending,
+          paymentStatusName: 'Pending',
           orderDate: new Date(),
           totalAmount: 1250.00,
-          itemCount: 5,
-          hasPrescription: false
+          itemCount: 5
         },
         {
-          id: '2',
+          id: 2,
           orderNumber: 'ORD-2024-0155',
-          customerId: '2',
           customerName: 'Farmacija Plus',
+          customerCode: 'APT-002',
           status: OrderStatus.Processing,
+          statusName: 'Processing',
           paymentStatus: PaymentStatus.Pending,
+          paymentStatusName: 'Pending',
           orderDate: new Date(),
           totalAmount: 890.50,
-          itemCount: 3,
-          hasPrescription: true
+          itemCount: 3
         },
         {
-          id: '3',
+          id: 3,
           orderNumber: 'ORD-2024-0154',
-          customerId: '3',
           customerName: 'Zdravlje d.o.o.',
+          customerCode: 'APT-003',
           status: OrderStatus.Delivered,
+          statusName: 'Delivered',
           paymentStatus: PaymentStatus.Paid,
+          paymentStatusName: 'Paid',
           orderDate: new Date(),
           totalAmount: 2340.00,
-          itemCount: 8,
-          hasPrescription: false
+          itemCount: 8
         }
       ],
       alerts: [
