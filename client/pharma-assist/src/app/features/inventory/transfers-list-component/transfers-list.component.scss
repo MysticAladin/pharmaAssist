@@ -44,11 +44,26 @@
 
 .table-container {
   overflow-x: auto;
+  position: relative;
 }
 
 .data-table {
   width: 100%;
   border-collapse: collapse;
+}
+
+.data-table th.actions-cell,
+.data-table td.actions-cell {
+  position: sticky;
+  right: 0;
+  z-index: 2;
+  background: var(--surface);
+  border-left: 1px solid var(--border-color);
+}
+
+.data-table thead th.actions-cell {
+  z-index: 3;
+  background: var(--background);
 }
 
 .data-table thead {

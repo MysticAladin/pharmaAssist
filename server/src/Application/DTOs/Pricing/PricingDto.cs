@@ -92,6 +92,8 @@ public class PromotionDto
     public bool RequiresCode { get; set; }
     public bool CanStackWithOtherPromotions { get; set; }
     public bool CanStackWithTierPricing { get; set; }
+    public List<int>? ProductIds { get; set; }
+    public List<int>? CategoryIds { get; set; }
     public bool IsValid { get; set; }
     public bool HasReachedLimit { get; set; }
     public DateTime CreatedAt { get; set; }
@@ -132,6 +134,44 @@ public class CreatePromotionDto
 }
 
 /// <summary>
+/// DTO for product price entry
+/// </summary>
+public class ProductPriceDto
+{
+    public int Id { get; set; }
+    public int ProductId { get; set; }
+    public string? ProductName { get; set; }
+    public int? CantonId { get; set; }
+    public string? CantonName { get; set; }
+    public int? CustomerId { get; set; }
+    public string? CustomerName { get; set; }
+    public PriceType PriceType { get; set; }
+    public decimal UnitPrice { get; set; }
+    public DateTime ValidFrom { get; set; }
+    public DateTime? ValidTo { get; set; }
+    public int Priority { get; set; }
+    public bool IsActive { get; set; }
+    public bool IsValid { get; set; }
+    public DateTime CreatedAt { get; set; }
+}
+
+/// <summary>
+/// DTO for creating/updating a product price entry
+/// </summary>
+public class CreateProductPriceDto
+{
+    public int ProductId { get; set; }
+    public int? CantonId { get; set; }
+    public int? CustomerId { get; set; }
+    public PriceType PriceType { get; set; } = PriceType.Commercial;
+    public decimal UnitPrice { get; set; }
+    public DateTime ValidFrom { get; set; } = DateTime.UtcNow;
+    public DateTime? ValidTo { get; set; }
+    public int Priority { get; set; } = 0;
+    public bool IsActive { get; set; } = true;
+}
+
+/// <summary>
 /// DTO for price calculation request
 /// </summary>
 public class PriceCalculationRequestDto
@@ -139,6 +179,12 @@ public class PriceCalculationRequestDto
     public int ProductId { get; set; }
     public decimal Quantity { get; set; } = 1;
     public string? PromotionCode { get; set; }
+
+    // Commercial vs Essential pricing support
+    public PriceType PriceType { get; set; } = PriceType.Commercial;
+
+    // Optional override; if not provided, server will try to infer canton from customer's default shipping address
+    public int? CantonId { get; set; }
 }
 
 /// <summary>

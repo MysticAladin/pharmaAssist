@@ -125,7 +125,9 @@
   background: var(--surface);
   border-radius: 12px;
   border: 1px solid var(--border-color);
-  overflow: hidden;
+  overflow-x: auto;
+  overflow-y: hidden;
+  position: relative;
 }
 
 .data-table {
@@ -142,6 +144,20 @@
   text-transform: uppercase;
   background: var(--background);
   border-bottom: 1px solid var(--border-color);
+}
+
+.data-table th.actions-cell,
+.data-table td.actions-cell {
+  position: sticky;
+  right: 0;
+  z-index: 2;
+  background: var(--surface);
+  border-left: 1px solid var(--border-color);
+}
+
+.data-table thead th.actions-cell {
+  z-index: 3;
+  background: var(--background);
 }
 
 .data-table th.sortable {

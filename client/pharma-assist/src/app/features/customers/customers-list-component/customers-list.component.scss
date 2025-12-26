@@ -75,21 +75,6 @@
   cursor: pointer;
 }
 
-.filter-checkbox {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  font-size: 0.875rem;
-  color: var(--text-secondary);
-  cursor: pointer;
-
-  input {
-    width: 16px;
-    height: 16px;
-    cursor: pointer;
-  }
-}
-
 // Table
 .table-card {
   background: var(--surface);
@@ -102,7 +87,6 @@
 .data-table {
   width: 100%;
   border-collapse: collapse;
-
   th {
     text-align: left;
     padding: 0.75rem 1rem;
@@ -111,6 +95,7 @@
     color: var(--text-secondary);
     text-transform: uppercase;
     background: var(--surface-secondary);
+    position: relative;
     border-bottom: 1px solid var(--border);
 
     &.sortable {
@@ -239,6 +224,19 @@
   display: flex;
   gap: 0.25rem;
   justify-content: center;
+}
+
+th.actions-cell,
+td.actions-cell {
+  position: sticky;
+  right: 0;
+  background: var(--surface);
+  border-left: 1px solid var(--border);
+  z-index: 2;
+}
+
+thead th.actions-cell {
+  z-index: 3;
 }
 
 .btn-icon {

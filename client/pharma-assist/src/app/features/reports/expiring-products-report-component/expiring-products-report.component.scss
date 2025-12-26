@@ -263,6 +263,7 @@
 
 .table-container {
   overflow-x: auto;
+  position: relative;
 }
 
 .data-table {
@@ -296,6 +297,20 @@
   .expired-row {
     background: rgba(var(--danger-rgb), 0.05);
   }
+}
+
+.data-table th.actions-cell,
+.data-table td.actions-cell {
+  position: sticky;
+  right: 0;
+  z-index: 2;
+  background: var(--surface);
+  border-left: 1px solid var(--border-color);
+}
+
+.data-table thead th.actions-cell {
+  z-index: 3;
+  background: var(--bg-secondary);
 }
 
 .product-info {

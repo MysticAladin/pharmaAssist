@@ -145,7 +145,7 @@
               }
             </th>
             <th class="text-center">{{ 'lowStock.columns.status' | translate }}</th>
-            <th class="text-center">{{ 'common.actions' | translate }}</th>
+            <th class="text-center actions-cell">{{ 'common.actions' | translate }}</th>
           </tr>
         </thead>
         <tbody>
@@ -183,7 +183,7 @@
                   [label]="(getStockLevel(product) === 'critical' ? 'lowStock.critical' : 'lowStock.warning') | translate"
                 ></app-status-badge>
               </td>
-              <td class="text-center">
+              <td class="text-center actions-cell">
                 <div class="action-buttons">
                   <button class="btn-icon" [routerLink]="['/products', product.id]" [title]="'common.view' | translate">
                     <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">

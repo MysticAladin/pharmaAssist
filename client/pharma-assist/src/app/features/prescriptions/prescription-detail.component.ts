@@ -1,5 +1,5 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
-import { CommonModule, DatePipe } from '@angular/common';
+import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 
@@ -21,7 +21,7 @@ import { StatusBadgeComponent } from '../../shared/components/status-badge';
 @Component({
   selector: 'app-prescription-detail',
   standalone: true,
-  imports: [CommonModule, TranslateModule, DatePipe, EuropeanDatePipe, StatusBadgeComponent],
+  imports: [CommonModule, TranslateModule, EuropeanDatePipe, StatusBadgeComponent],
   templateUrl: './prescription-detail-component/prescription-detail.component.html',
   styleUrls: ['./prescription-detail-component/prescription-detail.component.scss']
 })

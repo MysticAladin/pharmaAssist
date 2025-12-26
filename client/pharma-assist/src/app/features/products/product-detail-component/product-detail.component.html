@@ -172,6 +172,203 @@
         </div>
       </div>
 
+      <!-- Product Prices (base prices) -->
+      <div class="detail-card full-width">
+        <div class="card-header-row">
+          <h3 class="card-title">Product Prices</h3>
+          <button class="btn btn-secondary" (click)="startAddPrice()">
+            {{ 'common.add' | translate }}
+          </button>
+        </div>
+
+        @if (pricesError()) {
+          <div class="inline-error">{{ pricesError() }}</div>
+        }
+
+        <div class="price-form">
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Type</label>
+              <select class="form-select" [(ngModel)]="priceForm.priceType">
+                <option [ngValue]="PriceType.Commercial">Commercial</option>
+                <option [ngValue]="PriceType.Essential">Essential</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Unit Price</label>
+              <input class="form-input" type="number" step="0.01" min="0" [(ngModel)]="priceForm.unitPrice" />
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Customer (optional)</label>
+              <select class="form-select" [(ngModel)]="priceForm.customerId">
+                <option [ngValue]="null">All customers</option>
+                @for (c of customers(); track c.id) {
+                  <option [ngValue]="c.id">{{ c.customerCode }} - {{ c.name }}</option>
+                }
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Canton (optional)</label>
+              <select class="form-select" [(ngModel)]="priceForm.cantonId">
+                <option [ngValue]="null">All cantons</option>
+                @for (canton of cantons(); track canton.id) {
+                  <option [ngValue]="canton.id">{{ canton.name }} ({{ canton.code }})</option>
+                }
+              </select>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Valid From</label>
+              <div class="date-input-wrapper">
+                <input
+                  class="form-input date-filter"
+                  type="text"
+                  inputmode="numeric"
+                  placeholder="dd.MM.yyyy"
+                  [ngModel]="validFromText"
+                  (ngModelChange)="onValidFromTextChange($event)"
+                  (blur)="normalizeValidFrom()"
+                />
+                <input
+                  type="date"
+                  class="hidden-date-picker"
+                  [value]="priceForm.validFrom"
+                  (change)="onNativeValidFromChange($event)"
+                  #validFromPicker
+                />
+                <button type="button" class="calendar-icon" (click)="validFromPicker.showPicker()">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
+                    <line x1="16" y1="2" x2="16" y2="6" />
+                    <line x1="8" y1="2" x2="8" y2="6" />
+                    <line x1="3" y1="10" x2="21" y2="10" />
+                  </svg>
+                </button>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Valid To (optional)</label>
+              <div class="date-input-wrapper">
+                <input
+                  class="form-input date-filter"
+                  type="text"
+                  inputmode="numeric"
+                  placeholder="dd.MM.yyyy"
+                  [ngModel]="validToText"
+                  (ngModelChange)="onValidToTextChange($event)"
+                  (blur)="normalizeValidTo()"
+                />
+                <input
+                  type="date"
+                  class="hidden-date-picker"
+                  [value]="priceForm.validTo ?? ''"
+                  (change)="onNativeValidToChange($event)"
+                  #validToPicker
+                />
+                <button type="button" class="calendar-icon" (click)="validToPicker.showPicker()">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
+                    <line x1="16" y1="2" x2="16" y2="6" />
+                    <line x1="8" y1="2" x2="8" y2="6" />
+                    <line x1="3" y1="10" x2="21" y2="10" />
+                  </svg>
+                </button>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Priority</label>
+              <input class="form-input" type="number" step="1" [(ngModel)]="priceForm.priority" />
+            </div>
+
+            <div class="form-group checkbox-group">
+              <label class="form-label">Active</label>
+              <label class="checkbox">
+                <input type="checkbox" [(ngModel)]="priceForm.isActive" />
+                <span>{{ priceForm.isActive ? 'Yes' : 'No' }}</span>
+              </label>
+            </div>
+          </div>
+
+          <div class="form-actions">
+            <button class="btn btn-primary" [disabled]="savingPrice() || !priceForm.validFrom || !(priceForm.unitPrice > 0)" (click)="savePrice()">
+              {{ editingPriceId ? ('common.save' | translate) : ('common.add' | translate) }}
+            </button>
+            @if (editingPriceId) {
+              <button class="btn btn-secondary" [disabled]="savingPrice()" (click)="cancelEditPrice()">
+                {{ 'common.cancel' | translate }}
+              </button>
+            }
+          </div>
+        </div>
+
+        @if (loadingPrices()) {
+          <div class="prices-loading">{{ 'common.loading' | translate }}</div>
+        } @else if (productPrices().length === 0) {
+          <div class="empty-prices">No prices defined for this product.</div>
+        } @else {
+          <div class="prices-table-wrapper">
+            <table class="prices-table">
+              <thead>
+                <tr>
+                  <th>Type</th>
+                  <th class="text-right">Unit Price</th>
+                  <th>Customer</th>
+                  <th>Canton</th>
+                  <th>Valid From</th>
+                  <th>Valid To</th>
+                  <th class="text-right">Priority</th>
+                  <th class="text-center">Active</th>
+                  <th class="text-center">Valid Now</th>
+                  <th class="text-center actions-cell">Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (pp of productPrices(); track pp.id) {
+                  <tr>
+                    <td>{{ getPriceTypeLabel(pp.priceType) }}</td>
+                    <td class="text-right">{{ pp.unitPrice | currency:'BAM ':'symbol':'1.2-2' }}</td>
+                    <td>{{ pp.customerName || '-' }}</td>
+                    <td>{{ pp.cantonName || (pp.cantonId ? ('#' + pp.cantonId) : '-') }}</td>
+                    <td>{{ pp.validFrom | date:'dd.MM.yyyy' }}</td>
+                    <td>{{ pp.validTo ? (pp.validTo | date:'dd.MM.yyyy') : '-' }}</td>
+                    <td class="text-right">{{ pp.priority }}</td>
+                    <td class="text-center">{{ pp.isActive ? 'Yes' : 'No' }}</td>
+                    <td class="text-center">{{ pp.isValid ? 'Yes' : 'No' }}</td>
+                    <td class="text-center actions-cell">
+                      <div class="row-actions">
+                        <button class="action-btn" [title]="'common.edit' | translate" (click)="startEditPrice(pp)">
+                          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+                            <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+                          </svg>
+                        </button>
+                        <button
+                          class="action-btn action-btn-danger"
+                          [disabled]="deletingPriceId() === pp.id"
+                          [title]="'common.delete' | translate"
+                          (click)="deletePrice(pp)"
+                        >
+                          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+                          </svg>
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        }
+      </div>
+
       <!-- Inventory -->
       <div class="detail-card">
         <h3 class="card-title">Inventory</h3>

@@ -4,6 +4,7 @@
 @use './styles/theme';
 @use './styles/icons';
 @use './styles/tabs';
+@use './styles/checkboxes';
 
 // =============================================================================
 // NOTE: All color tokens are now defined in styles/_theme.scss
@@ -244,7 +245,7 @@ button {
 .form-group {
   margin-bottom: var(--spacing-lg);
 
-  label {
+  > label:not(.checkbox-label):not(.filter-checkbox):not(.toggle-filter):not(.toggle-label):not(.check-item) {
     display: block;
     margin-bottom: var(--spacing-xs);
     font-weight: 500;

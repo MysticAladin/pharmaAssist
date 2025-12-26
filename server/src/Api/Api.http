@@ -1,6 +1,78 @@
 @Api_HostAddress = http://localhost:5200
 
-GET {{Api_HostAddress}}/weatherforecast/
+### Ping
+GET {{Api_HostAddress}}/weatherforecast
 Accept: application/json
 
 ###
+
+### Login (Admin) - seeded user
+POST {{Api_HostAddress}}/api/auth/login
+Content-Type: application/json
+
+{
+	"email": "admin@pharmaassist.ba",
+	"password": "Admin@123!",
+	"rememberMe": false
+}
+
+###
+
+### Login (Customer) - seeded user (used for /api/pricing/calculate)
+POST {{Api_HostAddress}}/api/auth/login
+Content-Type: application/json
+
+{
+	"email": "customer@apoteka-sarajevo.ba",
+	"password": "Customer@123!",
+	"rememberMe": false
+}
+
+###
+
+### Get products (paged)
+GET {{Api_HostAddress}}/api/products/paged?page=1&pageSize=5
+Accept: application/json
+
+###
+
+### Create product price (Admin/Manager)
+### Paste the admin JWT from /api/auth/login into the Authorization header.
+POST {{Api_HostAddress}}/api/pricing/product-prices
+Authorization: Bearer PASTE_ADMIN_ACCESS_TOKEN_HERE
+Content-Type: application/json
+
+{
+	"productId": 85,
+	"cantonId": null,
+	"customerId": null,
+	"priceType": 1,
+	"unitPrice": 99.99,
+	"validFrom": "2025-01-01T00:00:00Z",
+	"validTo": null,
+	"priority": 0,
+	"isActive": true
+}
+
+###
+
+### List product prices (Admin/Manager)
+GET {{Api_HostAddress}}/api/pricing/product-prices?productId=85&activeOnly=true
+Authorization: Bearer PASTE_ADMIN_ACCESS_TOKEN_HERE
+Accept: application/json
+
+###
+
+### Calculate price (Customer)
+### Paste the customer JWT from /api/auth/login into the Authorization header.
+POST {{Api_HostAddress}}/api/pricing/calculate
+Authorization: Bearer PASTE_CUSTOMER_ACCESS_TOKEN_HERE
+Content-Type: application/json
+
+{
+	"productId": 85,
+	"quantity": 2,
+	"priceType": 1,
+	"cantonId": null,
+	"promotionCode": null
+}

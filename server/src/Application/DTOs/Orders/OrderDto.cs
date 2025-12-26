@@ -68,6 +68,20 @@ public class CreateOrderDto
 }
 
 /// <summary>
+/// Create order request DTO for customer portal.
+/// CustomerId is derived from the authenticated user.
+/// </summary>
+public class CreatePortalOrderDto
+{
+    public int? ShippingAddressId { get; set; }
+    public int? BillingAddressId { get; set; }
+    public PaymentMethod PaymentMethod { get; set; } = PaymentMethod.Invoice;
+    public DateTime? RequiredDate { get; set; }
+    public string? Notes { get; set; }
+    public List<CreateOrderItemDto> Items { get; set; } = new();
+}
+
+/// <summary>
 /// Update order request DTO
 /// </summary>
 public class UpdateOrderDto

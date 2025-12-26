@@ -34,6 +34,12 @@ export enum PromotionType {
   BundleDeal = 5
 }
 
+// Product base pricing
+export enum PriceType {
+  Commercial = 1,
+  Essential = 2
+}
+
 // Interfaces
 export interface PriceRule {
   id: number;
@@ -114,6 +120,45 @@ export interface CreatePromotionRequest {
   applyToChildCustomers?: boolean;
   productIds?: number[];
   categoryIds?: number[];
+}
+
+export interface ProductPrice {
+  id: number;
+  productId: number;
+  productName?: string;
+  cantonId?: number;
+  cantonName?: string;
+  customerId?: number;
+  customerName?: string;
+  priceType: PriceType;
+  unitPrice: number;
+  validFrom: string;
+  validTo?: string;
+  priority: number;
+  isActive: boolean;
+  isValid: boolean;
+  createdAt: string;
+}
+
+export interface CreateProductPriceRequest {
+  productId: number;
+  cantonId?: number;
+  customerId?: number;
+  priceType: PriceType;
+  unitPrice: number;
+  validFrom: string;
+  validTo?: string;
+  priority: number;
+  isActive: boolean;
+}
+
+export interface ProductPriceFilters {
+  productId?: number;
+  customerId?: number;
+  cantonId?: number;
+  priceType?: PriceType;
+  activeOnly?: boolean;
+  validOn?: string;
 }
 
 export interface PriceCalculationRequest {
@@ -210,6 +255,33 @@ export class PricingService {
 
   getAvailablePromotions(customerId: number): Observable<ApiResponse<Promotion[]>> {
     return this.http.get<ApiResponse<Promotion[]>>(`${this.apiUrl}/promotions/available/${customerId}`);
+  }
+
+  // === Product Prices (base prices) ===
+
+  getProductPrices(filters: ProductPriceFilters = {}): Observable<ProductPrice[]> {
+    let params = new HttpParams();
+
+    if (filters.productId !== undefined) params = params.set('productId', filters.productId.toString());
+    if (filters.customerId !== undefined) params = params.set('customerId', filters.customerId.toString());
+    if (filters.cantonId !== undefined) params = params.set('cantonId', filters.cantonId.toString());
+    if (filters.priceType !== undefined) params = params.set('priceType', filters.priceType.toString());
+    if (filters.activeOnly !== undefined) params = params.set('activeOnly', filters.activeOnly.toString());
+    if (filters.validOn) params = params.set('validOn', filters.validOn);
+
+    return this.http.get<ProductPrice[]>(`${this.apiUrl}/product-prices`, { params });
+  }
+
+  createProductPrice(request: CreateProductPriceRequest): Observable<ProductPrice> {
+    return this.http.post<ProductPrice>(`${this.apiUrl}/product-prices`, request);
+  }
+
+  updateProductPrice(id: number, request: CreateProductPriceRequest): Observable<ProductPrice> {
+    return this.http.put<ProductPrice>(`${this.apiUrl}/product-prices/${id}`, request);
+  }
+
+  deleteProductPrice(id: number): Observable<void> {
+    return this.http.delete<void>(`${this.apiUrl}/product-prices/${id}`);
   }
 
   // === Price Calculation ===

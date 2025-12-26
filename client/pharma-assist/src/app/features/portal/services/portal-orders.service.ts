@@ -164,6 +164,13 @@ export class PortalOrdersService {
   }
 
   /**
+   * Download invoice PDF for an order
+   */
+  downloadInvoice(orderId: number): Observable<Blob> {
+    return this.http.get(`${this.apiUrl}/orders/${orderId}/invoice`, { responseType: 'blob' });
+  }
+
+  /**
    * Get status display name
    */
   getStatusDisplayName(status: OrderStatus): string {

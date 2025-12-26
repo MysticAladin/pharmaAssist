@@ -1,5 +1,5 @@
 import { Component, OnInit, inject, signal, computed } from '@angular/core';
-import { CommonModule, DatePipe } from '@angular/common';
+import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
@@ -31,7 +31,6 @@ import { PaginationComponent, PageEvent } from '../../shared/components/paginati
     CommonModule,
     FormsModule,
     TranslateModule,
-    DatePipe,
     EuropeanDatePipe,
     SearchInputComponent,
     StatusBadgeComponent,

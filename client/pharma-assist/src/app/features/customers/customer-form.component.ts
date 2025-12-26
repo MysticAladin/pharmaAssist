@@ -4,6 +4,7 @@ import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angula
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 import { CustomerService } from '../../core/services/customer.service';
+import { Canton, City, LocationService } from '../../core/services/location.service';
 import { NotificationService } from '../../core/services/notification.service';
 import {
   Customer,
@@ -13,18 +14,6 @@ import {
   CreateCustomerRequest,
   UpdateCustomerRequest
 } from '../../core/models/customer.model';
-
-interface Canton {
-  id: number;
-  name: string;
-  code: string;
-}
-
-interface City {
-  id: number;
-  name: string;
-  cantonId: number;
-}
 
 @Component({
   selector: 'app-customer-form',
@@ -38,6 +27,7 @@ export class CustomerFormComponent implements OnInit {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly customerService = inject(CustomerService);
+  private readonly locationService = inject(LocationService);
   private readonly notificationService = inject(NotificationService);
 
   loading = signal(false);
@@ -112,41 +102,31 @@ export class CustomerFormComponent implements OnInit {
   }
 
   private loadReferenceData(): void {
-    this.cantons.set([
-      { id: 1, name: 'Kanton Sarajevo', code: 'KS' },
-      { id: 2, name: 'Tuzlanski kanton', code: 'TK' },
-      { id: 3, name: 'Zeničko-dobojski kanton', code: 'ZDK' },
-      { id: 4, name: 'Unsko-sanski kanton', code: 'USK' },
-      { id: 5, name: 'Srednjobosanski kanton', code: 'SBK' },
-      { id: 6, name: 'Hercegovačko-neretvanski kanton', code: 'HNK' },
-      { id: 7, name: 'Zapadnohercegovački kanton', code: 'ZHK' },
-      { id: 8, name: 'Posavski kanton', code: 'PK' },
-      { id: 9, name: 'Bosansko-podrinjski kanton', code: 'BPK' },
-      { id: 10, name: 'Kanton 10', code: 'K10' }
-    ]);
+    this.locationService.getAllCantons().subscribe({
+      next: (resp) => {
+        if (resp.success && resp.data) {
+          const sorted = [...resp.data].sort((a, b) => a.name.localeCompare(b.name));
+          this.cantons.set(sorted);
+        }
+      },
+      error: (err) => {
+        console.error('Error loading cantons:', err);
+      }
+    });
 
-    this.cities.set([
-      { id: 1, name: 'Sarajevo', cantonId: 1 },
-      { id: 2, name: 'Ilidža', cantonId: 1 },
-      { id: 3, name: 'Hadžići', cantonId: 1 },
-      { id: 4, name: 'Vogošća', cantonId: 1 },
-      { id: 5, name: 'Tuzla', cantonId: 2 },
-      { id: 6, name: 'Lukavac', cantonId: 2 },
-      { id: 7, name: 'Gračanica', cantonId: 2 },
-      { id: 8, name: 'Zenica', cantonId: 3 },
-      { id: 9, name: 'Kakanj', cantonId: 3 },
-      { id: 10, name: 'Visoko', cantonId: 3 },
-      { id: 11, name: 'Bihać', cantonId: 4 },
-      { id: 12, name: 'Cazin', cantonId: 4 },
-      { id: 13, name: 'Travnik', cantonId: 5 },
-      { id: 14, name: 'Vitez', cantonId: 5 },
-      { id: 15, name: 'Mostar', cantonId: 6 },
-      { id: 16, name: 'Čapljina', cantonId: 6 },
-      { id: 17, name: 'Široki Brijeg', cantonId: 7 },
-      { id: 18, name: 'Orašje', cantonId: 8 },
-      { id: 19, name: 'Goražde', cantonId: 9 },
-      { id: 20, name: 'Livno', cantonId: 10 }
-    ]);
+    this.locationService.getAllCities().subscribe({
+      next: (resp) => {
+        if (resp.success && resp.data) {
+          const sorted = [...resp.data].sort((a, b) => a.name.localeCompare(b.name));
+          this.cities.set(sorted);
+          // If canton already selected (e.g., edit mode), ensure cities are filtered.
+          this.onCantonChange();
+        }
+      },
+      error: (err) => {
+        console.error('Error loading cities:', err);
+      }
+    });
   }
 
   private loadCustomer(id: number): void {
@@ -207,6 +187,7 @@ export class CustomerFormComponent implements OnInit {
       }
     } else {
       this.filteredCities.set([]);
+      this.form.get('primaryAddress.cityId')?.setValue(null);
     }
   }
 

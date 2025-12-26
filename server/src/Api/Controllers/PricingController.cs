@@ -185,6 +185,188 @@ public class PricingController : ControllerBase
 
     #endregion
 
+    #region Product Prices
+
+    /// <summary>
+    /// Get product price entries (admin view)
+    /// </summary>
+    [HttpGet("product-prices")]
+    [Authorize(Roles = "Admin,Manager")]
+    public async Task<ActionResult<IEnumerable<ProductPriceDto>>> GetProductPrices(
+        [FromQuery] int? productId = null,
+        [FromQuery] int? customerId = null,
+        [FromQuery] int? cantonId = null,
+        [FromQuery] PriceType? priceType = null,
+        [FromQuery] bool? activeOnly = null,
+        [FromQuery] DateTime? validOn = null,
+        CancellationToken cancellationToken = default)
+    {
+        var query = _context.ProductPrices
+            .Include(p => p.Product)
+            .Include(p => p.Customer)
+            .Include(p => p.Canton)
+            .AsNoTracking();
+
+        if (productId.HasValue)
+        {
+            query = query.Where(p => p.ProductId == productId.Value);
+        }
+
+        if (customerId.HasValue)
+        {
+            query = query.Where(p => p.CustomerId == customerId.Value);
+        }
+
+        if (cantonId.HasValue)
+        {
+            query = query.Where(p => p.CantonId == cantonId.Value);
+        }
+
+        if (priceType.HasValue)
+        {
+            query = query.Where(p => p.PriceType == priceType.Value);
+        }
+
+        if (activeOnly == true)
+        {
+            query = query.Where(p => p.IsActive);
+        }
+
+        if (validOn.HasValue)
+        {
+            var at = validOn.Value;
+            query = query
+                .Where(p => p.ValidFrom <= at)
+                .Where(p => !p.ValidTo.HasValue || p.ValidTo >= at);
+        }
+
+        var prices = await query
+            .OrderByDescending(p => p.IsActive)
+            .ThenByDescending(p => p.Priority)
+            .ThenByDescending(p => p.ValidFrom)
+            .ThenByDescending(p => p.CreatedAt)
+            .ToListAsync(cancellationToken);
+
+        return Ok(prices.Select(MapToDto));
+    }
+
+    /// <summary>
+    /// Get a specific product price entry (admin view)
+    /// </summary>
+    [HttpGet("product-prices/{id}")]
+    [Authorize(Roles = "Admin,Manager")]
+    public async Task<ActionResult<ProductPriceDto>> GetProductPrice(int id, CancellationToken cancellationToken)
+    {
+        var price = await _context.ProductPrices
+            .Include(p => p.Product)
+            .Include(p => p.Customer)
+            .Include(p => p.Canton)
+            .AsNoTracking()
+            .FirstOrDefaultAsync(p => p.Id == id, cancellationToken);
+
+        if (price == null)
+        {
+            return NotFound();
+        }
+
+        return Ok(MapToDto(price));
+    }
+
+    /// <summary>
+    /// Create a new product price entry (admin view)
+    /// </summary>
+    [HttpPost("product-prices")]
+    [Authorize(Roles = "Admin,Manager")]
+    public async Task<ActionResult<ProductPriceDto>> CreateProductPrice(
+        [FromBody] CreateProductPriceDto dto,
+        CancellationToken cancellationToken)
+    {
+        if (dto.ProductId <= 0)
+        {
+            return BadRequest(new { message = "ProductId is required" });
+        }
+
+        if (dto.ValidTo.HasValue && dto.ValidTo.Value < dto.ValidFrom)
+        {
+            return BadRequest(new { message = "ValidTo must be greater than or equal to ValidFrom" });
+        }
+
+        var price = new ProductPrice
+        {
+            ProductId = dto.ProductId,
+            CustomerId = dto.CustomerId,
+            CantonId = dto.CantonId,
+            PriceType = dto.PriceType,
+            UnitPrice = dto.UnitPrice,
+            ValidFrom = dto.ValidFrom,
+            ValidTo = dto.ValidTo,
+            Priority = dto.Priority,
+            IsActive = dto.IsActive
+        };
+
+        _context.ProductPrices.Add(price);
+        await _context.SaveChangesAsync(cancellationToken);
+
+        return CreatedAtAction(nameof(GetProductPrice), new { id = price.Id }, MapToDto(price));
+    }
+
+    /// <summary>
+    /// Update a product price entry (admin view)
+    /// </summary>
+    [HttpPut("product-prices/{id}")]
+    [Authorize(Roles = "Admin,Manager")]
+    public async Task<ActionResult<ProductPriceDto>> UpdateProductPrice(
+        int id,
+        [FromBody] CreateProductPriceDto dto,
+        CancellationToken cancellationToken)
+    {
+        if (dto.ValidTo.HasValue && dto.ValidTo.Value < dto.ValidFrom)
+        {
+            return BadRequest(new { message = "ValidTo must be greater than or equal to ValidFrom" });
+        }
+
+        var price = await _context.ProductPrices.FindAsync([id], cancellationToken);
+        if (price == null)
+        {
+            return NotFound();
+        }
+
+        price.ProductId = dto.ProductId;
+        price.CustomerId = dto.CustomerId;
+        price.CantonId = dto.CantonId;
+        price.PriceType = dto.PriceType;
+        price.UnitPrice = dto.UnitPrice;
+        price.ValidFrom = dto.ValidFrom;
+        price.ValidTo = dto.ValidTo;
+        price.Priority = dto.Priority;
+        price.IsActive = dto.IsActive;
+
+        await _context.SaveChangesAsync(cancellationToken);
+
+        return Ok(MapToDto(price));
+    }
+
+    /// <summary>
+    /// Delete a product price entry (admin view)
+    /// </summary>
+    [HttpDelete("product-prices/{id}")]
+    [Authorize(Roles = "Admin")]
+    public async Task<IActionResult> DeleteProductPrice(int id, CancellationToken cancellationToken)
+    {
+        var price = await _context.ProductPrices.FindAsync([id], cancellationToken);
+        if (price == null)
+        {
+            return NotFound();
+        }
+
+        _context.ProductPrices.Remove(price);
+        await _context.SaveChangesAsync(cancellationToken);
+
+        return NoContent();
+    }
+
+    #endregion
+
     #region Promotions
 
     /// <summary>
@@ -198,6 +380,8 @@ public class PricingController : ControllerBase
     {
         var query = _context.Promotions
             .Include(p => p.Customer)
+            .Include(p => p.ApplicableProducts)
+            .Include(p => p.ApplicableCategories)
             .AsNoTracking();
 
         if (activeOnly == true)
@@ -222,6 +406,8 @@ public class PricingController : ControllerBase
     {
         var promotion = await _context.Promotions
             .Include(p => p.Customer)
+            .Include(p => p.ApplicableProducts)
+            .Include(p => p.ApplicableCategories)
             .AsNoTracking()
             .FirstOrDefaultAsync(p => p.Id == id, cancellationToken);
 
@@ -305,9 +491,16 @@ public class PricingController : ControllerBase
 
         await _context.SaveChangesAsync(cancellationToken);
 
-        _logger.LogInformation("Created promotion {PromotionCode} with ID {PromotionId}", promotion.Code, promotion.Id);
+        var createdPromotion = await _context.Promotions
+            .Include(p => p.Customer)
+            .Include(p => p.ApplicableProducts)
+            .Include(p => p.ApplicableCategories)
+            .AsNoTracking()
+            .FirstAsync(p => p.Id == promotion.Id, cancellationToken);
 
-        return CreatedAtAction(nameof(GetPromotion), new { id = promotion.Id }, MapToDto(promotion));
+        _logger.LogInformation("Created promotion {PromotionCode} with ID {PromotionId}", createdPromotion.Code, createdPromotion.Id);
+
+        return CreatedAtAction(nameof(GetPromotion), new { id = createdPromotion.Id }, MapToDto(createdPromotion));
     }
 
     /// <summary>
@@ -358,7 +551,14 @@ public class PricingController : ControllerBase
 
         await _context.SaveChangesAsync(cancellationToken);
 
-        return Ok(MapToDto(promotion));
+        var updatedPromotion = await _context.Promotions
+            .Include(p => p.Customer)
+            .Include(p => p.ApplicableProducts)
+            .Include(p => p.ApplicableCategories)
+            .AsNoTracking()
+            .FirstAsync(p => p.Id == promotion.Id, cancellationToken);
+
+        return Ok(MapToDto(updatedPromotion));
     }
 
     /// <summary>
@@ -440,6 +640,8 @@ public class PricingController : ControllerBase
             customerId.Value,
             request.Quantity,
             request.PromotionCode,
+            request.PriceType,
+            request.CantonId,
             cancellationToken);
 
         return Ok(MapToDto(result));
@@ -459,7 +661,11 @@ public class PricingController : ControllerBase
             return BadRequest(new { message = "Customer not found for current user" });
         }
 
-        var items = request.Items.Select(i => (i.ProductId, i.Quantity));
+        var items = request.Items.Select(i => new IPricingService.PriceCalculationItem(
+            i.ProductId,
+            i.Quantity,
+            i.PriceType,
+            i.CantonId));
         var results = await _pricingService.CalculatePricesAsync(
             items,
             customerId.Value,
@@ -608,9 +814,30 @@ public class PricingController : ControllerBase
         RequiresCode = promotion.RequiresCode,
         CanStackWithOtherPromotions = promotion.CanStackWithOtherPromotions,
         CanStackWithTierPricing = promotion.CanStackWithTierPricing,
+        ProductIds = promotion.AppliesToAllProducts ? null : promotion.ApplicableProducts.Select(p => p.ProductId).Distinct().ToList(),
+        CategoryIds = promotion.AppliesToAllProducts ? null : promotion.ApplicableCategories.Select(c => c.CategoryId).Distinct().ToList(),
         IsValid = promotion.IsValid,
         HasReachedLimit = promotion.HasReachedLimit,
         CreatedAt = promotion.CreatedAt
+    };
+
+    private static ProductPriceDto MapToDto(ProductPrice price) => new()
+    {
+        Id = price.Id,
+        ProductId = price.ProductId,
+        ProductName = price.Product?.Name,
+        CantonId = price.CantonId,
+        CantonName = price.Canton?.Name,
+        CustomerId = price.CustomerId,
+        CustomerName = price.Customer?.FullName,
+        PriceType = price.PriceType,
+        UnitPrice = price.UnitPrice,
+        ValidFrom = price.ValidFrom,
+        ValidTo = price.ValidTo,
+        Priority = price.Priority,
+        IsActive = price.IsActive,
+        IsValid = price.IsValid,
+        CreatedAt = price.CreatedAt
     };
 
     private static PriceCalculationResultDto MapToDto(PriceCalculationResult result) => new()

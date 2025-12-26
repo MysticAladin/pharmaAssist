@@ -7,6 +7,7 @@
 
 .table-wrapper {
   overflow-x: auto;
+  position: relative;
 }
 
 .data-table {
@@ -88,6 +89,16 @@ th {
 .actions-cell {
   width: 120px;
   text-align: center;
+  position: sticky;
+  right: 0;
+  z-index: 2;
+  background: var(--surface);
+  border-left: 1px solid var(--border);
+}
+
+thead th.actions-cell {
+  z-index: 3;
+  background: var(--surface-alt, #f8fafc);
 }
 
 tbody tr {

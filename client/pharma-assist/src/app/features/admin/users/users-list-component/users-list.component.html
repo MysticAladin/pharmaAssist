@@ -13,30 +13,27 @@
     </div>
   </header>
 
-  <!-- Filters -->
-  <section class="filters-section">
-    <div class="filter-row">
-      <div class="search-box">
-        <i class="icon-search"></i>
-        <input
-          type="text"
-          [(ngModel)]="searchTerm"
-          (input)="onSearchChange()"
-          [placeholder]="'users.searchPlaceholder' | translate"
-          class="form-control">
-      </div>
+  <!-- Search + Filters -->
+  <div class="filters-bar">
+    <app-search-input
+      placeholder="users.searchPlaceholder"
+      [initialValue]="searchTerm"
+      [debounceTime]="0"
+      (searchChange)="onSearchTermChange($event)"
+    ></app-search-input>
 
-      <select class="form-select" [(ngModel)]="selectedRole" (change)="applyFilters()">
-        <option [value]="''">{{ 'users.allRoles' | translate }}</option>
+    <div class="filter-group">
+      <select class="filter-select" [(ngModel)]="selectedRole" (ngModelChange)="applyFilters()">
+        <option value="">{{ 'users.allRoles' | translate }}</option>
         @for (role of roles; track role) {
           <option [value]="role">{{ getRoleName(role) | translate }}</option>
         }
       </select>
 
-      <select class="form-select" [(ngModel)]="selectedStatus" (change)="applyFilters()">
-        <option [value]="''">{{ 'users.allStatuses' | translate }}</option>
-        <option [value]="true">{{ 'common.active' | translate }}</option>
-        <option [value]="false">{{ 'common.inactive' | translate }}</option>
+      <select class="filter-select" [(ngModel)]="selectedStatus" (ngModelChange)="applyFilters()">
+        <option value="">{{ 'users.allStatuses' | translate }}</option>
+        <option value="true">{{ 'common.active' | translate }}</option>
+        <option value="false">{{ 'common.inactive' | translate }}</option>
       </select>
 
       @if (hasFilters()) {
@@ -46,7 +43,7 @@
         </button>
       }
     </div>
-  </section>
+  </div>
 
   <!-- Users Table -->
   <section class="table-section">
@@ -117,7 +114,7 @@
                     <span class="text-muted">{{ 'users.neverLoggedIn' | translate }}</span>
                   }
                 </td>
-                <td class="text-center">
+                <td class="text-center actions-cell">
                   <div class="row-actions">
                     <button
                       class="action-btn"

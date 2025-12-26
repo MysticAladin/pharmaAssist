@@ -1,0 +1,33 @@
+/* Shared checkbox label styling (source-of-truth: Manufacturers filters) */
+
+.toggle-filter,
+.filter-checkbox,
+.checkbox-label,
+.toggle-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  font-size: var(--font-size-sm);
+  color: var(--text-primary);
+}
+
+.toggle-filter input[type="checkbox"],
+.filter-checkbox input[type="checkbox"],
+.checkbox-label input[type="checkbox"],
+.toggle-label input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  margin: 0;
+  flex: 0 0 auto;
+  display: block;
+  accent-color: var(--primary);
+}
+
+.toggle-filter > span,
+.filter-checkbox > span,
+.checkbox-label > span,
+.toggle-label > span {
+  line-height: 1.2;
+  min-width: 0;
+}

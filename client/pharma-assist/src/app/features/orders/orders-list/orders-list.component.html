@@ -179,17 +179,14 @@
     </div>
   </div>
 
-  <!-- Search Bar -->
-  <div class="search-bar">
+  <!-- Search + Filters Bar -->
+  <div class="filters-bar">
     <app-search-input
       [placeholder]="'orders.searchPlaceholder' | translate"
       [debounceTime]="300"
       (searchChange)="onSearch($event)"
     ></app-search-input>
-  </div>
 
-  <!-- Filters Bar -->
-  <div class="filters-bar">
     <div class="filter-group">
       <select [(ngModel)]="selectedStatus" (ngModelChange)="onStatusFilterChange($event)" class="filter-select">
         <option [ngValue]="null">{{ 'orders.allStatuses' | translate }}</option>
@@ -251,17 +248,17 @@
           </svg>
         </button>
       </div>
-    </div>
 
-    @if (hasActiveFilters()) {
-      <button class="btn btn-ghost" (click)="clearFilters()">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <line x1="18" y1="6" x2="6" y2="18"/>
-          <line x1="6" y1="6" x2="18" y2="18"/>
-        </svg>
-        {{ 'common.clearFilters' | translate }}
-      </button>
-    }
+      @if (hasActiveFilters()) {
+        <button class="btn btn-ghost" (click)="clearFilters()">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="18" y1="6" x2="6" y2="18"/>
+            <line x1="6" y1="6" x2="18" y2="18"/>
+          </svg>
+          {{ 'common.clearFilters' | translate }}
+        </button>
+      }
+    </div>
   </div>
 
   <!-- Orders Table -->

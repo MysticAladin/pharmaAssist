@@ -104,39 +104,11 @@
   gap: 1rem;
   align-items: center;
   flex-wrap: wrap;
-
-  app-search-input {
-    flex: 1;
-    min-width: 250px;
-  }
-}
-
-.form-select {
-  padding: 0.5rem 1rem;
-  border: 1px solid var(--border-color);
-  border-radius: 6px;
-  background: var(--surface);
-  color: var(--text-primary);
-  min-width: 180px;
 }
 
 .filter-toggles {
   display: flex;
   gap: 1rem;
-}
-
-.toggle-label {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  cursor: pointer;
-  font-size: 0.875rem;
-  color: var(--text-secondary);
-
-  input {
-    width: 16px;
-    height: 16px;
-  }
 }
 
 // Table Section
@@ -148,6 +120,7 @@
 
 .table-container {
   overflow-x: auto;
+  position: relative;
 }
 
 .data-table {
@@ -175,6 +148,20 @@
 
   tr.low-stock {
     background: rgba(var(--color-warning-rgb), 0.05);
+  }
+
+  th.actions-cell,
+  td.actions-cell {
+    position: sticky;
+    right: 0;
+    z-index: 2;
+    background: var(--surface);
+    border-left: 1px solid var(--border-color);
+  }
+
+  thead th.actions-cell {
+    z-index: 3;
+    background: var(--surface-hover);
   }
 }
 

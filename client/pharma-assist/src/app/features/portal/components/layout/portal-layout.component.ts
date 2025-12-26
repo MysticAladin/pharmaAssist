@@ -95,6 +95,12 @@ import { filter, map, startWith } from 'rxjs/operators';
             <a routerLink="/portal/catalog" [class.active]="isAllProductsActive()" class="nav-item">
               {{ 'portal.catalog.all' | translate }}
             </a>
+            <a routerLink="/portal/product-search" class="nav-item">
+              🔎 Product Search
+            </a>
+            <a routerLink="/portal/promotions" class="nav-item">
+              🔥 Promotions
+            </a>
             <a routerLink="/portal/catalog" [queryParams]="{category: 'medications'}" [class.active]="isMedicationsActive()" class="nav-item">
               💊 {{ 'portal.categories.medications' | translate }}
             </a>

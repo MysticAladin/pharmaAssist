@@ -153,7 +153,7 @@
               }
             </th>
             <th class="text-center">{{ 'TENDERS.TABLE.BIDS' | translate }}</th>
-            <th>{{ 'TENDERS.TABLE.ACTIONS' | translate }}</th>
+            <th class="actions-cell">{{ 'TENDERS.TABLE.ACTIONS' | translate }}</th>
           </tr>
         </thead>
         <tbody>
@@ -198,7 +198,7 @@
                   {{ tender.bidCount }}
                 </span>
               </td>
-              <td>
+              <td class="actions-cell">
                 <div class="action-buttons">
                   <button class="btn-icon" title="{{ 'COMMON.VIEW' | translate }}"
                           [routerLink]="['/tenders', tender.id]">

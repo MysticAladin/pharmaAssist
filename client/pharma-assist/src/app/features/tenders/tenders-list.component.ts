@@ -1,5 +1,5 @@
 import { Component, OnInit, inject, signal, computed, effect } from '@angular/core';
-import { CommonModule, DatePipe, CurrencyPipe } from '@angular/common';
+import { CommonModule, CurrencyPipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
@@ -33,7 +33,6 @@ import { EuropeanDatePipe } from '../../core/pipes';
     FormsModule,
     RouterLink,
     TranslateModule,
-    DatePipe,
     CurrencyPipe,
     SearchInputComponent,
     EmptyStateComponent,

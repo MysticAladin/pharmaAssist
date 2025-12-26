@@ -265,7 +265,7 @@
               <th>{{ 'admin.featureFlags.table.value' | translate }}</th>
               <th>{{ 'admin.featureFlags.table.override' | translate }}</th>
               <th>{{ 'admin.featureFlags.table.updated' | translate }}</th>
-              <th>{{ 'common.actions' | translate }}</th>
+              <th class="actions-cell">{{ 'common.actions' | translate }}</th>
             </tr>
           </thead>
           <tbody>
@@ -323,7 +323,7 @@
                 <td>
                   <span class="date-display">{{ formatDate(flag.updatedAt || flag.createdAt) }}</span>
                 </td>
-                <td>
+                <td class="actions-cell">
                   <div class="action-buttons">
                     <button
                       class="btn-icon"

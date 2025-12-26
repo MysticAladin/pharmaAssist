@@ -1,5 +1,5 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
-import { CommonModule, DatePipe, CurrencyPipe } from '@angular/common';
+import { CommonModule, CurrencyPipe } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 
@@ -24,7 +24,6 @@ import { PaginationComponent, PageEvent } from '../../shared/components/paginati
     CommonModule,
     RouterLink,
     TranslateModule,
-    DatePipe,
     CurrencyPipe,
     EuropeanDatePipe,
     EmptyStateComponent,

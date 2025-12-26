@@ -103,23 +103,17 @@
   }
 }
 
-// Add spacing between search input and filter row
-.search-bar {
-  margin-bottom: 1.5rem;
-}
-
 .filters-bar {
   display: flex;
-  gap: 1rem;
-  align-items: center;
+  flex-direction: column;
+  gap: 0.75rem;
   margin-bottom: 1.5rem;
-  flex-wrap: wrap;
 
   .filter-group {
     display: flex;
     gap: 0.75rem;
     align-items: center;
-    flex: 1;
+    flex-wrap: wrap;
   }
 
   .btn-ghost {

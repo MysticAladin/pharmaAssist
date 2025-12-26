@@ -39,6 +39,8 @@ public class PricingService : IPricingService
         int customerId,
         decimal quantity = 1,
         string? promotionCode = null,
+        PriceType priceType = PriceType.Commercial,
+        int? cantonId = null,
         CancellationToken cancellationToken = default)
     {
         var product = await _context.Products
@@ -59,15 +61,19 @@ public class PricingService : IPricingService
             throw new ArgumentException($"Customer with ID {customerId} not found");
         }
 
+        var resolvedCantonId = await ResolveCustomerCantonIdAsync(customerId, cantonId, cancellationToken);
+        var baseUnitPrice = await ResolveBaseUnitPriceAsync(productId, customerId, priceType, resolvedCantonId, cancellationToken)
+            ?? product.UnitPrice;
+
         var result = new PriceCalculationResult
         {
             ProductId = productId,
             ProductName = product.Name,
             Quantity = quantity,
-            BasePrice = product.UnitPrice
+            BasePrice = baseUnitPrice
         };
 
-        decimal currentPrice = product.UnitPrice;
+        decimal currentPrice = baseUnitPrice;
 
         // 1. Apply tier-based discount
         var tierDiscount = GetTierDiscountPercentage(customer.Tier);
@@ -82,7 +88,7 @@ public class PricingService : IPricingService
             var ruleDiscount = CalculateRuleDiscount(applicableRule, currentPrice, quantity);
             result.RuleDiscountPercent = applicableRule.DiscountType == DiscountType.Percentage 
                 ? applicableRule.DiscountValue 
-                : (ruleDiscount / currentPrice) * 100m;
+                : (currentPrice > 0 ? (ruleDiscount / currentPrice) * 100m : 0m);
             result.RuleDiscountAmount = ruleDiscount;
             result.AppliedRuleName = applicableRule.Name;
             currentPrice -= ruleDiscount;
@@ -100,7 +106,7 @@ public class PricingService : IPricingService
                     var promoDiscount = CalculatePromotionDiscount(validation.Promotion, currentPrice, quantity);
                     result.PromotionDiscountPercent = validation.Promotion.Type == PromotionType.PercentageDiscount
                         ? validation.Promotion.Value
-                        : (promoDiscount / currentPrice) * 100m;
+                        : (currentPrice > 0 ? (promoDiscount / currentPrice) * 100m : 0m);
                     result.PromotionDiscountAmount = promoDiscount;
                     result.AppliedPromotionCode = promotionCode;
                     currentPrice -= promoDiscount;
@@ -118,20 +124,78 @@ public class PricingService : IPricingService
     }
 
     public async Task<IEnumerable<PriceCalculationResult>> CalculatePricesAsync(
-        IEnumerable<(int ProductId, decimal Quantity)> items,
+        IEnumerable<IPricingService.PriceCalculationItem> items,
         int customerId,
         string? promotionCode = null,
         CancellationToken cancellationToken = default)
     {
         var results = new List<PriceCalculationResult>();
         
-        foreach (var (productId, quantity) in items)
+        foreach (var item in items)
         {
-            var result = await CalculatePriceAsync(productId, customerId, quantity, promotionCode, cancellationToken);
+            var result = await CalculatePriceAsync(
+                item.ProductId,
+                customerId,
+                item.Quantity,
+                promotionCode,
+                item.PriceType,
+                item.CantonId,
+                cancellationToken);
             results.Add(result);
         }
 
         return results;
+    }
+
+    private async Task<int?> ResolveCustomerCantonIdAsync(
+        int customerId,
+        int? requestCantonId,
+        CancellationToken cancellationToken)
+    {
+        if (requestCantonId.HasValue)
+        {
+            return requestCantonId;
+        }
+
+        return await _context.CustomerAddresses
+            .AsNoTracking()
+            .Where(a => a.CustomerId == customerId && a.IsActive)
+            .Where(a => a.CantonId.HasValue)
+            .OrderByDescending(a => a.IsDefault)
+            .ThenByDescending(a => a.AddressType == AddressType.Shipping)
+            .ThenByDescending(a => a.Id)
+            .Select(a => a.CantonId)
+            .FirstOrDefaultAsync(cancellationToken);
+    }
+
+    private async Task<decimal?> ResolveBaseUnitPriceAsync(
+        int productId,
+        int customerId,
+        PriceType priceType,
+        int? cantonId,
+        CancellationToken cancellationToken)
+    {
+        var now = DateTime.UtcNow;
+
+        var query = _context.ProductPrices
+            .AsNoTracking()
+            .Where(p => p.ProductId == productId)
+            .Where(p => p.IsActive)
+            .Where(p => p.PriceType == priceType)
+            .Where(p => p.ValidFrom <= now)
+            .Where(p => !p.ValidTo.HasValue || p.ValidTo >= now)
+            .Where(p => !p.CustomerId.HasValue || p.CustomerId == customerId)
+            .Where(p => !p.CantonId.HasValue || (cantonId.HasValue && p.CantonId == cantonId));
+
+        var best = await query
+            .OrderByDescending(p => p.CustomerId.HasValue)
+            .ThenByDescending(p => p.CantonId.HasValue)
+            .ThenByDescending(p => p.Priority)
+            .ThenByDescending(p => p.ValidFrom)
+            .ThenByDescending(p => p.Id)
+            .FirstOrDefaultAsync(cancellationToken);
+
+        return best?.UnitPrice;
     }
 
     public async Task<IEnumerable<PriceRule>> GetApplicableRulesAsync(
@@ -443,6 +507,8 @@ public class PricingService : IPricingService
         var promotions = await _context.Promotions
             .AsNoTracking()
             .Include(p => p.Customer)
+            .Include(p => p.ApplicableProducts)
+            .Include(p => p.ApplicableCategories)
             .Where(p => p.IsActive)
             .Where(p => p.StartDate <= now && p.EndDate >= now)
             .Where(p => !p.MaxUsageCount.HasValue || p.CurrentUsageCount < p.MaxUsageCount)

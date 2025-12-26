@@ -59,7 +59,7 @@ interface OrderItem {
             <!-- Items -->
             <div class="section">
               <h3>{{ 'portal.orderDetail.items' | translate }}</h3>
-              <div class="items-table">
+              <div class="items-table" [class.has-actions]="canFileClaim()">
                 <div class="table-header">
                   <span>{{ 'portal.orderDetail.product' | translate }}</span>
                   <span>{{ 'portal.orderDetail.qty' | translate }}</span>
@@ -272,8 +272,12 @@ interface OrderItem {
     .section h3 { font-size: 1rem; margin-bottom: 1rem; padding-bottom: 0.75rem; border-bottom: 1px solid var(--border-color); }
 
     .items-table { overflow-x: auto; }
-    .table-header { display: grid; grid-template-columns: 2fr 0.75fr 1fr 1fr 1fr; gap: 1rem; padding: 0.75rem 0; font-size: 0.75rem; font-weight: 600; text-transform: uppercase; color: var(--text-secondary); border-bottom: 1px solid var(--border-color); min-width: 600px; }
-    .table-row { display: grid; grid-template-columns: 2fr 0.75fr 1fr 1fr 1fr; gap: 1rem; padding: 1rem 0; align-items: center; border-bottom: 1px solid var(--border-color); min-width: 600px; }
+    .items-table.has-actions .table-header,
+    .items-table.has-actions .table-row { grid-template-columns: 2fr 0.75fr 1fr 1fr 1fr; min-width: 600px; }
+    .items-table:not(.has-actions) .table-header,
+    .items-table:not(.has-actions) .table-row { grid-template-columns: 2fr 0.75fr 1fr 1fr; min-width: 520px; }
+    .table-header { display: grid; gap: 1rem; padding: 0.75rem 0; font-size: 0.75rem; font-weight: 600; text-transform: uppercase; color: var(--text-secondary); border-bottom: 1px solid var(--border-color); }
+    .table-row { display: grid; gap: 1rem; padding: 1rem 0; align-items: center; border-bottom: 1px solid var(--border-color); }
     .table-row:last-child { border-bottom: none; }
     .product-name { font-weight: 500; display: block; }
     .product-sku { font-size: 0.75rem; color: var(--text-secondary); }
@@ -440,8 +444,32 @@ export class PortalOrderDetailComponent implements OnInit {
   }
 
   downloadInvoice() {
-    // TODO: Implement invoice download
-    console.log('Download invoice');
+    const currentOrder = this.order();
+    if (!currentOrder) return;
+
+    this.actionLoading.set(true);
+    this.ordersService.downloadInvoice(currentOrder.id).subscribe({
+      next: (blob) => {
+        this.actionLoading.set(false);
+
+        const fileName = `Faktura-${currentOrder.orderNumber}.pdf`;
+        const url = URL.createObjectURL(blob);
+
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = fileName;
+        a.style.display = 'none';
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+
+        URL.revokeObjectURL(url);
+      },
+      error: () => {
+        this.actionLoading.set(false);
+        this.errorMessage.set('Greška pri preuzimanju fakture');
+      }
+    });
   }
 
   cancelOrder() {

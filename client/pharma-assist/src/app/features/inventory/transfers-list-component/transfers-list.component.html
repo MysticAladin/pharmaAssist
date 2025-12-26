@@ -75,7 +75,7 @@
               <th class="text-center">{{ 'inventory.status' | translate }}</th>
               <th>{{ 'inventory.createdAt' | translate }}</th>
               <th>{{ 'inventory.createdBy' | translate }}</th>
-              <th class="text-center">{{ 'common.actions' | translate }}</th>
+              <th class="text-center actions-cell">{{ 'common.actions' | translate }}</th>
             </tr>
           </thead>
           <tbody>
@@ -99,7 +99,7 @@
                 </td>
                 <td>{{ transfer.createdAt | europeanDate:'datetime' }}</td>
                 <td>{{ transfer.createdBy }}</td>
-                <td class="text-center">
+                <td class="text-center actions-cell">
                   <div class="action-buttons">
                     <button
                       class="btn btn-icon btn-sm"

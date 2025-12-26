@@ -22,19 +22,37 @@ public class PortalController : ControllerBase
 {
     private readonly ApplicationDbContext _context;
     private readonly IOrderService _orderService;
+    private readonly IPdfService _pdfService;
     private readonly IClaimService _claimService;
     private readonly ILogger<PortalController> _logger;
 
     public PortalController(
         ApplicationDbContext context,
         IOrderService orderService,
+        IPdfService pdfService,
         IClaimService claimService,
         ILogger<PortalController> logger)
     {
         _context = context;
         _orderService = orderService;
+        _pdfService = pdfService;
         _claimService = claimService;
         _logger = logger;
+    }
+
+    private static string FormatAddress(Domain.Entities.CustomerAddress? address)
+    {
+        if (address == null) return string.Empty;
+
+        var street = string.IsNullOrWhiteSpace(address.Street2)
+            ? address.Street
+            : $"{address.Street}, {address.Street2}";
+
+        var cityLine = string.IsNullOrWhiteSpace(address.PostalCode)
+            ? address.City
+            : $"{address.PostalCode} {address.City}";
+
+        return string.Join(", ", new[] { street, cityLine }.Where(s => !string.IsNullOrWhiteSpace(s)));
     }
 
     private async Task<int?> GetCurrentCustomerIdAsync()
@@ -147,16 +165,24 @@ public class PortalController : ControllerBase
     [HttpPost("orders")]
     [ProducesResponseType(typeof(ApiResponse<OrderDto>), StatusCodes.Status201Created)]
     [ProducesResponseType(typeof(ApiResponse<OrderDto>), StatusCodes.Status400BadRequest)]
-    public async Task<IActionResult> CreateOrder([FromBody] CreateOrderDto dto, CancellationToken cancellationToken)
+    public async Task<IActionResult> CreateOrder([FromBody] CreatePortalOrderDto dto, CancellationToken cancellationToken)
     {
         var customerId = await GetCurrentCustomerIdAsync();
         if (!customerId.HasValue)
             return Unauthorized(ApiResponse<object>.Fail("Customer not found"));
 
-        // Override customer ID with the logged-in customer
-        dto.CustomerId = customerId.Value;
+        var createDto = new CreateOrderDto
+        {
+            CustomerId = customerId.Value,
+            ShippingAddressId = dto.ShippingAddressId,
+            BillingAddressId = dto.BillingAddressId,
+            PaymentMethod = dto.PaymentMethod,
+            RequiredDate = dto.RequiredDate,
+            Notes = dto.Notes,
+            Items = dto.Items
+        };
 
-        var result = await _orderService.CreateAsync(dto, cancellationToken);
+        var result = await _orderService.CreateAsync(createDto, cancellationToken);
         return result.Success 
             ? CreatedAtAction(nameof(GetOrderById), new { id = result.Data!.Id }, result) 
             : BadRequest(result);
@@ -201,6 +227,71 @@ public class PortalController : ControllerBase
         return result.Success 
             ? CreatedAtAction(nameof(GetOrderById), new { id = result.Data!.Id }, result) 
             : BadRequest(result);
+    }
+
+    /// <summary>
+    /// Download invoice PDF for an order (customer must own the order)
+    /// </summary>
+    [HttpGet("orders/{id:int}/invoice")]
+    [Produces("application/pdf")]
+    [ProducesResponseType(typeof(FileContentResult), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> DownloadInvoice(int id, CancellationToken cancellationToken)
+    {
+        var customerId = await GetCurrentCustomerIdAsync();
+        if (!customerId.HasValue)
+            return Unauthorized(ApiResponse<object>.Fail("Customer not found"));
+
+        var order = await _context.Orders
+            .Include(o => o.Customer)
+            .Include(o => o.BillingAddress)
+            .Include(o => o.ShippingAddress)
+            .Include(o => o.OrderItems)
+                .ThenInclude(oi => oi.Product)
+            .FirstOrDefaultAsync(o => o.Id == id && o.CustomerId == customerId.Value, cancellationToken);
+
+        if (order == null)
+            return NotFound(ApiResponse<object>.Fail("Order not found"));
+
+        var buyerAddress = FormatAddress(order.BillingAddress) ?? FormatAddress(order.ShippingAddress);
+        var invoiceDate = order.OrderDate;
+        var dueDate = invoiceDate.AddDays(Math.Max(0, order.Customer.PaymentTermsDays));
+
+        var request = new InvoicePdfRequest
+        {
+            InvoiceNumber = order.OrderNumber,
+            InvoiceDate = invoiceDate,
+            DueDate = dueDate,
+
+            BuyerName = order.Customer.FullName,
+            BuyerAddress = buyerAddress,
+            BuyerTaxId = order.Customer.TaxId ?? string.Empty,
+            BuyerEmail = order.Customer.Email,
+
+            Items = order.OrderItems.Select((item, index) => new InvoiceLineItem
+            {
+                LineNumber = index + 1,
+                ProductCode = item.Product.SKU,
+                ProductName = item.Product.Name,
+                Quantity = item.Quantity,
+                UnitPrice = item.UnitPrice,
+                DiscountPercent = item.DiscountPercent,
+                TaxPercent = item.TaxRate,
+                LineTotal = item.LineTotal,
+                IsEssential = false
+            }).ToList(),
+
+            SubTotal = order.SubTotal,
+            TaxAmount = order.TaxAmount,
+            DiscountAmount = order.DiscountAmount,
+            TotalAmount = order.TotalAmount,
+
+            PaymentTerms = order.Customer.PaymentTermsDays > 0 ? $"Net {order.Customer.PaymentTermsDays}" : string.Empty,
+            Notes = order.Notes ?? string.Empty
+        };
+
+        var pdfBytes = await _pdfService.GenerateInvoicePdfAsync(request);
+        return File(pdfBytes, "application/pdf", $"Faktura-{order.OrderNumber}.pdf");
     }
 
     #endregion

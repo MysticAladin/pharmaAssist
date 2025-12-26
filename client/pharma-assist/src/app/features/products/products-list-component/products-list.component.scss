@@ -2,6 +2,7 @@
 @use '../../../../styles/buttons';
 @use '../../../../styles/filters';
 @use '../../../../styles/layouts';
+@use '../../../../styles/table-actions';
 
 .products-page {
   @include layouts.page-container;
@@ -12,17 +13,6 @@
   display: flex;
   flex-direction: column;
   gap: 0.75rem;
-}
-
-.filter-checkbox {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-
-  input {
-    width: 16px;
-    height: 16px;
-  }
 }
 
 // Export dropdown (component-specific)
@@ -199,38 +189,6 @@
   gap: 0.75rem;
   padding-top: 1rem;
   border-top: 1px solid var(--border);
-}
-
-// Row actions (component-specific)
-.row-actions {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  justify-content: center;
-}
-
-.action-btn {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 32px;
-  height: 32px;
-  border: none;
-  background: transparent;
-  color: var(--text-secondary);
-  border-radius: 6px;
-  cursor: pointer;
-  transition: all 0.15s;
-
-  &:hover {
-    background: var(--surface-hover);
-    color: var(--text);
-  }
-
-  &.action-btn-danger:hover {
-    background: var(--color-error-bg);
-    color: var(--color-error-dark);
-  }
 }
 
 // Bulk actions bar (component-specific)

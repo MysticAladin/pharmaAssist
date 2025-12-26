@@ -1,0 +1,62 @@
+// Shared action button styling for data tables (matches Products list)
+
+.row-actions {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  justify-content: center;
+}
+
+.action-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border: none;
+  background: transparent;
+  color: var(--text-secondary);
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.15s;
+
+  svg {
+    width: 16px;
+    height: 16px;
+  }
+
+  i {
+    font-size: 16px;
+    line-height: 1;
+  }
+
+  .material-symbols-rounded {
+    font-size: 18px;
+    line-height: 1;
+  }
+
+  &:hover {
+    background: var(--surface-hover);
+    color: var(--text);
+  }
+
+  &.action-btn-danger:hover {
+    background: var(--color-error-bg);
+    color: var(--color-error-dark);
+  }
+
+  &.action-btn-warning:hover {
+    background: rgba(var(--color-warning-rgb), 0.12);
+    color: var(--color-warning);
+  }
+
+  &.action-btn-success:hover {
+    background: rgba(var(--color-success-rgb), 0.12);
+    color: var(--color-success);
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+}

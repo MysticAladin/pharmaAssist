@@ -39,6 +39,37 @@ public class CreateOrderValidator : AbstractValidator<CreateOrderDto>
 }
 
 /// <summary>
+/// Validator for CreatePortalOrderDto
+/// </summary>
+public class CreatePortalOrderValidator : AbstractValidator<CreatePortalOrderDto>
+{
+    public CreatePortalOrderValidator()
+    {
+        RuleFor(x => x.ShippingAddressId)
+            .GreaterThan(0).WithMessage("Valid shipping address ID is required.")
+            .When(x => x.ShippingAddressId.HasValue);
+
+        RuleFor(x => x.BillingAddressId)
+            .GreaterThan(0).WithMessage("Valid billing address ID is required.")
+            .When(x => x.BillingAddressId.HasValue);
+
+        RuleFor(x => x.RequiredDate)
+            .GreaterThan(DateTime.UtcNow.Date).WithMessage("Required date must be in the future.")
+            .When(x => x.RequiredDate.HasValue);
+
+        RuleFor(x => x.Notes)
+            .MaximumLength(1000).WithMessage("Notes cannot exceed 1000 characters.")
+            .When(x => !string.IsNullOrEmpty(x.Notes));
+
+        RuleFor(x => x.Items)
+            .NotEmpty().WithMessage("Order must contain at least one item.");
+
+        RuleForEach(x => x.Items)
+            .SetValidator(new CreateOrderItemValidator());
+    }
+}
+
+/// <summary>
 /// Validator for UpdateOrderDto
 /// </summary>
 public class UpdateOrderValidator : AbstractValidator<UpdateOrderDto>

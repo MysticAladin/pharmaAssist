@@ -17,6 +17,16 @@ export const PORTAL_ROUTES: Routes = [
       .then(m => m.ProductCatalogComponent)
   },
   {
+    path: 'product-search',
+    loadComponent: () => import('./pages/product-search/portal-product-search.component')
+      .then(m => m.PortalProductSearchComponent)
+  },
+  {
+    path: 'promotions',
+    loadComponent: () => import('./pages/promotions/portal-promotions.component')
+      .then(m => m.PortalPromotionsComponent)
+  },
+  {
     path: 'product/:id',
     loadComponent: () => import('./pages/product-detail/product-detail.component')
       .then(m => m.ProductDetailComponent)

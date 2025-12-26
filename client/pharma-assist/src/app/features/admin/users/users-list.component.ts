@@ -12,6 +12,7 @@ import { PaginationComponent, PageEvent } from '../../../shared/components/pagin
 import { StatusBadgeComponent } from '../../../shared/components/status-badge/status-badge.component';
 import { EmptyStateComponent } from '../../../shared/components/empty-state/empty-state.component';
 import { BadgeVariant } from '../../../shared/components/status-badge';
+import { SearchInputComponent } from '../../../shared/components/search-input';
 
 @Component({
   selector: 'app-users-list',
@@ -21,6 +22,7 @@ import { BadgeVariant } from '../../../shared/components/status-badge';
     FormsModule,
     TranslateModule,
     EuropeanDatePipe,
+    SearchInputComponent,
     PaginationComponent,
     StatusBadgeComponent,
     EmptyStateComponent
@@ -119,6 +121,11 @@ export class UsersListComponent implements OnInit {
       this.currentPage.set(1);
       this.loadUsers();
     }, 300);
+  }
+
+  onSearchTermChange(term: string): void {
+    this.searchTerm = term;
+    this.onSearchChange();
   }
 
   applyFilters(): void {

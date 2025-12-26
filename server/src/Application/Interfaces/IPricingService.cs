@@ -9,6 +9,15 @@ namespace Application.Interfaces;
 public interface IPricingService
 {
     /// <summary>
+    /// Item information for batch price calculation.
+    /// </summary>
+    public record PriceCalculationItem(
+        int ProductId,
+        decimal Quantity,
+        PriceType PriceType = PriceType.Commercial,
+        int? CantonId = null);
+
+    /// <summary>
     /// Calculate the final price for a product for a specific customer
     /// </summary>
     Task<PriceCalculationResult> CalculatePriceAsync(
@@ -16,13 +25,15 @@ public interface IPricingService
         int customerId, 
         decimal quantity = 1,
         string? promotionCode = null,
+        PriceType priceType = PriceType.Commercial,
+        int? cantonId = null,
         CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Calculate prices for multiple products (for cart/order)
     /// </summary>
     Task<IEnumerable<PriceCalculationResult>> CalculatePricesAsync(
-        IEnumerable<(int ProductId, decimal Quantity)> items,
+        IEnumerable<IPricingService.PriceCalculationItem> items,
         int customerId,
         string? promotionCode = null,
         CancellationToken cancellationToken = default);

@@ -1,5 +1,5 @@
 import { Component, OnInit, inject, signal, computed } from '@angular/core';
-import { CommonModule, DatePipe, CurrencyPipe } from '@angular/common';
+import { CommonModule, CurrencyPipe } from '@angular/common';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { EuropeanDatePipe } from '../../core/pipes';
@@ -26,7 +26,6 @@ import { ConfirmDialogComponent } from '../../shared/components/confirm-dialog';
     CommonModule,
     RouterLink,
     TranslateModule,
-    DatePipe,
     CurrencyPipe,
     EuropeanDatePipe,
     ConfirmDialogComponent

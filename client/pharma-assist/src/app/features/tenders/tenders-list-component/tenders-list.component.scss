@@ -12,6 +12,7 @@
   border-radius: 0.5rem;
   border: 1px solid var(--border-color);
   overflow-x: auto;
+  position: relative;
 }
 
 .tenders-table {
@@ -50,6 +51,20 @@
 
   tr.urgent {
     background: var(--color-error-bg);
+  }
+
+  th.actions-cell,
+  td.actions-cell {
+    position: sticky;
+    right: 0;
+    z-index: 2;
+    background: var(--bg-primary);
+    border-left: 1px solid var(--border-color);
+  }
+
+  thead th.actions-cell {
+    z-index: 3;
+    background: var(--bg-secondary);
   }
 }
 
