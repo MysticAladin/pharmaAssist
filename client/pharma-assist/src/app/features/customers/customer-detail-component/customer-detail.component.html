@@ -163,6 +163,118 @@
         </div>
       </section>
 
+      <!-- Branches (HQ -> branches) -->
+      <section class="card branches-card">
+        <div class="card-header">
+          <h2>{{ 'customers.details.branches' | translate }}</h2>
+          @if (customer()!.isHeadquarters) {
+            <button class="btn btn-sm btn-primary" (click)="toggleBranchForm()">
+              <i class="icon-plus"></i>
+              {{ 'customers.addBranch' | translate }}
+            </button>
+          }
+        </div>
+        <div class="card-body">
+          @if (!customer()!.isHeadquarters) {
+            <p class="text-muted">{{ 'customers.branchesOnlyForHq' | translate }}</p>
+          } @else {
+            @if (showBranchForm()) {
+              <div class="branch-form">
+                <div class="form-row">
+                  <div class="form-group">
+                    <label class="required">{{ 'customers.name' | translate }}</label>
+                    <input class="form-control" type="text" [(ngModel)]="newBranchName" />
+                  </div>
+                  <div class="form-group">
+                    <label class="required">{{ 'customers.email' | translate }}</label>
+                    <input class="form-control" type="email" [(ngModel)]="newBranchEmail" />
+                  </div>
+                </div>
+
+                <div class="form-row">
+                  <div class="form-group">
+                    <label>{{ 'customers.phone' | translate }}</label>
+                    <input class="form-control" type="text" [(ngModel)]="newBranchPhone" />
+                  </div>
+                  <div class="form-group">
+                    <label>{{ 'customers.branchCode' | translate }}</label>
+                    <input class="form-control" type="text" [(ngModel)]="newBranchCode" />
+                  </div>
+                </div>
+
+                <div class="branch-form-actions">
+                  <button class="btn btn-secondary btn-sm" (click)="toggleBranchForm()">
+                    {{ 'common.cancel' | translate }}
+                  </button>
+                  <button class="btn btn-primary btn-sm" (click)="createBranch()" [disabled]="savingBranch() || !newBranchName().trim() || !newBranchEmail().trim()">
+                    @if (savingBranch()) {
+                      <span class="spinner-sm"></span>
+                    }
+                    {{ 'common.create' | translate }}
+                  </button>
+                </div>
+              </div>
+            }
+
+            @if (loadingBranches()) {
+              <div class="loading-container small">
+                <div class="spinner"></div>
+              </div>
+            } @else if (branches().length === 0) {
+              <div class="empty-orders">
+                <i class="icon-git-branch"></i>
+                <p>{{ 'customers.noBranches' | translate }}</p>
+              </div>
+            } @else {
+              <div class="branches-table">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>{{ 'customers.name' | translate }}</th>
+                      <th>{{ 'customers.branchCode' | translate }}</th>
+                      <th>{{ 'customers.email' | translate }}</th>
+                      <th>{{ 'common.status' | translate }}</th>
+                      <th></th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    @for (branch of branches(); track branch.id) {
+                      <tr>
+                        <td>
+                          <a [routerLink]="['/customers', branch.id]">{{ branch.name }}</a>
+                        </td>
+                        <td>{{ branch.branchCode || '-' }}</td>
+                        <td>{{ branch.email || '-' }}</td>
+                        <td>
+                          <app-status-badge
+                            [variant]="branch.isActive ? 'success' : 'danger'"
+                            [label]="(branch.isActive ? 'common.active' : 'common.inactive') | translate">
+                          </app-status-badge>
+                        </td>
+                        <td class="actions">
+                          <button class="btn btn-icon btn-sm" [routerLink]="['/customers', branch.id, 'edit']" title="{{ 'common.edit' | translate }}">
+                            <i class="icon-edit"></i>
+                          </button>
+                          <button class="btn btn-icon btn-sm" [routerLink]="['/orders/new']" [queryParams]="{customerId: branch.id}" title="{{ 'customers.createOrder' | translate }}">
+                            <i class="icon-shopping-cart"></i>
+                          </button>
+                          <button class="btn btn-icon btn-sm" (click)="createUserForBranch(branch)" title="{{ 'customers.createUserForBranch' | translate }}">
+                            <i class="icon-user-plus"></i>
+                          </button>
+                          <button class="btn btn-icon btn-sm" (click)="deleteBranch(branch)" title="{{ 'common.delete' | translate }}">
+                            <i class="icon-trash"></i>
+                          </button>
+                        </td>
+                      </tr>
+                    }
+                  </tbody>
+                </table>
+              </div>
+            }
+          }
+        </div>
+      </section>
+
       <!-- Order History -->
       <section class="card orders-card">
         <div class="card-header">
@@ -346,5 +458,7 @@
         </div>
       </section>
     </div>
+
+    <app-user-form></app-user-form>
   }
 </div>

@@ -8,6 +8,9 @@ namespace Application.DTOs.Customers;
 public class CustomerDto
 {
     public int Id { get; set; }
+    public int? ParentCustomerId { get; set; }
+    public string? BranchCode { get; set; }
+    public bool IsHeadquarters { get; set; }
     public string CustomerCode { get; set; } = string.Empty;
     public string Name { get; set; } = string.Empty;
     public CustomerType CustomerType { get; set; }
@@ -34,13 +37,42 @@ public class CustomerDto
 public class CustomerSummaryDto
 {
     public int Id { get; set; }
+    public int? ParentCustomerId { get; set; }
+    public string? BranchCode { get; set; }
+    public bool IsHeadquarters { get; set; }
     public string CustomerCode { get; set; } = string.Empty;
     public string Name { get; set; } = string.Empty;
+    public string Email { get; set; } = string.Empty;
+    public string? Phone { get; set; }
     public CustomerType CustomerType { get; set; }
     public string CustomerTypeName { get; set; } = string.Empty;
     public CustomerTier Tier { get; set; }
     public string TierName { get; set; } = string.Empty;
     public string? City { get; set; }
+    public bool IsActive { get; set; }
+}
+
+/// <summary>
+/// Create branch (child customer) under a headquarters customer
+/// </summary>
+public class CreateBranchDto
+{
+    public string Name { get; set; } = string.Empty;
+    public string Email { get; set; } = string.Empty;
+    public string? Phone { get; set; }
+    public string? BranchCode { get; set; }
+    public bool IsActive { get; set; } = true;
+}
+
+/// <summary>
+/// Update branch (child customer) under a headquarters customer
+/// </summary>
+public class UpdateBranchDto
+{
+    public string Name { get; set; } = string.Empty;
+    public string Email { get; set; } = string.Empty;
+    public string? Phone { get; set; }
+    public string? BranchCode { get; set; }
     public bool IsActive { get; set; }
 }
 

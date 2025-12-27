@@ -48,7 +48,9 @@ public class ManufacturerService : IManufacturerService
     {
         try
         {
-            var manufacturers = await _unitOfWork.Manufacturers.GetAllAsync(cancellationToken);
+            var manufacturers = await _unitOfWork.Manufacturers.GetAllWithIncludesAsync(
+                cancellationToken,
+                m => m.Products.Where(p => p.IsActive && !p.IsDeleted));
             var dtos = _mapper.Map<IEnumerable<ManufacturerDto>>(manufacturers);
             return ApiResponse<IEnumerable<ManufacturerDto>>.Ok(dtos);
         }

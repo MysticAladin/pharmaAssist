@@ -2,6 +2,7 @@
 @use '../../../../styles/buttons';
 @use '../../../../styles/cards';
 @use '../../../../styles/layouts';
+@use '../../../../styles/filters';
 
 .inventory-page {
   @include layouts.page-container;
@@ -89,21 +90,6 @@
 
 .stat-label {
   @include cards.stat-label;
-}
-
-// Filters Section
-.filters-section {
-  background: var(--surface);
-  border-radius: 8px;
-  padding: 1rem;
-  margin-bottom: 1.5rem;
-}
-
-.filter-row {
-  display: flex;
-  gap: 1rem;
-  align-items: center;
-  flex-wrap: wrap;
 }
 
 .filter-toggles {

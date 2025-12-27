@@ -149,6 +149,59 @@ public class CustomersController : ControllerBase
         return result.Success ? Ok(result) : NotFound(result);
     }
 
+    #region Branches
+
+    /// <summary>
+    /// Get branches (child customers) for a headquarters customer
+    /// </summary>
+    [HttpGet("{customerId:int}/branches")]
+    [ProducesResponseType(typeof(ApiResponse<IEnumerable<CustomerSummaryDto>>), StatusCodes.Status200OK)]
+    public async Task<IActionResult> GetBranches(int customerId, CancellationToken cancellationToken)
+    {
+        var result = await _customerService.GetBranchesAsync(customerId, cancellationToken);
+        return result.Success ? Ok(result) : BadRequest(result);
+    }
+
+    /// <summary>
+    /// Create a branch (child customer) under a headquarters customer
+    /// </summary>
+    [HttpPost("{customerId:int}/branches")]
+    [ProducesResponseType(typeof(ApiResponse<CustomerDto>), StatusCodes.Status201Created)]
+    [ProducesResponseType(typeof(ApiResponse<CustomerDto>), StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> CreateBranch(int customerId, [FromBody] CreateBranchDto dto, CancellationToken cancellationToken)
+    {
+        var result = await _customerService.CreateBranchAsync(customerId, dto, cancellationToken);
+        return result.Success
+            ? CreatedAtAction(nameof(GetById), new { id = result.Data!.Id }, result)
+            : BadRequest(result);
+    }
+
+    /// <summary>
+    /// Update a branch (child customer) under a headquarters customer
+    /// </summary>
+    [HttpPut("{customerId:int}/branches/{branchCustomerId:int}")]
+    [ProducesResponseType(typeof(ApiResponse<CustomerDto>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiResponse<CustomerDto>), StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> UpdateBranch(int customerId, int branchCustomerId, [FromBody] UpdateBranchDto dto, CancellationToken cancellationToken)
+    {
+        var result = await _customerService.UpdateBranchAsync(customerId, branchCustomerId, dto, cancellationToken);
+        return result.Success ? Ok(result) : NotFound(result);
+    }
+
+    /// <summary>
+    /// Delete (or deactivate) a branch under a headquarters customer
+    /// </summary>
+    [HttpDelete("{customerId:int}/branches/{branchCustomerId:int}")]
+    [ProducesResponseType(typeof(ApiResponse<bool>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiResponse<bool>), StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> DeleteBranch(int customerId, int branchCustomerId, CancellationToken cancellationToken)
+    {
+        var result = await _customerService.DeleteBranchAsync(customerId, branchCustomerId, cancellationToken);
+        return result.Success ? Ok(result) : NotFound(result);
+    }
+
+    #endregion
+
     #region Customer Addresses
 
     /// <summary>

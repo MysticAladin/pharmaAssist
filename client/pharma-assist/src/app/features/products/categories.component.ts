@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, signal, ViewChild, TemplateRef } from '@angular/core';
+import { Component, OnInit, AfterViewInit, inject, signal, ViewChild, TemplateRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
@@ -39,7 +39,7 @@ interface CategoryFormData {
   templateUrl: './categories-component/categories.component.html',
   styleUrls: ['./categories-component/categories.component.scss']
 })
-export class CategoriesComponent implements OnInit {
+export class CategoriesComponent implements OnInit, AfterViewInit {
   private readonly catalogService = inject(CatalogService);
 
   // State
@@ -70,20 +70,21 @@ export class CategoriesComponent implements OnInit {
 
   ngOnInit(): void {
     this.loadCategories();
+  }
+
+  ngAfterViewInit(): void {
     this.setupColumns();
   }
 
   private setupColumns(): void {
-    setTimeout(() => {
-      this.columns = [
-        { key: 'name', label: 'categories.table.name', sortable: true, template: this.nameTemplate },
-        { key: 'parentName', label: 'categories.table.parent', sortable: true, template: this.parentTemplate },
-        { key: 'sortOrder', label: 'categories.table.sortOrder', sortable: true, width: '100px' },
-        { key: 'productCount', label: 'categories.table.products', sortable: true, template: this.productsTemplate, width: '120px' },
-        { key: 'isActive', label: 'categories.table.status', template: this.statusTemplate, width: '120px' },
-        { key: 'actions', label: '', template: this.actionsTemplate, width: '100px' }
-      ];
-    });
+    this.columns = [
+      { key: 'name', label: 'categories.table.name', sortable: true, template: this.nameTemplate },
+      { key: 'parentName', label: 'categories.table.parent', sortable: true, template: this.parentTemplate },
+      { key: 'sortOrder', label: 'categories.table.sortOrder', sortable: true, width: '100px' },
+      { key: 'productCount', label: 'categories.table.products', sortable: true, template: this.productsTemplate, width: '120px' },
+      { key: 'isActive', label: 'categories.table.status', template: this.statusTemplate, width: '120px' },
+      { key: 'actions', label: '', template: this.actionsTemplate, width: '100px' }
+    ];
   }
 
   loadCategories(): void {

@@ -34,6 +34,22 @@ export interface CustomerStats {
   lastOrderDate: Date | null;
 }
 
+export interface CreateBranchRequest {
+  name: string;
+  email: string;
+  phone?: string | null;
+  branchCode?: string | null;
+  isActive: boolean;
+}
+
+export interface UpdateBranchRequest {
+  name: string;
+  email: string;
+  phone?: string | null;
+  branchCode?: string | null;
+  isActive: boolean;
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -168,5 +184,33 @@ export class CustomerService {
    */
   getCustomerStats(customerId: string): Observable<ApiResponse<CustomerStats>> {
     return this.http.get<ApiResponse<CustomerStats>>(`${this.apiUrl}/${customerId}/stats`);
+  }
+
+  /**
+   * Get branches for a headquarters customer
+   */
+  getBranches(customerId: number | string): Observable<ApiResponse<CustomerSummary[]>> {
+    return this.http.get<ApiResponse<CustomerSummary[]>>(`${this.apiUrl}/${customerId}/branches`);
+  }
+
+  /**
+   * Create a branch under a headquarters customer
+   */
+  createBranch(customerId: number, request: CreateBranchRequest): Observable<ApiResponse<Customer>> {
+    return this.http.post<ApiResponse<Customer>>(`${this.apiUrl}/${customerId}/branches`, request);
+  }
+
+  /**
+   * Update a branch under a headquarters customer
+   */
+  updateBranch(customerId: number, branchCustomerId: number, request: UpdateBranchRequest): Observable<ApiResponse<Customer>> {
+    return this.http.put<ApiResponse<Customer>>(`${this.apiUrl}/${customerId}/branches/${branchCustomerId}`, request);
+  }
+
+  /**
+   * Delete (or deactivate) a branch under a headquarters customer
+   */
+  deleteBranch(customerId: number, branchCustomerId: number): Observable<ApiResponse<boolean>> {
+    return this.http.delete<ApiResponse<boolean>>(`${this.apiUrl}/${customerId}/branches/${branchCustomerId}`);
   }
 }

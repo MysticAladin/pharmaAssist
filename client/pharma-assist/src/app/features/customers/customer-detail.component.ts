@@ -1,11 +1,11 @@
-﻿import { Component, OnInit, inject, signal, computed } from '@angular/core';
+﻿import { Component, OnInit, inject, signal, computed, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { map } from 'rxjs/operators';
 import { EuropeanDatePipe } from '../../core/pipes';
-import { CustomerService, Customer, CustomerNote, AddNoteRequest } from '../../core/services/customer.service';
+import { CustomerService, Customer, CustomerNote, AddNoteRequest, CreateBranchRequest } from '../../core/services/customer.service';
 import { OrderService, OrderSummary } from '../../core/services/order.service';
 import { OrderStatus } from '../../core/models/order.model';
 import { NotificationService } from '../../core/services/notification.service';
@@ -13,6 +13,8 @@ import { ConfirmationService } from '../../core/services/confirmation.service';
 import { StatusBadgeComponent, BadgeVariant } from '../../shared/components/status-badge/status-badge.component';
 import { EmptyStateComponent } from '../../shared/components/empty-state/empty-state.component';
 import { PaginationComponent, PageEvent } from '../../shared/components/pagination/pagination.component';
+import { UserFormComponent } from '../admin/users/user-form.component';
+import { CustomerSummary } from '../../core/models/customer.model';
 
 @Component({
   selector: 'app-customer-detail',
@@ -25,7 +27,8 @@ import { PaginationComponent, PageEvent } from '../../shared/components/paginati
     EuropeanDatePipe,
     StatusBadgeComponent,
     EmptyStateComponent,
-    PaginationComponent
+    PaginationComponent,
+    UserFormComponent
   ],
   templateUrl: './customer-detail-component/customer-detail.component.html',
   styleUrls: ['./customer-detail-component/customer-detail.component.scss']
@@ -39,6 +42,8 @@ export class CustomerDetailComponent implements OnInit {
   private confirmationService = inject(ConfirmationService);
   private translateService = inject(TranslateService);
 
+  @ViewChild(UserFormComponent) private userForm?: UserFormComponent;
+
   customer = signal<Customer | null>(null);
   loading = signal(true);
   orders = signal<OrderSummary[]>([]);
@@ -50,6 +55,15 @@ export class CustomerDetailComponent implements OnInit {
   showNoteForm = signal(false);
   newNoteContent = signal('');
   savingNote = signal(false);
+
+  branches = signal<CustomerSummary[]>([]);
+  loadingBranches = signal(false);
+  showBranchForm = signal(false);
+  savingBranch = signal(false);
+  newBranchName = signal('');
+  newBranchEmail = signal('');
+  newBranchPhone = signal('');
+  newBranchCode = signal('');
   orderStats = signal<{
     totalOrders: number;
     totalRevenue: number;
@@ -92,11 +106,99 @@ export class CustomerDetailComponent implements OnInit {
         this.loadOrders(String(customer.id));
         this.loadNotes(String(customer.id));
         this.loadOrderStats(String(customer.id));
+
+        if (customer.isHeadquarters) {
+          this.loadBranches(customer.id);
+        } else {
+          this.branches.set([]);
+        }
       },
       error: () => {
         this.loading.set(false);
       }
     });
+  }
+
+  loadBranches(customerId: number): void {
+    this.loadingBranches.set(true);
+    this.customerService.getBranches(customerId).pipe(map(r => r.data || [])).subscribe({
+      next: (branches) => {
+        this.branches.set(branches);
+        this.loadingBranches.set(false);
+      },
+      error: () => {
+        this.loadingBranches.set(false);
+      }
+    });
+  }
+
+  toggleBranchForm(): void {
+    this.showBranchForm.set(!this.showBranchForm());
+    if (!this.showBranchForm()) {
+      this.newBranchName.set('');
+      this.newBranchEmail.set('');
+      this.newBranchPhone.set('');
+      this.newBranchCode.set('');
+    }
+  }
+
+  createBranch(): void {
+    const customer = this.customer();
+    if (!customer?.id || !customer.isHeadquarters) return;
+
+    const name = this.newBranchName().trim();
+    const email = this.newBranchEmail().trim();
+    if (!name || !email) return;
+
+    const request: CreateBranchRequest = {
+      name,
+      email,
+      phone: this.newBranchPhone().trim() || null,
+      branchCode: this.newBranchCode().trim() || null,
+      isActive: true
+    };
+
+    this.savingBranch.set(true);
+    this.customerService.createBranch(customer.id, request).subscribe({
+      next: () => {
+        this.notificationService.success(this.translateService.instant('customers.branchCreated'));
+        this.savingBranch.set(false);
+        this.showBranchForm.set(false);
+        this.newBranchName.set('');
+        this.newBranchEmail.set('');
+        this.newBranchPhone.set('');
+        this.newBranchCode.set('');
+        this.loadBranches(customer.id);
+      },
+      error: () => {
+        this.savingBranch.set(false);
+      }
+    });
+  }
+
+  deleteBranch(branch: CustomerSummary): void {
+    const customer = this.customer();
+    if (!customer?.id || !customer.isHeadquarters) return;
+
+    this.confirmationService.confirm({
+      title: this.translateService.instant('COMMON.CONFIRM_DELETE'),
+      message: this.translateService.instant('customers.confirmDeleteBranch'),
+      confirmText: this.translateService.instant('COMMON.DELETE'),
+      variant: 'danger'
+    }).then((confirmed) => {
+      if (!confirmed) return;
+
+      this.customerService.deleteBranch(customer.id, branch.id).subscribe({
+        next: () => {
+          this.notificationService.success(this.translateService.instant('customers.branchDeleted'));
+          this.loadBranches(customer.id);
+        }
+      });
+    });
+  }
+
+  createUserForBranch(branch: CustomerSummary): void {
+    this.userForm?.openForCustomer(branch.id);
   }
 
   loadOrders(customerId: string): void {
@@ -203,7 +305,7 @@ export class CustomerDetailComponent implements OnInit {
 
     this.customerService.addCustomerNote(String(customer.id), request).subscribe({
       next: () => {
-        this.notificationService.success(this.translateService.instant('CUSTOMERS.NOTE_ADDED'));
+        this.notificationService.success(this.translateService.instant('customers.noteAdded'));
         this.newNoteContent.set('');
         this.showNoteForm.set(false);
         this.savingNote.set(false);
@@ -221,14 +323,14 @@ export class CustomerDetailComponent implements OnInit {
 
     this.confirmationService.confirm({
       title: this.translateService.instant('COMMON.CONFIRM_DELETE'),
-      message: this.translateService.instant('CUSTOMERS.CONFIRM_DELETE_NOTE'),
+      message: this.translateService.instant('customers.deleteNoteMessage'),
       confirmText: this.translateService.instant('COMMON.DELETE'),
       variant: 'danger'
     }).then((confirmed) => {
       if (confirmed) {
         this.customerService.deleteCustomerNote(String(customer.id), note.id).subscribe({
           next: () => {
-            this.notificationService.success(this.translateService.instant('CUSTOMERS.NOTE_DELETED'));
+            this.notificationService.success(this.translateService.instant('customers.noteDeleted'));
             this.loadNotes(String(customer.id));
           }
         });

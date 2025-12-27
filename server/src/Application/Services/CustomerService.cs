@@ -322,6 +322,164 @@ public class CustomerService : ICustomerService
         }
     }
 
+    public async Task<ApiResponse<IEnumerable<CustomerSummaryDto>>> GetBranchesAsync(int headquartersCustomerId, CancellationToken cancellationToken = default)
+    {
+        try
+        {
+            var hq = await _unitOfWork.Customers.GetByIdAsync(headquartersCustomerId, cancellationToken);
+            if (hq == null)
+            {
+                return ApiResponse<IEnumerable<CustomerSummaryDto>>.Fail($"Customer with ID {headquartersCustomerId} not found");
+            }
+
+            var query = _unitOfWork.Customers.AsQueryable()
+                .Where(c => c.ParentCustomerId == headquartersCustomerId && !c.IsDeleted);
+
+            var branches = query
+                .OrderBy(c => c.CompanyName)
+                .ThenBy(c => c.LastName)
+                .ThenBy(c => c.FirstName)
+                .ToList();
+
+            var dtos = _mapper.Map<List<CustomerSummaryDto>>(branches);
+            return ApiResponse<IEnumerable<CustomerSummaryDto>>.Ok(dtos);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error getting branches for customer {CustomerId}", headquartersCustomerId);
+            return ApiResponse<IEnumerable<CustomerSummaryDto>>.Fail("An error occurred while retrieving branches");
+        }
+    }
+
+    public async Task<ApiResponse<CustomerDto>> CreateBranchAsync(int headquartersCustomerId, CreateBranchDto dto, CancellationToken cancellationToken = default)
+    {
+        try
+        {
+            var hq = await _unitOfWork.Customers.GetByIdAsync(headquartersCustomerId, cancellationToken);
+            if (hq == null)
+            {
+                return ApiResponse<CustomerDto>.Fail($"Customer with ID {headquartersCustomerId} not found");
+            }
+
+            // Duplicate email check
+            if (!string.IsNullOrWhiteSpace(dto.Email))
+            {
+                var existingByEmail = await _unitOfWork.Customers.FindAsync(c => c.Email == dto.Email, cancellationToken);
+                if (existingByEmail.Any())
+                {
+                    return ApiResponse<CustomerDto>.Fail($"Customer with email '{dto.Email}' already exists");
+                }
+            }
+
+            var branch = new Customer
+            {
+                ParentCustomerId = headquartersCustomerId,
+                IsHeadquarters = false,
+                BranchCode = string.IsNullOrWhiteSpace(dto.BranchCode) ? null : dto.BranchCode,
+                CompanyName = dto.Name,
+                Email = dto.Email,
+                Phone = dto.Phone,
+                CustomerType = hq.CustomerType,
+                Tier = hq.Tier,
+                CreditLimit = hq.CreditLimit,
+                PaymentTermsDays = hq.PaymentTermsDays,
+                IsActive = dto.IsActive,
+                IsVerified = hq.IsVerified,
+                VerifiedAt = hq.VerifiedAt,
+                VerifiedBy = hq.VerifiedBy
+            };
+
+            branch.CustomerCode = await GenerateCustomerCodeAsync(branch.CustomerType, cancellationToken);
+
+            await _unitOfWork.Customers.AddAsync(branch, cancellationToken);
+            await _unitOfWork.SaveChangesAsync(cancellationToken);
+
+            _logger.LogInformation("Created branch customer {BranchId} under HQ {HqId}", branch.Id, headquartersCustomerId);
+
+            var resultDto = _mapper.Map<CustomerDto>(branch);
+            return ApiResponse<CustomerDto>.Ok(resultDto, "Branch created successfully");
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error creating branch under customer {CustomerId}", headquartersCustomerId);
+            return ApiResponse<CustomerDto>.Fail("An error occurred while creating the branch");
+        }
+    }
+
+    public async Task<ApiResponse<CustomerDto>> UpdateBranchAsync(int headquartersCustomerId, int branchCustomerId, UpdateBranchDto dto, CancellationToken cancellationToken = default)
+    {
+        try
+        {
+            var branch = await _unitOfWork.Customers.GetByIdAsync(branchCustomerId, cancellationToken);
+            if (branch == null || branch.IsDeleted)
+            {
+                return ApiResponse<CustomerDto>.Fail($"Customer with ID {branchCustomerId} not found");
+            }
+
+            if (branch.ParentCustomerId != headquartersCustomerId)
+            {
+                return ApiResponse<CustomerDto>.Fail("Branch does not belong to the specified headquarters customer");
+            }
+
+            // Duplicate email check if changed
+            if (!string.IsNullOrWhiteSpace(dto.Email) && dto.Email != branch.Email)
+            {
+                var existingByEmail = await _unitOfWork.Customers.FindAsync(
+                    c => c.Email == dto.Email && c.Id != branchCustomerId,
+                    cancellationToken);
+
+                if (existingByEmail.Any())
+                {
+                    return ApiResponse<CustomerDto>.Fail($"Customer with email '{dto.Email}' already exists");
+                }
+            }
+
+            branch.CompanyName = dto.Name;
+            branch.Email = dto.Email;
+            branch.Phone = dto.Phone;
+            branch.BranchCode = string.IsNullOrWhiteSpace(dto.BranchCode) ? null : dto.BranchCode;
+            branch.IsActive = dto.IsActive;
+            branch.UpdatedAt = DateTime.UtcNow;
+
+            await _unitOfWork.Customers.UpdateAsync(branch, cancellationToken);
+            await _unitOfWork.SaveChangesAsync(cancellationToken);
+
+            var resultDto = _mapper.Map<CustomerDto>(branch);
+            return ApiResponse<CustomerDto>.Ok(resultDto, "Branch updated successfully");
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error updating branch {BranchId} under HQ {HqId}", branchCustomerId, headquartersCustomerId);
+            return ApiResponse<CustomerDto>.Fail("An error occurred while updating the branch");
+        }
+    }
+
+    public async Task<ApiResponse<bool>> DeleteBranchAsync(int headquartersCustomerId, int branchCustomerId, CancellationToken cancellationToken = default)
+    {
+        try
+        {
+            var branch = await _unitOfWork.Customers.GetByIdAsync(branchCustomerId, cancellationToken);
+            if (branch == null || branch.IsDeleted)
+            {
+                return ApiResponse<bool>.Fail($"Customer with ID {branchCustomerId} not found");
+            }
+
+            if (branch.ParentCustomerId != headquartersCustomerId)
+            {
+                return ApiResponse<bool>.Fail("Branch does not belong to the specified headquarters customer");
+            }
+
+            // Reuse existing delete semantics (soft-delete if order history exists)
+            var result = await DeleteAsync(branchCustomerId, cancellationToken);
+            return result;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error deleting branch {BranchId} under HQ {HqId}", branchCustomerId, headquartersCustomerId);
+            return ApiResponse<bool>.Fail("An error occurred while deleting the branch");
+        }
+    }
+
     public async Task<ApiResponse<bool>> DeactivateAsync(int id, CancellationToken cancellationToken = default)
     {
         try

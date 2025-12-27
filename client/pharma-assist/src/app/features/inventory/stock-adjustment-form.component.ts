@@ -232,8 +232,8 @@ import { ProductSummary, ProductBatch } from '../../core/models/product.model';
   `,
   styles: [`
     .adjustment-form-page {
-      padding: 1.5rem;
-      max-width: 800px;
+      padding: 24px;
+      max-width: 1400px;
       margin: 0 auto;
     }
 
@@ -261,7 +261,7 @@ import { ProductSummary, ProductBatch } from '../../core/models/product.model';
 
     .page-header h1 {
       margin: 0;
-      font-size: 1.75rem;
+      font-size: var(--font-size-2xl);
       font-weight: 600;
       color: var(--text-primary);
     }

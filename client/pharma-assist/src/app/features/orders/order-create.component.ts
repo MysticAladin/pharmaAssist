@@ -1,8 +1,8 @@
 import { Component, OnInit, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { Router, RouterLink } from '@angular/router';
-import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { TranslateModule } from '@ngx-translate/core';
 import { OrderService } from '../../core/services/order.service';
 import { CustomerService } from '../../core/services/customer.service';
 import { ProductService } from '../../core/services/product.service';
@@ -99,6 +99,32 @@ interface CartItem {
               </div>
             }
           </div>
+
+          @if (selectedCustomer()?.isHeadquarters) {
+            <div class="branch-section">
+              <label class="branch-label">{{ 'orders.selectBranch' | translate }}</label>
+
+              @if (loadingBranches()) {
+                <div class="branch-loading">{{ 'common.loading' | translate }}</div>
+              } @else {
+                @if (branches().length > 0) {
+                  <select class="branch-select" [(ngModel)]="selectedBranchId">
+                    <option [ngValue]="null">{{ 'orders.selectBranchPlaceholder' | translate }}</option>
+                    @for (branch of branches(); track branch.id) {
+                      <option [ngValue]="branch.id">
+                        {{ branch.name }}
+                        @if (branch.branchCode) {
+                          ({{ branch.branchCode }})
+                        }
+                      </option>
+                    }
+                  </select>
+                } @else {
+                  <div class="branch-loading">{{ 'customers.noBranches' | translate }}</div>
+                }
+              }
+            </div>
+          }
         </div>
       }
 
@@ -196,18 +222,18 @@ interface CartItem {
             <!-- Customer Summary -->
             <div class="review-card">
               <h3>{{ 'orders.customerInfo' | translate }}</h3>
-              @if (selectedCustomer()) {
+              @if (orderingCustomer()) {
                 <div class="review-content">
-                  <p class="review-name">{{ selectedCustomer()!.name }}</p>
-                  <p class="review-meta">{{ selectedCustomer()!.customerTypeName }} • {{ selectedCustomer()!.tierName }}</p>
-                  @if (selectedCustomer()!.email) {
-                    <p>{{ selectedCustomer()!.email }}</p>
+                  <p class="review-name">{{ orderingCustomer()!.name }}</p>
+                  <p class="review-meta">{{ orderingCustomer()!.customerTypeName }} • {{ orderingCustomer()!.tierName }}</p>
+                  @if (orderingCustomer()!.email) {
+                    <p>{{ orderingCustomer()!.email }}</p>
                   }
-                  @if (selectedCustomer()!.phone) {
-                    <p>{{ selectedCustomer()!.phone }}</p>
+                  @if (orderingCustomer()!.phone) {
+                    <p>{{ orderingCustomer()!.phone }}</p>
                   }
-                  @if (selectedCustomer()!.city) {
-                    <p>{{ selectedCustomer()!.city }}</p>
+                  @if (orderingCustomer()!.city) {
+                    <p>{{ orderingCustomer()!.city }}</p>
                   }
                 </div>
               }
@@ -350,6 +376,11 @@ interface CartItem {
     .customer-tier.tier-3{background:var(--c4);color:var(--c2)}
     .customer-email{color:var(--c2)}
     .selected-icon{position:absolute;top:1rem;right:1rem;color:var(--c5)}
+    .branch-section{margin-top:1rem;padding-top:1rem;border-top:1px solid var(--c3)}
+    .branch-label{display:block;font-size:.8rem;font-weight:500;color:var(--c2);margin-bottom:.375rem}
+    .branch-select{width:100%;padding:.625rem;border:1px solid var(--c3);border-radius:8px;font-size:.875rem;background:#fff}
+    .branch-select:focus{outline:none;border-color:var(--c5)}
+    .branch-loading{color:var(--c2);font-size:.875rem}
     .products-panel{padding:1.5rem;border-right:1px solid var(--c3);overflow-y:auto;max-height:500px}
     @media(max-width:900px){.products-panel{border-right:none;border-bottom:1px solid var(--c3);max-height:300px}}
     .panel-header{margin-bottom:1rem}
@@ -432,6 +463,7 @@ interface CartItem {
 })
 export class OrderCreateComponent implements OnInit {
   private readonly router = inject(Router);
+  private readonly route = inject(ActivatedRoute);
   private readonly orderService = inject(OrderService);
   private readonly customerService = inject(CustomerService);
   private readonly productService = inject(ProductService);
@@ -445,6 +477,25 @@ export class OrderCreateComponent implements OnInit {
   customers = signal<OrderCustomer[]>([]);
   customerSearch = signal('');
   selectedCustomer = signal<OrderCustomer | null>(null);
+
+  // Branch selection (when HQ selected)
+  branches = signal<CustomerSummary[]>([]);
+  loadingBranches = signal(false);
+  selectedBranchId = signal<number | null>(null);
+
+  orderingCustomer = computed(() => {
+    const customer = this.selectedCustomer();
+    if (!customer) return null;
+
+    if (customer.isHeadquarters && this.branches().length > 0) {
+      const branchId = this.selectedBranchId();
+      if (branchId) return this.branches().find(b => b.id === branchId) ?? customer;
+    }
+
+    return customer;
+  });
+
+  private preselectedCustomerId: number | null = null;
 
   filteredCustomers = computed(() => {
     const search = this.customerSearch().toLowerCase();
@@ -480,6 +531,9 @@ export class OrderCreateComponent implements OnInit {
   minDate = new Date().toISOString().split('T')[0];
 
   ngOnInit(): void {
+    const qpCustomerId = this.route.snapshot.queryParamMap.get('customerId');
+    this.preselectedCustomerId = qpCustomerId ? Number(qpCustomerId) : null;
+
     this.loadCustomers();
     this.loadProducts();
     // Set default required date to 3 days from now
@@ -495,6 +549,9 @@ export class OrderCreateComponent implements OnInit {
           // Map Customer[] to OrderCustomer[]
           const orderCustomers: OrderCustomer[] = res.data.map(c => ({
             id: c.id,
+            parentCustomerId: c.parentCustomerId,
+            branchCode: c.branchCode,
+            isHeadquarters: c.isHeadquarters,
             customerCode: c.customerCode,
             name: c.name,
             customerType: c.customerType,
@@ -502,10 +559,16 @@ export class OrderCreateComponent implements OnInit {
             tier: c.tier,
             tierName: c.tierName,
             isActive: c.isActive,
+            city: c.addresses?.find(a => a.isPrimary)?.cityName ?? c.addresses?.[0]?.cityName,
             email: c.email,
             phone: c.phone
           }));
           this.customers.set(orderCustomers);
+
+          if (this.preselectedCustomerId) {
+            const found = orderCustomers.find(c => c.id === this.preselectedCustomerId);
+            if (found) this.selectCustomer(found);
+          }
         }
       },
       error: () => {
@@ -546,8 +609,28 @@ export class OrderCreateComponent implements OnInit {
     this.customerSearch.set(term);
   }
 
-  selectCustomer(customer: CustomerSummary): void {
+  selectCustomer(customer: OrderCustomer): void {
     this.selectedCustomer.set(customer);
+    this.selectedBranchId.set(null);
+    this.branches.set([]);
+
+    if (customer.isHeadquarters) {
+      this.loadBranches(customer.id);
+    }
+  }
+
+  private loadBranches(headquartersCustomerId: number): void {
+    this.loadingBranches.set(true);
+    this.customerService.getBranches(headquartersCustomerId).subscribe({
+      next: (res) => {
+        this.loadingBranches.set(false);
+        this.branches.set(res.success && res.data ? res.data : []);
+      },
+      error: () => {
+        this.loadingBranches.set(false);
+        this.branches.set([]);
+      }
+    });
   }
 
   searchProducts(term: string): void {
@@ -606,7 +689,17 @@ export class OrderCreateComponent implements OnInit {
 
   canProceed(): boolean {
     switch (this.currentStep()) {
-      case 1: return this.selectedCustomer() !== null;
+      case 1: {
+        const customer = this.selectedCustomer();
+        if (!customer) return false;
+
+        if (customer.isHeadquarters) {
+          if (this.loadingBranches()) return false;
+          if (this.branches().length > 0) return this.selectedBranchId() !== null;
+        }
+
+        return true;
+      }
       case 2: return this.cartItems().length > 0;
       case 3: return true;
       default: return false;
@@ -628,6 +721,13 @@ export class OrderCreateComponent implements OnInit {
   submitOrder(): void {
     if (!this.selectedCustomer() || this.cartItems().length === 0) return;
 
+    const selected = this.selectedCustomer()!;
+    const effectiveCustomerId = (selected.isHeadquarters && this.branches().length > 0)
+      ? this.selectedBranchId()
+      : selected.id;
+
+    if (!effectiveCustomerId) return;
+
     this.submitting.set(true);
 
     const orderItems: CreateOrderItemDto[] = this.cartItems().map(item => ({
@@ -637,7 +737,7 @@ export class OrderCreateComponent implements OnInit {
     }));
 
     const order: CreateOrderDto = {
-      customerId: this.selectedCustomer()!.id,
+      customerId: effectiveCustomerId,
       paymentMethod: this.paymentMethod,
       requiredDate: this.requiredDate ? new Date(this.requiredDate) : undefined,
       notes: this.orderNotes || undefined,

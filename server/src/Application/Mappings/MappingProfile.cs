@@ -101,7 +101,7 @@ public class MappingProfile : Profile
     {
         CreateMap<Category, CategoryDto>()
             .ForMember(d => d.ParentCategoryName, opt => opt.MapFrom(s => s.ParentCategory != null ? s.ParentCategory.Name : null))
-            .ForMember(d => d.ProductCount, opt => opt.MapFrom(s => s.Products != null ? s.Products.Count : 0))
+            .ForMember(d => d.ProductCount, opt => opt.MapFrom(s => s.Products != null ? s.Products.Count(p => p.IsActive && !p.IsDeleted) : 0))
             .ForMember(d => d.SubCategories, opt => opt.MapFrom(s => s.SubCategories));
 
         CreateMap<CreateCategoryDto, Category>()
@@ -130,7 +130,7 @@ public class MappingProfile : Profile
     private void CreateManufacturerMappings()
     {
         CreateMap<Manufacturer, ManufacturerDto>()
-            .ForMember(d => d.ProductCount, opt => opt.MapFrom(s => s.Products != null ? s.Products.Count : 0));
+            .ForMember(d => d.ProductCount, opt => opt.MapFrom(s => s.Products != null ? s.Products.Count(p => p.IsActive && !p.IsDeleted) : 0));
 
         CreateMap<CreateManufacturerDto, Manufacturer>()
             .ForMember(d => d.Id, opt => opt.Ignore())

@@ -194,8 +194,8 @@ import { BadgeVariant } from '../../shared/components/status-badge';
   `,
   styles: [`
     .transfer-detail-page {
-      padding: 1.5rem;
-      max-width: 1000px;
+      padding: 24px;
+      max-width: 1400px;
       margin: 0 auto;
     }
 
@@ -237,7 +237,7 @@ import { BadgeVariant } from '../../shared/components/status-badge';
 
     .title-section h1 {
       margin: 0;
-      font-size: 1.75rem;
+      font-size: var(--font-size-2xl);
       font-weight: 600;
       color: var(--text-primary);
     }

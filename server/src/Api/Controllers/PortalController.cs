@@ -60,6 +60,20 @@ public class PortalController : ControllerBase
         var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
         if (string.IsNullOrEmpty(userId)) return null;
 
+        // Preferred mapping: user -> CustomerId (supports many users per branch/customer)
+        var userCustomerId = await _context.Users
+            .Where(u => u.Id == userId)
+            .Select(u => u.CustomerId)
+            .FirstOrDefaultAsync();
+
+        if (userCustomerId.HasValue)
+        {
+            var exists = await _context.Customers
+                .AnyAsync(c => c.Id == userCustomerId.Value && !c.IsDeleted);
+            if (exists)
+                return userCustomerId.Value;
+        }
+
         var customer = await _context.Customers
             .FirstOrDefaultAsync(c => c.UserId == userId && !c.IsDeleted);
         return customer?.Id;

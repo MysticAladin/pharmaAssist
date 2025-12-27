@@ -26,6 +26,12 @@ public interface ICustomerService
     Task<ApiResponse<bool>> DeleteAsync(int id, CancellationToken cancellationToken = default);
     Task<ApiResponse<bool>> ActivateAsync(int id, CancellationToken cancellationToken = default);
     Task<ApiResponse<bool>> DeactivateAsync(int id, CancellationToken cancellationToken = default);
+
+    // Branch operations (HQ -> branches)
+    Task<ApiResponse<IEnumerable<CustomerSummaryDto>>> GetBranchesAsync(int headquartersCustomerId, CancellationToken cancellationToken = default);
+    Task<ApiResponse<CustomerDto>> CreateBranchAsync(int headquartersCustomerId, CreateBranchDto dto, CancellationToken cancellationToken = default);
+    Task<ApiResponse<CustomerDto>> UpdateBranchAsync(int headquartersCustomerId, int branchCustomerId, UpdateBranchDto dto, CancellationToken cancellationToken = default);
+    Task<ApiResponse<bool>> DeleteBranchAsync(int headquartersCustomerId, int branchCustomerId, CancellationToken cancellationToken = default);
     
     // Address operations
     Task<ApiResponse<CustomerAddressDto>> GetAddressByIdAsync(int id, CancellationToken cancellationToken = default);

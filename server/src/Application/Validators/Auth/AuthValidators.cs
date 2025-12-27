@@ -158,6 +158,10 @@ public class CreateUserRequestValidator : AbstractValidator<CreateUserRequest>
         RuleFor(x => x.LastName)
             .NotEmpty().WithMessage("Last name is required.")
             .MaximumLength(100).WithMessage("Last name cannot exceed 100 characters.");
+
+        RuleFor(x => x.CustomerId)
+            .GreaterThan(0).WithMessage("CustomerId must be a positive number.")
+            .When(x => x.CustomerId.HasValue);
     }
 }
 

@@ -23,6 +23,9 @@ export enum AddressType {
 
 export interface Customer {
   id: number;
+  parentCustomerId?: number | null;
+  branchCode?: string | null;
+  isHeadquarters?: boolean;
   customerCode: string;
   name: string;
   customerType: CustomerType;
@@ -49,8 +52,13 @@ export interface Customer {
 
 export interface CustomerSummary {
   id: number;
+  parentCustomerId?: number | null;
+  branchCode?: string | null;
+  isHeadquarters?: boolean;
   customerCode: string;
   name: string;
+  email?: string;
+  phone?: string;
   customerType: CustomerType;
   customerTypeName: string;
   tier: CustomerTier;

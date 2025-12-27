@@ -5,6 +5,7 @@ using Domain.Entities;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using Infrastructure.Persistence;
 
 namespace Infrastructure.Identity;
 
@@ -14,11 +15,13 @@ namespace Infrastructure.Identity;
 public class UserService : IUserService
 {
     private readonly UserManager<ApplicationUser> _userManager;
+    private readonly ApplicationDbContext _context;
     private readonly ILogger<UserService> _logger;
 
-    public UserService(UserManager<ApplicationUser> userManager, ILogger<UserService> logger)
+    public UserService(UserManager<ApplicationUser> userManager, ApplicationDbContext context, ILogger<UserService> logger)
     {
         _userManager = userManager;
+        _context = context;
         _logger = logger;
     }
 
@@ -97,6 +100,16 @@ public class UserService : IUserService
 
     public async Task<ApiResponse<UserDto>> CreateAsync(CreateUserRequest request, CancellationToken cancellationToken = default)
     {
+        if (request.CustomerId.HasValue)
+        {
+            var customerExists = await _context.Customers
+                .AnyAsync(c => c.Id == request.CustomerId.Value && !c.IsDeleted, cancellationToken);
+            if (!customerExists)
+            {
+                return ApiResponse<UserDto>.Fail("Customer not found.");
+            }
+        }
+
         var existingUser = await _userManager.FindByEmailAsync(request.Email);
         if (existingUser != null)
         {
@@ -112,6 +125,7 @@ public class UserService : IUserService
             MiddleName = request.MiddleName,
             PhoneNumber = request.PhoneNumber,
             DateOfBirth = request.DateOfBirth,
+            CustomerId = request.CustomerId,
             IsActive = request.IsActive,
             CreatedAt = DateTime.UtcNow
         };

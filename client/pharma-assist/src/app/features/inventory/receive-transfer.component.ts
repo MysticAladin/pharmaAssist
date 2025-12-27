@@ -170,8 +170,8 @@ interface ReceiveItem extends StockTransferItem {
   `,
   styles: [`
     .receive-transfer-page {
-      padding: 1.5rem;
-      max-width: 1000px;
+      padding: 24px;
+      max-width: 1400px;
       margin: 0 auto;
     }
 
@@ -199,7 +199,7 @@ interface ReceiveItem extends StockTransferItem {
 
     .page-header h1 {
       margin: 0;
-      font-size: 1.75rem;
+      font-size: var(--font-size-2xl);
       font-weight: 600;
       color: var(--text-primary);
     }

@@ -19,6 +19,7 @@ export interface CreateUserRequest {
   lastName: string;
   phoneNumber?: string;
   password: string;
+  customerId?: number;
   roles: string[];
   isActive: boolean;
 }

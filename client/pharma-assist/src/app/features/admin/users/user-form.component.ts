@@ -562,6 +562,8 @@ export class UserFormComponent implements OnInit, OnChanges {
   showPassword = signal(false);
   showConfirmPassword = signal(false);
 
+  private customerIdForNewUser: number | null = null;
+
   readonly availableRoles = [
     { value: 'SuperAdmin', label: 'users.roles.superAdmin', description: 'users.roleDescriptions.superAdmin' },
     { value: 'Admin', label: 'users.roles.admin', description: 'users.roleDescriptions.admin' },
@@ -615,6 +617,8 @@ export class UserFormComponent implements OnInit, OnChanges {
     this.submitted.set(false);
     this.isOpen.set(true);
 
+    this.customerIdForNewUser = null;
+
     if (!this.editMode()) {
       // For new users, password is required
       const passwordPattern = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
@@ -639,10 +643,21 @@ export class UserFormComponent implements OnInit, OnChanges {
     this.populateForm();
   }
 
+  openForCustomer(customerId: number): void {
+    this.open();
+    this.customerIdForNewUser = customerId;
+
+    // Default to Customer role when creating portal/branch users
+    if (!this.selectedRoles().includes('Customer')) {
+      this.selectedRoles.set(['Customer']);
+    }
+  }
+
   close(): void {
     this.isOpen.set(false);
     this.form.reset({ isActive: true });
     this.selectedRoles.set([]);
+    this.customerIdForNewUser = null;
     this.closed.emit();
   }
 
@@ -715,6 +730,7 @@ export class UserFormComponent implements OnInit, OnChanges {
       email: this.form.value.email,
       phoneNumber: this.form.value.phoneNumber || null,
       password: this.form.value.password,
+      customerId: this.customerIdForNewUser ?? undefined,
       roles: this.selectedRoles(),
       isActive: this.form.value.isActive
     };

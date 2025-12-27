@@ -224,8 +224,8 @@ interface TransferItem {
   `,
   styles: [`
     .transfer-form-page {
-      padding: 1.5rem;
-      max-width: 900px;
+      padding: 24px;
+      max-width: 1400px;
       margin: 0 auto;
     }
 
@@ -253,7 +253,7 @@ interface TransferItem {
 
     .page-header h1 {
       margin: 0;
-      font-size: 1.5rem;
+      font-size: var(--font-size-2xl);
       font-weight: 600;
       color: var(--text-primary);
     }

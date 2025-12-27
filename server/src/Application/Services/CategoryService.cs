@@ -48,7 +48,10 @@ public class CategoryService : ICategoryService
     {
         try
         {
-            var categories = await _unitOfWork.Categories.GetAllAsync(cancellationToken);
+            var categories = await _unitOfWork.Categories.GetAllWithIncludesAsync(
+                cancellationToken,
+                c => c.ParentCategory!,
+                c => c.Products.Where(p => p.IsActive && !p.IsDeleted));
             var dtos = _mapper.Map<IEnumerable<CategoryDto>>(categories);
             return ApiResponse<IEnumerable<CategoryDto>>.Ok(dtos);
         }
@@ -63,7 +66,11 @@ public class CategoryService : ICategoryService
     {
         try
         {
-            var categories = await _unitOfWork.Categories.GetRootCategoriesAsync(cancellationToken);
+            var categories = await _unitOfWork.Categories.FindWithIncludesAsync(
+                c => c.ParentCategoryId == null && c.IsActive,
+                cancellationToken,
+                c => c.ParentCategory!,
+                c => c.Products.Where(p => p.IsActive && !p.IsDeleted));
             var dtos = _mapper.Map<IEnumerable<CategoryDto>>(categories);
             return ApiResponse<IEnumerable<CategoryDto>>.Ok(dtos);
         }
@@ -84,7 +91,11 @@ public class CategoryService : ICategoryService
                 return ApiResponse<IEnumerable<CategoryDto>>.Fail($"Parent category with ID {parentId} not found");
             }
 
-            var subcategories = await _unitOfWork.Categories.GetSubCategoriesAsync(parentId, cancellationToken);
+            var subcategories = await _unitOfWork.Categories.FindWithIncludesAsync(
+                c => c.ParentCategoryId == parentId && c.IsActive,
+                cancellationToken,
+                c => c.ParentCategory!,
+                c => c.Products.Where(p => p.IsActive && !p.IsDeleted));
             var dtos = _mapper.Map<IEnumerable<CategoryDto>>(subcategories);
             return ApiResponse<IEnumerable<CategoryDto>>.Ok(dtos);
         }
