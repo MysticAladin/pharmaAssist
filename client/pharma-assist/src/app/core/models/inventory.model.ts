@@ -14,12 +14,9 @@ export interface StockAdjustment {
   batchNumber?: string;
   adjustmentType: AdjustmentType;
   quantity: number;
-  previousQuantity: number;
-  newQuantity: number;
   reason: string;
   notes?: string;
   adjustedBy: string;
-  adjustedById: string;
   adjustedAt: string;
 }
 

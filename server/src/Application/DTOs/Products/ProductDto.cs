@@ -33,6 +33,7 @@ public class ProductDto
     public string? PackageSize { get; set; }
     
     public int StockQuantity { get; set; }
+    public DateTime? EarliestExpiryDate { get; set; }
     public int ReorderLevel { get; set; }
     public int ReorderQuantity { get; set; }
     
@@ -127,6 +128,7 @@ public class ProductSummaryDto
     public string? PackageSize { get; set; }
     public decimal UnitPrice { get; set; }
     public int StockQuantity { get; set; }
+    public DateTime? EarliestExpiryDate { get; set; }
     public bool RequiresPrescription { get; set; }
     public bool IsActive { get; set; }
     public string? ImageUrl { get; set; }

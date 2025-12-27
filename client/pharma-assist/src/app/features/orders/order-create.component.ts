@@ -126,6 +126,9 @@ interface CartItem {
                     <span class="product-stock" [class.low]="product.stockQuantity < 20">
                       {{ product.stockQuantity }} {{ 'orders.inStock' | translate }}
                     </span>
+                    <span class="product-expiry">
+                      Exp: {{ product.earliestExpiryDate ? (product.earliestExpiryDate | date:'dd.MM.yyyy') : '-' }}
+                    </span>
                   </div>
                   @if (product.requiresPrescription) {
                     <span class="rx-badge">Rx</span>
@@ -362,6 +365,7 @@ interface CartItem {
     .product-price{font-weight:600;color:var(--c5)}
     .product-stock{color:var(--c2)}
     .product-stock.low{color:var(--c7)}
+    .product-expiry{color:var(--c2)}
     .rx-badge{position:absolute;top:.5rem;right:.5rem;background:#fef3c7;color:#d97706;font-size:.65rem;font-weight:600;padding:.125rem .375rem;border-radius:4px}
     .cart-panel{padding:1.5rem;background:var(--c4);display:flex;flex-direction:column}
     .cart-items{flex:1;overflow-y:auto;margin-bottom:1rem}

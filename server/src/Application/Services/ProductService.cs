@@ -29,13 +29,18 @@ public class ProductService : IProductService
     {
         try
         {
-            var product = await _unitOfWork.Products.GetByIdAsync(id, cancellationToken);
+            var product = await _unitOfWork.Products.GetWithBatchesAsync(id, cancellationToken);
             if (product == null)
             {
                 return ApiResponse<ProductDto>.Fail($"Product with ID {id} not found");
             }
 
             var dto = _mapper.Map<ProductDto>(product);
+            dto.EarliestExpiryDate = product.Batches
+                .Where(b => b.IsActive && b.RemainingQuantity > 0 && b.ExpiryDate >= DateTime.UtcNow)
+                .OrderBy(b => b.ExpiryDate)
+                .Select(b => (DateTime?)b.ExpiryDate)
+                .FirstOrDefault();
             return ApiResponse<ProductDto>.Ok(dto);
         }
         catch (Exception ex)
@@ -51,6 +56,14 @@ public class ProductService : IProductService
         {
             var products = await _unitOfWork.Products.GetAllAsync(cancellationToken);
             var dtos = _mapper.Map<IEnumerable<ProductDto>>(products);
+
+            var productIds = products.Select(p => p.Id).ToList();
+            var expiryByProductId = await GetEarliestExpiryByProductIdAsync(productIds, cancellationToken);
+            foreach (var dto in dtos)
+            {
+                dto.EarliestExpiryDate = expiryByProductId.GetValueOrDefault(dto.Id);
+            }
+
             return ApiResponse<IEnumerable<ProductDto>>.Ok(dtos);
         }
         catch (Exception ex)
@@ -167,6 +180,13 @@ public class ProductService : IProductService
 
             var dtos = _mapper.Map<List<ProductSummaryDto>>(products);
 
+            var productIds = products.Select(p => p.Id).ToList();
+            var expiryByProductId = await GetEarliestExpiryByProductIdAsync(productIds, cancellationToken);
+            foreach (var dto in dtos)
+            {
+                dto.EarliestExpiryDate = expiryByProductId.GetValueOrDefault(dto.Id);
+            }
+
             return PagedResponse<ProductSummaryDto>.Create(dtos, totalCount, page, pageSize);
         }
         catch (Exception ex)
@@ -181,7 +201,14 @@ public class ProductService : IProductService
         try
         {
             var products = await _unitOfWork.Products.SearchAsync(searchTerm, cancellationToken);
-            var dtos = _mapper.Map<IEnumerable<ProductSummaryDto>>(products);
+            var dtos = _mapper.Map<List<ProductSummaryDto>>(products);
+
+            var productIds = products.Select(p => p.Id).ToList();
+            var expiryByProductId = await GetEarliestExpiryByProductIdAsync(productIds, cancellationToken);
+            foreach (var dto in dtos)
+            {
+                dto.EarliestExpiryDate = expiryByProductId.GetValueOrDefault(dto.Id);
+            }
             return ApiResponse<IEnumerable<ProductSummaryDto>>.Ok(dtos);
         }
         catch (Exception ex)
@@ -189,6 +216,29 @@ public class ProductService : IProductService
             _logger.LogError(ex, "Error searching products with term {SearchTerm}", searchTerm);
             return ApiResponse<IEnumerable<ProductSummaryDto>>.Fail("An error occurred while searching products");
         }
+    }
+
+    private async Task<Dictionary<int, DateTime?>> GetEarliestExpiryByProductIdAsync(
+        IReadOnlyCollection<int> productIds,
+        CancellationToken cancellationToken)
+    {
+        if (productIds.Count == 0)
+            return new Dictionary<int, DateTime?>();
+
+        var now = DateTime.UtcNow;
+
+        var query = _unitOfWork.Products.AsQueryable()
+            .SelectMany(p => p.Batches)
+            .Where(b => productIds.Contains(b.ProductId) && b.IsActive && b.RemainingQuantity > 0 && b.ExpiryDate >= now)
+            .GroupBy(b => b.ProductId)
+            .Select(g => new
+            {
+                ProductId = g.Key,
+                EarliestExpiryDate = (DateTime?)g.Min(b => b.ExpiryDate)
+            });
+
+        var rows = await Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.ToListAsync(query, cancellationToken);
+        return rows.ToDictionary(x => x.ProductId, x => x.EarliestExpiryDate);
     }
 
     public async Task<ApiResponse<IEnumerable<ProductDto>>> GetByCategoryAsync(int categoryId, CancellationToken cancellationToken = default)

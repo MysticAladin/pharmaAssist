@@ -82,6 +82,10 @@ export class OrdersListComponent implements OnInit, AfterViewInit {
   fromDate: string | null = null;
   toDate: string | null = null;
 
+  // Sorting
+  sortBy: string | null = null;
+  sortDirection: 'asc' | 'desc' = 'desc';
+
   // Cancel confirmation
   showCancelConfirm = signal(false);
   orderToCancel: OrderSummary | null = null;
@@ -224,6 +228,11 @@ export class OrdersListComponent implements OnInit, AfterViewInit {
         const year = parseInt(parts[2], 10);
         filter.toDate = new Date(year, month, day);
       }
+    }
+
+    if (this.sortBy) {
+      filter.sortBy = this.sortBy;
+      filter.sortDirection = this.sortDirection;
     }
 
     this.orderService.getOrders(this.currentPage(), this.pageSize, filter).subscribe({
@@ -413,6 +422,22 @@ export class OrdersListComponent implements OnInit, AfterViewInit {
   onPageChange(event: PageEvent): void {
     this.currentPage.set(event.page);
     this.pageSize = event.pageSize;
+    this.loadOrders();
+  }
+
+  onSortChange(event: { column: string; direction: 'asc' | 'desc' }): void {
+    // Map table column keys to backend sort fields
+    const sortBy = (event.column || '').trim();
+    this.sortBy = sortBy;
+    this.sortDirection = event.direction;
+    this.currentPage.set(1);
+    this.loadOrders();
+  }
+
+  onStatCardClick(status: OrderStatus): void {
+    // Toggle behavior: clicking the same card clears the filter
+    this.selectedStatus = this.selectedStatus === status ? null : status;
+    this.currentPage.set(1);
     this.loadOrders();
   }
 

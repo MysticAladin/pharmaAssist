@@ -185,6 +185,7 @@ export interface ProductCatalogItem {
   customerPrice?: number; // Customer-specific pricing
   stockQuantity: number;
   isAvailable: boolean;
+  earliestExpiryDate?: string | null;
   imageUrl?: string;
   requiresPrescription: boolean;
   dosageForm?: string;

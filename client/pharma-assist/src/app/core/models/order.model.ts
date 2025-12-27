@@ -168,6 +168,8 @@ export interface OrderFilter {
   minAmount?: number;
   maxAmount?: number;
   hasPrescription?: boolean;
+  sortBy?: string;
+  sortDirection?: 'asc' | 'desc';
 }
 
 // Helper functions

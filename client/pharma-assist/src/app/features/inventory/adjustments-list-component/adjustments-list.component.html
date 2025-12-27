@@ -12,50 +12,90 @@
 
   <!-- Title and Actions -->
   <div class="title-row">
-    <h1>{{ 'inventory.adjustmentsHistory' | translate }}</h1>
-    <a routerLink="/inventory/adjustment/new" class="btn btn-primary">
+    <h1>{{ 'inventory.adjustmentHistory' | translate }}</h1>
+    <a routerLink="/inventory/adjustments/new" class="btn btn-primary">
       <i class="icon-plus"></i>
       {{ 'inventory.newAdjustment' | translate }}
     </a>
   </div>
 
   <!-- Filters -->
-  <div class="filters-card">
+  <div class="filters-card filters-section">
     <div class="filter-row">
-      <div class="filter-group">
-        <label for="typeFilter">{{ 'inventory.type' | translate }}</label>
-        <select id="typeFilter" [(ngModel)]="selectedType" (change)="applyFilters()">
-          <option [ngValue]="null">{{ 'common.allTypes' | translate }}</option>
+      <div class="filter-block">
+        <label for="typeFilter">{{ 'inventory.typeLabel' | translate }}</label>
+        <select id="typeFilter" class="filter-select" [(ngModel)]="selectedType" (change)="applyFilters()">
+          <option [ngValue]="null">{{ 'inventory.allTypes' | translate }}</option>
           @for (type of adjustmentTypes; track type) {
             <option [value]="type">{{ getTypeLabel(type) | translate }}</option>
           }
         </select>
       </div>
 
-      <div class="date-range">
-        <div class="filter-group">
-          <label for="startDate">{{ 'common.from' | translate }}</label>
+      <div class="filter-block">
+        <label for="startDate">{{ 'common.from' | translate }}</label>
+        <div class="date-input-wrapper">
           <input
-            type="date"
             id="startDate"
-            [(ngModel)]="startDate"
-            (change)="applyFilters()"
+            class="date-input date-filter"
+            type="text"
+            inputmode="numeric"
+            placeholder="dd.MM.yyyy"
+            [ngModel]="startDateText"
+            (ngModelChange)="onStartDateTextChange($event)"
+            (blur)="onStartDateBlur()"
           />
-        </div>
-
-        <div class="filter-group">
-          <label for="endDate">{{ 'common.to' | translate }}</label>
           <input
             type="date"
-            id="endDate"
-            [(ngModel)]="endDate"
-            (change)="applyFilters()"
+            class="hidden-date-picker"
+            [value]="startDate"
+            (change)="onNativeStartDateChange($event)"
+            #startDatePicker
           />
+          <button type="button" class="calendar-icon" (click)="startDatePicker.showPicker()">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
+              <line x1="16" y1="2" x2="16" y2="6" />
+              <line x1="8" y1="2" x2="8" y2="6" />
+              <line x1="3" y1="10" x2="21" y2="10" />
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      <div class="filter-block">
+        <label for="endDate">{{ 'common.to' | translate }}</label>
+        <div class="date-input-wrapper">
+          <input
+            id="endDate"
+            class="date-input date-filter"
+            type="text"
+            inputmode="numeric"
+            placeholder="dd.MM.yyyy"
+            [ngModel]="endDateText"
+            (ngModelChange)="onEndDateTextChange($event)"
+            (blur)="onEndDateBlur()"
+          />
+          <input
+            type="date"
+            class="hidden-date-picker"
+            [value]="endDate"
+            (change)="onNativeEndDateChange($event)"
+            #endDatePicker
+          />
+          <button type="button" class="calendar-icon" (click)="endDatePicker.showPicker()">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
+              <line x1="16" y1="2" x2="16" y2="6" />
+              <line x1="8" y1="2" x2="8" y2="6" />
+              <line x1="3" y1="10" x2="21" y2="10" />
+            </svg>
+          </button>
         </div>
       </div>
 
       @if (hasFilters()) {
-        <button type="button" class="btn-text" (click)="clearFilters()">
+        <button type="button" class="btn-text filter-right" (click)="clearFilters()">
           <i class="icon-x"></i>
           {{ 'common.clearFilters' | translate }}
         </button>
@@ -73,7 +113,7 @@
     } @else if (adjustments().length === 0) {
       <app-empty-state
         [title]="'inventory.noAdjustments' | translate"
-        [description]="'inventory.noAdjustmentsMessage' | translate"
+        [description]="'inventory.noAdjustmentsDescription' | translate"
         icon="icon-package"
       />
     } @else {
@@ -81,12 +121,10 @@
         <table class="data-table">
           <thead>
             <tr>
-              <th>{{ 'common.date' | translate }}</th>
+              <th>{{ 'inventory.date' | translate }}</th>
               <th>{{ 'inventory.product' | translate }}</th>
-              <th>{{ 'inventory.type' | translate }}</th>
-              <th class="text-right">{{ 'inventory.quantityChange' | translate }}</th>
-              <th class="text-right">{{ 'inventory.previousStock' | translate }}</th>
-              <th class="text-right">{{ 'inventory.newStock' | translate }}</th>
+              <th>{{ 'inventory.typeLabel' | translate }}</th>
+              <th class="text-right">{{ 'inventory.quantity' | translate }}</th>
               <th>{{ 'inventory.reason' | translate }}</th>
               <th>{{ 'inventory.adjustedBy' | translate }}</th>
             </tr>
@@ -105,6 +143,7 @@
                   <app-status-badge
                     [label]="getTypeLabel(adjustment.adjustmentType)"
                     [variant]="getTypeColor(adjustment.adjustmentType)"
+                    [shouldTranslate]="true"
                   />
                 </td>
                 <td class="text-right">
@@ -116,8 +155,6 @@
                     {{ isAdditionType(adjustment.adjustmentType) ? '+' : '-' }}{{ adjustment.quantity }}
                   </span>
                 </td>
-                <td class="text-right">{{ adjustment.previousQuantity }}</td>
-                <td class="text-right">{{ adjustment.newQuantity }}</td>
                 <td>
                   <span class="reason">{{ adjustment.reason }}</span>
                   @if (adjustment.notes) {

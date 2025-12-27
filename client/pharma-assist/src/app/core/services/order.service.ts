@@ -74,6 +74,12 @@ export class OrderService {
       if (filter.hasPrescription !== undefined) {
         params = params.set('hasPrescription', filter.hasPrescription.toString());
       }
+      if (filter.sortBy) {
+        params = params.set('sortBy', filter.sortBy);
+      }
+      if (filter.sortDirection) {
+        params = params.set('sortDirection', filter.sortDirection);
+      }
     }
 
     return this.http.get<PaginatedResult<OrderSummary>>(`${this.baseUrl}/paged`, { params });
@@ -98,7 +104,7 @@ export class OrderService {
    * Get order by order number
    */
   getOrderByNumber(orderNumber: string): Observable<Order> {
-    return this.http.get<Order>(`${this.baseUrl}/by-number/${orderNumber}`);
+    return this.http.get<Order>(`${this.baseUrl}/number/${orderNumber}`);
   }
 
   /**

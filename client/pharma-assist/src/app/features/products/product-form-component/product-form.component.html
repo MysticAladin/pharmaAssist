@@ -131,6 +131,14 @@
             <input type="text" id="packageSize" [(ngModel)]="form.packageSize" name="packageSize"
                    placeholder="30 tablets">
           </div>
+
+          <div class="form-group">
+            <label>{{ 'products.fields.expiryDate' | translate }}</label>
+            <div class="calculated-value">
+              {{ earliestExpiryDate() ? (earliestExpiryDate() | date:'dd.MM.yyyy') : '-' }}
+            </div>
+          </div>
+
           <div class="form-group checkbox-group">
             <label class="checkbox-label">
               <input type="checkbox" [(ngModel)]="form.requiresPrescription" name="requiresPrescription">
@@ -304,6 +312,7 @@
                 <label>Active</label>
                 <label class="checkbox-label">
                   <input type="checkbox" [(ngModel)]="priceForm.isActive" name="priceIsActive" />
+                  <span>{{ priceForm.isActive ? 'Yes' : 'No' }}</span>
                 </label>
               </div>
             </div>

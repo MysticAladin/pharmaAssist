@@ -186,6 +186,13 @@
 .price-active-field {
   justify-content: flex-start;
   padding-top: 0;
+
+  .checkbox-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-top: 0.25rem;
+  }
 }
 
 .price-actions {

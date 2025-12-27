@@ -100,7 +100,9 @@ public class OrderRepository : Repository<Order>, IOrderRepository
     public async Task<string> GenerateOrderNumberAsync(CancellationToken cancellationToken = default)
     {
         var today = DateTime.UtcNow;
-        var prefix = $"ORD{today:yyyyMMdd}";
+        // Format: ORD-YYYYMMDD-0001
+        // Dashes improve readability and match UI expectations.
+        var prefix = $"ORD-{today:yyyyMMdd}-";
         
         var lastOrder = await _dbSet
             .Where(o => o.OrderNumber.StartsWith(prefix))

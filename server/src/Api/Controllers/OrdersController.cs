@@ -42,14 +42,29 @@ public class OrdersController : ControllerBase
     public async Task<IActionResult> GetPaged(
         [FromQuery] int page = 1,
         [FromQuery] int pageSize = 10,
+        [FromQuery] string? searchTerm = null,
         [FromQuery] int? customerId = null,
         [FromQuery] OrderStatus? status = null,
         [FromQuery] PaymentStatus? paymentStatus = null,
         [FromQuery] DateTime? fromDate = null,
         [FromQuery] DateTime? toDate = null,
+        [FromQuery] string? sortBy = null,
+        [FromQuery] string? sortDirection = null,
         CancellationToken cancellationToken = default)
     {
-        var result = await _orderService.GetPagedAsync(page, pageSize, customerId, status, paymentStatus, fromDate, toDate, cancellationToken);
+        var sortDescending = !string.Equals(sortDirection, "asc", StringComparison.OrdinalIgnoreCase);
+        var result = await _orderService.GetPagedAsync(
+            page: page,
+            pageSize: pageSize,
+            searchTerm: searchTerm,
+            customerId: customerId,
+            status: status,
+            paymentStatus: paymentStatus,
+            fromDate: fromDate,
+            toDate: toDate,
+            sortBy: sortBy,
+            sortDescending: sortDescending,
+            cancellationToken: cancellationToken);
         return Ok(result);
     }
 

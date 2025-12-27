@@ -102,7 +102,7 @@ interface OrderItem {
             <!-- Actions -->
             <div class="section actions-section">
               <h3>{{ 'portal.orderDetail.actions' | translate }}</h3>
-              <div class="actions">
+              <div class="portal-actions">
                 <button class="btn btn-primary" (click)="reorder()" [disabled]="actionLoading()">
                   <span class="icon">🔄</span> {{ 'portal.orderDetail.reorder' | translate }}
                 </button>
@@ -236,11 +236,11 @@ interface OrderItem {
   `,
   styles: [`
     .order-detail-page { max-width: 1200px; margin: 0 auto; }
-    .back-link { display: inline-block; color: var(--primary-color); text-decoration: none; margin-bottom: 1.5rem; font-weight: 500; }
+    .back-link { display: inline-block; color: var(--primary-600); text-decoration: none; margin-bottom: 1.5rem; font-weight: 500; }
     .back-link:hover { text-decoration: underline; }
 
     .loading, .not-found { text-align: center; padding: 4rem; }
-    .spinner { width: 40px; height: 40px; border: 3px solid var(--border-color); border-top-color: var(--primary-color); border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto; }
+    .spinner { width: 40px; height: 40px; border: 3px solid var(--border-light); border-top-color: var(--primary-600); border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto; }
     .spinner-small { width: 16px; height: 16px; border: 2px solid rgba(255,255,255,0.3); border-top-color: white; border-radius: 50%; animation: spin 1s linear infinite; display: inline-block; margin-right: 0.5rem; }
     @keyframes spin { to { transform: rotate(360deg); } }
     .not-found .icon { font-size: 4rem; display: block; margin-bottom: 1rem; }
@@ -257,19 +257,19 @@ interface OrderItem {
     .order-date { color: var(--text-secondary); }
 
     .status { padding: 0.25rem 0.75rem; border-radius: 999px; font-size: 0.75rem; font-weight: 600; text-transform: uppercase; }
-    .status-pending { background: var(--status-pending-bg); color: var(--color-warning-text); }
-    .status-confirmed { background: #e0f2fe; color: #0369a1; }
-    .status-processing { background: var(--status-processing-bg); color: var(--color-info-text); }
-    .status-ready { background: #fae8ff; color: #86198f; }
-    .status-shipped { background: var(--status-shipped-bg); color: #3730a3; }
-    .status-delivered { background: var(--color-success-bg); color: var(--color-success-text); }
-    .status-cancelled { background: var(--color-error-bg); color: var(--color-error-text); }
-    .status-returned { background: var(--status-pending-bg); color: var(--color-warning-text); }
+    .status-pending { background: var(--status-pending-bg); color: var(--status-pending-text); }
+    .status-confirmed { background: var(--color-info-bg); color: var(--color-info-text); }
+    .status-processing { background: var(--status-processing-bg); color: var(--status-processing-text); }
+    .status-ready { background: var(--accent-purple-bg); color: var(--accent-purple); }
+    .status-shipped { background: var(--status-shipped-bg); color: var(--status-shipped-text); }
+    .status-delivered { background: var(--status-completed-bg); color: var(--status-completed-text); }
+    .status-cancelled { background: var(--status-cancelled-bg); color: var(--status-cancelled-text); }
+    .status-returned { background: var(--status-pending-bg); color: var(--status-pending-text); }
 
     .order-content { display: grid; grid-template-columns: 1fr 360px; gap: 2rem; }
     .main-content { display: flex; flex-direction: column; gap: 1.5rem; }
-    .section { background: var(--surface-card); border-radius: 12px; padding: 1.5rem; }
-    .section h3 { font-size: 1rem; margin-bottom: 1rem; padding-bottom: 0.75rem; border-bottom: 1px solid var(--border-color); }
+    .section { background: var(--card-bg); border: 1px solid var(--card-border); box-shadow: var(--card-shadow); border-radius: var(--radius-lg); padding: 1.5rem; }
+    .section h3 { font-size: 1rem; margin-bottom: 1rem; padding-bottom: 0.75rem; border-bottom: 1px solid var(--border-light); }
 
     .items-table { overflow-x: auto; }
     .items-table.has-actions .table-header,
@@ -282,42 +282,38 @@ interface OrderItem {
     .product-name { font-weight: 500; display: block; }
     .product-sku { font-size: 0.75rem; color: var(--text-secondary); }
     .item-total { font-weight: 600; }
-    .btn-claim { padding: 0.375rem 0.75rem; font-size: 0.75rem; border-radius: 6px; background: var(--warning-color); color: white; border: none; cursor: pointer; white-space: nowrap; }
+    .btn-claim { padding: 0.375rem 0.75rem; font-size: 0.75rem; border-radius: 6px; background: var(--color-warning); color: var(--text-inverse); border: none; cursor: pointer; white-space: nowrap; }
     .btn-claim:hover { opacity: 0.9; }
 
     .sidebar { display: flex; flex-direction: column; gap: 1rem; }
     .summary-row { display: flex; justify-content: space-between; margin-bottom: 0.5rem; }
-    .summary-row.total { font-size: 1.25rem; font-weight: 700; padding-top: 1rem; margin-top: 0.5rem; border-top: 1px solid var(--border-color); color: var(--primary-color); }
+    .summary-row.total { font-size: 1.25rem; font-weight: 700; padding-top: 1rem; margin-top: 0.5rem; border-top: 1px solid var(--border-light); color: var(--primary-600); }
 
-    .actions { display: flex; flex-direction: column; gap: 0.5rem; }
-    .btn { padding: 0.75rem 1rem; border-radius: 8px; border: none; cursor: pointer; font-weight: 500; text-align: center; display: flex; align-items: center; justify-content: center; gap: 0.5rem; text-decoration: none; }
-    .btn:disabled { opacity: 0.6; cursor: not-allowed; }
-    .btn-primary { background: var(--primary-color); color: white; }
-    .btn-secondary { background: var(--secondary-color, #6366f1); color: white; }
-    .btn-outline { background: transparent; border: 1px solid var(--border-color); color: var(--text-color); }
-    .btn-danger { background: #dc2626; color: white; }
-    .btn .icon { font-size: 1rem; }
+    .portal-actions { display: flex; flex-direction: column; gap: 0.5rem; align-items: stretch; }
+    .portal-actions .btn { width: 100%; }
+    .icon { font-size: 1rem; }
 
     .payment-status { margin-top: 0.5rem; font-weight: 500; }
     .cancellation-reason { background: var(--color-error-bg); border: 1px solid var(--color-error-light); }
     .cancellation-reason h3 { color: var(--color-error-text); }
 
     /* Modal styles */
-    .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; z-index: 1000; padding: 1rem; }
-    .modal { background: var(--surface-card); border-radius: 12px; width: 100%; max-width: 480px; max-height: 90vh; overflow-y: auto; }
+    .modal-overlay { position: fixed; inset: 0; background: var(--surface-overlay); display: flex; align-items: center; justify-content: center; z-index: 1000; padding: 1rem; }
+    .modal { background: var(--card-bg); border: 1px solid var(--card-border); box-shadow: var(--shadow-lg); border-radius: var(--radius-lg); width: 100%; max-width: 480px; max-height: 90vh; overflow-y: auto; }
     .modal-lg { max-width: 560px; }
-    .modal-header { display: flex; justify-content: space-between; align-items: center; padding: 1.25rem 1.5rem; border-bottom: 1px solid var(--border-color); }
+    .modal-header { display: flex; justify-content: space-between; align-items: center; padding: 1.25rem 1.5rem; border-bottom: 1px solid var(--border-light); }
     .modal-header h2 { font-size: 1.25rem; margin: 0; }
     .modal-close { background: none; border: none; font-size: 1.5rem; cursor: pointer; color: var(--text-secondary); }
     .modal-body { padding: 1.5rem; }
-    .modal-footer { padding: 1rem 1.5rem; border-top: 1px solid var(--border-color); display: flex; justify-content: flex-end; gap: 0.75rem; }
+    .modal-footer { padding: 1rem 1.5rem; border-top: 1px solid var(--border-light); display: flex; justify-content: flex-end; gap: 0.75rem; }
 
     .form-group { margin-bottom: 1rem; }
     .form-group label { display: block; font-weight: 500; margin-bottom: 0.5rem; font-size: 0.875rem; }
-    .form-group input, .form-group textarea, .form-group select { width: 100%; padding: 0.75rem; border: 1px solid var(--border-color); border-radius: 8px; font-size: 0.875rem; background: var(--bg-primary); }
-    .form-group input:focus, .form-group textarea:focus, .form-group select:focus { outline: none; border-color: var(--primary-color); }
+    .form-group input, .form-group textarea, .form-group select { width: 100%; padding: 0.75rem; border: 1px solid var(--input-border); border-radius: var(--radius-md); font-size: 0.875rem; background: var(--input-bg); color: var(--input-text); }
+    .form-group input::placeholder, .form-group textarea::placeholder { color: var(--input-placeholder); }
+    .form-group input:focus, .form-group textarea:focus, .form-group select:focus { outline: none; border-color: var(--input-border-focus); }
 
-    .claim-product { background: var(--bg-secondary); padding: 1rem; border-radius: 8px; margin-bottom: 1rem; }
+    .claim-product { background: var(--surface-secondary); padding: 1rem; border-radius: var(--radius-md); margin-bottom: 1rem; }
     .claim-product strong { display: block; }
     .claim-product .sku { font-size: 0.75rem; color: var(--text-secondary); }
 

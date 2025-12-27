@@ -146,6 +146,10 @@
             <span class="info-label">Package Size</span>
             <span class="info-value">{{ product()?.packageSize || '-' }}</span>
           </div>
+          <div class="info-item">
+            <span class="info-label">Expiration date</span>
+            <span class="info-value">{{ product()?.earliestExpiryDate ? (product()?.earliestExpiryDate | date:'dd.MM.yyyy') : '-' }}</span>
+          </div>
         </div>
       </div>
 

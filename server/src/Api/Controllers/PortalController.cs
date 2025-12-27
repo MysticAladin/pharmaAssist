@@ -84,7 +84,18 @@ public class PortalController : ControllerBase
         if (!customerId.HasValue)
             return Unauthorized(ApiResponse<object>.Fail("Customer not found"));
 
-        var result = await _orderService.GetPagedAsync(page, pageSize, customerId, status, null, fromDate, toDate, cancellationToken);
+        var result = await _orderService.GetPagedAsync(
+            page: page,
+            pageSize: pageSize,
+            searchTerm: null,
+            customerId: customerId,
+            status: status,
+            paymentStatus: null,
+            fromDate: fromDate,
+            toDate: toDate,
+            sortBy: null,
+            sortDescending: true,
+            cancellationToken: cancellationToken);
         return Ok(result);
     }
 
@@ -543,6 +554,10 @@ public class PortalController : ControllerBase
                 IsAvailable = p.StockQuantity > 0,
                 StockQuantity = p.StockQuantity,
                 RequiresPrescription = p.RequiresPrescription,
+                EarliestExpiryDate = _context.ProductBatches
+                    .Where(b => b.ProductId == p.Id && b.IsActive && b.RemainingQuantity > 0 && b.ExpiryDate >= DateTime.UtcNow)
+                    .Select(b => (DateTime?)b.ExpiryDate)
+                    .Min(),
                 DosageForm = p.DosageForm,
                 Strength = p.Strength,
                 PackSize = p.PackageSize
@@ -590,6 +605,10 @@ public class PortalController : ControllerBase
                 IsAvailable = p.StockQuantity > 0,
                 StockQuantity = p.StockQuantity,
                 RequiresPrescription = p.RequiresPrescription,
+                EarliestExpiryDate = _context.ProductBatches
+                    .Where(b => b.ProductId == p.Id && b.IsActive && b.RemainingQuantity > 0 && b.ExpiryDate >= DateTime.UtcNow)
+                    .Select(b => (DateTime?)b.ExpiryDate)
+                    .Min(),
                 DosageForm = p.DosageForm,
                 Strength = p.Strength,
                 PackSize = p.PackageSize
@@ -677,6 +696,10 @@ public class PortalController : ControllerBase
                 IsAvailable = p.StockQuantity > 0,
                 StockQuantity = p.StockQuantity,
                 RequiresPrescription = p.RequiresPrescription,
+                EarliestExpiryDate = _context.ProductBatches
+                    .Where(b => b.ProductId == p.Id && b.IsActive && b.RemainingQuantity > 0 && b.ExpiryDate >= DateTime.UtcNow)
+                    .Select(b => (DateTime?)b.ExpiryDate)
+                    .Min(),
                 DosageForm = p.DosageForm,
                 Strength = p.Strength,
                 PackSize = p.PackageSize
@@ -716,6 +739,10 @@ public class PortalController : ControllerBase
                 IsAvailable = p.StockQuantity > 0,
                 StockQuantity = p.StockQuantity,
                 RequiresPrescription = p.RequiresPrescription,
+                EarliestExpiryDate = _context.ProductBatches
+                    .Where(b => b.ProductId == p.Id && b.IsActive && b.RemainingQuantity > 0 && b.ExpiryDate >= DateTime.UtcNow)
+                    .Select(b => (DateTime?)b.ExpiryDate)
+                    .Min(),
                 DosageForm = p.DosageForm,
                 Strength = p.Strength,
                 PackSize = p.PackageSize
@@ -891,6 +918,7 @@ public class PortalProductDto
     public string? ManufacturerId { get; set; }
     public bool IsAvailable { get; set; }
     public int StockQuantity { get; set; }
+    public DateTime? EarliestExpiryDate { get; set; }
     public bool RequiresPrescription { get; set; }
     public string? DosageForm { get; set; }
     public string? Strength { get; set; }

@@ -128,7 +128,7 @@
 
   <!-- Stats Cards -->
   <div class="stats-row">
-    <div class="stat-card">
+    <div class="stat-card" (click)="onStatCardClick(1)">
       <div class="stat-icon pending">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <circle cx="12" cy="12" r="10"/>
@@ -140,7 +140,7 @@
         <span class="stat-label">{{ 'orders.stats.pending' | translate }}</span>
       </div>
     </div>
-    <div class="stat-card">
+    <div class="stat-card" (click)="onStatCardClick(3)">
       <div class="stat-icon processing">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <path d="M22 12h-4l-3 9L9 3l-3 9H2"/>
@@ -151,7 +151,7 @@
         <span class="stat-label">{{ 'orders.stats.processing' | translate }}</span>
       </div>
     </div>
-    <div class="stat-card">
+    <div class="stat-card" (click)="onStatCardClick(5)">
       <div class="stat-icon shipped">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <rect x="1" y="3" width="15" height="13"/>
@@ -165,7 +165,7 @@
         <span class="stat-label">{{ 'orders.stats.shipped' | translate }}</span>
       </div>
     </div>
-    <div class="stat-card">
+    <div class="stat-card" (click)="onStatCardClick(6)">
       <div class="stat-icon delivered">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
@@ -290,6 +290,7 @@
       [striped]="true"
       [compact]="true"
       (rowClick)="viewOrder($event)"
+      (sortChange)="onSortChange($event)"
       (selectionChange)="onSelectionChange($event)"
     >
     </app-data-table>

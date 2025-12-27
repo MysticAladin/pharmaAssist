@@ -253,7 +253,7 @@ interface TransferItem {
 
     .page-header h1 {
       margin: 0;
-      font-size: 1.75rem;
+      font-size: 1.5rem;
       font-weight: 600;
       color: var(--text-primary);
     }
@@ -298,14 +298,16 @@ interface TransferItem {
       display: grid;
       grid-template-columns: 1fr auto 1fr;
       gap: 1rem;
-      align-items: end;
+      align-items: start;
     }
 
     .location-arrow {
       display: flex;
       align-items: center;
       justify-content: center;
-      padding-bottom: 1rem;
+      align-self: start;
+      /* Align arrow with the selects (below the labels) */
+      padding-top: 2rem;
       font-size: 1.5rem;
       color: var(--text-muted);
     }

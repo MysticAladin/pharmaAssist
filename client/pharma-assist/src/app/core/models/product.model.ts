@@ -27,6 +27,7 @@ export interface Product {
   packageSize?: string;
 
   stockQuantity: number;
+  earliestExpiryDate?: string | null;
   reorderLevel: number;
   reorderQuantity: number;
 
@@ -49,6 +50,7 @@ export interface ProductSummary {
   packageSize?: string;
   unitPrice: number;
   stockQuantity: number;
+  earliestExpiryDate?: string | null;
   requiresPrescription: boolean;
   isActive: boolean;
   imageUrl?: string;

@@ -45,16 +45,6 @@
   }
 }
 
-/* Date Range */
-.date-range {
-  display: flex;
-  gap: 1rem;
-
-  input {
-    width: 180px;
-  }
-}
-
 /* Text Button */
 .btn-text {
   background: transparent;
@@ -161,6 +151,49 @@
   cursor: help;
 }
 
+/* Date input (dd.MM.yyyy + calendar icon) */
+.date-input-wrapper {
+  position: relative;
+  width: 100%;
+
+  .hidden-date-picker {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+    width: 0;
+    height: 0;
+  }
+
+  .calendar-icon {
+    position: absolute;
+    right: 0.5rem;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0.25rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-muted);
+    transition: color var(--transition-fast);
+
+    &:hover {
+      color: var(--primary);
+    }
+
+    svg {
+      width: 16px;
+      height: 16px;
+    }
+  }
+
+  .date-input.date-filter {
+    padding-right: 2.5rem;
+  }
+}
+
 /* Responsive */
 @media (max-width: 768px) {
   .title-row {
@@ -173,11 +206,5 @@
     align-items: stretch;
   }
 
-  .date-range {
-    flex-direction: column;
-
-    input {
-      width: 100%;
-    }
-  }
+  /* shared filter styles handle filter-block sizing */
 }

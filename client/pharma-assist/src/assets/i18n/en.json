@@ -1,6 +1,7 @@
 {
   "common": {
     "appName": "PharmaAssist",
+    "home": "Home",
     "loading": "Loading...",
     "save": "Save",
     "cancel": "Cancel",
@@ -1827,6 +1828,7 @@
     "adjustmentSuccess": "Stock adjustment saved successfully",
     "adjustmentError": "Failed to save stock adjustment",
     "productLoadError": "Failed to load product",
+    "typeLabel": "Type",
     "type": {
       "addition": "Addition",
       "removal": "Removal",

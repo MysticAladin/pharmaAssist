@@ -341,6 +341,37 @@ public class InventoryController : ControllerBase
     }
 
     /// <summary>
+    /// Get stock adjustments history (UI-friendly)
+    /// </summary>
+    [HttpGet("adjustments")]
+    [ProducesResponseType(typeof(PagedResponse<StockAdjustmentListItemDto>), StatusCodes.Status200OK)]
+    public async Task<IActionResult> GetAdjustments(
+        [FromQuery] int page = 1,
+        [FromQuery] int pageSize = 20,
+        [FromQuery] int? productId = null,
+        [FromQuery] string? adjustmentType = null,
+        [FromQuery] DateTime? startDate = null,
+        [FromQuery] DateTime? endDate = null,
+        CancellationToken cancellationToken = default)
+    {
+        var result = await _inventoryService.GetAdjustmentsPagedAsync(page, pageSize, productId, adjustmentType, startDate, endDate, cancellationToken);
+        return Ok(result);
+    }
+
+    /// <summary>
+    /// Create a stock adjustment (UI-friendly)
+    /// </summary>
+    [HttpPost("adjustments")]
+    [ProducesResponseType(typeof(ApiResponse<StockAdjustmentListItemDto>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiResponse<StockAdjustmentListItemDto>), StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> CreateAdjustment([FromBody] CreateStockAdjustmentRequestDto dto, CancellationToken cancellationToken)
+    {
+        var userId = GetUserId();
+        var result = await _inventoryService.CreateAdjustmentAsync(dto, userId, cancellationToken);
+        return result.Success ? Ok(result) : BadRequest(result);
+    }
+
+    /// <summary>
     /// Transfer stock between warehouses
     /// </summary>
     [HttpPost("stock/transfer")]
@@ -350,6 +381,72 @@ public class InventoryController : ControllerBase
     {
         var userId = GetUserId();
         var result = await _inventoryService.TransferStockAsync(dto, userId, cancellationToken);
+        return result.Success ? Ok(result) : BadRequest(result);
+    }
+
+    // UI-friendly Stock Transfers API (used by Angular inventory transfers pages)
+    [HttpGet("transfers")]
+    public async Task<IActionResult> GetTransfers(
+        [FromQuery] int page = 1,
+        [FromQuery] int pageSize = 20,
+        [FromQuery] string? status = null,
+        [FromQuery] int? sourceLocationId = null,
+        [FromQuery] int? destinationLocationId = null,
+        [FromQuery] DateTime? startDate = null,
+        [FromQuery] DateTime? endDate = null,
+        CancellationToken cancellationToken = default)
+    {
+        var result = await _inventoryService.GetTransfersPagedAsync(
+            page,
+            pageSize,
+            status,
+            sourceLocationId,
+            destinationLocationId,
+            startDate,
+            endDate,
+            cancellationToken);
+
+        return Ok(result);
+    }
+
+    [HttpPost("transfers")]
+    public async Task<IActionResult> CreateTransfer([FromBody] CreateStockTransferRequestDto dto, CancellationToken cancellationToken)
+    {
+        var userId = GetUserId();
+        var result = await _inventoryService.CreateTransferAsync(dto, userId, cancellationToken);
+        return result.Success ? Ok(result) : BadRequest(result);
+    }
+
+    [HttpGet("transfers/{id:int}")]
+    public async Task<IActionResult> GetTransferById([FromRoute] int id, CancellationToken cancellationToken)
+    {
+        var result = await _inventoryService.GetTransferByIdAsync(id, cancellationToken);
+        return result.Success ? Ok(result) : NotFound(result);
+    }
+
+    public sealed class UpdateTransferStatusRequest
+    {
+        public string Status { get; set; } = string.Empty;
+    }
+
+    [HttpPatch("transfers/{id:int}/status")]
+    public async Task<IActionResult> UpdateTransferStatus([FromRoute] int id, [FromBody] UpdateTransferStatusRequest dto, CancellationToken cancellationToken)
+    {
+        var userId = GetUserId();
+        var result = await _inventoryService.UpdateTransferStatusAsync(id, dto.Status, userId, cancellationToken);
+        return result.Success ? Ok(result) : BadRequest(result);
+    }
+
+    public sealed class CancelTransferRequest
+    {
+        public string Reason { get; set; } = string.Empty;
+    }
+
+    [HttpPost("transfers/{id:int}/cancel")]
+    public async Task<IActionResult> CancelTransfer([FromRoute] int id, [FromBody] CancelTransferRequest dto, CancellationToken cancellationToken)
+    {
+        var userId = GetUserId();
+        var result = await _inventoryService.CancelTransferAsync(id, dto.Reason, userId, cancellationToken);
         return result.Success ? Ok(result) : BadRequest(result);
     }
 

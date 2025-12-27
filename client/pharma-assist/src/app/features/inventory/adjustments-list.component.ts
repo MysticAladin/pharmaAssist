@@ -52,6 +52,8 @@ export class AdjustmentsListComponent implements OnInit {
   selectedType: AdjustmentType | null = null;
   startDate = '';
   endDate = '';
+  startDateText = '';
+  endDateText = '';
   productId: number | null = null;
 
   adjustmentTypes: AdjustmentType[] = ['addition', 'removal', 'correction', 'damaged', 'expired', 'returned'];
@@ -64,6 +66,76 @@ export class AdjustmentsListComponent implements OnInit {
     }
 
     this.loadAdjustments();
+  }
+
+  onStartDateTextChange(value: string): void {
+    this.startDateText = value;
+  }
+
+  onEndDateTextChange(value: string): void {
+    this.endDateText = value;
+  }
+
+  onStartDateBlur(): void {
+    this.normalizeStartDate();
+    this.applyFilters();
+  }
+
+  onEndDateBlur(): void {
+    this.normalizeEndDate();
+    this.applyFilters();
+  }
+
+  onNativeStartDateChange(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    if (!input.value) {
+      this.startDate = '';
+      this.startDateText = '';
+      this.applyFilters();
+      return;
+    }
+
+    this.startDate = input.value;
+    this.startDateText = this.isoToEuDate(input.value);
+    this.applyFilters();
+  }
+
+  onNativeEndDateChange(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    if (!input.value) {
+      this.endDate = '';
+      this.endDateText = '';
+      this.applyFilters();
+      return;
+    }
+
+    this.endDate = input.value;
+    this.endDateText = this.isoToEuDate(input.value);
+    this.applyFilters();
+  }
+
+  private normalizeStartDate(): void {
+    const trimmed = (this.startDateText ?? '').trim();
+    if (!trimmed) {
+      this.startDate = '';
+      this.startDateText = '';
+      return;
+    }
+    const iso = this.euToIsoDate(trimmed);
+    this.startDate = iso ?? '';
+    this.startDateText = iso ? this.isoToEuDate(iso) : this.startDateText;
+  }
+
+  private normalizeEndDate(): void {
+    const trimmed = (this.endDateText ?? '').trim();
+    if (!trimmed) {
+      this.endDate = '';
+      this.endDateText = '';
+      return;
+    }
+    const iso = this.euToIsoDate(trimmed);
+    this.endDate = iso ?? '';
+    this.endDateText = iso ? this.isoToEuDate(iso) : this.endDateText;
   }
 
   loadAdjustments(): void {
@@ -102,6 +174,8 @@ export class AdjustmentsListComponent implements OnInit {
     this.selectedType = null;
     this.startDate = '';
     this.endDate = '';
+    this.startDateText = '';
+    this.endDateText = '';
     this.productId = null;
     this.applyFilters();
   }
@@ -133,5 +207,46 @@ export class AdjustmentsListComponent implements OnInit {
 
   isAdditionType(type: AdjustmentType): boolean {
     return ['addition', 'returned'].includes(type);
+  }
+
+  private isoToEuDate(value: string): string {
+    if (!value) return '';
+    const m = value.match(/^\d{4}-\d{2}-\d{2}$/);
+    if (m) {
+      const [y, mo, d] = value.split('-');
+      return `${d}.${mo}.${y}`;
+    }
+    const d = new Date(value);
+    if (Number.isNaN(d.getTime())) return '';
+    const dd = String(d.getDate()).padStart(2, '0');
+    const mm = String(d.getMonth() + 1).padStart(2, '0');
+    const yyyy = String(d.getFullYear());
+    return `${dd}.${mm}.${yyyy}`;
+  }
+
+  private euToIsoDate(value: string | null | undefined): string | null {
+    const v = (value ?? '').trim();
+    if (!v) return null;
+
+    const match = v.match(/^(\d{1,2})[.\/-](\d{1,2})[.\/-](\d{4})$/);
+    if (!match) return null;
+
+    const day = Number(match[1]);
+    const month = Number(match[2]);
+    const year = Number(match[3]);
+    if (!Number.isFinite(day) || !Number.isFinite(month) || !Number.isFinite(year)) return null;
+
+    // Validate using UTC to avoid timezone shifts
+    const date = new Date(Date.UTC(year, month - 1, day));
+    if (
+      date.getUTCFullYear() !== year ||
+      date.getUTCMonth() !== month - 1 ||
+      date.getUTCDate() !== day
+    ) {
+      return null;
+    }
+    const mm = String(month).padStart(2, '0');
+    const dd = String(day).padStart(2, '0');
+    return `${year}-${mm}-${dd}`;
   }
 }

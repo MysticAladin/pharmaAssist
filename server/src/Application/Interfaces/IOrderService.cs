@@ -15,11 +15,14 @@ public interface IOrderService
     Task<PagedResponse<OrderSummaryDto>> GetPagedAsync(
         int page,
         int pageSize,
+        string? searchTerm = null,
         int? customerId = null,
         OrderStatus? status = null,
         PaymentStatus? paymentStatus = null,
         DateTime? fromDate = null,
         DateTime? toDate = null,
+        string? sortBy = null,
+        bool sortDescending = true,
         CancellationToken cancellationToken = default);
     Task<ApiResponse<IEnumerable<OrderSummaryDto>>> GetByCustomerAsync(int customerId, CancellationToken cancellationToken = default);
     Task<ApiResponse<IEnumerable<OrderSummaryDto>>> GetByStatusAsync(OrderStatus status, CancellationToken cancellationToken = default);

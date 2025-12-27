@@ -58,11 +58,14 @@ public class OrderService : IOrderService
     public async Task<PagedResponse<OrderSummaryDto>> GetPagedAsync(
         int page,
         int pageSize,
+        string? searchTerm = null,
         int? customerId = null,
         OrderStatus? status = null,
         PaymentStatus? paymentStatus = null,
         DateTime? fromDate = null,
         DateTime? toDate = null,
+        string? sortBy = null,
+        bool sortDescending = true,
         CancellationToken cancellationToken = default)
     {
         // Get all orders with required navigation properties
@@ -74,6 +77,16 @@ public class OrderService : IOrderService
         
         // Apply filters
         var filtered = allOrders.AsEnumerable();
+
+        if (!string.IsNullOrWhiteSpace(searchTerm))
+        {
+            var term = searchTerm.Trim().ToLowerInvariant();
+            filtered = filtered.Where(o =>
+                (!string.IsNullOrEmpty(o.OrderNumber) && o.OrderNumber.ToLowerInvariant().Contains(term)) ||
+                (o.Customer != null && !string.IsNullOrEmpty(o.Customer.FullName) && o.Customer.FullName.ToLowerInvariant().Contains(term)) ||
+                (o.Customer != null && !string.IsNullOrEmpty(o.Customer.CustomerCode) && o.Customer.CustomerCode.ToLowerInvariant().Contains(term))
+            );
+        }
         
         if (customerId.HasValue)
             filtered = filtered.Where(o => o.CustomerId == customerId.Value);
@@ -90,7 +103,32 @@ public class OrderService : IOrderService
         if (toDate.HasValue)
             filtered = filtered.Where(o => o.OrderDate <= toDate.Value);
 
-        var filteredList = filtered.OrderByDescending(o => o.OrderDate).ToList();
+        Func<IEnumerable<Order>, IOrderedEnumerable<Order>> applySort = orders => (sortBy?.ToLowerInvariant()) switch
+        {
+            "ordernumber" => sortDescending
+                ? orders.OrderByDescending(o => o.OrderNumber)
+                : orders.OrderBy(o => o.OrderNumber),
+            "customername" or "customer" => sortDescending
+                ? orders.OrderByDescending(o => o.Customer != null ? o.Customer.FullName : string.Empty)
+                : orders.OrderBy(o => o.Customer != null ? o.Customer.FullName : string.Empty),
+            "status" => sortDescending
+                ? orders.OrderByDescending(o => o.Status)
+                : orders.OrderBy(o => o.Status),
+            "paymentstatus" => sortDescending
+                ? orders.OrderByDescending(o => o.PaymentStatus)
+                : orders.OrderBy(o => o.PaymentStatus),
+            "totalamount" => sortDescending
+                ? orders.OrderByDescending(o => o.TotalAmount)
+                : orders.OrderBy(o => o.TotalAmount),
+            "itemcount" => sortDescending
+                ? orders.OrderByDescending(o => o.OrderItems.Count)
+                : orders.OrderBy(o => o.OrderItems.Count),
+            "orderdate" or _ => sortDescending
+                ? orders.OrderByDescending(o => o.OrderDate)
+                : orders.OrderBy(o => o.OrderDate)
+        };
+
+        var filteredList = applySort(filtered).ToList();
         var totalCount = filteredList.Count;
         
         var pagedItems = filteredList

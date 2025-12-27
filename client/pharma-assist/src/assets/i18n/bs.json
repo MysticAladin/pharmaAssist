@@ -1,6 +1,7 @@
 {
   "common": {
     "appName": "PharmaAssist",
+    "home": "Početna",
     "loading": "Učitavanje...",
     "save": "Sačuvaj",
     "cancel": "Otkaži",
@@ -1824,6 +1825,7 @@
     "adjustmentSuccess": "Prilagodba zaliha uspješno sačuvana",
     "adjustmentError": "Greška pri čuvanju prilagodbe zaliha",
     "productLoadError": "Greška pri učitavanju proizvoda",
+    "typeLabel": "Tip",
     "type": {
       "addition": "Dodavanje",
       "removal": "Uklanjanje",

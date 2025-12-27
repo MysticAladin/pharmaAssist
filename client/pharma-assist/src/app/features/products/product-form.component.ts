@@ -61,6 +61,7 @@ export class ProductFormComponent implements OnInit {
   loading = signal(true);
   saving = signal(false);
   productId = signal<number | null>(null);
+  earliestExpiryDate = signal<string | null>(null);
 
   categories = signal<CategorySummary[]>([]);
   manufacturers = signal<ManufacturerSummary[]>([]);
@@ -488,6 +489,7 @@ export class ProductFormComponent implements OnInit {
   }
 
   private populateForm(product: Product): void {
+    this.earliestExpiryDate.set(product.earliestExpiryDate ?? null);
     this.form = {
       name: product.name,
       nameLocal: product.nameLocal,

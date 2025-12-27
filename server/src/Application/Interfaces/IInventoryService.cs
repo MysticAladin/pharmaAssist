@@ -40,7 +40,23 @@ public interface IInventoryService
     
     // Stock adjustments
     Task<ApiResponse<StockMovementDto>> AdjustStockAsync(StockAdjustmentDto dto, string userId, CancellationToken cancellationToken = default);
+    Task<PagedResponse<StockAdjustmentListItemDto>> GetAdjustmentsPagedAsync(
+        int page,
+        int pageSize,
+        int? productId = null,
+        string? adjustmentType = null,
+        DateTime? startDate = null,
+        DateTime? endDate = null,
+        CancellationToken cancellationToken = default);
+    Task<ApiResponse<StockAdjustmentListItemDto>> CreateAdjustmentAsync(CreateStockAdjustmentRequestDto dto, string userId, CancellationToken cancellationToken = default);
     Task<ApiResponse<IEnumerable<StockMovementDto>>> TransferStockAsync(StockTransferDto dto, string userId, CancellationToken cancellationToken = default);
+
+        // Stock transfers
+        Task<PagedResponse<StockTransferListItemDto>> GetTransfersPagedAsync(int page, int pageSize, string? status = null, int? sourceLocationId = null, int? destinationLocationId = null, DateTime? startDate = null, DateTime? endDate = null, CancellationToken cancellationToken = default);
+        Task<ApiResponse<StockTransferListItemDto>> CreateTransferAsync(CreateStockTransferRequestDto dto, string userId, CancellationToken cancellationToken = default);
+        Task<ApiResponse<StockTransferListItemDto>> GetTransferByIdAsync(int id, CancellationToken cancellationToken = default);
+        Task<ApiResponse<StockTransferListItemDto>> UpdateTransferStatusAsync(int id, string status, string userId, CancellationToken cancellationToken = default);
+        Task<ApiResponse<bool>> CancelTransferAsync(int id, string reason, string userId, CancellationToken cancellationToken = default);
     
     // Stock receiving
     Task<ApiResponse<IEnumerable<StockMovementDto>>> ReceiveStockAsync(

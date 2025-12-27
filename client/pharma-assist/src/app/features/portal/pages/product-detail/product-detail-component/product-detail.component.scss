@@ -139,6 +139,10 @@ h1 {
 .btn-primary {
   background: var(--primary-color);
   color: white;
+
+  &:hover:not(:disabled) {
+    background: var(--primary-hover, var(--primary-color));
+  }
 }
 
 .btn-lg {
