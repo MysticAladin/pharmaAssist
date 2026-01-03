@@ -169,6 +169,7 @@ export class CustomersListComponent implements OnInit {
       contactPerson: '',
       tier: CustomerTier.C,
       taxId: '',
+      pharmacyLicense: '',
       discountPercentage: 0
     };
   }
@@ -189,6 +190,7 @@ export class CustomersListComponent implements OnInit {
       contactPerson: customer.contactPerson || '',
       tier: customer.tier,
       taxId: customer.taxId || '',
+      pharmacyLicense: customer.pharmacyLicense || '',
       discountPercentage: customer.discountPercentage
     };
     this.showModal.set(true);
@@ -212,6 +214,7 @@ export class CustomersListComponent implements OnInit {
         contactPerson: this.formData.contactPerson || undefined,
         tier: +this.formData.tier,
         taxId: this.formData.taxId || undefined,
+        pharmacyLicense: this.formData.pharmacyLicense || undefined,
         discountPercentage: this.formData.discountPercentage,
         creditLimit: editing.creditLimit,
         paymentTermDays: editing.paymentTermDays,
@@ -233,6 +236,7 @@ export class CustomersListComponent implements OnInit {
         contactPerson: this.formData.contactPerson || undefined,
         tier: +this.formData.tier,
         taxId: this.formData.taxId || undefined,
+        pharmacyLicense: this.formData.pharmacyLicense || undefined,
         discountPercentage: this.formData.discountPercentage,
         creditLimit: 0,
         paymentTermDays: 30

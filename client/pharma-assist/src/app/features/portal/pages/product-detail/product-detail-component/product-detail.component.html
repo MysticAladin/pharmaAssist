@@ -28,9 +28,9 @@
           }
         </div>
 
-        <div class="stock-info" [class.low]="product()!.stockQuantity < 10" [class.out]="!product()!.isAvailable">
+        <div class="stock-info" [class.out]="!product()!.isAvailable">
           @if (product()!.isAvailable) {
-            ✓ {{ product()!.stockQuantity }} {{ 'portal.product.inStock' | translate }}
+            ✓ {{ 'portal.product.inStock' | translate }}
           } @else {
             ✗ {{ 'portal.product.outOfStock' | translate }}
           }

@@ -76,9 +76,12 @@ export interface Location {
   id: number;
   name: string;
   code: string;
-  type: 'warehouse' | 'pharmacy' | 'storage';
+  type?: 'warehouse' | 'pharmacy' | 'storage';
   address?: string;
   isActive: boolean;
+  isDefault?: boolean;
+  isManufacturing?: boolean;
+  canFulfillOrders?: boolean;
 }
 
 export interface StockLevel {
@@ -105,9 +108,59 @@ export interface BatchStock {
   daysUntilExpiry: number;
 }
 
+// Backend DTO for /inventory/stock-levels when a warehouse/location filter is applied
+export interface InventoryStock {
+  id: number;
+  warehouseId: number;
+  warehouseName: string;
+  productId: number;
+  productName: string;
+  productSku: string;
+  productBatchId?: number;
+  batchNumber?: string;
+  quantityOnHand: number;
+  quantityReserved: number;
+  quantityAvailable: number;
+  minimumStockLevel: number;
+  reorderPoint: number;
+  maximumStockLevel: number;
+  isLowStock: boolean;
+  isBelowMinimum: boolean;
+  lastUpdated: string;
+}
+
+export interface Warehouse extends Location {
+  cityId?: number;
+  cityName?: string;
+  contactPhone?: string;
+}
+
+export interface CreateWarehouseRequest {
+  name: string;
+  code: string;
+  cityId: number;
+  address: string;
+  contactPhone?: string;
+  isDefault: boolean;
+  isManufacturing: boolean;
+  canFulfillOrders: boolean;
+}
+
+export interface UpdateWarehouseRequest {
+  name: string;
+  cityId: number;
+  address: string;
+  contactPhone?: string;
+  isActive: boolean;
+  isDefault: boolean;
+  isManufacturing: boolean;
+  canFulfillOrders: boolean;
+}
+
 export interface InventoryFilters {
   search?: string;
   locationId?: number;
+  availableOnly?: boolean;
   lowStockOnly?: boolean;
   expiringSoonOnly?: boolean;
   page: number;

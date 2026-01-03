@@ -197,15 +197,17 @@ import { KmCurrencyPipe } from '../../../../core/pipes/km-currency.pipe';
                   @if (product.dosageForm && product.strength) {
                     <p class="product-details">{{ product.dosageForm }} • {{ product.strength }}</p>
                   }
+                  <div class="product-meta">
+                    <span>{{ 'portal.product.packSize' | translate }}: {{ product.packSize || '—' }}</span>
+                    <span class="sep">•</span>
+                    <span>{{ 'portal.product.expiry' | translate }}: {{ formatExpiry(product.earliestExpiryDate) || '—' }}</span>
+                  </div>
                   <div class="product-footer">
                     <p class="product-price">
                       @if (product.customerPrice && product.customerPrice < product.unitPrice) {
                         <span class="original-price">{{ product.unitPrice | kmCurrency }}</span>
                       }
                       {{ (product.customerPrice ?? product.unitPrice) | kmCurrency }}
-                    </p>
-                    <p class="product-stock" [class.low]="product.stockQuantity < 10">
-                      {{ product.stockQuantity }} {{ 'portal.product.inStock' | translate }}
                     </p>
                   </div>
                 </div>
@@ -603,6 +605,20 @@ import { KmCurrencyPipe } from '../../../../core/pipes/km-currency.pipe';
       color: var(--text-secondary, #666);
     }
 
+    .product-meta {
+      margin-top: 0.25rem;
+      font-size: 0.75rem;
+      color: var(--text-secondary, #666);
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 0.35rem;
+    }
+
+    .product-meta .sep {
+      opacity: 0.8;
+    }
+
     .product-footer {
       display: flex;
       justify-content: space-between;
@@ -947,6 +963,18 @@ export class ProductCatalogComponent implements OnInit, OnDestroy {
   ngOnDestroy() {
     this.destroy$.next();
     this.destroy$.complete();
+  }
+
+  formatExpiry(value?: string | null): string | null {
+    if (!value) return null;
+    const d = new Date(value);
+    if (Number.isNaN(d.getTime())) return null;
+
+    try {
+      return new Intl.DateTimeFormat('bs-BA', { day: '2-digit', month: '2-digit', year: 'numeric' }).format(d);
+    } catch {
+      return d.toLocaleDateString();
+    }
   }
 
   private loadProducts() {

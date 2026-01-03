@@ -139,6 +139,56 @@ export interface CustomerReport {
   topCustomers: TopCustomer[];
 }
 
+// Customer Sales Reports (per customer/branch, with product breakdown)
+export interface CustomerSalesReport {
+  reportDate: string;
+  startDate: string;
+  endDate: string;
+  customerId?: number | null;
+  customerName?: string | null;
+  includeChildBranches: boolean;
+
+  totalOrders: number;
+  totalProducts: number;
+  totalQuantity: number;
+  totalRevenue: number;
+  totalDiscount: number;
+  netRevenue: number;
+  averageOrderValue: number;
+
+  salesByCustomer: CustomerSalesItem[];
+  salesByProduct: ProductSalesItem[];
+}
+
+export interface CustomerSalesItem {
+  customerId: number;
+  customerCode: string;
+  customerName: string;
+  branchCode?: string | null;
+  isHeadquarters: boolean;
+  parentCustomerId?: number | null;
+  parentCustomerName?: string | null;
+  orderCount: number;
+  totalQuantity: number;
+  totalRevenue: number;
+  totalDiscount: number;
+  netRevenue: number;
+}
+
+export interface ProductSalesItem {
+  productId: number;
+  productName: string;
+  sku: string;
+  categoryName?: string | null;
+  manufacturerName?: string | null;
+  quantitySold: number;
+  unitPrice: number;
+  totalRevenue: number;
+  totalDiscount: number;
+  netRevenue: number;
+  orderCount: number;
+}
+
 // Financial Reports
 export interface FinancialMetrics {
   grossRevenue: number;

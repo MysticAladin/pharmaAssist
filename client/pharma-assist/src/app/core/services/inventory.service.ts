@@ -9,7 +9,11 @@ import {
   StockTransfer,
   CreateStockTransferRequest,
   Location,
+  Warehouse,
   StockLevel,
+  InventoryStock,
+  CreateWarehouseRequest,
+  UpdateWarehouseRequest,
   InventoryFilters,
   AdjustmentFilters,
   TransferFilters
@@ -27,7 +31,7 @@ export class InventoryService {
   /**
    * Get stock levels with filters
    */
-  getStockLevels(filters: InventoryFilters): Observable<PagedResponse<StockLevel>> {
+  getStockLevels(filters: InventoryFilters): Observable<PagedResponse<InventoryStock>> {
     let params = new HttpParams()
       .set('page', filters.page.toString())
       .set('pageSize', filters.pageSize.toString());
@@ -38,6 +42,9 @@ export class InventoryService {
     if (filters.locationId) {
       params = params.set('locationId', filters.locationId.toString());
     }
+    if (filters.availableOnly) {
+      params = params.set('availableOnly', 'true');
+    }
     if (filters.lowStockOnly) {
       params = params.set('lowStockOnly', 'true');
     }
@@ -45,7 +52,7 @@ export class InventoryService {
       params = params.set('expiringSoonOnly', 'true');
     }
 
-    return this.http.get<PagedResponse<StockLevel>>(`${this.apiUrl}/stock-levels`, { params });
+    return this.http.get<PagedResponse<InventoryStock>>(`${this.apiUrl}/stock-levels`, { params });
   }
 
   /**
@@ -195,5 +202,29 @@ export class InventoryService {
    */
   getActiveLocations(): Observable<ApiResponse<Location[]>> {
     return this.http.get<ApiResponse<Location[]>>(`${this.apiUrl}/locations/active`);
+  }
+
+  // ============ Warehouses (Admin) ============
+
+  getWarehouses(activeOnly: boolean = false): Observable<ApiResponse<Warehouse[]>> {
+    return this.http.get<ApiResponse<Warehouse[]>>(`${this.apiUrl}/warehouses`, {
+      params: new HttpParams().set('activeOnly', String(activeOnly))
+    });
+  }
+
+  createWarehouse(dto: CreateWarehouseRequest): Observable<ApiResponse<Warehouse>> {
+    return this.http.post<ApiResponse<Warehouse>>(`${this.apiUrl}/warehouses`, dto);
+  }
+
+  updateWarehouse(id: number, dto: UpdateWarehouseRequest): Observable<ApiResponse<Warehouse>> {
+    return this.http.put<ApiResponse<Warehouse>>(`${this.apiUrl}/warehouses/${id}`, dto);
+  }
+
+  deleteWarehouse(id: number): Observable<ApiResponse<boolean>> {
+    return this.http.delete<ApiResponse<boolean>>(`${this.apiUrl}/warehouses/${id}`);
+  }
+
+  setDefaultWarehouse(id: number): Observable<ApiResponse<boolean>> {
+    return this.http.patch<ApiResponse<boolean>>(`${this.apiUrl}/warehouses/${id}/set-default`, {});
   }
 }

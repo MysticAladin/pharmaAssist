@@ -206,7 +206,7 @@ public static class DatabaseSeeder
             var entities = new[]
             {
                 new BiHEntity { Code = "FBiH", Name = "Federation of Bosnia and Herzegovina", NameLocal = "Federacija Bosne i Hercegovine", IsActive = true, CreatedAt = DateTime.UtcNow },
-                new BiHEntity { Code = "RS", Name = "Republika Srpska", NameLocal = "Република Српска", IsActive = true, CreatedAt = DateTime.UtcNow },
+                new BiHEntity { Code = "RS", Name = "Republika Srpska", NameLocal = "Republika Srpska", IsActive = true, CreatedAt = DateTime.UtcNow },
                 new BiHEntity { Code = "BD", Name = "Brčko District", NameLocal = "Brčko Distrikt", IsActive = true, CreatedAt = DateTime.UtcNow }
             };
             context.BiHEntities.AddRange(entities);
@@ -236,17 +236,9 @@ public static class DatabaseSeeder
             new Canton { Code = "ZHK", Name = "West Herzegovina Canton", NameLocal = "Zapadnohercegovački kanton", BiHEntityId = fbih.Id, IsActive = true },
             new Canton { Code = "KS", Name = "Sarajevo Canton", NameLocal = "Kanton Sarajevo", BiHEntityId = fbih.Id, IsActive = true },
             new Canton { Code = "K10", Name = "Canton 10", NameLocal = "Kanton 10 (Livanjski kanton)", BiHEntityId = fbih.Id, IsActive = true },
-            
-            // Republika Srpska regions (treated as administrative units)
-            new Canton { Code = "RS-BL", Name = "Banja Luka Region", NameLocal = "Banjalučka regija", BiHEntityId = rs.Id, IsActive = true },
-            new Canton { Code = "RS-DB", Name = "Doboj Region", NameLocal = "Dobojska regija", BiHEntityId = rs.Id, IsActive = true },
-            new Canton { Code = "RS-BI", Name = "Bijeljina Region", NameLocal = "Bijeljinska regija", BiHEntityId = rs.Id, IsActive = true },
-            new Canton { Code = "RS-IS", Name = "East Sarajevo Region", NameLocal = "Istočno Sarajevo regija", BiHEntityId = rs.Id, IsActive = true },
-            new Canton { Code = "RS-TR", Name = "Trebinje Region", NameLocal = "Trebinjska regija", BiHEntityId = rs.Id, IsActive = true },
-            new Canton { Code = "RS-PR", Name = "Prijedor Region", NameLocal = "Prijedorska regija", BiHEntityId = rs.Id, IsActive = true },
-            new Canton { Code = "RS-FO", Name = "Foča Region", NameLocal = "Fočanska regija", BiHEntityId = rs.Id, IsActive = true },
-            
-            // Brčko District
+
+            // Republika Srpska and Brčko modeled as single administrative units
+            new Canton { Code = "RS", Name = "Republika Srpska", NameLocal = "Republika Srpska", BiHEntityId = rs.Id, IsActive = true },
             new Canton { Code = "BD", Name = "Brčko District", NameLocal = "Brčko Distrikt", BiHEntityId = bd.Id, IsActive = true }
         };
 

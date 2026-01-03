@@ -1,8 +1,8 @@
 namespace Domain.Entities;
 
 /// <summary>
-/// Represents Cantons in FBiH or Regions in RS
-/// FBiH has 10 cantons, RS has 5 regions + Brčko District
+/// Represents administrative units used for location selection.
+/// FBiH has 10 cantons; RS and Brčko District are modeled as single units.
 /// </summary>
 public class Canton : BaseEntity
 {

@@ -360,6 +360,12 @@
   --hover-bg: var(--neutral-100);
   --text-on-primary: var(--text-inverse);
 
+  // Portal compatibility aliases (portal components use these tokens)
+  --primary-color: var(--primary-600);
+  --surface-card: var(--surface-primary);
+  --surface-ground: var(--surface-secondary);
+  --text-color: var(--text-primary);
+
   // Shorthand variable aliases used by components
   --surface: var(--surface-primary);
   --surface-hover: var(--neutral-100);

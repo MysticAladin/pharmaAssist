@@ -142,6 +142,7 @@ public class InventoryController : ControllerBase
         [FromQuery] int pageSize = 20,
         [FromQuery] string? search = null,
         [FromQuery] int? locationId = null,
+        [FromQuery] bool? availableOnly = null,
         [FromQuery] bool? lowStockOnly = null,
         [FromQuery] bool? expiringSoonOnly = null,
         CancellationToken cancellationToken = default)
@@ -166,6 +167,11 @@ public class InventoryController : ControllerBase
                 if (lowStockOnly == true)
                 {
                     stockList = stockList.Where(s => s.QuantityAvailable <= s.ReorderPoint).ToList();
+                }
+
+                if (availableOnly == true)
+                {
+                    stockList = stockList.Where(s => s.QuantityAvailable > 0).ToList();
                 }
 
                 // Simple pagination

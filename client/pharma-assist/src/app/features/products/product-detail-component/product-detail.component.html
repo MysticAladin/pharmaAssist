@@ -219,7 +219,7 @@
               <select class="form-select" [(ngModel)]="priceForm.cantonId">
                 <option [ngValue]="null">All cantons</option>
                 @for (canton of cantons(); track canton.id) {
-                  <option [ngValue]="canton.id">{{ canton.name }} ({{ canton.code }})</option>
+                  <option [ngValue]="canton.id">{{ cantonLabel(canton) }} ({{ canton.code }})</option>
                 }
               </select>
             </div>

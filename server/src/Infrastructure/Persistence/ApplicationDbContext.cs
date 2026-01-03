@@ -48,6 +48,9 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser, Applicati
     public DbSet<FileAttachment> FileAttachments { get; set; } = null!;
     public DbSet<EmailLog> EmailLogs { get; set; } = null!;
 
+    // Notification Settings
+    public DbSet<NotificationEmailRecipient> NotificationEmailRecipients { get; set; } = null!;
+
     // Feature Flags
     public DbSet<SystemFeatureFlag> SystemFeatureFlags { get; set; } = null!;
     public DbSet<ClientFeatureFlag> ClientFeatureFlags { get; set; } = null!;

@@ -89,26 +89,14 @@ IF NOT EXISTS (SELECT 1 FROM Cantons WHERE Code = 'C10')
 INSERT INTO Cantons (BiHEntityId, Code, Name, NameLocal, IsActive, IsDeleted, CreatedAt, CreatedBy)
 VALUES (@FBiHId, 'C10', 'Canton 10', 'Kanton 10 (Livanjski)', 1, 0, @Now, 'Seed');
 
--- RS and BD don't have cantons, but we can add placeholder entries for regions
-IF NOT EXISTS (SELECT 1 FROM Cantons WHERE Code = 'RS-BL')
+-- RS and BD don't have cantons; model them as single administrative units.
+IF NOT EXISTS (SELECT 1 FROM Cantons WHERE Code = 'RS')
 INSERT INTO Cantons (BiHEntityId, Code, Name, NameLocal, IsActive, IsDeleted, CreatedAt, CreatedBy)
-VALUES (@RSId, 'RS-BL', 'Banja Luka Region', 'Banjalučka regija', 1, 0, @Now, 'Seed');
+VALUES (@RSId, 'RS', 'Republika Srpska', 'Republika Srpska', 1, 0, @Now, 'Seed');
 
-IF NOT EXISTS (SELECT 1 FROM Cantons WHERE Code = 'RS-DB')
+IF NOT EXISTS (SELECT 1 FROM Cantons WHERE Code = 'BD')
 INSERT INTO Cantons (BiHEntityId, Code, Name, NameLocal, IsActive, IsDeleted, CreatedAt, CreatedBy)
-VALUES (@RSId, 'RS-DB', 'Doboj Region', 'Dobojska regija', 1, 0, @Now, 'Seed');
-
-IF NOT EXISTS (SELECT 1 FROM Cantons WHERE Code = 'RS-BN')
-INSERT INTO Cantons (BiHEntityId, Code, Name, NameLocal, IsActive, IsDeleted, CreatedAt, CreatedBy)
-VALUES (@RSId, 'RS-BN', 'Bijeljina Region', 'Bijeljinska regija', 1, 0, @Now, 'Seed');
-
-IF NOT EXISTS (SELECT 1 FROM Cantons WHERE Code = 'RS-EH')
-INSERT INTO Cantons (BiHEntityId, Code, Name, NameLocal, IsActive, IsDeleted, CreatedAt, CreatedBy)
-VALUES (@RSId, 'RS-EH', 'East Herzegovina Region', 'Istočnohercegovačka regija', 1, 0, @Now, 'Seed');
-
-IF NOT EXISTS (SELECT 1 FROM Cantons WHERE Code = 'BD-D')
-INSERT INTO Cantons (BiHEntityId, Code, Name, NameLocal, IsActive, IsDeleted, CreatedAt, CreatedBy)
-VALUES (@BDId, 'BD-D', 'Brcko District', 'Brčko Distrikt', 1, 0, @Now, 'Seed');
+VALUES (@BDId, 'BD', 'Brcko District', 'Brčko Distrikt', 1, 0, @Now, 'Seed');
 
 -- =============================================
 -- 3. MUNICIPALITIES
@@ -119,8 +107,7 @@ DECLARE @SarajevoCantonId INT = (SELECT Id FROM Cantons WHERE Code = 'SC');
 DECLARE @TuzlaCantonId INT = (SELECT Id FROM Cantons WHERE Code = 'TC');
 DECLARE @ZenicaCantonId INT = (SELECT Id FROM Cantons WHERE Code = 'ZDC');
 DECLARE @MostarCantonId INT = (SELECT Id FROM Cantons WHERE Code = 'HNC');
-DECLARE @BanjaLukaRegionId INT = (SELECT Id FROM Cantons WHERE Code = 'RS-BL');
-DECLARE @BijeljRegionId INT = (SELECT Id FROM Cantons WHERE Code = 'RS-BN');
+DECLARE @RSCantonId INT = (SELECT Id FROM Cantons WHERE Code = 'RS');
 
 -- Sarajevo Canton Municipalities
 IF NOT EXISTS (SELECT 1 FROM Municipalities WHERE Code = 'SAR-CS')
@@ -161,12 +148,12 @@ VALUES (@MostarCantonId, 'MO-MO', 'Mostar', 'Mostar', '88000', 1, 0, @Now, 'Seed
 -- Banja Luka Region Municipalities (RS)
 IF NOT EXISTS (SELECT 1 FROM Municipalities WHERE Code = 'BL-BL')
 INSERT INTO Municipalities (CantonId, Code, Name, NameLocal, PostalCode, IsActive, IsDeleted, CreatedAt, CreatedBy)
-VALUES (@BanjaLukaRegionId, 'BL-BL', 'Banja Luka', 'Banja Luka', '78000', 1, 0, @Now, 'Seed');
+VALUES (@RSCantonId, 'BL-BL', 'Banja Luka', 'Banja Luka', '78000', 1, 0, @Now, 'Seed');
 
 -- Bijeljina Region Municipalities (RS)
 IF NOT EXISTS (SELECT 1 FROM Municipalities WHERE Code = 'BN-BN')
 INSERT INTO Municipalities (CantonId, Code, Name, NameLocal, PostalCode, IsActive, IsDeleted, CreatedAt, CreatedBy)
-VALUES (@BijeljRegionId, 'BN-BN', 'Bijeljina', 'Bijeljina', '76300', 1, 0, @Now, 'Seed');
+VALUES (@RSCantonId, 'BN-BN', 'Bijeljina', 'Bijeljina', '76300', 1, 0, @Now, 'Seed');
 
 -- =============================================
 -- 4. CITIES

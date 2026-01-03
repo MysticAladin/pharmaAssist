@@ -32,8 +32,8 @@ function initializeAuth(authService: AuthService) {
 function initializeTranslations(translate: TranslateService) {
   return () => {
     translate.addLangs(['en', 'bs']);
-    translate.setDefaultLang('en');
-    const savedLang = localStorage.getItem('pharma_language') || 'en';
+    translate.setDefaultLang('bs');
+    const savedLang = localStorage.getItem('pa_language') || 'bs';
     return translate.use(savedLang).toPromise();
   };
 }
@@ -68,7 +68,7 @@ export const appConfig: ApplicationConfig = {
 
     // Translation (ngx-translate v17)
     provideTranslateService({
-      defaultLanguage: 'en'
+      defaultLanguage: 'bs'
     }),
     provideTranslateHttpLoader({
       prefix: './assets/i18n/',

@@ -37,7 +37,7 @@ export class ReportsComponent implements OnInit {
     { id: 'inventory', icon: 'inventory', titleKey: 'reports.types.inventory.title', descriptionKey: 'reports.types.inventory.description', route: '/reports/inventory', color: '#3b82f6', available: true },
     { id: 'analytics', icon: 'chart', titleKey: 'reports.types.analytics.title', descriptionKey: 'reports.types.analytics.description', route: '/reports/analytics', color: '#8b5cf6', available: true },
     { id: 'expiring', icon: 'calendar', titleKey: 'reports.types.expiring.title', descriptionKey: 'reports.types.expiring.description', route: '/reports/expiring', color: '#ef4444', available: true },
-    { id: 'customers', icon: 'users', titleKey: 'reports.types.customers.title', descriptionKey: 'reports.types.customers.description', route: '/reports/customers', color: '#f59e0b', available: false },
+    { id: 'customers', icon: 'users', titleKey: 'reports.types.customers.title', descriptionKey: 'reports.types.customers.description', route: '/reports/customers', color: '#f59e0b', available: true },
     { id: 'prescriptions', icon: 'file', titleKey: 'reports.types.prescriptions.title', descriptionKey: 'reports.types.prescriptions.description', route: '/reports/prescriptions', color: '#ec4899', available: false }
   ];
 

@@ -58,7 +58,7 @@ export interface AccessibilityPreferences {
 
 export const DEFAULT_PREFERENCES: UserPreferences = {
   theme: 'system',
-  language: 'en',
+  language: 'bs',
   fontSize: 'medium',
   compactMode: false,
 

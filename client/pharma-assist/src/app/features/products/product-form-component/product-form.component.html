@@ -110,7 +110,9 @@
             <select id="dosageForm" [(ngModel)]="form.dosageForm" name="dosageForm">
               <option value="">{{ 'products.form.selectDosageForm' | translate }}</option>
               <option value="Tablet">{{ 'products.dosageForms.tablet' | translate }}</option>
+              <option value="film tableta">film tableta</option>
               <option value="Capsule">{{ 'products.dosageForms.capsule' | translate }}</option>
+              <option value="kapsule sa produženim oslobađanjem">kapsule sa produženim oslobađanjem</option>
               <option value="Syrup">{{ 'products.dosageForms.syrup' | translate }}</option>
               <option value="Injection">{{ 'products.dosageForms.injection' | translate }}</option>
               <option value="Cream">{{ 'products.dosageForms.cream' | translate }}</option>
@@ -236,7 +238,7 @@
                 <select [(ngModel)]="priceForm.cantonId" name="priceCantonId">
                   <option [ngValue]="null">All cantons</option>
                   @for (canton of cantons(); track canton.id) {
-                    <option [ngValue]="canton.id">{{ canton.name }} ({{ canton.code }})</option>
+                    <option [ngValue]="canton.id">{{ cantonLabel(canton) }} ({{ canton.code }})</option>
                   }
                 </select>
               </div>

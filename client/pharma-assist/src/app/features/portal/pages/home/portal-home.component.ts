@@ -228,20 +228,22 @@ import { KmCurrencyPipe } from '../../../../core/pipes/km-currency.pipe';
 
     /* Hero Banner */
     .hero-banner {
-      background: linear-gradient(135deg, var(--primary-color) 0%, #1e40af 100%);
+      background: linear-gradient(135deg, var(--primary-600) 0%, var(--primary-700) 100%);
       border-radius: 16px;
       padding: 3rem;
-      color: white;
+      color: var(--text-inverse);
     }
 
     .hero-content h1 {
       font-size: 2rem;
       margin-bottom: 0.5rem;
+      color: var(--text-inverse);
     }
 
     .hero-content p {
       opacity: 0.9;
       margin-bottom: 1.5rem;
+      color: var(--text-inverse);
     }
 
     .hero-actions {
@@ -257,13 +259,13 @@ import { KmCurrencyPipe } from '../../../../core/pipes/km-currency.pipe';
     }
 
     .stat-card {
-      background: var(--surface-card, white);
+      background: var(--bg-primary);
       border-radius: 12px;
       padding: 1.5rem;
       display: flex;
       align-items: center;
       gap: 1rem;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+      box-shadow: var(--shadow-sm);
     }
 
     .stat-card.clickable {
@@ -273,7 +275,7 @@ import { KmCurrencyPipe } from '../../../../core/pipes/km-currency.pipe';
 
     .stat-card.clickable:hover {
       transform: translateY(-2px);
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      box-shadow: var(--shadow-md);
     }
 
     .stat-icon {
@@ -283,7 +285,7 @@ import { KmCurrencyPipe } from '../../../../core/pipes/km-currency.pipe';
     .stat-value {
       font-size: 1.5rem;
       font-weight: 700;
-      color: var(--text-color, #333);
+      color: var(--text-primary);
       display: block;
     }
 
@@ -307,7 +309,7 @@ import { KmCurrencyPipe } from '../../../../core/pipes/km-currency.pipe';
     .section-header h2 {
       font-size: 1.5rem;
       font-weight: 600;
-      color: var(--text-color, #333);
+      color: var(--text-primary);
     }
 
     .section-subtitle {
@@ -317,7 +319,7 @@ import { KmCurrencyPipe } from '../../../../core/pipes/km-currency.pipe';
     }
 
     .view-all {
-      color: var(--primary-color);
+      color: var(--primary-600);
       text-decoration: none;
       font-weight: 500;
     }
@@ -334,10 +336,10 @@ import { KmCurrencyPipe } from '../../../../core/pipes/km-currency.pipe';
     }
 
     .product-card {
-      background: var(--surface-card, white);
+      background: var(--bg-primary);
       border-radius: 12px;
       overflow: hidden;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+      box-shadow: var(--shadow-sm);
       cursor: pointer;
       transition: transform 0.2s, box-shadow 0.2s;
       position: relative;
@@ -345,12 +347,12 @@ import { KmCurrencyPipe } from '../../../../core/pipes/km-currency.pipe';
 
     .product-card:hover {
       transform: translateY(-4px);
-      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+      box-shadow: var(--shadow-lg);
     }
 
     .product-image {
       height: 160px;
-      background: var(--surface-ground);
+      background: var(--bg-secondary);
       display: flex;
       align-items: center;
       justify-content: center;

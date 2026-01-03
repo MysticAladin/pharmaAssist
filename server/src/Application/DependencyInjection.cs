@@ -27,6 +27,7 @@ public static class DependencyInjection
         services.AddScoped<ILocationService, LocationService>();
         services.AddScoped<IInventoryService, InventoryService>();
         services.AddScoped<IFeatureFlagService, FeatureFlagService>();
+        services.AddScoped<INotificationSettingsService, NotificationSettingsService>();
         
         return services;
     }

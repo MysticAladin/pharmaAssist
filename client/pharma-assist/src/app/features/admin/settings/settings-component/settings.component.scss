@@ -31,6 +31,20 @@
   }
 }
 
+.settings-subsection {
+  margin-top: 1.5rem;
+}
+
+.recipient-input-row {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.recipient-error {
+  color: var(--danger-color);
+}
+
 .settings-card {
   background: var(--card-bg, white);
   border-radius: 12px;

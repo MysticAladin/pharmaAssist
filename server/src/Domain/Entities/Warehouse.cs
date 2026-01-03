@@ -10,6 +10,13 @@ public class Warehouse : BaseEntity
     public string Code { get; set; } = null!;
     public string Name { get; set; } = null!;
     public string NameLocal { get; set; } = null!;
+
+    // Classification
+    public bool IsManufacturing { get; set; } = false;
+
+    // If true, this warehouse can fulfill/ship customer orders.
+    // For the current scenario, only the Central warehouse should have this enabled.
+    public bool CanFulfillOrders { get; set; } = false;
     
     public int? CityId { get; set; }
     public string? Address { get; set; }

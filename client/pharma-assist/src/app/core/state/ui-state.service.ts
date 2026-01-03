@@ -46,7 +46,8 @@ export class UIStateService {
    * Load user preferences from storage
    */
   private loadPreferences(): void {
-    const darkMode = localStorage.getItem('pa_dark_mode') === 'true';
+    // Dark mode is not supported in this application.
+    const darkMode = false;
     const language = localStorage.getItem('pa_language') ?? 'bs';
     const sidebarCollapsed = localStorage.getItem('pa_sidebar_collapsed') === 'true';
 
@@ -58,10 +59,9 @@ export class UIStateService {
     this.language.set(language);
     this.sidebarCollapsed.set(sidebarCollapsed);
 
-    // Apply dark mode class to document
-    if (darkMode) {
-      document.documentElement.classList.add('dark');
-    }
+    // Ensure any previously stored preference doesn't re-enable it.
+    localStorage.removeItem('pa_dark_mode');
+    document.documentElement.classList.remove('dark');
   }
 
   // Sidebar Methods
@@ -162,20 +162,16 @@ export class UIStateService {
 
   // Dark Mode Methods
   toggleDarkMode(): void {
-    const darkMode = !this._darkMode$.getValue();
-    this.setDarkMode(darkMode);
+    // Dark mode is not supported.
+    this.setDarkMode(false);
   }
 
   setDarkMode(enabled: boolean): void {
-    this._darkMode$.next(enabled);
-    this.darkMode.set(enabled);
-    localStorage.setItem('pa_dark_mode', String(enabled));
-
-    if (enabled) {
-      document.documentElement.classList.add('dark');
-    } else {
-      document.documentElement.classList.remove('dark');
-    }
+    // Dark mode is not supported.
+    this._darkMode$.next(false);
+    this.darkMode.set(false);
+    localStorage.removeItem('pa_dark_mode');
+    document.documentElement.classList.remove('dark');
   }
 
   // Language Methods

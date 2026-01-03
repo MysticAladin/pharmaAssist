@@ -43,6 +43,8 @@
     "item": "stavka",
     "items": "stavki",
     "confirmMessage": "Jeste li sigurni da želite nastaviti s ovom akcijom?",
+    "confirmCreateOrder": "Kreirati narudžbu?",
+    "confirmCreateOrderMessage": "Jeste li sigurni da želite kreirati ovu narudžbu?",
     "view": "Pogledaj",
     "create": "Kreiraj",
     "update": "Ažuriraj",
@@ -475,6 +477,7 @@
     "customers": "Kupci",
     "reports": "Izvještaji",
     "salesReport": "Izvještaj prodaje",
+    "customerSalesReport": "Prodaja po kupcu",
     "inventoryReport": "Izvještaj inventara",
     "advancedAnalytics": "Napredna analitika",
     "userManagement": "Upravljanje korisnicima",
@@ -1338,7 +1341,16 @@
       "lowStock": "Upozorenja o Niskim Zalihama",
       "lowStockDesc": "Upozorenje kada proizvodi padnu ispod nivoa za narudžbu",
       "expiry": "Upozorenja o Isteku",
-      "expiryDesc": "Upozorenje za proizvode kojima se približava rok trajanja"
+      "expiryDesc": "Upozorenje za proizvode kojima se približava rok trajanja",
+
+      "orderPlacedRecipientsTitle": "Email Primatelji za Nove Narudžbe",
+      "orderPlacedRecipientsDesc": "Email adrese koje će biti obaviještene kada se kreira nova narudžba.",
+      "addRecipient": "Dodaj primatelja",
+      "addRecipientDesc": "Dodajte jednu ili više internih email adresa.",
+      "recipientPlaceholder": "email@primjer.com",
+      "noRecipientsTitle": "Nema primatelja",
+      "noRecipientsDesc": "Dodajte barem jednu email adresu za obavijesti o narudžbama.",
+      "recipientsUnsavedHint": "Spremite primatelje da primijenite promjene"
     },
     "appearance": "Izgled",
     "regional": "Regionalne",
@@ -1809,6 +1821,47 @@
     "transfers": "Transferi Zaliha",
     "newAdjustment": "Nova Prilagodba",
     "newTransfer": "Novi Transfer",
+    "warehouses": {
+      "title": "Skladišta",
+      "subtitle": "Upravljanje skladištima i postavkama isporuke narudžbi",
+      "add": "Dodaj skladište",
+      "edit": "Uredi skladište",
+      "searchPlaceholder": "Pretraga po nazivu, šifri ili gradu...",
+      "loadError": "Greška pri učitavanju skladišta",
+      "created": "Skladište kreirano",
+      "saved": "Skladište sačuvano",
+      "deleted": "Skladište deaktivirano",
+      "defaultUpdated": "Podrazumijevano skladište ažurirano",
+      "setDefault": "Postavi kao podrazumijevano",
+      "deleteTitle": "Deaktiviraj skladište",
+      "deleteMessage": "Da li ste sigurni da želite deaktivirati ovo skladište?",
+      "empty": {
+        "title": "Nema skladišta",
+        "description": "Kreirajte prvo skladište"
+      },
+      "table": {
+        "name": "Skladište",
+        "code": "Šifra",
+        "flags": "Oznake",
+        "status": "Status"
+      },
+      "flags": {
+        "default": "Podrazumijevano",
+        "manufacturing": "Proizvodnja",
+        "fulfillOrders": "Može slati narudžbe"
+      },
+      "form": {
+        "name": "Naziv",
+        "code": "Šifra",
+        "city": "Grad",
+        "address": "Adresa",
+        "phone": "Telefon",
+        "isActive": "Aktivno",
+        "isDefault": "Podrazumijevano skladište",
+        "isManufacturing": "Proizvodno skladište",
+        "canFulfillOrders": "Može slati narudžbe"
+      }
+    },
     "lowStock": "Niska Zaliha",
     "expiringSoon": "Uskoro Ističe",
     "totalProducts": "Ukupno Proizvoda",
@@ -2101,12 +2154,34 @@
     "search": {
       "placeholder": "Pretraži proizvode, kategorije, narudžbe..."
     },
+    "productSearch": {
+      "title": "Pretraga Proizvoda",
+      "subtitle": "Pretraži po nazivu ili šifri proizvoda.",
+      "hints": {
+        "startTyping": "Počnite kucati da vidite odgovarajuće proizvode.",
+        "noProducts": "Nema pronađenih proizvoda.",
+        "selectForDetails": "Odaberite proizvod za prikaz detalja."
+      },
+      "inOrder": "U narudžbi: {{qty}}",
+      "orderItems": {
+        "title": "Stavke narudžbe",
+        "createOrder": "Kreiraj narudžbu",
+        "emptyHint": "Još nema stavki. Kliknite na proizvod iznad da ga dodate."
+      },
+      "errors": {
+        "searchFailed": "Neuspješna pretraga proizvoda",
+        "createOrderFailed": "Neuspješno kreiranje narudžbe",
+        "invalidProductIds": "Neke stavke imaju neispravne ID-ove proizvoda; narudžbu nije moguće poslati."
+      }
+    },
     "nav": {
       "home": "Početna",
       "catalog": "Katalog Proizvoda",
-      "cart": "Košarica",
+      "cart": "Korpa",
       "orders": "Moje Narudžbe",
       "favorites": "Favoriti",
+      "productSearch": "Pretraga Proizvoda",
+      "promotions": "Promocije",
       "quickOrder": "Brza Narudžba",
       "account": "Račun"
     },
@@ -2146,7 +2221,7 @@
       "noFavorites": "Još nemate omiljenih proizvoda",
       "pendingOrders": "Narudžbe na Čekanju",
       "savedProducts": "Sačuvani Proizvodi",
-      "itemsInCart": "Artikala u Košarici",
+      "itemsInCart": "Artikala u Korpi",
       "totalOrders": "Ukupno Narudžbi",
       "featuredProducts": "Istaknuti Proizvodi",
       "newArrivals": "Novi Proizvodi",
@@ -2200,13 +2275,13 @@
       "productsFound": "proizvoda pronađeno",
       "outOfStock": "Nema na Lageru",
       "inStock": "Na Lageru",
-      "addToCart": "Dodaj u Košaricu",
+      "addToCart": "Dodaj u Korpu",
       "noProducts": "Nije pronađen nijedan proizvod",
       "tryDifferentFilters": "Pokušajte prilagoditi pretragu ili filtere"
     },
     "product": {
-      "add": "Dodaj u Košaricu",
-      "addToCart": "Dodaj u Košaricu",
+      "add": "Dodaj u Korpu",
+      "addToCart": "Dodaj u Korpu",
       "addToFavorites": "Dodaj u Favorite",
       "removeFromFavorites": "Ukloni iz Favorita",
       "quantity": "Količina",
@@ -2226,6 +2301,7 @@
       "dosageForm": "Oblik Doziranja",
       "strength": "Jačina",
       "packSize": "Veličina Pakovanja",
+      "expiry": "Rok",
       "prescriptionRequired": "Potreban Recept",
       "requiresPrescription": "Zahtijeva Recept",
       "relatedProducts": "Srodni Proizvodi",
@@ -2233,8 +2309,8 @@
       "by": "od"
     },
     "cart": {
-      "title": "Košarica",
-      "empty": "Vaša košarica je prazna",
+      "title": "Korpa",
+      "empty": "Vaša korpa je prazna",
       "emptyDesc": "Pregledajte naš katalog za dodavanje proizvoda",
       "emptyMessage": "Pregledajte naš katalog za dodavanje proizvoda",
       "continueShopping": "Nastavi Kupovinu",
@@ -2245,13 +2321,13 @@
       "total": "Ukupno",
       "subtotal": "Međuzbroj",
       "remove": "Ukloni",
-      "clearCart": "Isprazni Košaricu",
+      "clearCart": "Isprazni Korpu",
       "orderSummary": "Pregled Narudžbe",
       "delivery": "Dostava",
       "tax": "PDV (17%)",
       "grandTotal": "Ukupno za Platiti",
       "proceedToCheckout": "Nastavi na Plaćanje",
-      "itemsInCart": "proizvoda u košarici",
+      "itemsInCart": "proizvoda u korpi",
       "items": "stavki",
       "splitInvoiceHint": "Možete podijeliti fakture prilikom narudžbe",
       "maxQuantity": "Maksimalna količina dostignuta",
@@ -2335,7 +2411,7 @@
       "supportedFormats": "CSV, Excel (.xlsx, .xls)",
       "preview": "Pregled Narudžbe",
       "noItems": "Dodajte proizvode iznad za pregled",
-      "addAllToCart": "Dodaj Sve u Košaricu"
+      "addAllToCart": "Dodaj Sve u Korpu"
     },
     "account": {
       "title": "Moj Račun",

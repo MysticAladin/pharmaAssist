@@ -449,6 +449,23 @@ public class PortalController : ControllerBase
 
     #region Products
 
+    private async Task<int?> GetCentralWarehouseIdAsync(CancellationToken cancellationToken)
+    {
+        // Prefer the configured fulfillment warehouse; fallback to explicit CENTRAL code.
+        var id = await _context.Warehouses
+            .Where(w => !w.IsDeleted && w.IsActive && w.CanFulfillOrders)
+            .Select(w => (int?)w.Id)
+            .FirstOrDefaultAsync(cancellationToken);
+
+        if (id.HasValue)
+            return id;
+
+        return await _context.Warehouses
+            .Where(w => !w.IsDeleted && w.IsActive && w.Code.ToUpper() == "CENTRAL")
+            .Select(w => (int?)w.Id)
+            .FirstOrDefaultAsync(cancellationToken);
+    }
+
     /// <summary>
     /// Get paginated product catalog for portal
     /// </summary>
@@ -470,10 +487,20 @@ public class PortalController : ControllerBase
         [FromQuery] int pageSize = 20,
         CancellationToken cancellationToken = default)
     {
+        var centralWarehouseId = await GetCentralWarehouseIdAsync(cancellationToken);
+
         var query = _context.Products
             .Include(p => p.Category)
             .Include(p => p.Manufacturer)
             .Where(p => !p.IsDeleted && p.IsActive);
+
+        // Portal requirement: only list products that exist in the Central (fulfillment) warehouse.
+        if (centralWarehouseId.HasValue)
+        {
+            var wid = centralWarehouseId.Value;
+            query = query.Where(p => _context.InventoryStocks.Any(s =>
+                !s.IsDeleted && s.ProductId == p.Id && s.WarehouseId == wid));
+        }
 
         // Apply filters
         if (!string.IsNullOrWhiteSpace(search))
@@ -529,7 +556,19 @@ public class PortalController : ControllerBase
             query = query.Where(p => p.UnitPrice <= maxPrice.Value);
 
         if (inStockOnly == true)
-            query = query.Where(p => p.StockQuantity > 0);
+        {
+            if (centralWarehouseId.HasValue)
+            {
+                var wid = centralWarehouseId.Value;
+                query = query.Where(p => _context.InventoryStocks.Any(s =>
+                    !s.IsDeleted && s.ProductId == p.Id && s.WarehouseId == wid &&
+                    (s.QuantityOnHand - s.QuantityReserved) > 0));
+            }
+            else
+            {
+                query = query.Where(p => p.StockQuantity > 0);
+            }
+        }
 
         if (requiresPrescription.HasValue)
             query = query.Where(p => p.RequiresPrescription == requiresPrescription.Value);
@@ -549,7 +588,56 @@ public class PortalController : ControllerBase
         var totalCount = await query.CountAsync(cancellationToken);
         var totalPages = (int)Math.Ceiling(totalCount / (double)pageSize);
 
-        var items = await query
+        if (centralWarehouseId.HasValue)
+        {
+            var wid = centralWarehouseId.Value;
+            var items = await query
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .Select(p => new PortalProductDto
+                {
+                    Id = p.Id,
+                    Code = p.SKU,
+                    Name = p.Name,
+                    GenericName = p.GenericName,
+                    Description = p.Description ?? "",
+                    UnitPrice = p.UnitPrice,
+                    ImageUrl = p.ImageUrl,
+                    Category = p.Category != null ? p.Category.Name : "",
+                    CategoryId = p.CategoryId.ToString(),
+                    Manufacturer = p.Manufacturer != null ? p.Manufacturer.Name : "",
+                    ManufacturerId = p.ManufacturerId.ToString(),
+                    StockQuantity = _context.InventoryStocks
+                        .Where(s => !s.IsDeleted && s.ProductId == p.Id && s.WarehouseId == wid)
+                        .Select(s => (int?)(s.QuantityOnHand - s.QuantityReserved))
+                        .Sum() ?? 0,
+                    IsAvailable = _context.InventoryStocks.Any(s =>
+                        !s.IsDeleted && s.ProductId == p.Id && s.WarehouseId == wid &&
+                        (s.QuantityOnHand - s.QuantityReserved) > 0),
+                    RequiresPrescription = p.RequiresPrescription,
+                    EarliestExpiryDate = _context.ProductBatches
+                        .Where(b => b.ProductId == p.Id && b.IsActive && b.RemainingQuantity > 0 && b.ExpiryDate >= DateTime.UtcNow)
+                        .Select(b => (DateTime?)b.ExpiryDate)
+                        .Min(),
+                    DosageForm = p.DosageForm,
+                    Strength = p.Strength,
+                    PackSize = p.PackageSize
+                })
+                .ToListAsync(cancellationToken);
+
+            return Ok(new
+            {
+                items,
+                totalCount,
+                page,
+                pageSize,
+                totalPages,
+                hasPrevious = page > 1,
+                hasNext = page < totalPages
+            });
+        }
+
+        var fallbackItems = await query
             .Skip((page - 1) * pageSize)
             .Take(pageSize)
             .Select(p => new PortalProductDto
@@ -580,7 +668,7 @@ public class PortalController : ControllerBase
 
         return Ok(new
         {
-            items,
+            items = fallbackItems,
             totalCount,
             page,
             pageSize,
@@ -599,10 +687,59 @@ public class PortalController : ControllerBase
     [AllowAnonymous]
     public async Task<IActionResult> GetProductById(int id, CancellationToken cancellationToken)
     {
-        var product = await _context.Products
+        var centralWarehouseId = await GetCentralWarehouseIdAsync(cancellationToken);
+
+        var productQuery = _context.Products
             .Include(p => p.Category)
             .Include(p => p.Manufacturer)
             .Where(p => p.Id == id && !p.IsDeleted && p.IsActive)
+            ;
+
+        if (centralWarehouseId.HasValue)
+        {
+            var wid = centralWarehouseId.Value;
+            productQuery = productQuery.Where(p => _context.InventoryStocks.Any(s =>
+                !s.IsDeleted && s.ProductId == p.Id && s.WarehouseId == wid));
+
+            var product = await productQuery
+                .Select(p => new PortalProductDto
+                {
+                    Id = p.Id,
+                    Code = p.SKU,
+                    Name = p.Name,
+                    GenericName = p.GenericName,
+                    Description = p.Description ?? "",
+                    UnitPrice = p.UnitPrice,
+                    ImageUrl = p.ImageUrl,
+                    Category = p.Category != null ? p.Category.Name : "",
+                    CategoryId = p.CategoryId.ToString(),
+                    Manufacturer = p.Manufacturer != null ? p.Manufacturer.Name : "",
+                    ManufacturerId = p.ManufacturerId.ToString(),
+                    StockQuantity = _context.InventoryStocks
+                        .Where(s => !s.IsDeleted && s.ProductId == p.Id && s.WarehouseId == wid)
+                        .Select(s => (int?)(s.QuantityOnHand - s.QuantityReserved))
+                        .Sum() ?? 0,
+                    IsAvailable = _context.InventoryStocks.Any(s =>
+                        !s.IsDeleted && s.ProductId == p.Id && s.WarehouseId == wid &&
+                        (s.QuantityOnHand - s.QuantityReserved) > 0),
+                    RequiresPrescription = p.RequiresPrescription,
+                    EarliestExpiryDate = _context.ProductBatches
+                        .Where(b => b.ProductId == p.Id && b.IsActive && b.RemainingQuantity > 0 && b.ExpiryDate >= DateTime.UtcNow)
+                        .Select(b => (DateTime?)b.ExpiryDate)
+                        .Min(),
+                    DosageForm = p.DosageForm,
+                    Strength = p.Strength,
+                    PackSize = p.PackageSize
+                })
+                .FirstOrDefaultAsync(cancellationToken);
+
+            if (product == null)
+                return NotFound();
+
+            return Ok(product);
+        }
+
+        var fallbackProduct = await productQuery
             .Select(p => new PortalProductDto
             {
                 Id = p.Id,
@@ -629,10 +766,10 @@ public class PortalController : ControllerBase
             })
             .FirstOrDefaultAsync(cancellationToken);
 
-        if (product == null)
+        if (fallbackProduct == null)
             return NotFound();
 
-        return Ok(product);
+        return Ok(fallbackProduct);
     }
 
     /// <summary>

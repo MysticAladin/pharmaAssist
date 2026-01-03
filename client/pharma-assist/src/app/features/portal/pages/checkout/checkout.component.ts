@@ -8,6 +8,7 @@ import { DeliveryAddress, DeliveryOption, PaymentMethod, DELIVERY_OPTIONS } from
 import { DbFeatureFlagService } from '../../../../core/services/db-feature-flag.service';
 import { SYSTEM_FLAGS } from '../../../../core/models/feature-flag.model';
 import { KmCurrencyPipe } from '../../../../core/pipes/km-currency.pipe';
+import { ConfirmationService } from '../../../../core/services/confirmation.service';
 
 @Component({
   selector: 'app-checkout',
@@ -20,6 +21,7 @@ export class CheckoutComponent implements OnInit {
   private cartService = inject(CartService);
   private router = inject(Router);
   private featureFlagService = inject(DbFeatureFlagService);
+  private confirmationService = inject(ConfirmationService);
 
   currentStep = signal(1);
   isSubmitting = signal(false);
@@ -73,7 +75,17 @@ export class CheckoutComponent implements OnInit {
     this.currentStep.set(step);
   }
 
-  placeOrder() {
+  async placeOrder(): Promise<void> {
+    if (this.isSubmitting()) return;
+
+    const confirmed = await this.confirmationService.confirm({
+      title: 'common.confirmCreateOrder',
+      message: 'common.confirmCreateOrderMessage',
+      variant: 'warning'
+    });
+
+    if (!confirmed) return;
+
     this.isSubmitting.set(true);
     setTimeout(() => {
       const orderId = 'ORD-' + Date.now();

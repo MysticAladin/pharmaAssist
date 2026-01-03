@@ -113,6 +113,8 @@ export class CartService {
           productName: catalogItem.name,
           productCode: catalogItem.code,
           manufacturer: catalogItem.manufacturer,
+          packSize: catalogItem.packSize,
+          earliestExpiryDate: catalogItem.earliestExpiryDate,
           unitPrice: catalogItem.customerPrice ?? catalogItem.unitPrice,
           quantity: Math.min(quantity, catalogItem.stockQuantity),
           maxQuantity: catalogItem.stockQuantity,
@@ -247,7 +249,7 @@ export class CartService {
 
     for (const item of this.cartItems()) {
       if (item.quantity > item.maxQuantity) {
-        issues.push(`${item.productName}: Only ${item.maxQuantity} available`);
+        issues.push(`${item.productName}: Quantity exceeds available stock`);
       }
     }
 

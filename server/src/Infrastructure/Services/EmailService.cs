@@ -388,6 +388,23 @@ public class EmailService : IEmailService
                     </body>
                     </html>"
             },
+            "order-received-internal" => new EmailTemplate
+            {
+                Subject = "New Order Received - {{OrderNumber}}",
+                Body = @"
+                    <html>
+                    <body style='font-family: Arial, sans-serif;'>
+                        <h2>New Order Received</h2>
+                        <p>A new order has been placed.</p>
+                        <ul>
+                            <li><strong>Order:</strong> {{OrderNumber}}</li>
+                            <li><strong>Customer:</strong> {{CustomerName}}</li>
+                            <li><strong>Total:</strong> {{OrderTotal}}</li>
+                        </ul>
+                        <p>Please start the order processing workflow.</p>
+                    </body>
+                    </html>"
+            },
             "order-shipped" => new EmailTemplate
             {
                 Subject = "Your Order Has Been Shipped - {{OrderNumber}}",
@@ -456,6 +473,7 @@ public class EmailService : IEmailService
             "welcome" => (int)EmailType.Welcome,
             "password-reset" => (int)EmailType.PasswordReset,
             "order-confirmation" => (int)EmailType.OrderConfirmation,
+            "order-received-internal" => (int)EmailType.OrderReceivedInternal,
             "order-shipped" => (int)EmailType.OrderShipped,
             "low-stock-alert" => (int)EmailType.LowStockAlert,
             "expiry-alert" => (int)EmailType.ExpiryAlert,

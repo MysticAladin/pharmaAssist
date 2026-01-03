@@ -5,6 +5,7 @@ using AutoMapper;
 using Domain.Entities;
 using Domain.Enums;
 using Domain.Interfaces;
+using Microsoft.Extensions.Logging;
 
 namespace Application.Services;
 
@@ -15,11 +16,15 @@ public class OrderService : IOrderService
 {
     private readonly IUnitOfWork _unitOfWork;
     private readonly IMapper _mapper;
+    private readonly IEmailService _emailService;
+    private readonly ILogger<OrderService> _logger;
 
-    public OrderService(IUnitOfWork unitOfWork, IMapper mapper)
+    public OrderService(IUnitOfWork unitOfWork, IMapper mapper, IEmailService emailService, ILogger<OrderService> logger)
     {
         _unitOfWork = unitOfWork;
         _mapper = mapper;
+        _emailService = emailService;
+        _logger = logger;
     }
 
     #region Read Operations
@@ -219,9 +224,64 @@ public class OrderService : IOrderService
         await _unitOfWork.Orders.AddAsync(order, cancellationToken);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
 
+        await TrySendOrderPlacedEmailsAsync(customer, order, cancellationToken);
+
         var createdOrder = await _unitOfWork.Orders.GetFullOrderAsync(order.Id, cancellationToken);
         var resultDto = MapOrderToDto(createdOrder!);
         return ApiResponse<OrderDto>.Ok(resultDto, "Order created successfully.");
+    }
+
+    private async Task TrySendOrderPlacedEmailsAsync(Customer customer, Order order, CancellationToken cancellationToken)
+    {
+        try
+        {
+            if (!string.IsNullOrWhiteSpace(customer.Email))
+            {
+                var result = await _emailService.SendOrderConfirmationAsync(
+                    toEmail: customer.Email.Trim(),
+                    customerName: customer.FullName,
+                    orderNumber: order.OrderNumber,
+                    orderTotal: order.TotalAmount);
+
+                if (!result.Success)
+                {
+                    _logger.LogWarning("Order confirmation email not sent to customer {Email}: {Message}", customer.Email, result.Message);
+                }
+            }
+
+            var internalRecipients = await _unitOfWork.NotificationEmailRecipients.FindAsync(
+                r => r.Type == NotificationEmailType.OrderPlacedInternal && r.IsEnabled,
+                cancellationToken);
+
+            if (internalRecipients.Count == 0) return;
+
+            var placeholders = new Dictionary<string, string>
+            {
+                { "OrderNumber", order.OrderNumber },
+                { "CustomerName", customer.FullName },
+                { "OrderTotal", order.TotalAmount.ToString("C") }
+            };
+
+            foreach (var recipient in internalRecipients)
+            {
+                if (string.IsNullOrWhiteSpace(recipient.Email)) continue;
+
+                var result = await _emailService.SendTemplateEmailAsync(
+                    templateName: "order-received-internal",
+                    toEmail: recipient.Email.Trim(),
+                    toName: recipient.Name,
+                    placeholders: placeholders);
+
+                if (!result.Success)
+                {
+                    _logger.LogWarning("Internal order notification email not sent to {Email}: {Message}", recipient.Email, result.Message);
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Unexpected failure while sending order placed emails for {OrderNumber}", order.OrderNumber);
+        }
     }
 
     public async Task<ApiResponse<OrderDto>> UpdateAsync(int id, UpdateOrderDto dto, CancellationToken cancellationToken = default)

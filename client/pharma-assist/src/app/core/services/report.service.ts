@@ -16,6 +16,7 @@ import {
   InventoryMetrics,
   CustomerReport,
   CustomerMetrics,
+  CustomerSalesReport,
   FinancialReport,
   FinancialMetrics,
   ReportBuilderDataSource,
@@ -146,6 +147,29 @@ export class ReportService {
         return of(this.generateMockCustomerReport(filters)).pipe(delay(500));
       })
     );
+  }
+
+  /**
+   * Customer/Drugstore sales report by period and customer, with product breakdown
+   */
+  getCustomerSalesReport(options: {
+    startDate: Date;
+    endDate: Date;
+    customerId: number;
+    includeChildBranches: boolean;
+  }): Observable<CustomerSalesReport> {
+    let params = new HttpParams()
+      .set('startDate', options.startDate.toISOString())
+      .set('endDate', options.endDate.toISOString())
+      .set('customerId', String(options.customerId))
+      .set('includeChildBranches', String(options.includeChildBranches))
+      // Keep it focused on requested UX (products + totals). Backend defaults are true,
+      // but we can skip extra groupings for smaller payloads.
+      .set('groupByProduct', 'true')
+      .set('groupByCategory', 'false')
+      .set('groupByManufacturer', 'false');
+
+    return this.http.get<CustomerSalesReport>(`${this.apiUrl}/customer-sales`, { params });
   }
 
   /**

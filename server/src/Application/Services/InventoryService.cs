@@ -52,11 +52,16 @@ public class InventoryService : IInventoryService
         if (existing != null)
             return ApiResponse<WarehouseDto>.Fail($"Warehouse with code '{dto.Code}' already exists.");
 
+        if (dto.IsManufacturing && dto.CanFulfillOrders)
+            return ApiResponse<WarehouseDto>.Fail("Manufacturing warehouse cannot be marked as order-fulfillment warehouse.");
+
         var warehouse = new Warehouse
         {
             Name = dto.Name,
             NameLocal = dto.Name, // Use same name for local
             Code = dto.Code.ToUpperInvariant(),
+            IsManufacturing = dto.IsManufacturing,
+            CanFulfillOrders = dto.CanFulfillOrders,
             CityId = dto.CityId,
             Address = dto.Address,
             ContactPhone = dto.ContactPhone,
@@ -68,6 +73,12 @@ public class InventoryService : IInventoryService
         if (dto.IsDefault)
         {
             await ClearDefaultWarehouseAsync(cancellationToken);
+        }
+
+        // If this warehouse can fulfill orders, ensure it's the only one
+        if (dto.CanFulfillOrders)
+        {
+            await ClearFulfillmentWarehouseAsync(cancellationToken);
         }
 
         var created = await _unitOfWork.Inventory.AddWarehouseAsync(warehouse, cancellationToken);
@@ -84,12 +95,30 @@ public class InventoryService : IInventoryService
         if (warehouse == null)
             return ApiResponse<WarehouseDto>.Fail($"Warehouse with ID {id} not found.");
 
+        if (dto.IsManufacturing && dto.CanFulfillOrders)
+            return ApiResponse<WarehouseDto>.Fail("Manufacturing warehouse cannot be marked as order-fulfillment warehouse.");
+
+        if (!dto.IsActive && dto.CanFulfillOrders)
+            return ApiResponse<WarehouseDto>.Fail("Inactive warehouse cannot be marked as order-fulfillment warehouse.");
+
         warehouse.Name = dto.Name;
         warehouse.NameLocal = dto.Name;
+        warehouse.IsManufacturing = dto.IsManufacturing;
         warehouse.CityId = dto.CityId;
         warehouse.Address = dto.Address;
         warehouse.ContactPhone = dto.ContactPhone;
         warehouse.IsActive = dto.IsActive;
+
+        // Ensure only one order-fulfillment warehouse at a time
+        if (dto.CanFulfillOrders && !warehouse.CanFulfillOrders)
+        {
+            await ClearFulfillmentWarehouseAsync(cancellationToken);
+            warehouse.CanFulfillOrders = true;
+        }
+        else if (!dto.CanFulfillOrders && warehouse.CanFulfillOrders)
+        {
+            warehouse.CanFulfillOrders = false;
+        }
         
         // Handle default change
         if (dto.IsDefault && !warehouse.IsDefault)
@@ -1210,6 +1239,20 @@ public class InventoryService : IInventoryService
         }
     }
 
+    private async Task ClearFulfillmentWarehouseAsync(CancellationToken cancellationToken)
+    {
+        var warehouses = await _unitOfWork.Inventory.GetAllWarehousesAsync(cancellationToken);
+
+        foreach (var w in warehouses)
+        {
+            if (w.CanFulfillOrders)
+            {
+                w.CanFulfillOrders = false;
+                await _unitOfWork.Inventory.UpdateWarehouseAsync(w, cancellationToken);
+            }
+        }
+    }
+
     private async Task UpdateStockForMovementAsync(StockMovement movement, CancellationToken cancellationToken)
     {
         var stock = await _unitOfWork.Inventory.GetStockByProductAsync(movement.ProductId, movement.WarehouseId, cancellationToken);
@@ -1262,6 +1305,8 @@ public class InventoryService : IInventoryService
             Name = warehouse.Name,
             Code = warehouse.Code,
             Description = null, // Not in entity
+            IsManufacturing = warehouse.IsManufacturing,
+            CanFulfillOrders = warehouse.CanFulfillOrders,
             CityId = warehouse.CityId ?? 0,
             CityName = warehouse.City?.Name ?? string.Empty,
             Address = warehouse.Address ?? string.Empty,

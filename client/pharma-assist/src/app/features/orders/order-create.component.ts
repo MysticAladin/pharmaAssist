@@ -6,6 +6,7 @@ import { TranslateModule } from '@ngx-translate/core';
 import { OrderService } from '../../core/services/order.service';
 import { CustomerService } from '../../core/services/customer.service';
 import { ProductService } from '../../core/services/product.service';
+import { ConfirmationService } from '../../core/services/confirmation.service';
 import { CreateOrderDto, CreateOrderItemDto, PaymentMethod } from '../../core/models/order.model';
 import { CustomerSummary, CustomerType, CustomerTier } from '../../core/models/customer.model';
 import { ProductSummary } from '../../core/models/product.model';
@@ -467,6 +468,7 @@ export class OrderCreateComponent implements OnInit {
   private readonly orderService = inject(OrderService);
   private readonly customerService = inject(CustomerService);
   private readonly productService = inject(ProductService);
+  private readonly confirmationService = inject(ConfirmationService);
 
   PaymentMethod = PaymentMethod;
 
@@ -718,8 +720,17 @@ export class OrderCreateComponent implements OnInit {
     }
   }
 
-  submitOrder(): void {
+  async submitOrder(): Promise<void> {
     if (!this.selectedCustomer() || this.cartItems().length === 0) return;
+    if (this.submitting()) return;
+
+    const confirmed = await this.confirmationService.confirm({
+      title: 'common.confirmCreateOrder',
+      message: 'common.confirmCreateOrderMessage',
+      variant: 'warning'
+    });
+
+    if (!confirmed) return;
 
     const selected = this.selectedCustomer()!;
     const effectiveCustomerId = (selected.isHeadquarters && this.branches().length > 0)

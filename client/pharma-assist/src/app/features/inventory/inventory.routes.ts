@@ -6,6 +6,10 @@ export const INVENTORY_ROUTES: Routes = [
     loadComponent: () => import('./inventory-list.component').then(m => m.InventoryComponent)
   },
   {
+    path: 'warehouses',
+    loadComponent: () => import('./warehouses.component').then(m => m.WarehousesComponent)
+  },
+  {
     path: 'adjustments',
     loadComponent: () => import('./adjustments-list.component').then(m => m.AdjustmentsListComponent)
   },

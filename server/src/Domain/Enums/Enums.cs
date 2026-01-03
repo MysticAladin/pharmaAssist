@@ -119,6 +119,17 @@ public enum ProductStatus
 }
 
 /// <summary>
+/// Notification email recipient type
+/// </summary>
+public enum NotificationEmailType
+{
+    /// <summary>
+    /// Internal recipients notified when an order is placed.
+    /// </summary>
+    OrderPlacedInternal = 1
+}
+
+/// <summary>
 /// Prescription requirement type
 /// </summary>
 public enum PrescriptionType

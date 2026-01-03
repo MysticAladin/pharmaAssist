@@ -2,7 +2,7 @@ import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ProductService } from '../../core/services/product.service';
 import { Product } from '../../core/models/product.model';
 import { CustomerService } from '../../core/services/customer.service';
@@ -35,6 +35,7 @@ export class ProductDetailComponent implements OnInit {
   private readonly locationService = inject(LocationService);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
+  private readonly translate = inject(TranslateService);
 
   product = signal<Product | null>(null);
   loading = signal(true);
@@ -73,6 +74,12 @@ export class ProductDetailComponent implements OnInit {
   };
 
   readonly PriceType = PriceType;
+
+  cantonLabel(canton: Canton): string {
+    const lang = (this.translate.currentLang ?? '').toLowerCase();
+    if (lang.startsWith('bs')) return canton.nameLocal || canton.name;
+    return canton.name;
+  }
 
   ngOnInit(): void {
     const id = this.route.snapshot.paramMap.get('id');

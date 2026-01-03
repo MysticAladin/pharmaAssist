@@ -2,7 +2,7 @@ import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { CustomerService } from '../../core/services/customer.service';
 import { Canton, City, LocationService } from '../../core/services/location.service';
 import { NotificationService } from '../../core/services/notification.service';
@@ -29,6 +29,7 @@ export class CustomerFormComponent implements OnInit {
   private readonly customerService = inject(CustomerService);
   private readonly locationService = inject(LocationService);
   private readonly notificationService = inject(NotificationService);
+  private readonly translate = inject(TranslateService);
 
   loading = signal(false);
   submitting = signal(false);
@@ -105,7 +106,7 @@ export class CustomerFormComponent implements OnInit {
     this.locationService.getAllCantons().subscribe({
       next: (resp) => {
         if (resp.success && resp.data) {
-          const sorted = [...resp.data].sort((a, b) => a.name.localeCompare(b.name));
+          const sorted = [...resp.data].sort((a, b) => this.cantonLabel(a).localeCompare(this.cantonLabel(b)));
           this.cantons.set(sorted);
         }
       },
@@ -127,6 +128,12 @@ export class CustomerFormComponent implements OnInit {
         console.error('Error loading cities:', err);
       }
     });
+  }
+
+  cantonLabel(canton: Canton): string {
+    const lang = (this.translate.currentLang ?? '').toLowerCase();
+    if (lang.startsWith('bs')) return canton.nameLocal || canton.name;
+    return canton.name;
   }
 
   private loadCustomer(id: number): void {

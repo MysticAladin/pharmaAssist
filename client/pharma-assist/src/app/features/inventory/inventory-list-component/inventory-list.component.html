@@ -7,6 +7,10 @@
         <p class="subtitle">{{ 'inventory.subtitle' | translate }}</p>
       </div>
       <div class="header-actions">
+        <button class="btn btn-secondary" routerLink="warehouses">
+          <i class="icon-building"></i>
+          {{ 'inventory.warehouses.title' | translate }}
+        </button>
         <button class="btn btn-secondary" routerLink="adjustments">
           <i class="icon-sliders"></i>
           {{ 'inventory.adjustments' | translate }}
@@ -34,15 +38,6 @@
         <span class="stat-label">{{ 'inventory.lowStock' | translate }}</span>
       </div>
     </div>
-    <div class="stat-card danger">
-      <div class="stat-icon">
-        <i class="icon-clock"></i>
-      </div>
-      <div class="stat-content">
-        <span class="stat-value">{{ expiringSoonCount() }}</span>
-        <span class="stat-label">{{ 'inventory.expiringSoon' | translate }}</span>
-      </div>
-    </div>
     <div class="stat-card info">
       <div class="stat-icon">
         <i class="icon-package"></i>
@@ -62,8 +57,7 @@
         (searchChange)="onSearch($event)">
       </app-search-input>
 
-      <select class="form-select" [(ngModel)]="selectedLocationId" (change)="onLocationChange()">
-        <option [value]="null">{{ 'inventory.allLocations' | translate }}</option>
+      <select class="form-select" [(ngModel)]="selectedLocationId" (ngModelChange)="onLocationChange()">
         @for (location of locations(); track location.id) {
           <option [value]="location.id">{{ location.name }}</option>
         }
@@ -73,10 +67,6 @@
         <label class="toggle-label">
           <input type="checkbox" [(ngModel)]="showLowStockOnly" (change)="applyFilters()">
           <span>{{ 'inventory.lowStockOnly' | translate }}</span>
-        </label>
-        <label class="toggle-label">
-          <input type="checkbox" [(ngModel)]="showExpiringSoonOnly" (change)="applyFilters()">
-          <span>{{ 'inventory.expiringSoonOnly' | translate }}</span>
         </label>
       </div>
     </div>
@@ -107,7 +97,6 @@
               <th class="text-right">{{ 'inventory.reserved' | translate }}</th>
               <th class="text-right">{{ 'inventory.total' | translate }}</th>
               <th class="text-center">{{ 'inventory.status' | translate }}</th>
-              <th>{{ 'inventory.batches' | translate }}</th>
               <th class="text-center actions-cell">{{ 'common.actions' | translate }}</th>
             </tr>
           </thead>
@@ -122,36 +111,21 @@
                 <td>
                   <code class="sku">{{ stock.productSku }}</code>
                 </td>
-                <td>{{ stock.locationName }}</td>
+                <td>{{ stock.warehouseName }}</td>
                 <td class="text-right">
-                  <span [class.text-danger]="stock.availableQuantity < stock.reorderLevel">
-                    {{ stock.availableQuantity }}
+                  <span [class.text-danger]="stock.quantityAvailable < stock.reorderPoint">
+                    {{ stock.quantityAvailable }}
                   </span>
                 </td>
-                <td class="text-right">{{ stock.reservedQuantity }}</td>
+                <td class="text-right">{{ stock.quantityReserved }}</td>
                 <td class="text-right">
-                  <strong>{{ stock.totalQuantity }}</strong>
+                  <strong>{{ stock.quantityOnHand }}</strong>
                 </td>
                 <td class="text-center">
                   <app-status-badge
                     [variant]="getStockStatus(stock).variant"
                     [label]="getStockStatus(stock).label | translate">
                   </app-status-badge>
-                </td>
-                <td>
-                  <div class="batch-summary">
-                    @if (stock.batches.length > 0) {
-                      <span class="batch-count">{{ stock.batches.length }} {{ 'inventory.batchCount' | translate }}</span>
-                      @if (hasExpiringBatches(stock)) {
-                        <span class="expiring-badge">
-                          <i class="icon-alert-circle"></i>
-                          {{ getExpiringBatchCount(stock) }} {{ 'inventory.expiring' | translate }}
-                        </span>
-                      }
-                    } @else {
-                      <span class="no-batches">-</span>
-                    }
-                  </div>
                 </td>
                 <td class="text-center actions-cell">
                   <div class="action-buttons">

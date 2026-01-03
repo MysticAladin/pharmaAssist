@@ -1,0 +1,187 @@
+<div class="warehouses-page">
+  <header class="page-header">
+    <div class="header-content">
+      <div class="title-section">
+        <h1>{{ 'inventory.warehouses.title' | translate }}</h1>
+        <p class="subtitle">{{ 'inventory.warehouses.subtitle' | translate }}</p>
+      </div>
+      <div class="header-actions">
+        <button class="btn btn-secondary" routerLink="/inventory">
+          <i class="icon-arrow-left"></i>
+          {{ 'common.back' | translate }}
+        </button>
+        <button class="btn btn-primary" (click)="openCreateModal()">
+          <i class="icon-plus"></i>
+          {{ 'inventory.warehouses.add' | translate }}
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <section class="filters-section">
+    <app-search-input
+      [placeholder]="'inventory.warehouses.searchPlaceholder' | translate"
+      (searchChange)="onSearch($event)">
+    </app-search-input>
+  </section>
+
+  <section class="table-section">
+    @if (loading()) {
+      <div class="loading-state">
+        <div class="spinner"></div>
+        <p>{{ 'common.loading' | translate }}</p>
+      </div>
+    } @else if (filteredWarehouses().length === 0) {
+      <app-empty-state
+        icon="building"
+        [title]="'inventory.warehouses.empty.title' | translate"
+        [description]="'inventory.warehouses.empty.description' | translate"
+        [actionLabel]="'inventory.warehouses.add' | translate"
+        (actionClick)="openCreateModal()"
+      ></app-empty-state>
+    } @else {
+      <app-data-table
+        [data]="filteredWarehouses()"
+        [columns]="columns"
+        [selectable]="false"
+        [hoverable]="true"
+        [striped]="true"
+      ></app-data-table>
+    }
+
+    <ng-template #nameTemplate let-row>
+      <div class="name-cell">
+        <div class="name">{{ row.name }}</div>
+        <div class="sub">
+          @if (row.cityName) { <span>{{ row.cityName }}</span> }
+          @if (row.address) { <span class="dot">•</span><span>{{ row.address }}</span> }
+        </div>
+      </div>
+    </ng-template>
+
+    <ng-template #flagsTemplate let-row>
+      <div class="flags">
+        @if (row.isDefault) {
+          <app-status-badge variant="info" [label]="'inventory.warehouses.flags.default' | translate"></app-status-badge>
+        }
+        @if (row.isManufacturing) {
+          <app-status-badge variant="neutral" [label]="'inventory.warehouses.flags.manufacturing' | translate"></app-status-badge>
+        }
+        @if (row.canFulfillOrders) {
+          <app-status-badge variant="success" [label]="'inventory.warehouses.flags.fulfillOrders' | translate"></app-status-badge>
+        }
+      </div>
+    </ng-template>
+
+    <ng-template #statusTemplate let-row>
+      <app-status-badge
+        [variant]="row.isActive ? 'success' : 'neutral'"
+        [label]="(row.isActive ? 'common.active' : 'common.inactive') | translate"
+      ></app-status-badge>
+    </ng-template>
+
+    <ng-template #actionsTemplate let-row>
+      <div class="actions">
+        <button class="btn btn-icon btn-sm" [title]="'common.edit' | translate" (click)="openEditModal(row)">
+          <i class="icon-edit"></i>
+        </button>
+        <button class="btn btn-icon btn-sm" [title]="'inventory.warehouses.setDefault' | translate" (click)="setDefault(row)" [disabled]="row.isDefault || !row.isActive">
+          <i class="icon-star"></i>
+        </button>
+        <button class="btn btn-icon btn-sm" [title]="'common.delete' | translate" (click)="confirmDelete(row)">
+          <i class="icon-trash"></i>
+        </button>
+      </div>
+    </ng-template>
+  </section>
+
+  <app-modal
+    [open]="showFormModal()"
+    [title]="(editingWarehouse() ? ('inventory.warehouses.edit' | translate) : ('inventory.warehouses.add' | translate))"
+    modalSize="lg"
+    [hasFooter]="false"
+    (openChange)="!$event && closeFormModal()"
+  >
+    <div body>
+      <form class="warehouse-form" (ngSubmit)="saveWarehouse()">
+        <div class="form-row">
+          <div class="form-group">
+            <label>{{ 'inventory.warehouses.form.name' | translate }} *</label>
+            <input class="form-control" type="text" name="name" [(ngModel)]="formData.name" required>
+          </div>
+          <div class="form-group">
+            <label>{{ 'inventory.warehouses.form.code' | translate }} *</label>
+            <input class="form-control" type="text" name="code" [(ngModel)]="formData.code" [readonly]="!!editingWarehouse()" required>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label>{{ 'inventory.warehouses.form.city' | translate }} *</label>
+            <select class="form-select" name="cityId" [(ngModel)]="formData.cityId" required>
+              <option [ngValue]="null">{{ 'common.select' | translate }}</option>
+              @for (c of cities(); track c.id) {
+                <option [ngValue]="c.id">{{ c.name }}</option>
+              }
+            </select>
+          </div>
+          <div class="form-group">
+            <label>{{ 'inventory.warehouses.form.phone' | translate }}</label>
+            <input class="form-control" type="text" name="contactPhone" [(ngModel)]="formData.contactPhone">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>{{ 'inventory.warehouses.form.address' | translate }} *</label>
+          <input class="form-control" type="text" name="address" [(ngModel)]="formData.address" required>
+        </div>
+
+        <div class="form-row check-row">
+          <label class="check">
+            <input type="checkbox" name="isDefault" [(ngModel)]="formData.isDefault">
+            <span>{{ 'inventory.warehouses.form.isDefault' | translate }}</span>
+          </label>
+
+          <label class="check">
+            <input type="checkbox" name="isManufacturing" [(ngModel)]="formData.isManufacturing" (change)="onManufacturingChange()">
+            <span>{{ 'inventory.warehouses.form.isManufacturing' | translate }}</span>
+          </label>
+
+          <label class="check">
+            <input type="checkbox" name="canFulfillOrders" [(ngModel)]="formData.canFulfillOrders" [disabled]="formData.isManufacturing">
+            <span>{{ 'inventory.warehouses.form.canFulfillOrders' | translate }}</span>
+          </label>
+
+          @if (editingWarehouse()) {
+            <label class="check">
+              <input type="checkbox" name="isActive" [(ngModel)]="formData.isActive">
+              <span>{{ 'inventory.warehouses.form.isActive' | translate }}</span>
+            </label>
+          }
+        </div>
+
+        <div class="modal-actions">
+          <button type="button" class="btn btn-secondary" (click)="closeFormModal()">
+            {{ 'common.cancel' | translate }}
+          </button>
+          <button type="submit" class="btn btn-primary" [disabled]="!canSave()">
+            {{ 'common.save' | translate }}
+          </button>
+        </div>
+      </form>
+    </div>
+  </app-modal>
+
+  <app-confirm-dialog
+    [open]="showDeleteConfirm()"
+    [title]="('inventory.warehouses.deleteTitle' | translate)"
+    [message]="'inventory.warehouses.deleteMessage'"
+    confirmText="common.delete"
+    cancelText="common.cancel"
+    variant="danger"
+    [isLoading]="deleteLoading()"
+    (confirm)="deleteWarehouse()"
+    (cancel)="cancelDelete()"
+    (openChange)="!$event && cancelDelete()"
+  ></app-confirm-dialog>
+</div>

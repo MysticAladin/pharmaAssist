@@ -182,6 +182,75 @@
           </label>
         </div>
       </div>
+
+      <div class="settings-section settings-subsection">
+        <h2>{{ 'settings.notifications.orderPlacedRecipientsTitle' | translate }}</h2>
+        <p class="section-description">{{ 'settings.notifications.orderPlacedRecipientsDesc' | translate }}</p>
+
+        <div class="settings-card">
+          @if (recipientsLoading()) {
+            <div class="loading-state">
+              <div class="spinner"></div>
+              <p>{{ 'common.loading' | translate }}</p>
+            </div>
+          } @else {
+            @if (recipientsError()) {
+              <p class="section-description recipient-error">{{ recipientsError() | translate }}</p>
+            }
+
+            <div class="setting-item">
+              <div class="setting-info">
+                <span class="setting-label">{{ 'settings.notifications.addRecipient' | translate }}</span>
+                <span class="setting-description">{{ 'settings.notifications.addRecipientDesc' | translate }}</span>
+              </div>
+              <div class="recipient-input-row">
+                <input
+                  type="email"
+                  class="form-input"
+                  [ngModel]="newRecipientEmail()"
+                  (ngModelChange)="newRecipientEmail.set($event)"
+                  [placeholder]="'settings.notifications.recipientPlaceholder' | translate" />
+                <button class="btn btn-secondary" (click)="addOrderPlacedRecipient()">
+                  {{ 'common.add' | translate }}
+                </button>
+              </div>
+            </div>
+
+            @if (orderPlacedRecipients().length === 0) {
+              <div class="empty-state" style="margin-top: .75rem;">
+                <span class="material-symbols-rounded">mail</span>
+                <h3>{{ 'settings.notifications.noRecipientsTitle' | translate }}</h3>
+                <p>{{ 'settings.notifications.noRecipientsDesc' | translate }}</p>
+              </div>
+            } @else {
+              @for (email of orderPlacedRecipients(); track email) {
+                <div class="setting-item">
+                  <div class="setting-info">
+                    <span class="setting-label">{{ email }}</span>
+                  </div>
+                  <button class="btn btn-secondary" (click)="removeOrderPlacedRecipient(email)">
+                    {{ 'common.remove' | translate }}
+                  </button>
+                </div>
+              }
+            }
+
+            @if (recipientsHasChanges()) {
+              <div class="save-bar">
+                <span>{{ 'settings.notifications.recipientsUnsavedHint' | translate }}</span>
+                <div class="save-actions">
+                  <button class="btn btn-primary" (click)="saveOrderPlacedRecipients()" [disabled]="recipientsSaving()">
+                    @if (recipientsSaving()) {
+                      <span class="spinner-sm"></span>
+                    }
+                    {{ 'common.save' | translate }}
+                  </button>
+                </div>
+              </div>
+            }
+          }
+        </div>
+      </div>
     </div>
   }
 </div>

@@ -44,7 +44,6 @@ export class SettingsComponent implements OnInit {
   taxRate = 17;
 
   // Appearance settings
-  currentTheme = 'light';
   compactMode = false;
 
   // Notification settings
@@ -86,10 +85,6 @@ export class SettingsComponent implements OnInit {
     // Load current language
     this.currentLanguage = this.translationService.currentLanguage();
 
-    // Load theme
-    const savedTheme = localStorage.getItem('theme') || 'light';
-    this.currentTheme = savedTheme;
-
     // Load other settings from localStorage or API
     const savedSettings = localStorage.getItem('appSettings');
     if (savedSettings) {
@@ -108,13 +103,6 @@ export class SettingsComponent implements OnInit {
         console.error('Error loading settings:', e);
       }
     }
-  }
-
-  setTheme(theme: string): void {
-    this.currentTheme = theme;
-    localStorage.setItem('theme', theme);
-    // Apply theme to document
-    document.documentElement.setAttribute('data-theme', theme);
   }
 
   onLanguageChange(language: string): void {

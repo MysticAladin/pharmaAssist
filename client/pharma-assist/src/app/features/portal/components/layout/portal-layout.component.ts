@@ -5,6 +5,7 @@ import { FormsModule } from '@angular/forms';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { AuthStateService } from '../../../../core/state/auth-state.service';
 import { CartService } from '../../services/cart.service';
+import { TranslationService } from '../../../../core/services/translation.service';
 import { KmCurrencyPipe } from '../../../../core/pipes/km-currency.pipe';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { filter, map, startWith } from 'rxjs/operators';
@@ -50,7 +51,7 @@ import { filter, map, startWith } from 'rxjs/operators';
 
             <!-- Cart -->
             <a routerLink="/portal/cart" class="cart-btn">
-              <span class="cart-icon">🛒</span>
+              <i class="icon-shopping-cart cart-icon" aria-hidden="true"></i>
               @if (cartItemCount() > 0) {
                 <span class="cart-badge">{{ cartItemCount() }}</span>
               }
@@ -81,7 +82,7 @@ import { filter, map, startWith } from 'rxjs/operators';
                   </a>
                   <div class="dropdown-divider"></div>
                   <button class="dropdown-item logout" (click)="logout()">
-                    <span>🚪</span> {{ 'auth.logout' | translate }}
+                    <span>🚪</span> {{ 'auth.logout.title' | translate }}
                   </button>
                 </div>
               }
@@ -92,14 +93,14 @@ import { filter, map, startWith } from 'rxjs/operators';
         <!-- Category Navigation -->
         <nav class="category-nav">
           <div class="nav-container">
-            <a routerLink="/portal/catalog" [class.active]="isAllProductsActive()" class="nav-item">
+            <a routerLink="/portal/catalog" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }" [class.active]="isAllProductsActive()" class="nav-item">
               {{ 'portal.catalog.all' | translate }}
             </a>
-            <a routerLink="/portal/product-search" class="nav-item">
-              🔎 Product Search
+            <a routerLink="/portal/product-search" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }" class="nav-item">
+              🔎 {{ 'portal.nav.productSearch' | translate }}
             </a>
-            <a routerLink="/portal/promotions" class="nav-item">
-              🔥 Promotions
+            <a routerLink="/portal/promotions" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }" class="nav-item">
+              🔥 {{ 'portal.nav.promotions' | translate }}
             </a>
             <a routerLink="/portal/catalog" [queryParams]="{category: 'medications'}" [class.active]="isMedicationsActive()" class="nav-item">
               💊 {{ 'portal.categories.medications' | translate }}
@@ -110,7 +111,7 @@ import { filter, map, startWith } from 'rxjs/operators';
             <a routerLink="/portal/catalog" [queryParams]="{category: 'equipment'}" [class.active]="isEquipmentActive()" class="nav-item">
               🔬 {{ 'portal.categories.equipment' | translate }}
             </a>
-            <a routerLink="/portal/quick-order" class="nav-item highlight">
+            <a routerLink="/portal/quick-order" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }" class="nav-item highlight">
               ⚡ {{ 'portal.quickOrder.title' | translate }}
             </a>
           </div>
@@ -166,7 +167,7 @@ import { filter, map, startWith } from 'rxjs/operators';
       min-height: 100vh;
       display: flex;
       flex-direction: column;
-      background: var(--surface-ground, #f8f9fa);
+      background: var(--bg-secondary);
     }
 
     .portal-layout.dark {
@@ -180,8 +181,9 @@ import { filter, map, startWith } from 'rxjs/operators';
 
     /* Header */
     .portal-header {
-      background: var(--surface-card, white);
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      background: var(--header-bg);
+      border-bottom: 1px solid var(--header-border);
+      box-shadow: var(--shadow-sm);
       position: sticky;
       top: 0;
       z-index: 100;
@@ -201,7 +203,7 @@ import { filter, map, startWith } from 'rxjs/operators';
       align-items: center;
       gap: 0.5rem;
       text-decoration: none;
-      color: var(--text-color, #333);
+      color: var(--header-text);
       font-weight: 700;
       font-size: 1.25rem;
     }
@@ -219,7 +221,7 @@ import { filter, map, startWith } from 'rxjs/operators';
     .search-box {
       display: flex;
       align-items: center;
-      background: var(--surface-ground);
+      background: var(--bg-secondary);
       border-radius: 8px;
       padding: 0.5rem 1rem;
       border: 2px solid transparent;
@@ -227,7 +229,8 @@ import { filter, map, startWith } from 'rxjs/operators';
     }
 
     .search-box:focus-within {
-      border-color: var(--primary-color);
+      border-color: var(--border-focus);
+      box-shadow: 0 0 0 3px rgba(var(--brand-primary-rgb), 0.2);
     }
 
     .search-icon {
@@ -239,7 +242,7 @@ import { filter, map, startWith } from 'rxjs/operators';
       border: none;
       background: transparent;
       font-size: 1rem;
-      color: var(--text-color, #333);
+      color: var(--text-primary);
       outline: none;
     }
 
@@ -266,23 +269,39 @@ import { filter, map, startWith } from 'rxjs/operators';
       padding: 0.5rem;
       border-radius: 8px;
       transition: background-color 0.2s;
+      color: var(--text-primary);
     }
 
     .action-btn:hover {
-      background: var(--surface-ground);
+      background: var(--hover-bg);
+    }
+
+    .action-btn:focus-visible {
+      outline: 2px solid var(--border-focus);
+      outline-offset: 2px;
     }
 
     .cart-btn {
       display: flex;
       align-items: center;
       gap: 0.5rem;
-      background: var(--primary-color);
-      color: white;
+      background: var(--btn-primary-bg);
+      color: var(--btn-primary-text);
       padding: 0.5rem 1rem;
       border-radius: 8px;
       text-decoration: none;
       font-weight: 500;
       position: relative;
+    }
+
+    .cart-btn:focus-visible {
+      outline: 2px solid var(--border-focus);
+      outline-offset: 2px;
+    }
+
+    .cart-icon {
+      font-size: 1.1rem;
+      line-height: 1;
     }
 
     .cart-badge {
@@ -318,17 +337,22 @@ import { filter, map, startWith } from 'rxjs/operators';
       cursor: pointer;
       padding: 0.5rem;
       border-radius: 8px;
-      color: var(--text-color, #333);
+      color: var(--text-primary);
     }
 
     .user-btn:hover {
-      background: var(--surface-ground);
+      background: var(--hover-bg);
+    }
+
+    .user-btn:focus-visible {
+      outline: 2px solid var(--border-focus);
+      outline-offset: 2px;
     }
 
     .user-avatar {
       width: 32px;
       height: 32px;
-      background: var(--primary-color);
+      background: var(--primary-600);
       color: white;
       border-radius: 50%;
       display: flex;
@@ -347,9 +371,9 @@ import { filter, map, startWith } from 'rxjs/operators';
       position: absolute;
       top: 100%;
       right: 0;
-      background: var(--surface-card, white);
+      background: var(--bg-primary);
       border-radius: 8px;
-      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+      box-shadow: var(--shadow-lg);
       min-width: 200px;
       padding: 0.5rem;
       margin-top: 0.5rem;
@@ -361,7 +385,7 @@ import { filter, map, startWith } from 'rxjs/operators';
       gap: 0.75rem;
       padding: 0.75rem 1rem;
       text-decoration: none;
-      color: var(--text-color, #333);
+      color: var(--text-primary);
       border-radius: 6px;
       transition: background-color 0.2s;
       width: 100%;
@@ -372,7 +396,7 @@ import { filter, map, startWith } from 'rxjs/operators';
     }
 
     .dropdown-item:hover {
-      background: var(--surface-ground);
+      background: var(--hover-bg);
     }
 
     .dropdown-item.logout {
@@ -387,7 +411,7 @@ import { filter, map, startWith } from 'rxjs/operators';
 
     /* Category Nav */
     .category-nav {
-      background: var(--surface-ground);
+      background: var(--bg-secondary);
       border-top: 1px solid var(--border-color);
     }
 
@@ -403,29 +427,36 @@ import { filter, map, startWith } from 'rxjs/operators';
     .nav-item {
       padding: 0.75rem 1rem;
       text-decoration: none;
-      color: var(--text-color, #333);
+      color: var(--text-secondary);
       font-size: 0.875rem;
       white-space: nowrap;
-      border-bottom: 2px solid transparent;
+      border-bottom: 3px solid transparent;
       transition: all 0.2s;
+      border-radius: 0.5rem 0.5rem 0 0;
     }
 
     .nav-item:hover,
     .nav-item.active {
-      color: var(--primary-color);
-      border-bottom-color: var(--primary-color);
+      color: var(--primary-600);
+      background: var(--primary-50);
+      border-bottom-color: var(--primary-600);
+    }
+
+    .nav-item:focus-visible {
+      outline: 2px solid var(--border-focus);
+      outline-offset: 2px;
     }
 
     .nav-item.highlight {
-      background: var(--primary-color);
-      color: white;
+      background: var(--btn-primary-bg);
+      color: var(--btn-primary-text);
       border-radius: 6px;
       border-bottom: none;
     }
 
     .nav-item.highlight:hover {
-      background: var(--brand-primary-dark);
-      color: white;
+      background: var(--btn-primary-bg-hover);
+      color: var(--btn-primary-text);
     }
 
     /* Content */
@@ -439,7 +470,7 @@ import { filter, map, startWith } from 'rxjs/operators';
 
     /* Footer */
     .portal-footer {
-      background: var(--surface-card, white);
+      background: var(--bg-primary);
       border-top: 1px solid var(--border-color);
       margin-top: auto;
     }
@@ -526,7 +557,7 @@ import { filter, map, startWith } from 'rxjs/operators';
 export class PortalLayoutComponent {
   private authStateService = inject(AuthStateService);
   private cartService = inject(CartService);
-  private translateService = inject(TranslateService);
+  private translationService = inject(TranslationService);
   private router = inject(Router);
   private route = inject(ActivatedRoute);
 
@@ -571,7 +602,7 @@ export class PortalLayoutComponent {
   showUserMenu = signal(false);
   currentYear = new Date().getFullYear();
 
-  currentLanguage = signal(this.translateService.currentLang || 'en');
+  currentLanguage = computed(() => this.translationService.getCurrentLanguage());
 
   cartItemCount = computed(() => this.cartService.itemCount());
   cartTotal = computed(() => this.cartService.total());
@@ -601,9 +632,7 @@ export class PortalLayoutComponent {
   }
 
   toggleLanguage(): void {
-    const newLang = this.currentLanguage() === 'en' ? 'bs' : 'en';
-    this.translateService.use(newLang);
-    this.currentLanguage.set(newLang);
+    this.translationService.toggleLanguage();
   }
 
   logout(): void {

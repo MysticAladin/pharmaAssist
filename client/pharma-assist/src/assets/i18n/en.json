@@ -43,6 +43,8 @@
     "item": "item",
     "items": "items",
     "confirmMessage": "Are you sure you want to proceed with this action?",
+    "confirmCreateOrder": "Create order?",
+    "confirmCreateOrderMessage": "Are you sure you want to create this order?",
     "view": "View",
     "create": "Create",
     "update": "Update",
@@ -475,6 +477,7 @@
     "customers": "Customers",
     "reports": "Reports",
     "salesReport": "Sales Report",
+    "customerSalesReport": "Customer Sales",
     "inventoryReport": "Inventory Report",
     "advancedAnalytics": "Advanced Analytics",
     "userManagement": "User Management",
@@ -1341,7 +1344,16 @@
       "lowStock": "Low Stock Alerts",
       "lowStockDesc": "Alert when products fall below reorder level",
       "expiry": "Expiry Alerts",
-      "expiryDesc": "Alert for products approaching expiry date"
+      "expiryDesc": "Alert for products approaching expiry date",
+
+      "orderPlacedRecipientsTitle": "Order Placement Email Recipients",
+      "orderPlacedRecipientsDesc": "Email addresses that will be notified when a new order is placed.",
+      "addRecipient": "Add recipient",
+      "addRecipientDesc": "Add one or more internal email addresses.",
+      "recipientPlaceholder": "email@example.com",
+      "noRecipientsTitle": "No recipients",
+      "noRecipientsDesc": "Add at least one email address to receive order notifications.",
+      "recipientsUnsavedHint": "Save recipients to apply changes"
     },
     "appearance": "Appearance",
     "regional": "Regional",
@@ -1812,6 +1824,47 @@
     "transfers": "Stock Transfers",
     "newAdjustment": "New Adjustment",
     "newTransfer": "New Transfer",
+    "warehouses": {
+      "title": "Warehouses",
+      "subtitle": "Manage warehouses and order fulfillment settings",
+      "add": "Add Warehouse",
+      "edit": "Edit Warehouse",
+      "searchPlaceholder": "Search by name, code, or city...",
+      "loadError": "Failed to load warehouses",
+      "created": "Warehouse created",
+      "saved": "Warehouse saved",
+      "deleted": "Warehouse deactivated",
+      "defaultUpdated": "Default warehouse updated",
+      "setDefault": "Set as default",
+      "deleteTitle": "Deactivate warehouse",
+      "deleteMessage": "Are you sure you want to deactivate this warehouse?",
+      "empty": {
+        "title": "No warehouses",
+        "description": "Create your first warehouse"
+      },
+      "table": {
+        "name": "Warehouse",
+        "code": "Code",
+        "flags": "Flags",
+        "status": "Status"
+      },
+      "flags": {
+        "default": "Default",
+        "manufacturing": "Manufacturing",
+        "fulfillOrders": "Can ship orders"
+      },
+      "form": {
+        "name": "Name",
+        "code": "Code",
+        "city": "City",
+        "address": "Address",
+        "phone": "Phone",
+        "isActive": "Active",
+        "isDefault": "Default warehouse",
+        "isManufacturing": "Manufacturing warehouse",
+        "canFulfillOrders": "Can ship orders"
+      }
+    },
     "lowStock": "Low Stock",
     "expiringSoon": "Expiring Soon",
     "totalProducts": "Total Products",
@@ -2104,12 +2157,34 @@
     "search": {
       "placeholder": "Search products, categories, orders..."
     },
+    "productSearch": {
+      "title": "Product Search",
+      "subtitle": "Search by product name or code.",
+      "hints": {
+        "startTyping": "Start typing to see matching products.",
+        "noProducts": "No products found.",
+        "selectForDetails": "Select a product to view details."
+      },
+      "inOrder": "In order: {{qty}}",
+      "orderItems": {
+        "title": "Order items",
+        "createOrder": "Create Order",
+        "emptyHint": "No items yet. Click a product above to add it."
+      },
+      "errors": {
+        "searchFailed": "Failed to search products",
+        "createOrderFailed": "Failed to create order",
+        "invalidProductIds": "Some items have invalid product IDs; cannot submit this order."
+      }
+    },
     "nav": {
       "home": "Home",
       "catalog": "Product Catalog",
       "cart": "Shopping Cart",
       "orders": "My Orders",
       "favorites": "Favorites",
+      "productSearch": "Product Search",
+      "promotions": "Promotions",
       "quickOrder": "Quick Order",
       "account": "Account"
     },
@@ -2229,6 +2304,7 @@
       "dosageForm": "Dosage Form",
       "strength": "Strength",
       "packSize": "Pack Size",
+      "expiry": "Expiry",
       "prescriptionRequired": "Prescription Required",
       "requiresPrescription": "Requires Prescription",
       "relatedProducts": "Related Products",

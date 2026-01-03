@@ -97,9 +97,16 @@ export class PreferencesService {
   }
 
   private applyLanguage(): void {
-    const lang = this.language();
+    const stored = (localStorage.getItem('pa_language') as 'en' | 'bs' | null);
+    const lang = stored ?? this.language();
+
     this.translate.use(lang);
     this.document.documentElement.lang = lang;
+
+    // Keep global language selection stable across reloads.
+    if (!stored) {
+      localStorage.setItem('pa_language', lang);
+    }
   }
 
   // Font Size

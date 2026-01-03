@@ -16,6 +16,8 @@ export interface CartItem {
   productName: string;
   productCode: string;
   manufacturer: string;
+  packSize?: string;
+  earliestExpiryDate?: string | null;
   unitPrice: number;
   quantity: number;
   maxQuantity: number; // Available stock

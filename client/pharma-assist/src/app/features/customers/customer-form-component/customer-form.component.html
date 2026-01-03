@@ -192,7 +192,7 @@
             <select id="canton" formControlName="cantonId" (change)="onCantonChange()" [class.error]="isAddressFieldInvalid('cantonId')">
               <option [ngValue]="null">{{ 'customers.selectCanton' | translate }}</option>
               @for (canton of cantons(); track canton.id) {
-                <option [ngValue]="canton.id">{{ canton.name }}</option>
+                <option [ngValue]="canton.id">{{ cantonLabel(canton) }}</option>
               }
             </select>
           </div>

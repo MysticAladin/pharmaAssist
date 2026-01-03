@@ -79,6 +79,7 @@ export class SidebarComponent {
       feature: 'basic_reports',
       children: [
         { labelKey: 'nav.salesReport', route: '/reports/sales' },
+        { labelKey: 'nav.customerSalesReport', route: '/reports/customers' },
         { labelKey: 'nav.inventoryReport', route: '/reports/inventory' },
         { labelKey: 'nav.advancedAnalytics', route: '/reports/analytics', feature: 'advanced_analytics' }
       ]

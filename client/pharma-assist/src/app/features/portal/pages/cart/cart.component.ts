@@ -1,4 +1,4 @@
-import { Component, inject, computed } from '@angular/core';
+import { Component, inject, computed, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
@@ -6,6 +6,8 @@ import { TranslateModule } from '@ngx-translate/core';
 import { CartService } from '../../services/cart.service';
 import { CartItem, PriceType } from '../../models/portal.model';
 import { KmCurrencyPipe } from '../../../../core/pipes/km-currency.pipe';
+import { ConfirmationService } from '../../../../core/services/confirmation.service';
+import { PaymentMethod as ApiPaymentMethod, PortalOrdersService } from '../../services/portal-orders.service';
 
 @Component({
   selector: 'app-cart',
@@ -39,13 +41,6 @@ import { KmCurrencyPipe } from '../../../../core/pipes/km-currency.pipe';
             @for (item of cartItems(); track item.productId) {
               <div class="cart-item">
                 <div class="col-product">
-                  <div class="product-image">
-                    @if (item.imageUrl) {
-                      <img [src]="item.imageUrl" [alt]="item.productName" />
-                    } @else {
-                      <div class="image-placeholder">💊</div>
-                    }
-                  </div>
                   <div class="product-info">
                     <a [routerLink]="['/portal/product', item.productId]" class="product-name">
                       {{ item.productName }}
@@ -53,8 +48,19 @@ import { KmCurrencyPipe } from '../../../../core/pipes/km-currency.pipe';
                         {{ item.priceType === 'essential' ? 'E' : 'C' }}
                       </span>
                     </a>
-                    <p class="product-code">{{ item.productCode }}</p>
-                    <p class="product-manufacturer">{{ item.manufacturer }}</p>
+                    <div class="product-meta">
+                      <span class="code">{{ item.productCode }}</span>
+                      @if (item.manufacturer) {
+                        <span class="sep">•</span>
+                        <span class="mfr">{{ item.manufacturer }}</span>
+                      }
+                      @if (item.packSize) {
+                        <span class="sep">•</span>
+                        <span>{{ item.packSize }}</span>
+                      }
+                      <span class="sep">•</span>
+                      <span>{{ 'portal.product.expiry' | translate }}: {{ formatExpiry(item.earliestExpiryDate) || '—' }}</span>
+                    </div>
                   </div>
                 </div>
 
@@ -120,12 +126,11 @@ import { KmCurrencyPipe } from '../../../../core/pipes/km-currency.pipe';
                   <span>{{ 'portal.checkout.essentialList' | translate }}</span>
                   <span>{{ essentialTotal() | kmCurrency }}</span>
                 </div>
-                <p class="split-hint">{{ 'portal.cart.splitInvoiceHint' | translate }}</p>
               </div>
             }
 
             <div class="summary-row">
-              <span>{{ 'portal.cart.tax' | translate }} (17% PDV)</span>
+              <span>{{ 'portal.cart.tax' | translate }}</span>
               <span>{{ tax() | kmCurrency }}</span>
             </div>
 
@@ -141,27 +146,13 @@ import { KmCurrencyPipe } from '../../../../core/pipes/km-currency.pipe';
               <span>{{ total() | kmCurrency }}</span>
             </div>
 
-            <!-- Discount Code -->
-            <div class="discount-code">
-              <input
-                type="text"
-                [(ngModel)]="discountCode"
-                [placeholder]="'portal.cart.discountCode' | translate"
-              />
-              <button class="btn btn-secondary" (click)="applyDiscount()">
-                {{ 'portal.cart.apply' | translate }}
-              </button>
-            </div>
+            @if (submitError()) {
+              <p class="submit-error">{{ submitError() | translate }}</p>
+            }
 
-            <button class="btn btn-primary btn-lg btn-block" (click)="proceedToCheckout()">
-              {{ 'portal.cart.checkout' | translate }}
+            <button class="btn btn-primary btn-lg btn-block" (click)="createOrder()" [disabled]="isSubmitting()">
+              {{ isSubmitting() ? ('common.processing' | translate) : ('portal.productSearch.orderItems.createOrder' | translate) }}
             </button>
-
-            <div class="payment-icons">
-              <span>💳</span>
-              <span>🏦</span>
-              <span title="Invoice">📄</span>
-            </div>
           </div>
         </div>
       }
@@ -243,30 +234,7 @@ import { KmCurrencyPipe } from '../../../../core/pipes/km-currency.pipe';
 
     .col-product {
       display: flex;
-      gap: 1rem;
       align-items: center;
-    }
-
-    .product-image {
-      width: 80px;
-      height: 80px;
-      background: var(--surface-ground);
-      border-radius: 8px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      flex-shrink: 0;
-    }
-
-    .product-image img {
-      max-width: 100%;
-      max-height: 100%;
-      object-fit: contain;
-    }
-
-    .image-placeholder {
-      font-size: 2rem;
-      opacity: 0.5;
     }
 
     .product-name {
@@ -281,10 +249,14 @@ import { KmCurrencyPipe } from '../../../../core/pipes/km-currency.pipe';
       color: var(--primary-color);
     }
 
-    .product-code,
-    .product-manufacturer {
+    .product-meta {
       font-size: 0.75rem;
       color: var(--text-secondary, #666);
+    }
+
+    .product-meta .sep {
+      margin: 0 0.35rem;
+      opacity: 0.65;
     }
 
     .col-price,
@@ -392,26 +364,10 @@ import { KmCurrencyPipe } from '../../../../core/pipes/km-currency.pipe';
       border-top: 1px solid var(--border-color);
     }
 
-    .discount-code {
-      display: flex;
-      gap: 0.5rem;
-      margin: 1.5rem 0;
-    }
-
-    .discount-code input {
-      flex: 1;
-      padding: 0.75rem;
-      border: 1px solid var(--border-color);
-      border-radius: 8px;
-    }
-
-    .payment-icons {
-      display: flex;
-      justify-content: center;
-      gap: 1rem;
-      margin-top: 1rem;
-      font-size: 1.5rem;
-      opacity: 0.5;
+    .submit-error {
+      margin: 1rem 0 0;
+      color: var(--color-danger);
+      font-size: 0.875rem;
     }
 
     /* Buttons */
@@ -547,8 +503,13 @@ import { KmCurrencyPipe } from '../../../../core/pipes/km-currency.pipe';
 export class CartComponent {
   private cartService = inject(CartService);
   private router = inject(Router);
+  private ordersService = inject(PortalOrdersService);
+  private confirmationService = inject(ConfirmationService);
 
   discountCode = '';
+
+  isSubmitting = signal(false);
+  submitError = signal<string | null>(null);
 
   cartItems = computed(() => this.cartService.cart().items);
   isEmpty = computed(() => this.cartService.isEmpty());
@@ -599,7 +560,63 @@ export class CartComponent {
     }
   }
 
-  proceedToCheckout() {
-    this.router.navigate(['/portal/checkout']);
+  async createOrder(): Promise<void> {
+    this.submitError.set(null);
+    const items = this.cartItems();
+    if (items.length === 0) return;
+    if (this.isSubmitting()) return;
+
+    const confirmed = await this.confirmationService.confirm({
+      title: 'common.confirmCreateOrder',
+      message: 'common.confirmCreateOrderMessage',
+      variant: 'warning'
+    });
+
+    if (!confirmed) return;
+
+    const orderItems = items
+      .map(i => ({ productId: Number.parseInt(i.productId, 10), quantity: i.quantity }))
+      .filter(i => Number.isFinite(i.productId) && i.productId > 0);
+
+    if (orderItems.length !== items.length) {
+      this.submitError.set('portal.productSearch.errors.invalidProductIds');
+      return;
+    }
+
+    this.isSubmitting.set(true);
+    this.ordersService.createOrder({ paymentMethod: ApiPaymentMethod.Invoice, items: orderItems }).subscribe({
+      next: (resp) => {
+        if (resp?.success && resp.data) {
+          this.cartService.clearCart();
+          this.isSubmitting.set(false);
+          this.router.navigate(['/portal/orders', resp.data.id]);
+          return;
+        }
+
+        this.submitError.set(resp?.message || 'portal.productSearch.errors.createOrderFailed');
+        this.isSubmitting.set(false);
+      },
+      error: (err) => {
+        console.error('Create order failed', err);
+        this.submitError.set('portal.productSearch.errors.createOrderFailed');
+        this.isSubmitting.set(false);
+      }
+    });
+  }
+
+  formatExpiry(value?: string | null): string | null {
+    if (!value) return null;
+    const m = value.match(/^(\d{4})-(\d{2})-(\d{2})/);
+    if (m) {
+      return `${m[3]}.${m[2]}.${m[1]}`;
+    }
+
+    const d = new Date(value);
+    if (Number.isNaN(d.getTime())) return null;
+
+    const day = String(d.getDate()).padStart(2, '0');
+    const month = String(d.getMonth() + 1).padStart(2, '0');
+    const year = String(d.getFullYear());
+    return `${day}.${month}.${year}`;
   }
 }

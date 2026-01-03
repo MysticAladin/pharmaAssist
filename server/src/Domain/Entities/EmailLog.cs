@@ -47,5 +47,6 @@ public enum EmailType
     InvoiceGenerated = 11,
     PaymentReceived = 12,
     AccountDeactivated = 13,
+    OrderReceivedInternal = 14,
     Newsletter = 99
 }

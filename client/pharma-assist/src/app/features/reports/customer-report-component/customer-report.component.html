@@ -2,28 +2,47 @@
   <div class="breadcrumb">
     <a routerLink="/reports">{{ 'reports.title' | translate }}</a>
     <span class="separator">/</span>
-    <span>{{ 'reports.customers.title' | translate }}</span>
+    <span>{{ 'reports.sales.byCustomer' | translate }}</span>
   </div>
 
   <div class="page-header">
     <div class="header-content">
-      <h1 class="page-title">{{ 'reports.customers.title' | translate }}</h1>
-      <p class="page-subtitle">{{ 'reports.customers.subtitle' | translate }}</p>
+      <h1 class="page-title">{{ 'reports.sales.byCustomer' | translate }}</h1>
+      <p class="page-subtitle">{{ 'reports.sales.subtitle' | translate }}</p>
     </div>
-    <div class="header-actions">
-      <select [(ngModel)]="selectedPeriod" (ngModelChange)="loadReport()">
-        <option value="this_month">{{ 'reports.periods.thisMonth' | translate }}</option>
-        <option value="last_month">{{ 'reports.periods.lastMonth' | translate }}</option>
-        <option value="this_quarter">{{ 'reports.periods.thisQuarter' | translate }}</option>
-        <option value="this_year">{{ 'reports.periods.thisYear' | translate }}</option>
-      </select>
-      <button class="btn btn-secondary" (click)="exportReport()">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
-          <polyline points="7 10 12 15 17 10"/>
-          <line x1="12" y1="15" x2="12" y2="3"/>
-        </svg>
-        {{ 'common.export' | translate }}
+  </div>
+
+  <div class="filters">
+    <div class="filters-row">
+      <div class="field">
+        <label>{{ 'orders.selectCustomer' | translate }}</label>
+        <select [(ngModel)]="selectedCustomerId" (ngModelChange)="onCustomerChange()">
+          <option [ngValue]="null">{{ 'orders.selectCustomer' | translate }}</option>
+          @for (c of customers(); track c.id) {
+            <option [ngValue]="c.id">{{ c.customerCode }} — {{ c.name }}</option>
+          }
+        </select>
+      </div>
+
+      <div class="field checkbox">
+        <label>
+          <input type="checkbox" [(ngModel)]="includeChildBranches" [disabled]="!canIncludeBranches" />
+          {{ 'customers.branches' | translate }}
+        </label>
+      </div>
+
+      <div class="field">
+        <label>{{ 'reports.filters.startDate' | translate }}</label>
+        <input type="date" [ngModel]="startDateIso" (ngModelChange)="onStartDateChange($event)" />
+      </div>
+
+      <div class="field">
+        <label>{{ 'reports.filters.endDate' | translate }}</label>
+        <input type="date" [ngModel]="endDateIso" (ngModelChange)="onEndDateChange($event)" />
+      </div>
+
+      <button class="btn btn-secondary" (click)="generateReport()" [disabled]="!selectedCustomerId">
+        {{ 'reports.actions.generate' | translate }}
       </button>
     </div>
   </div>
@@ -33,109 +52,110 @@
       <div class="spinner"></div>
       <span>{{ 'common.loading' | translate }}</span>
     </div>
-  } @else if (report()) {
-    <!-- Key Metrics -->
+  } @else if (report(); as r) {
     <section class="metrics-section">
       <div class="metric-card">
-        <div class="metric-icon">👥</div>
+        <div class="metric-icon">📦</div>
         <div class="metric-content">
-          <span class="metric-value">{{ report()!.metrics.totalCustomers | number }}</span>
-          <span class="metric-label">{{ 'reports.customers.totalCustomers' | translate }}</span>
+          <span class="metric-value">{{ r.totalOrders | number }}</span>
+          <span class="metric-label">{{ 'reports.sales.orders' | translate }}</span>
+        </div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-icon">🔢</div>
+        <div class="metric-content">
+          <span class="metric-value">{{ r.totalQuantity | number }}</span>
+          <span class="metric-label">{{ 'products.fields.quantity' | translate }}</span>
         </div>
       </div>
       <div class="metric-card success">
-        <div class="metric-icon">✅</div>
+        <div class="metric-icon">💰</div>
         <div class="metric-content">
-          <span class="metric-value">{{ report()!.metrics.activeCustomers | number }}</span>
-          <span class="metric-label">{{ 'reports.customers.activeCustomers' | translate }}</span>
-        </div>
-      </div>
-      <div class="metric-card primary">
-        <div class="metric-icon">🆕</div>
-        <div class="metric-content">
-          <span class="metric-value">{{ report()!.metrics.newCustomers }}</span>
-          <span class="metric-label">{{ 'reports.customers.newCustomers' | translate }}</span>
+          <span class="metric-value">{{ r.totalRevenue | currency:'BAM':'symbol':'1.0-0' }}</span>
+          <span class="metric-label">{{ 'reports.sales.revenue' | translate }}</span>
         </div>
       </div>
       <div class="metric-card">
-        <div class="metric-icon">🔄</div>
+        <div class="metric-icon">🏷️</div>
         <div class="metric-content">
-          <span class="metric-value">{{ report()!.metrics.repeatCustomerRate | number:'1.1-1' }}%</span>
-          <span class="metric-label">{{ 'reports.customers.repeatRate' | translate }}</span>
+          <span class="metric-value">{{ r.totalDiscount | currency:'BAM':'symbol':'1.0-0' }}</span>
+          <span class="metric-label">{{ 'customers.form.discount' | translate }}</span>
+        </div>
+      </div>
+      <div class="metric-card primary">
+        <div class="metric-icon">✅</div>
+        <div class="metric-content">
+          <span class="metric-value">{{ r.netRevenue | currency:'BAM':'symbol':'1.0-0' }}</span>
+          <span class="metric-label">{{ 'reports.financial.netRevenue' | translate }}</span>
         </div>
       </div>
     </section>
 
-    <!-- Lifetime Value Highlight -->
-    <section class="highlight-section">
-      <div class="highlight-card">
-        <span class="highlight-label">{{ 'reports.customers.avgLifetimeValue' | translate }}</span>
-        <span class="highlight-value">{{ report()!.metrics.averageLifetimeValue | currency:'BAM':'symbol':'1.0-0' }}</span>
-      </div>
-    </section>
-
-    <!-- Customer Segments -->
-    <section class="charts-section">
-      <div class="chart-card">
-        <h3>{{ 'reports.customers.bySegment' | translate }}</h3>
-        <div class="segment-list">
-          @for (segment of report()!.segments; track segment.name) {
-            <div class="segment-item">
-              <div class="segment-info">
-                <span class="segment-name">{{ segment.name }}</span>
-                <span class="segment-count">{{ segment.count }} {{ 'reports.customers.customers' | translate }}</span>
-              </div>
-              <div class="segment-bar">
-                <div class="segment-fill" [style.width.%]="segment.percentage"></div>
-              </div>
-              <span class="segment-value">{{ segment.revenue | currency:'BAM':'symbol':'1.0-0' }}</span>
-            </div>
-          }
-        </div>
-      </div>
-
-      <div class="chart-card">
-        <h3>{{ 'reports.customers.growth' | translate }}</h3>
-        <div class="growth-list">
-          @for (point of report()!.growth; track point.date) {
-            <div class="growth-item">
-              <span class="growth-month">{{ point.date }}</span>
-              <span class="growth-new">+{{ point.newCustomers }}</span>
-              <span class="growth-total">{{ point.totalCustomers }} total</span>
-            </div>
-          }
-        </div>
-      </div>
-    </section>
-
-    <!-- Top Customers -->
     <section class="table-section">
       <div class="table-card">
-        <h3>{{ 'reports.customers.topCustomers' | translate }}</h3>
+        <h3>{{ 'reports.sales.byProduct' | translate }}</h3>
         <table>
           <thead>
             <tr>
-              <th>{{ 'common.customer' | translate }}</th>
-              <th>{{ 'reports.orders' | translate }}</th>
-              <th>{{ 'reports.totalSpent' | translate }}</th>
-              <th>{{ 'reports.percentage' | translate }}</th>
+              <th>{{ 'products.fields.name' | translate }}</th>
+              <th>{{ 'products.fields.sku' | translate }}</th>
+              <th>{{ 'products.fields.quantity' | translate }}</th>
+              <th>{{ 'reports.sales.revenue' | translate }}</th>
+              <th>{{ 'customers.form.discount' | translate }}</th>
+              <th>{{ 'reports.financial.netRevenue' | translate }}</th>
             </tr>
           </thead>
           <tbody>
-            @for (customer of report()!.topCustomers; track customer.id) {
+            @for (p of r.salesByProduct; track p.productId) {
               <tr>
                 <td>
-                  <span class="customer-name">{{ customer.name }}</span>
-                  <span class="customer-email">{{ customer.email }}</span>
+                  <span class="customer-name">{{ p.productName }}</span>
                 </td>
-                <td>{{ customer.orders }}</td>
-                <td>{{ customer.totalSpent | currency:'BAM':'symbol':'1.0-0' }}</td>
-                <td>{{ customer.percentage | number:'1.1-1' }}%</td>
+                <td>{{ p.sku }}</td>
+                <td>{{ p.quantitySold | number }}</td>
+                <td>{{ p.totalRevenue | currency:'BAM':'symbol':'1.0-0' }}</td>
+                <td>{{ p.totalDiscount | currency:'BAM':'symbol':'1.0-0' }}</td>
+                <td>{{ p.netRevenue | currency:'BAM':'symbol':'1.0-0' }}</td>
               </tr>
             }
           </tbody>
         </table>
       </div>
     </section>
+
+    @if (r.salesByCustomer.length > 1) {
+      <section class="table-section">
+        <div class="table-card">
+          <h3>{{ 'reports.sales.byCustomer' | translate }}</h3>
+          <table>
+            <thead>
+              <tr>
+                <th>{{ 'common.customer' | translate }}</th>
+                <th>{{ 'reports.sales.orders' | translate }}</th>
+                <th>{{ 'products.fields.quantity' | translate }}</th>
+                <th>{{ 'reports.sales.revenue' | translate }}</th>
+                <th>{{ 'customers.form.discount' | translate }}</th>
+                <th>{{ 'reports.financial.netRevenue' | translate }}</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (c of r.salesByCustomer; track c.customerId) {
+                <tr>
+                  <td>
+                    <span class="customer-name">{{ c.customerCode }} — {{ c.customerName }}</span>
+                    @if (c.branchCode) { <span class="customer-email">{{ c.branchCode }}</span> }
+                  </td>
+                  <td>{{ c.orderCount | number }}</td>
+                  <td>{{ c.totalQuantity | number }}</td>
+                  <td>{{ c.totalRevenue | currency:'BAM':'symbol':'1.0-0' }}</td>
+                  <td>{{ c.totalDiscount | currency:'BAM':'symbol':'1.0-0' }}</td>
+                  <td>{{ c.netRevenue | currency:'BAM':'symbol':'1.0-0' }}</td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      </section>
+    }
   }
 </div>

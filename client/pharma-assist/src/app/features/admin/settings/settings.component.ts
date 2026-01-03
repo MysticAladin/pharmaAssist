@@ -5,6 +5,7 @@ import { TranslateModule } from '@ngx-translate/core';
 import { DbFeatureFlagService } from '../../../core/services/db-feature-flag.service';
 import { AuthStateService } from '../../../core/state/auth-state.service';
 import { EvaluatedFlag, FlagCategory, SystemFlagKey, SYSTEM_FLAGS } from '../../../core/models/feature-flag.model';
+import { NotificationSettingsService } from '../../../core/services/notification-settings.service';
 
 interface ConfigurableFlag {
   key: string;
@@ -26,6 +27,7 @@ interface ConfigurableFlag {
 export class SettingsComponent implements OnInit {
   private readonly featureFlagService = inject(DbFeatureFlagService);
   private readonly authState = inject(AuthStateService);
+  private readonly notificationSettingsService = inject(NotificationSettingsService);
 
   // Category mapping for numeric enum values from backend
   private readonly categoryMap: Record<number | string, string> = {
@@ -54,6 +56,24 @@ export class SettingsComponent implements OnInit {
   readonly configurableFlags = signal<ConfigurableFlag[]>([]);
   readonly pendingChanges = signal<Map<string, boolean>>(new Map());
 
+  // Internal order notification recipients
+  readonly recipientsLoading = signal(false);
+  readonly recipientsSaving = signal(false);
+  readonly recipientsError = signal<string | null>(null);
+  readonly orderPlacedRecipients = signal<string[]>([]);
+  readonly orderPlacedRecipientsBaseline = signal<string[]>([]);
+  readonly newRecipientEmail = signal('');
+
+  readonly recipientsHasChanges = computed(() => {
+    const current = this.normalizeEmails(this.orderPlacedRecipients());
+    const baseline = this.normalizeEmails(this.orderPlacedRecipientsBaseline());
+    if (current.length !== baseline.length) return true;
+    for (let i = 0; i < current.length; i++) {
+      if (current[i] !== baseline[i]) return true;
+    }
+    return false;
+  });
+
   // Computed
   readonly flagCategories = computed(() => {
     const categories = new Set<FlagCategory>();
@@ -72,6 +92,87 @@ export class SettingsComponent implements OnInit {
     if (tab === 'features') {
       this.loadConfigurableFlags();
     }
+    if (tab === 'notifications') {
+      this.loadOrderPlacedRecipients();
+    }
+  }
+
+  loadOrderPlacedRecipients(): void {
+    if (this.recipientsLoading()) return;
+    this.recipientsError.set(null);
+    this.recipientsLoading.set(true);
+
+    this.notificationSettingsService.getOrderPlacedInternalRecipients().subscribe({
+      next: (emails) => {
+        const normalized = this.normalizeEmails(emails ?? []);
+        this.orderPlacedRecipients.set(normalized);
+        this.orderPlacedRecipientsBaseline.set(normalized);
+        this.recipientsLoading.set(false);
+      },
+      error: (err) => {
+        console.error('Failed to load notification recipients', err);
+        this.recipientsError.set('common.error');
+        this.recipientsLoading.set(false);
+      }
+    });
+  }
+
+  addOrderPlacedRecipient(): void {
+    const email = (this.newRecipientEmail() ?? '').trim();
+    if (!email) return;
+
+    const emailLooksValid = /.+@.+\..+/.test(email);
+    if (!emailLooksValid) {
+      this.recipientsError.set('validation.email');
+      return;
+    }
+
+    const existing = this.orderPlacedRecipients();
+    if (existing.some(e => e.trim().toLowerCase() === email.toLowerCase())) {
+      this.newRecipientEmail.set('');
+      return;
+    }
+
+    this.orderPlacedRecipients.set(this.normalizeEmails([...existing, email]));
+    this.newRecipientEmail.set('');
+  }
+
+  removeOrderPlacedRecipient(email: string): void {
+    this.orderPlacedRecipients.set(this.orderPlacedRecipients().filter(e => e !== email));
+  }
+
+  saveOrderPlacedRecipients(): void {
+    if (this.recipientsSaving()) return;
+    if (!this.recipientsHasChanges()) return;
+    this.recipientsError.set(null);
+    this.recipientsSaving.set(true);
+
+    this.notificationSettingsService.updateOrderPlacedInternalRecipients(this.orderPlacedRecipients()).subscribe({
+      next: (emails) => {
+        const normalized = this.normalizeEmails(emails ?? []);
+        this.orderPlacedRecipients.set(normalized);
+        this.orderPlacedRecipientsBaseline.set(normalized);
+        this.recipientsSaving.set(false);
+      },
+      error: (err) => {
+        console.error('Failed to save notification recipients', err);
+        this.recipientsError.set('common.error');
+        this.recipientsSaving.set(false);
+      }
+    });
+  }
+
+  private normalizeEmails(emails: string[]): string[] {
+    const distinct = new Map<string, string>();
+    for (const raw of emails ?? []) {
+      const trimmed = (raw ?? '').trim();
+      if (!trimmed) continue;
+      const key = trimmed.toLowerCase();
+      if (!distinct.has(key)) {
+        distinct.set(key, trimmed);
+      }
+    }
+    return Array.from(distinct.values()).sort((a, b) => a.localeCompare(b));
   }
 
   loadConfigurableFlags(): void {

@@ -16,14 +16,14 @@ export interface LanguageOption {
 export class TranslationService {
   private readonly translate = inject(TranslateService);
 
-  private readonly STORAGE_KEY = 'pharma_language';
+  private readonly STORAGE_KEY = 'pa_language';
 
   readonly supportedLanguages: LanguageOption[] = [
     { code: 'en', name: 'English', nativeName: 'English', flag: '🇬🇧' },
     { code: 'bs', name: 'Bosnian', nativeName: 'Bosanski', flag: '🇧🇦' }
   ];
 
-  readonly defaultLanguage: SupportedLanguage = 'en';
+  readonly defaultLanguage: SupportedLanguage = 'bs';
 
   // Signal for reactive language state
   readonly currentLanguage = signal<SupportedLanguage>(this.defaultLanguage);

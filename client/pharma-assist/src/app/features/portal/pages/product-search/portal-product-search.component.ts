@@ -5,6 +5,7 @@ import { Router, RouterModule } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 import { Subject, debounceTime, distinctUntilChanged, takeUntil } from 'rxjs';
 import { KmCurrencyPipe } from '../../../../core/pipes/km-currency.pipe';
+import { ConfirmationService } from '../../../../core/services/confirmation.service';
 import { ProductCatalogItem } from '../../models/portal.model';
 import { CartService } from '../../services/cart.service';
 import { CatalogService } from '../../services/catalog.service';
@@ -17,89 +18,147 @@ import { PaymentMethod as ApiPaymentMethod, PortalOrdersService } from '../../se
   template: `
     <div class="product-search-page">
       <div class="page-header">
-        <h1>Product Search</h1>
-        <p class="subtitle">Search by product name or code.</p>
+        <h1>{{ 'portal.productSearch.title' | translate }}</h1>
+        <p class="subtitle">{{ 'portal.productSearch.subtitle' | translate }}</p>
       </div>
 
-      <div class="search-card">
-        <div class="search-row">
-          <input
-            type="text"
-            class="search-input"
-            [placeholder]="'portal.catalog.searchPlaceholder' | translate"
-            [(ngModel)]="query"
-            (ngModelChange)="onQueryChange($event)"
-          />
-          @if (query) {
-            <button type="button" class="clear-btn" (click)="clear()">✕</button>
+      <div class="search-layout">
+        <div class="search-card">
+          <div class="search-row">
+            <input
+              type="text"
+              class="search-input"
+              [placeholder]="'portal.catalog.searchPlaceholder' | translate"
+              [(ngModel)]="query"
+              (ngModelChange)="onQueryChange($event)"
+            />
+            @if (query) {
+              <button type="button" class="clear-btn" (click)="clear()">✕</button>
+            }
+          </div>
+
+          @if (!query) {
+            <div class="hint">{{ 'portal.productSearch.hints.startTyping' | translate }}</div>
+          }
+
+          @if (loading()) {
+            <div class="hint">{{ 'common.loading' | translate }}</div>
+          } @else if (error()) {
+            <div class="error">{{ error() | translate }}</div>
+          } @else if (query && results().length === 0) {
+            <div class="hint">{{ 'portal.productSearch.hints.noProducts' | translate }}</div>
+          } @else if (results().length > 0) {
+            <div class="results">
+              @for (p of results(); track p.id) {
+                <div
+                  class="result-row"
+                  role="button"
+                  tabindex="0"
+                  [class.selected]="selectedProduct()?.id === p.id"
+                  (click)="selectProduct(p)"
+                  (keydown.enter)="selectProduct(p)"
+                  (keydown.space)="selectProduct(p)">
+                  <div class="left">
+                    <div class="name">{{ p.name }}</div>
+                    <div class="meta">
+                      <span class="code">{{ p.code }}</span>
+                      @if (p.manufacturer) {
+                        <span class="sep">•</span>
+                        <span class="mfr">{{ p.manufacturer }}</span>
+                      }
+                      @if (p.packSize) {
+                        <span class="sep">•</span>
+                        <span>{{ p.packSize }}</span>
+                      }
+                      <span class="sep">•</span>
+                      <span>{{ 'portal.product.expiry' | translate }}: {{ formatExpiry(p.earliestExpiryDate) || '—' }}</span>
+                    </div>
+                  </div>
+                  <div class="right">
+                    <div class="price">{{ (p.customerPrice ?? p.unitPrice) | kmCurrency }}</div>
+                    <div class="stock" [class.out]="!p.isAvailable">
+                      {{ p.isAvailable ? ('portal.product.inStock' | translate) : ('portal.product.outOfStock' | translate) }}
+                    </div>
+                    @if (inCartQty(p.id) > 0) {
+                      <div class="in-cart">{{ 'portal.productSearch.inOrder' | translate:{ qty: inCartQty(p.id) } }}</div>
+                    }
+                    <button
+                      type="button"
+                      class="btn btn-primary row-add"
+                      (click)="addToOrder(p); $event.stopPropagation()"
+                      [disabled]="!p.isAvailable || isSubmitting()">
+                      + {{ 'portal.product.add' | translate }}
+                    </button>
+                  </div>
+                </div>
+              }
+            </div>
           }
         </div>
 
-        @if (!query) {
-          <div class="hint">Start typing to see matching products.</div>
-        }
-
-        @if (loading()) {
-          <div class="hint">{{ 'common.loading' | translate }}</div>
-        } @else if (error()) {
-          <div class="error">{{ error() }}</div>
-        } @else if (query && results().length === 0) {
-          <div class="hint">No products found.</div>
-        } @else if (results().length > 0) {
-          <div class="results">
-            @for (p of results(); track p.id) {
-              <button
-                type="button"
-                class="result-row"
-                (click)="addToOrder(p)"
-                [disabled]="!p.isAvailable || isSubmitting()">
-                <div class="left">
-                  <div class="name">{{ p.name }}</div>
-                  <div class="meta">
-                    <span class="code">{{ p.code }}</span>
-                    @if (p.manufacturer) {
-                      <span class="sep">•</span>
-                      <span class="mfr">{{ p.manufacturer }}</span>
-                    }
-                  </div>
-                </div>
-                <div class="right">
-                  <div class="price">{{ (p.customerPrice ?? p.unitPrice) | kmCurrency }}</div>
-                  <div class="stock" [class.out]="!p.isAvailable">
-                    {{ p.isAvailable ? (p.stockQuantity + ' ' + ('portal.product.inStock' | translate)) : ('portal.product.outOfStock' | translate) }}
-                  </div>
-                  @if (inCartQty(p.id) > 0) {
-                    <div class="in-cart">In order: {{ inCartQty(p.id) }}</div>
-                  }
-                </div>
-              </button>
-            }
+        <div class="details-card">
+          <div class="details-header">
+            <h2>{{ 'common.details' | translate }}</h2>
           </div>
-        }
+
+          @if (!selectedProduct()) {
+            <div class="hint">{{ 'portal.productSearch.hints.selectForDetails' | translate }}</div>
+          } @else {
+            <div class="details-body">
+              <div class="d-name">{{ selectedProduct()!.name }}</div>
+              <div class="d-meta">{{ selectedProduct()!.code }} • {{ selectedProduct()!.manufacturer }}</div>
+
+              <div class="d-grid">
+                <div class="d-item"><span class="lbl">{{ 'portal.product.packSize' | translate }}</span><span class="val">{{ selectedProduct()!.packSize || '—' }}</span></div>
+                <div class="d-item"><span class="lbl">{{ 'portal.product.expiry' | translate }}</span><span class="val">{{ formatExpiry(selectedProduct()!.earliestExpiryDate) || '—' }}</span></div>
+                @if (selectedProduct()!.dosageForm) {
+                  <div class="d-item"><span class="lbl">{{ 'portal.product.dosageForm' | translate }}</span><span class="val">{{ selectedProduct()!.dosageForm }}</span></div>
+                }
+                @if (selectedProduct()!.strength) {
+                  <div class="d-item"><span class="lbl">{{ 'portal.product.strength' | translate }}</span><span class="val">{{ selectedProduct()!.strength }}</span></div>
+                }
+              </div>
+
+              @if (selectedProduct()!.description) {
+                <div class="d-desc">{{ selectedProduct()!.description }}</div>
+              }
+
+              <div class="d-actions">
+                <button
+                  type="button"
+                  class="btn btn-primary"
+                  (click)="addToOrder(selectedProduct()!)"
+                  [disabled]="!selectedProduct()!.isAvailable || isSubmitting()">
+                  {{ 'portal.product.add' | translate }}
+                </button>
+              </div>
+            </div>
+          }
+        </div>
       </div>
 
       <div class="order-card">
         <div class="order-header">
-          <h2>Order items</h2>
+          <h2>{{ 'portal.productSearch.orderItems.title' | translate }}</h2>
           <div class="order-actions">
-            <button type="button" class="btn btn-secondary" (click)="clearOrder()" [disabled]="cartIsEmpty() || isSubmitting()">Clear</button>
-            <button type="button" class="btn btn-primary" (click)="createOrder()" [disabled]="cartIsEmpty() || isSubmitting()">Create Order</button>
+            <button type="button" class="btn btn-secondary" (click)="clearOrder()" [disabled]="cartIsEmpty() || isSubmitting()">{{ 'portal.cart.clearCart' | translate }}</button>
+            <button type="button" class="btn btn-primary" (click)="createOrder()" [disabled]="cartIsEmpty() || isSubmitting()">{{ 'portal.productSearch.orderItems.createOrder' | translate }}</button>
           </div>
         </div>
 
         @if (submitError()) {
-          <div class="error">{{ submitError() }}</div>
+          <div class="error">{{ submitError() | translate }}</div>
         }
 
         @if (cartIsEmpty()) {
-          <div class="hint">No items yet. Click a product above to add it.</div>
+          <div class="hint">{{ 'portal.productSearch.orderItems.emptyHint' | translate }}</div>
         } @else {
           <div class="order-list">
             <div class="order-row header">
-              <div>Product</div>
-              <div class="qty">Qty</div>
-              <div class="money">Unit</div>
-              <div class="money">Subtotal</div>
+              <div>{{ 'portal.cart.product' | translate }}</div>
+              <div class="qty">{{ 'portal.cart.quantity' | translate }}</div>
+              <div class="money">{{ 'portal.cart.unitPrice' | translate }}</div>
+              <div class="money">{{ 'portal.cart.subtotal' | translate }}</div>
               <div></div>
             </div>
 
@@ -107,7 +166,17 @@ import { PaymentMethod as ApiPaymentMethod, PortalOrdersService } from '../../se
               <div class="order-row">
                 <div class="prod">
                   <div class="pname">{{ item.productName }}</div>
-                  <div class="pmeta">{{ item.productCode }} • {{ item.manufacturer }}</div>
+                  <div class="pmeta">
+                    {{ item.productCode }}
+                    <span class="sep">•</span>
+                    {{ item.manufacturer }}
+                    @if (item.packSize) {
+                      <span class="sep">•</span>
+                      {{ item.packSize }}
+                    }
+                    <span class="sep">•</span>
+                    {{ 'portal.product.expiry' | translate }}: {{ formatExpiry(item.earliestExpiryDate) || '—' }}
+                  </div>
                 </div>
 
                 <div class="qty">
@@ -132,9 +201,9 @@ import { PaymentMethod as ApiPaymentMethod, PortalOrdersService } from '../../se
           </div>
 
           <div class="totals">
-            <div class="line"><span>Subtotal</span><span>{{ cartSubtotal() | kmCurrency }}</span></div>
-            <div class="line"><span>Tax</span><span>{{ cartTax() | kmCurrency }}</span></div>
-            <div class="line total"><span>Total</span><span>{{ cartTotal() | kmCurrency }}</span></div>
+            <div class="line"><span>{{ 'portal.cart.subtotal' | translate }}</span><span>{{ cartSubtotal() | kmCurrency }}</span></div>
+            <div class="line"><span>{{ 'portal.cart.tax' | translate }}</span><span>{{ cartTax() | kmCurrency }}</span></div>
+            <div class="line total"><span>{{ 'portal.cart.total' | translate }}</span><span>{{ cartTotal() | kmCurrency }}</span></div>
           </div>
         }
       </div>
@@ -145,6 +214,13 @@ import { PaymentMethod as ApiPaymentMethod, PortalOrdersService } from '../../se
       display: flex;
       flex-direction: column;
       gap: 1rem;
+    }
+
+    .search-layout {
+      display: grid;
+      grid-template-columns: 1fr 360px;
+      gap: 1rem;
+      align-items: start;
     }
 
     .page-header h1 {
@@ -163,6 +239,88 @@ import { PaymentMethod as ApiPaymentMethod, PortalOrdersService } from '../../se
       border: 1px solid var(--border-color, #e5e7eb);
       border-radius: 12px;
       padding: 1rem;
+    }
+
+    .details-card {
+      background: var(--surface-card, #fff);
+      border: 1px solid var(--border-color, #e5e7eb);
+      border-radius: 12px;
+      padding: 1rem;
+      position: sticky;
+      top: 88px;
+    }
+
+    .details-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.5rem;
+      margin-bottom: 0.75rem;
+    }
+
+    .details-header h2 {
+      margin: 0;
+      font-size: 1.1rem;
+    }
+
+    .details-body {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+
+    .d-name {
+      font-weight: 800;
+      color: var(--text-color, #333);
+      font-size: 1.05rem;
+      line-height: 1.25;
+    }
+
+    .d-meta {
+      color: var(--text-secondary, #666);
+      font-size: 0.9rem;
+    }
+
+    .d-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 0.5rem;
+      padding-top: 0.25rem;
+    }
+
+    .d-item {
+      display: flex;
+      justify-content: space-between;
+      gap: 0.75rem;
+      border: 1px solid var(--border-color, #e5e7eb);
+      border-radius: 10px;
+      padding: 0.5rem 0.65rem;
+      background: var(--surface-ground, #f8f9fa);
+    }
+
+    .d-item .lbl {
+      color: var(--text-secondary, #666);
+      font-size: 0.85rem;
+    }
+
+    .d-item .val {
+      color: var(--text-color, #333);
+      font-weight: 700;
+      font-size: 0.9rem;
+      text-align: right;
+    }
+
+    .d-desc {
+      color: var(--text-secondary, #666);
+      font-size: 0.9rem;
+      line-height: 1.45;
+      padding-top: 0.25rem;
+    }
+
+    .d-actions {
+      display: flex;
+      justify-content: flex-end;
+      padding-top: 0.25rem;
     }
 
     .order-card {
@@ -248,7 +406,7 @@ import { PaymentMethod as ApiPaymentMethod, PortalOrdersService } from '../../se
       gap: 1rem;
       padding: 0.75rem;
       border-radius: 10px;
-      border: none;
+      border: 1px solid transparent;
       background: transparent;
       cursor: pointer;
       text-align: left;
@@ -259,9 +417,24 @@ import { PaymentMethod as ApiPaymentMethod, PortalOrdersService } from '../../se
       background: var(--surface-ground, #f8f9fa);
     }
 
-    .result-row:disabled {
-      cursor: not-allowed;
-      opacity: 0.65;
+    .result-row:focus-visible {
+      outline: none;
+      border-color: var(--border-focus, rgba(10, 170, 170, 0.7));
+      box-shadow: 0 0 0 3px var(--primary-50, rgba(10, 170, 170, 0.12));
+      background: var(--surface-ground, #f8f9fa);
+    }
+
+    .result-row.selected {
+      border-color: var(--border-focus, rgba(10, 170, 170, 0.7));
+      background: var(--primary-50, rgba(10, 170, 170, 0.08));
+    }
+
+
+    .row-add {
+      padding: 0.35rem 0.6rem;
+      font-size: 0.85rem;
+      line-height: 1.2;
+      border-radius: 8px;
     }
 
     .name {
@@ -415,12 +588,23 @@ import { PaymentMethod as ApiPaymentMethod, PortalOrdersService } from '../../se
       .order-row .money:nth-child(4) { display: none; }
       .order-row.header div:nth-child(4) { display: none; }
     }
+
+    @media (max-width: 980px) {
+      .search-layout {
+        grid-template-columns: 1fr;
+      }
+
+      .details-card {
+        position: static;
+      }
+    }
   `]
 })
 export class PortalProductSearchComponent implements OnDestroy {
   private readonly catalogService = inject(CatalogService);
   private readonly cartService = inject(CartService);
   private readonly ordersService = inject(PortalOrdersService);
+  private readonly confirmationService = inject(ConfirmationService);
   private readonly router = inject(Router);
   private readonly destroy$ = new Subject<void>();
 
@@ -429,6 +613,8 @@ export class PortalProductSearchComponent implements OnDestroy {
   loading = signal(false);
   error = signal<string | null>(null);
   results = signal<ProductCatalogItem[]>([]);
+
+  selectedProduct = signal<ProductCatalogItem | null>(null);
 
   isSubmitting = signal(false);
   submitError = signal<string | null>(null);
@@ -466,6 +652,11 @@ export class PortalProductSearchComponent implements OnDestroy {
     this.loading.set(false);
     this.error.set(null);
     this.results.set([]);
+    this.selectedProduct.set(null);
+  }
+
+  selectProduct(product: ProductCatalogItem): void {
+    this.selectedProduct.set(product);
   }
 
   addToOrder(product: ProductCatalogItem): void {
@@ -492,17 +683,27 @@ export class PortalProductSearchComponent implements OnDestroy {
     }
   }
 
-  createOrder(): void {
+  async createOrder(): Promise<void> {
     this.submitError.set(null);
     const items = this.cartItems();
     if (items.length === 0) return;
+
+    if (this.isSubmitting()) return;
+
+    const confirmed = await this.confirmationService.confirm({
+      title: 'common.confirmCreateOrder',
+      message: 'common.confirmCreateOrderMessage',
+      variant: 'warning'
+    });
+
+    if (!confirmed) return;
 
     const orderItems = items
       .map(i => ({ productId: Number.parseInt(i.productId, 10), quantity: i.quantity }))
       .filter(i => Number.isFinite(i.productId) && i.productId > 0);
 
     if (orderItems.length !== items.length) {
-      this.submitError.set('Some items have invalid product IDs; cannot submit this order.');
+      this.submitError.set('portal.productSearch.errors.invalidProductIds');
       return;
     }
 
@@ -517,12 +718,12 @@ export class PortalProductSearchComponent implements OnDestroy {
           return;
         }
 
-        this.submitError.set(resp?.message || 'Failed to create order');
+        this.submitError.set(resp?.message || 'portal.productSearch.errors.createOrderFailed');
         this.isSubmitting.set(false);
       },
       error: (err) => {
         console.error('Create order failed', err);
-        this.submitError.set('Failed to create order');
+        this.submitError.set('portal.productSearch.errors.createOrderFailed');
         this.isSubmitting.set(false);
       }
     });
@@ -537,15 +738,42 @@ export class PortalProductSearchComponent implements OnDestroy {
 
     this.catalogService.searchProducts(trimmed, 25).subscribe({
       next: (items) => {
-        this.results.set(items ?? []);
+        const nextResults = items ?? [];
+        this.results.set(nextResults);
+
+        const current = this.selectedProduct();
+        if (!current) {
+          this.selectedProduct.set(nextResults.length > 0 ? nextResults[0] : null);
+        } else {
+          const stillThere = nextResults.find(p => p.id === current.id);
+          this.selectedProduct.set(stillThere ?? (nextResults.length > 0 ? nextResults[0] : null));
+        }
+
         this.loading.set(false);
       },
       error: (err) => {
         console.error('Portal product search failed', err);
-        this.error.set('Failed to search products');
+        this.error.set('portal.productSearch.errors.searchFailed');
         this.loading.set(false);
       }
     });
+  }
+
+  formatExpiry(value?: string | null): string | null {
+    if (!value) return null;
+    // Prefer YYYY-MM-DD date part (also works for ISO timestamps like 2026-01-22T00:00:00Z)
+    const m = value.match(/^(\d{4})-(\d{2})-(\d{2})/);
+    if (m) {
+      return `${m[3]}.${m[2]}.${m[1]}`;
+    }
+
+    const d = new Date(value);
+    if (Number.isNaN(d.getTime())) return null;
+
+    const day = String(d.getDate()).padStart(2, '0');
+    const month = String(d.getMonth() + 1).padStart(2, '0');
+    const year = String(d.getFullYear());
+    return `${day}.${month}.${year}`;
   }
 
   ngOnDestroy(): void {

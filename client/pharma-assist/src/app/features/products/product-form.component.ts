@@ -13,6 +13,7 @@ import { PricingService, PriceType, ProductPrice, CreateProductPriceRequest } fr
 import { CustomerService } from '../../core/services/customer.service';
 import { CustomerSummary } from '../../core/models/customer.model';
 import { Canton, LocationService } from '../../core/services/location.service';
+import { NotificationService } from '../../core/services/notification.service';
 
 interface ProductForm {
   name: string;
@@ -57,6 +58,7 @@ export class ProductFormComponent implements OnInit {
   private readonly customerService = inject(CustomerService);
   private readonly locationService = inject(LocationService);
   private readonly translate = inject(TranslateService);
+  private readonly notificationService = inject(NotificationService);
 
   loading = signal(true);
   saving = signal(false);
@@ -230,6 +232,12 @@ export class ProductFormComponent implements OnInit {
         console.error('Error loading cantons:', err);
       }
     });
+  }
+
+  cantonLabel(canton: Canton): string {
+    const lang = (this.translate.currentLang ?? '').toLowerCase();
+    if (lang.startsWith('bs')) return canton.nameLocal || canton.name;
+    return canton.name;
   }
 
   startAddPrice(): void {
@@ -530,6 +538,10 @@ export class ProductFormComponent implements OnInit {
 
   save(): void {
     if (!this.validateForm()) {
+      this.notificationService.error(
+        'Validation',
+        'Please fill all required fields before saving.'
+      );
       return;
     }
 
@@ -540,13 +552,24 @@ export class ProductFormComponent implements OnInit {
     if (this.isEditMode()) {
       const updateRequest: UpdateProductRequest = { ...request, isActive: this.form.isActive };
       this.productService.update(this.productId()!, updateRequest).subscribe({
-        next: () => {
+        next: (res) => {
           this.saving.set(false);
-          this.router.navigate(['/products', this.productId()]);
+          if (res?.success) {
+            this.router.navigate(['/products', this.productId()]);
+            return;
+          }
+
+          this.notificationService.error(
+            this.translate.instant('common.error') || 'Error',
+            res?.message || 'Failed to update product'
+          );
         },
-        error: () => {
+        error: (err) => {
           this.saving.set(false);
-          // Handle error
+          this.notificationService.error(
+            this.translate.instant('common.error') || 'Error',
+            this.extractApiErrorMessage(err) || 'Failed to update product'
+          );
         }
       });
     } else {
@@ -556,15 +579,44 @@ export class ProductFormComponent implements OnInit {
           if (res.success && res.data) {
             this.router.navigate(['/products', res.data.id]);
           } else {
-            this.router.navigate(['/products']);
+            this.notificationService.error(
+              this.translate.instant('common.error') || 'Error',
+              res?.message || 'Failed to create product'
+            );
           }
         },
-        error: () => {
+        error: (err) => {
           this.saving.set(false);
-          // Handle error
+          this.notificationService.error(
+            this.translate.instant('common.error') || 'Error',
+            this.extractApiErrorMessage(err) || 'Failed to create product'
+          );
         }
       });
     }
+  }
+
+  private extractApiErrorMessage(err: unknown): string | null {
+    // Angular HttpErrorResponse commonly surfaces server payload under `error`
+    const anyErr = err as any;
+    const server = anyErr?.error;
+
+    if (typeof server === 'string' && server.trim()) return server;
+    if (typeof server?.message === 'string' && server.message.trim()) return server.message;
+    if (typeof anyErr?.message === 'string' && anyErr.message.trim()) return anyErr.message;
+
+    // FluentValidation-style errors
+    const errors = server?.errors;
+    if (errors && typeof errors === 'object') {
+      const firstKey = Object.keys(errors)[0];
+      const firstVal = firstKey ? errors[firstKey] : null;
+      if (Array.isArray(firstVal) && firstVal.length > 0) {
+        const msg = String(firstVal[0] ?? '').trim();
+        return msg || null;
+      }
+    }
+
+    return null;
   }
 
   private validateForm(): boolean {
