@@ -33,12 +33,17 @@ export interface OrderItem {
   id: number;
   productId: number;
   productName: string;
-  sku: string;
+  productSku: string;
   quantity: number;
   unitPrice: number;
-  discount: number;
-  total: number;
+  discountPercentage: number;
+  discountAmount: number;
+  taxRate: number;
+  taxAmount: number;
+  lineTotal: number;
   batchNumber?: string;
+  /** Price type: 1 = Commercial, 2 = Essential */
+  priceType: number;
 }
 
 export interface Address {
@@ -61,6 +66,10 @@ export interface CreateOrderRequest {
 export interface CreateOrderItemRequest {
   productId: number;
   quantity: number;
+  /** The unit price to use for this order item (pre-calculated from pricing system) */
+  unitPrice?: number;
+  /** The price type: 1 = Commercial, 2 = Essential */
+  priceType?: number;
 }
 
 export interface PagedResponse<T> {
@@ -171,6 +180,15 @@ export class PortalOrdersService {
   }
 
   /**
+   * Download split invoices (Commercial & Essential) for an order with mixed price types
+   * @param orderId Order ID
+   * @param priceType 1 = Commercial, 2 = Essential
+   */
+  downloadSplitInvoice(orderId: number, priceType: number): Observable<Blob> {
+    return this.http.get(`${this.apiUrl}/orders/${orderId}/invoice/split/${priceType}`, { responseType: 'blob' });
+  }
+
+  /**
    * Get status display name
    */
   getStatusDisplayName(status: OrderStatus): string {
@@ -200,4 +218,18 @@ export class PortalOrdersService {
   canFileClaim(status: OrderStatus): boolean {
     return status === OrderStatus.Shipped || status === OrderStatus.Delivered;
   }
+
+  /**
+   * Get portal dashboard statistics
+   */
+  getStats(): Observable<ApiResponse<PortalDashboardStats>> {
+    return this.http.get<ApiResponse<PortalDashboardStats>>(`${this.apiUrl}/stats`);
+  }
+}
+
+export interface PortalDashboardStats {
+  pendingOrders: number;
+  totalOrders: number;
+  favoriteCount: number;
+  cartItemCount: number;
 }

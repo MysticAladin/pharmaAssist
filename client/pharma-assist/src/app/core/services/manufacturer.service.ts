@@ -22,7 +22,8 @@ export class ManufacturerService {
   }
 
   getActive(): Observable<ApiResponse<ManufacturerSummary[]>> {
-    return this.http.get<ApiResponse<ManufacturerSummary[]>>(`${this.apiUrl}/active`);
+    // Use the /summary endpoint with activeOnly=true parameter
+    return this.http.get<ApiResponse<ManufacturerSummary[]>>(`${this.apiUrl}/summary?activeOnly=true`);
   }
 
   getById(id: number): Observable<ApiResponse<Manufacturer>> {

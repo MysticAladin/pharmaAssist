@@ -144,17 +144,22 @@ export class ProductFormComponent implements OnInit {
       next: (res) => {
         if (res.success) {
           this.categories.set(res.data);
+        } else {
+          console.error('Failed to load categories:', res.message);
+          this.notificationService.error(
+            this.translate.instant('common.error'),
+            this.translate.instant('common.loadCategoriesError')
+          );
+          this.categories.set([]);
         }
       },
-      error: () => {
-        // Mock data for development
-        this.categories.set([
-          { id: 1, name: 'Pain Relief', nameLocal: 'Lijekovi za bol', productCount: 45, isActive: true },
-          { id: 2, name: 'Antibiotics', nameLocal: 'Antibiotici', productCount: 32, isActive: true },
-          { id: 3, name: 'Vitamins', nameLocal: 'Vitamini', productCount: 58, isActive: true },
-          { id: 4, name: 'Cardiovascular', nameLocal: 'Kardiovaskularni', productCount: 27, isActive: true },
-          { id: 5, name: 'Dermatology', nameLocal: 'Dermatologija', productCount: 19, isActive: true }
-        ]);
+      error: (err) => {
+        console.error('Error loading categories:', err);
+        this.notificationService.error(
+          this.translate.instant('common.error'),
+          this.translate.instant('common.endpointUnavailable')
+        );
+        this.categories.set([]);
       }
     });
 
@@ -162,17 +167,22 @@ export class ProductFormComponent implements OnInit {
       next: (res) => {
         if (res.success) {
           this.manufacturers.set(res.data);
+        } else {
+          console.error('Failed to load manufacturers:', res.message);
+          this.notificationService.error(
+            this.translate.instant('common.error'),
+            this.translate.instant('common.loadManufacturersError')
+          );
+          this.manufacturers.set([]);
         }
       },
-      error: () => {
-        // Mock data for development
-        this.manufacturers.set([
-          { id: 1, name: 'Bosnalijek', country: 'Bosnia', productCount: 85, isActive: true },
-          { id: 2, name: 'Hemofarm', country: 'Serbia', productCount: 62, isActive: true },
-          { id: 3, name: 'Alkaloid', country: 'North Macedonia', productCount: 48, isActive: true },
-          { id: 4, name: 'Pliva', country: 'Croatia', productCount: 35, isActive: true },
-          { id: 5, name: 'Galenika', country: 'Serbia', productCount: 41, isActive: true }
-        ]);
+      error: (err) => {
+        console.error('Error loading manufacturers:', err);
+        this.notificationService.error(
+          this.translate.instant('common.error'),
+          this.translate.instant('common.endpointUnavailable')
+        );
+        this.manufacturers.set([]);
       }
     });
 
@@ -238,6 +248,11 @@ export class ProductFormComponent implements OnInit {
     const lang = (this.translate.currentLang ?? '').toLowerCase();
     if (lang.startsWith('bs')) return canton.nameLocal || canton.name;
     return canton.name;
+  }
+
+  onCategoryChange(value: any): void {
+    // Ensure categoryId is always a number, not a string
+    this.form.categoryId = value === null ? null : Number(value);
   }
 
   startAddPrice(): void {

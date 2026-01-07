@@ -4,6 +4,7 @@ import { Observable, of, map, catchError, tap } from 'rxjs';
 import { environment } from '../../../../environments/environment';
 import {
   ProductCatalogItem,
+  ProductBatchCatalogItem,
   ProductFilter,
   CategoryNode,
   Favorite,
@@ -83,6 +84,49 @@ export class CatalogService {
    */
   getProduct(id: string): Observable<ProductCatalogItem> {
     return this.http.get<ProductCatalogItem>(`${this.apiUrl}/products/${id}`);
+  }
+
+  /**
+   * Get product batches for catalog display
+   * Returns all available batches grouped by product, showing expiration dates
+   */
+  getProductBatches(
+    filter: ProductFilter = {},
+    pagination: PaginationParams = { page: 1, pageSize: 20 }
+  ): Observable<PaginatedResult<ProductBatchCatalogItem>> {
+    let params = new HttpParams()
+      .set('page', pagination.page.toString())
+      .set('pageSize', pagination.pageSize.toString());
+
+    if (filter.search) params = params.set('search', filter.search);
+    if (filter.category) params = params.set('category', filter.category);
+    if (filter.categoryId) params = params.set('categoryId', filter.categoryId);
+    if (filter.manufacturerId) params = params.set('manufacturerId', filter.manufacturerId);
+    if (filter.minPrice) params = params.set('minPrice', filter.minPrice.toString());
+    if (filter.maxPrice) params = params.set('maxPrice', filter.maxPrice.toString());
+    if (filter.inStockOnly) params = params.set('inStockOnly', 'true');
+    if (filter.requiresPrescription !== undefined) {
+      params = params.set('requiresPrescription', filter.requiresPrescription.toString());
+    }
+
+    if (pagination.sortBy) {
+      params = params.set('sortBy', pagination.sortBy);
+      params = params.set('sortOrder', pagination.sortOrder || 'asc');
+    }
+
+    return this.http.get<PaginatedResult<ProductBatchCatalogItem>>(
+      `${this.apiUrl}/product-batches`,
+      { params }
+    );
+  }
+
+  /**
+   * Get batches for a specific product
+   */
+  getProductBatchesById(productId: string): Observable<ProductBatchCatalogItem[]> {
+    return this.http.get<ProductBatchCatalogItem[]>(
+      `${this.apiUrl}/products/${productId}/batches`
+    );
   }
 
   /**

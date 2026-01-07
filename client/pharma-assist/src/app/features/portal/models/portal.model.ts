@@ -13,14 +13,16 @@ export enum PriceType {
 
 export interface CartItem {
   productId: string;
+  batchId?: string; // Specific batch being ordered
+  batchNumber?: string; // Batch number for display
   productName: string;
   productCode: string;
   manufacturer: string;
   packSize?: string;
-  earliestExpiryDate?: string | null;
+  expiryDate?: string | null; // Expiry date of this specific batch
   unitPrice: number;
   quantity: number;
-  maxQuantity: number; // Available stock
+  maxQuantity: number; // Available stock for this batch
   imageUrl?: string;
   subtotal: number;
   priceType: PriceType; // Commercial or Essential classification
@@ -185,9 +187,48 @@ export interface ProductCatalogItem {
   unitPrice: number;
   priceType: PriceType; // Commercial or Essential classification
   customerPrice?: number; // Customer-specific pricing
+  /** Commercial price for this product (standard pricing) */
+  commercialPrice?: number;
+  /** Essential price for this product (canton-specific regulated pricing, if available) */
+  essentialPrice?: number;
+  /** Whether essential pricing is available for this product in customer's canton */
+  hasEssentialPrice?: boolean;
   stockQuantity: number;
   isAvailable: boolean;
   earliestExpiryDate?: string | null;
+  imageUrl?: string;
+  requiresPrescription: boolean;
+  dosageForm?: string;
+  strength?: string;
+  packSize?: string;
+}
+
+/**
+ * Product Batch for Catalog Display
+ * Each batch represents a specific stock lot with its own expiration date
+ * Customers can see and select batches with better expiration dates
+ */
+export interface ProductBatchCatalogItem {
+  id: string; // Batch ID
+  productId: string;
+  productCode: string;
+  productName: string;
+  genericName?: string;
+  manufacturer: string;
+  manufacturerId: string;
+  category: string;
+  categoryId: string;
+  description?: string;
+  batchNumber: string;
+  expiryDate: string; // ISO date string
+  manufactureDate?: string;
+  stockQuantity: number; // Available quantity for this batch
+  isAvailable: boolean;
+  isExpiringSoon: boolean;
+  daysUntilExpiry?: number;
+  unitPrice: number;
+  priceType: PriceType;
+  customerPrice?: number;
   imageUrl?: string;
   requiresPrescription: boolean;
   dosageForm?: string;

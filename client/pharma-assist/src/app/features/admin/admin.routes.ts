@@ -30,5 +30,11 @@ export const ADMIN_ROUTES: Routes = [
     canActivate: [roleGuard],
     data: { roles: [UserRole.SuperAdmin, UserRole.Admin, UserRole.Manager] },
     loadComponent: () => import('./targets/targets.component').then(m => m.TargetsComponent)
+  },
+  {
+    path: 'sales-reps',
+    canActivate: [roleGuard],
+    data: { roles: [UserRole.SuperAdmin, UserRole.Admin, UserRole.Manager] },
+    loadComponent: () => import('./sales-reps/sales-reps.component').then(m => m.SalesRepsComponent)
   }
 ];

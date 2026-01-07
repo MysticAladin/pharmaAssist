@@ -88,6 +88,40 @@ public class CustomersController : ControllerBase
     }
 
     /// <summary>
+    /// Get customer summaries for dropdowns
+    /// </summary>
+    [HttpGet("summaries")]
+    [ProducesResponseType(typeof(ApiResponse<IEnumerable<CustomerSummaryDto>>), StatusCodes.Status200OK)]
+    public async Task<IActionResult> GetSummaries(
+        [FromQuery] bool? activeOnly = true,
+        [FromQuery] int take = 5000,
+        CancellationToken cancellationToken = default)
+    {
+        try
+        {
+            // Defensive cap to avoid accidental huge payloads
+            if (take < 1) take = 1;
+            if (take > 10000) take = 10000;
+
+            var page = await _customerService.GetPagedAsync(
+                page: 1,
+                pageSize: take,
+                search: null,
+                customerType: null,
+                tier: null,
+                activeOnly: activeOnly,
+                cancellationToken: cancellationToken);
+
+            return Ok(ApiResponse<IEnumerable<CustomerSummaryDto>>.Ok(page.Data));
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error getting customer summaries");
+            return Ok(ApiResponse<IEnumerable<CustomerSummaryDto>>.Fail("An error occurred while retrieving customers"));
+        }
+    }
+
+    /// <summary>
     /// Create a new customer
     /// </summary>
     [HttpPost]

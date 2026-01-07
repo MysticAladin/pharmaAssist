@@ -80,20 +80,44 @@ export class CartService {
 
   /**
    * Add product to cart
+   * @param product Product or existing cart item
+   * @param quantity Quantity to add
+   * @param batchId Optional batch ID for batch-specific orders
+   * @param batchNumber Optional batch number for display
+   * @param expiryDate Optional expiry date for this specific batch
+   * @param priceType Optional price type (Commercial or Essential)
    */
-  addItem(product: ProductCatalogItem | CartItem, quantity: number = 1): void {
+  addItem(
+    product: ProductCatalogItem | CartItem,
+    quantity: number = 1,
+    batchId?: string,
+    batchNumber?: string,
+    expiryDate?: string,
+    priceType?: PriceType
+  ): void {
     // Check if it's already a CartItem (has productId as string and subtotal)
     const isCartItem = 'productId' in product && 'subtotal' in product;
 
     const productId = isCartItem ? (product as CartItem).productId : (product as ProductCatalogItem).id;
 
+    // For batch-specific items, use both productId and batchId for uniqueness
+    // Also differentiate by price type - same product can be added with different price types
+    const itemPriceType = priceType ?? PriceType.Commercial;
+    const itemKey = batchId ? `${productId}-${batchId}-${itemPriceType}` : `${productId}-${itemPriceType}`;
+
     const existingIndex = this.cartItems().findIndex(
-      item => item.productId === productId
+      item => {
+        const existingKey = item.batchId
+          ? `${item.productId}-${item.batchId}-${item.priceType}`
+          : `${item.productId}-${item.priceType}`;
+        return existingKey === itemKey;
+      }
     );
 
     if (existingIndex >= 0) {
       // Update existing item quantity
-      this.updateQuantity(productId, this.cartItems()[existingIndex].quantity + quantity);
+      const existingItem = this.cartItems()[existingIndex];
+      this.updateQuantity(existingItem.productId, existingItem.quantity + quantity, existingItem.batchId);
     } else {
       // Add new item
       let newItem: CartItem;
@@ -102,25 +126,36 @@ export class CartService {
         const cartItem = product as CartItem;
         newItem = {
           ...cartItem,
+          batchId: batchId || cartItem.batchId,
+          batchNumber: batchNumber || cartItem.batchNumber,
+          expiryDate: expiryDate || cartItem.expiryDate,
           quantity: cartItem.quantity || quantity,
           subtotal: cartItem.unitPrice * (cartItem.quantity || quantity),
-          priceType: cartItem.priceType || PriceType.Commercial
+          priceType: priceType ?? cartItem.priceType ?? PriceType.Commercial
         };
       } else {
         const catalogItem = product as ProductCatalogItem;
+        // Determine the price based on price type
+        const effectivePriceType = priceType ?? PriceType.Commercial;
+        const unitPrice = effectivePriceType === PriceType.Essential && catalogItem.essentialPrice
+          ? catalogItem.essentialPrice
+          : (catalogItem.commercialPrice ?? catalogItem.customerPrice ?? catalogItem.unitPrice);
+
         newItem = {
           productId: catalogItem.id,
+          batchId,
+          batchNumber,
           productName: catalogItem.name,
           productCode: catalogItem.code,
           manufacturer: catalogItem.manufacturer,
           packSize: catalogItem.packSize,
-          earliestExpiryDate: catalogItem.earliestExpiryDate,
-          unitPrice: catalogItem.customerPrice ?? catalogItem.unitPrice,
+          expiryDate: expiryDate || catalogItem.earliestExpiryDate || undefined,
+          unitPrice,
           quantity: Math.min(quantity, catalogItem.stockQuantity),
           maxQuantity: catalogItem.stockQuantity,
           imageUrl: catalogItem.imageUrl,
-          subtotal: (catalogItem.customerPrice ?? catalogItem.unitPrice) * quantity,
-          priceType: catalogItem.priceType || PriceType.Commercial
+          subtotal: unitPrice * quantity,
+          priceType: effectivePriceType
         };
       }
 
@@ -130,25 +165,39 @@ export class CartService {
 
   /**
    * Remove item from cart
+   * @param productId Product ID
+   * @param batchId Optional batch ID for batch-specific removal
    */
-  removeItem(productId: string): void {
+  removeItem(productId: string, batchId?: string): void {
     this.cartItems.update(items =>
-      items.filter(item => item.productId !== productId)
+      items.filter(item => {
+        if (batchId) {
+          return !(item.productId === productId && item.batchId === batchId);
+        }
+        return item.productId !== productId;
+      })
     );
   }
 
   /**
    * Update item quantity
+   * @param productId Product ID
+   * @param quantity New quantity
+   * @param batchId Optional batch ID for batch-specific updates
    */
-  updateQuantity(productId: string, quantity: number): void {
+  updateQuantity(productId: string, quantity: number, batchId?: string): void {
     if (quantity <= 0) {
-      this.removeItem(productId);
+      this.removeItem(productId, batchId);
       return;
     }
 
     this.cartItems.update(items =>
       items.map(item => {
-        if (item.productId === productId) {
+        const isMatch = batchId
+          ? (item.productId === productId && item.batchId === batchId)
+          : item.productId === productId;
+
+        if (isMatch) {
           const newQty = Math.min(quantity, item.maxQuantity);
           return {
             ...item,
@@ -164,20 +213,28 @@ export class CartService {
   /**
    * Increment item quantity
    */
-  incrementQuantity(productId: string): void {
-    const item = this.cartItems().find(i => i.productId === productId);
+  incrementQuantity(productId: string, batchId?: string): void {
+    const item = this.cartItems().find(i => {
+      return batchId
+        ? (i.productId === productId && i.batchId === batchId)
+        : i.productId === productId;
+    });
     if (item && item.quantity < item.maxQuantity) {
-      this.updateQuantity(productId, item.quantity + 1);
+      this.updateQuantity(productId, item.quantity + 1, batchId);
     }
   }
 
   /**
    * Decrement item quantity
    */
-  decrementQuantity(productId: string): void {
-    const item = this.cartItems().find(i => i.productId === productId);
+  decrementQuantity(productId: string, batchId?: string): void {
+    const item = this.cartItems().find(i => {
+      return batchId
+        ? (i.productId === productId && i.batchId === batchId)
+        : i.productId === productId;
+    });
     if (item) {
-      this.updateQuantity(productId, item.quantity - 1);
+      this.updateQuantity(productId, item.quantity - 1, batchId);
     }
   }
 

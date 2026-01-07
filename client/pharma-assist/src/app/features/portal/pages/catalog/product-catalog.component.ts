@@ -6,7 +6,7 @@ import { TranslateModule } from '@ngx-translate/core';
 import { Subject, debounceTime, distinctUntilChanged, takeUntil } from 'rxjs';
 import { CatalogService, PaginatedResult, PaginationParams } from '../../services/catalog.service';
 import { CartService } from '../../services/cart.service';
-import { ProductCatalogItem, ProductFilter, CategoryNode, PriceType } from '../../models/portal.model';
+import { ProductCatalogItem, ProductBatchCatalogItem, ProductFilter, CategoryNode, PriceType } from '../../models/portal.model';
 import { KmCurrencyPipe } from '../../../../core/pipes/km-currency.pipe';
 
 @Component({
@@ -177,7 +177,7 @@ import { KmCurrencyPipe } from '../../../../core/pipes/km-currency.pipe';
                 </div>
                 <div class="product-image">
                   @if (product.imageUrl) {
-                    <img [src]="product.imageUrl" [alt]="product.name" />
+                    <img [src]="product.imageUrl" [alt]="product.productName" />
                   } @else {
                     <div class="image-placeholder">💊</div>
                   }
@@ -188,8 +188,8 @@ import { KmCurrencyPipe } from '../../../../core/pipes/km-currency.pipe';
                   }
                 </div>
                 <div class="product-info">
-                  <p class="product-code">{{ product.code }}</p>
-                  <h3 class="product-name">{{ product.name }}</h3>
+                  <p class="product-code">{{ product.productCode }}</p>
+                  <h3 class="product-name">{{ product.productName }}</h3>
                   @if (product.genericName) {
                     <p class="product-generic">{{ product.genericName }}</p>
                   }
@@ -200,7 +200,14 @@ import { KmCurrencyPipe } from '../../../../core/pipes/km-currency.pipe';
                   <div class="product-meta">
                     <span>{{ 'portal.product.packSize' | translate }}: {{ product.packSize || '—' }}</span>
                     <span class="sep">•</span>
-                    <span>{{ 'portal.product.expiry' | translate }}: {{ formatExpiry(product.earliestExpiryDate) || '—' }}</span>
+                    <span class="batch-info">{{ 'portal.product.batch' | translate }}: {{ product.batchNumber }}</span>
+                  </div>
+                  <div class="product-meta">
+                    <span [class.expiring-soon]="product.isExpiringSoon">{{ 'portal.product.expiry' | translate }}: {{ formatExpiry(product.expiryDate) }}</span>
+                    @if (product.daysUntilExpiry !== undefined) {
+                      <span class="sep">•</span>
+                      <span [class.expiring-soon]="product.isExpiringSoon">({{ product.daysUntilExpiry }} {{ 'portal.product.daysLeft' | translate }})</span>
+                    }
                   </div>
                   <div class="product-footer">
                     <p class="product-price">
@@ -619,6 +626,16 @@ import { KmCurrencyPipe } from '../../../../core/pipes/km-currency.pipe';
       opacity: 0.8;
     }
 
+    .product-meta .batch-info {
+      font-weight: 500;
+      color: var(--text-color, #333);
+    }
+
+    .product-meta .expiring-soon {
+      color: var(--color-warning);
+      font-weight: 500;
+    }
+
     .product-footer {
       display: flex;
       justify-content: space-between;
@@ -873,7 +890,7 @@ export class ProductCatalogComponent implements OnInit, OnDestroy {
 
   // State
   isLoading = signal(true);
-  products = signal<ProductCatalogItem[]>([]);
+  products = signal<ProductBatchCatalogItem[]>([]);
   categories = signal<CategoryNode[]>([]);
   manufacturers = signal<{ id: string; name: string }[]>([]);
 
@@ -996,7 +1013,7 @@ export class ProductCatalogComponent implements OnInit, OnDestroy {
       sortOrder: this.sortBy.includes('-desc') ? 'desc' : 'asc'
     };
 
-    this.catalogService.getProducts(filter, pagination).subscribe({
+    this.catalogService.getProductBatches(filter, pagination).subscribe({
       next: (result) => {
         this.products.set(result.items);
         this.totalCount.set(result.totalCount);
@@ -1005,7 +1022,7 @@ export class ProductCatalogComponent implements OnInit, OnDestroy {
       error: () => {
         this.isLoading.set(false);
         // Use mock data for demo
-        this.products.set(this.getMockProducts());
+        this.products.set(this.getMockBatches());
         this.totalCount.set(20);
       }
     });
@@ -1081,20 +1098,100 @@ export class ProductCatalogComponent implements OnInit, OnDestroy {
     }
   }
 
-  addToCart(product: ProductCatalogItem) {
-    const qty = this.getQty(product.id);
-    this.cartService.addItem(product, qty);
-    this.quantities.delete(product.id); // Reset after adding
+  addToCart(batch: ProductBatchCatalogItem) {
+    const qty = this.getQty(batch.id);
+    // Convert batch to product format for cart
+    const product: ProductCatalogItem = {
+      id: batch.productId,
+      code: batch.productCode,
+      name: batch.productName,
+      genericName: batch.genericName,
+      manufacturer: batch.manufacturer,
+      manufacturerId: batch.manufacturerId,
+      category: batch.category,
+      categoryId: batch.categoryId,
+      description: batch.description,
+      unitPrice: batch.unitPrice,
+      priceType: batch.priceType,
+      customerPrice: batch.customerPrice,
+      stockQuantity: batch.stockQuantity,
+      isAvailable: batch.isAvailable,
+      earliestExpiryDate: batch.expiryDate,
+      imageUrl: batch.imageUrl,
+      requiresPrescription: batch.requiresPrescription,
+      dosageForm: batch.dosageForm,
+      strength: batch.strength,
+      packSize: batch.packSize
+    };
+    this.cartService.addItem(product, qty, batch.id, batch.batchNumber, batch.expiryDate);
+    this.quantities.delete(batch.id); // Reset after adding
   }
 
-  private getMockProducts(): ProductCatalogItem[] {
+  private getMockBatches(): ProductBatchCatalogItem[] {
+    const today = new Date();
     return [
-      { id: '1', code: 'MED-001', name: 'Aspirin 500mg', manufacturer: 'Bayer', manufacturerId: '1', category: 'Pain Relief', categoryId: '1', unitPrice: 8.50, stockQuantity: 150, isAvailable: true, requiresPrescription: false, priceType: PriceType.Commercial },
-      { id: '2', code: 'MED-002', name: 'Ibuprofen 400mg', manufacturer: 'Hemofarm', manufacturerId: '2', category: 'Pain Relief', categoryId: '1', unitPrice: 12.00, stockQuantity: 200, isAvailable: true, requiresPrescription: false, priceType: PriceType.Essential },
-      { id: '3', code: 'MED-003', name: 'Amoxicillin 500mg', manufacturer: 'Bosnalijek', manufacturerId: '3', category: 'Antibiotics', categoryId: '2', unitPrice: 25.00, stockQuantity: 75, isAvailable: true, requiresPrescription: true, priceType: PriceType.Essential },
-      { id: '4', code: 'MED-004', name: 'Vitamin C 1000mg', manufacturer: 'Pliva', manufacturerId: '4', category: 'Vitamins', categoryId: '3', unitPrice: 15.50, stockQuantity: 300, isAvailable: true, requiresPrescription: false, priceType: PriceType.Commercial },
-      { id: '5', code: 'MED-005', name: 'Paracetamol 500mg', manufacturer: 'Bayer', manufacturerId: '1', category: 'Pain Relief', categoryId: '1', unitPrice: 6.00, stockQuantity: 0, isAvailable: false, requiresPrescription: false, priceType: PriceType.Commercial },
-      { id: '6', code: 'MED-006', name: 'Omeprazole 20mg', manufacturer: 'Hemofarm', manufacturerId: '2', category: 'Digestive', categoryId: '4', unitPrice: 18.00, stockQuantity: 120, isAvailable: true, requiresPrescription: true, priceType: PriceType.Essential },
+      {
+        id: 'batch-1a',
+        productId: '1',
+        productCode: 'RX-CVD-003',
+        productName: 'Amlodipine 5mg',
+        batchNumber: 'LOT2024-001',
+        expiryDate: new Date(today.getFullYear() + 2, 5, 15).toISOString(),
+        manufactureDate: new Date(2024, 0, 1).toISOString(),
+        manufacturer: 'Bayer',
+        manufacturerId: '1',
+        category: 'Cardiovascular',
+        categoryId: '1',
+        unitPrice: 8.50,
+        packSize: '30 tablets',
+        stockQuantity: 150,
+        isAvailable: true,
+        isExpiringSoon: false,
+        daysUntilExpiry: 730,
+        requiresPrescription: true,
+        priceType: PriceType.Commercial
+      },
+      {
+        id: 'batch-1b',
+        productId: '1',
+        productCode: 'RX-CVD-003',
+        productName: 'Amlodipine 5mg',
+        batchNumber: 'LOT2024-045',
+        expiryDate: new Date(today.getFullYear() + 1, 11, 20).toISOString(),
+        manufactureDate: new Date(2024, 5, 1).toISOString(),
+        manufacturer: 'Bayer',
+        manufacturerId: '1',
+        category: 'Cardiovascular',
+        categoryId: '1',
+        unitPrice: 8.50,
+        packSize: '30 tablets',
+        stockQuantity: 80,
+        isAvailable: true,
+        isExpiringSoon: false,
+        daysUntilExpiry: 365,
+        requiresPrescription: true,
+        priceType: PriceType.Commercial
+      },
+      {
+        id: 'batch-2a',
+        productId: '2',
+        productCode: 'RX-ANT-001',
+        productName: 'Amoxicillin 500mg',
+        batchNumber: 'AMOX-2024-12',
+        expiryDate: new Date(today.getFullYear() + 1, 2, 10).toISOString(),
+        manufacturer: 'Bosnalijek',
+        manufacturerId: '3',
+        category: 'Antibiotics',
+        categoryId: '2',
+        unitPrice: 25.00,
+        packSize: '20 capsules',
+        stockQuantity: 75,
+        isAvailable: true,
+        isExpiringSoon: false,
+        daysUntilExpiry: 400,
+        requiresPrescription: true,
+        priceType: PriceType.Essential
+      },
     ];
   }
 

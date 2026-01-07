@@ -208,11 +208,14 @@ public class OrderService : IOrderService
                 ProductId = itemDto.ProductId,
                 ProductBatchId = itemDto.ProductBatchId,
                 Quantity = itemDto.Quantity,
-                UnitPrice = product.UnitPrice,
+                // Use provided unit price if available (from portal with pre-calculated pricing),
+                // otherwise fall back to the product's base unit price
+                UnitPrice = itemDto.UnitPrice ?? product.UnitPrice,
                 DiscountPercent = itemDto.DiscountPercentage ?? 0,
                 TaxRate = product.TaxRate,
                 PrescriptionRequired = product.RequiresPrescription,
-                PrescriptionId = itemDto.PrescriptionId
+                PrescriptionId = itemDto.PrescriptionId,
+                PriceType = (Domain.Enums.PriceType)(itemDto.PriceType ?? 1)
             };
 
             CalculateItemTotal(item);
@@ -742,7 +745,8 @@ public class OrderService : IOrderService
             TaxRate = item.TaxRate,
             TaxAmount = (item.UnitPrice * item.Quantity - item.UnitPrice * item.Quantity * (item.DiscountPercent / 100)) * (item.TaxRate / 100),
             LineTotal = item.LineTotal,
-            PrescriptionId = item.PrescriptionId
+            PrescriptionId = item.PrescriptionId,
+            PriceType = (int)item.PriceType
         };
     }
 

@@ -12,6 +12,7 @@ public interface IUnitOfWork : IDisposable
     IOrderRepository Orders { get; }
     IBiHLocationRepository BiHLocations { get; }
     IInventoryRepository Inventory { get; }
+    ISalesRepRepository SalesReps { get; }
 
     IRepository<Domain.Entities.NotificationEmailRecipient> NotificationEmailRecipients { get; }
     

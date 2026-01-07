@@ -19,6 +19,7 @@ public class UnitOfWork : IUnitOfWork
     private IOrderRepository? _orders;
     private IBiHLocationRepository? _biHLocations;
     private IInventoryRepository? _inventory;
+    private ISalesRepRepository? _salesReps;
     private IRepository<Domain.Entities.NotificationEmailRecipient>? _notificationEmailRecipients;
 
     public UnitOfWork(ApplicationDbContext context)
@@ -46,6 +47,9 @@ public class UnitOfWork : IUnitOfWork
 
     public IInventoryRepository Inventory => 
         _inventory ??= new InventoryRepository(_context);
+
+    public ISalesRepRepository SalesReps =>
+        _salesReps ??= new SalesRepRepository(_context);
 
     public IRepository<Domain.Entities.NotificationEmailRecipient> NotificationEmailRecipients =>
         _notificationEmailRecipients ??= new Repository<Domain.Entities.NotificationEmailRecipient>(_context);

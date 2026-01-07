@@ -115,6 +115,10 @@ public static class DependencyInjection
 
         // Add Tender Service
         services.AddScoped<ITenderService, TenderService>();
+
+        // Visits
+        services.AddScoped<IVisitService, VisitService>();
+        services.AddScoped<IVisitReportService, VisitReportService>();
         return services;
     }
 }

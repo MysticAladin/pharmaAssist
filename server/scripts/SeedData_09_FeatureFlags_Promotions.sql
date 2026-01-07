@@ -103,6 +103,11 @@ IF NOT EXISTS (SELECT 1 FROM SystemFeatureFlags WHERE [Key] = 'defaultPaymentTer
 INSERT INTO SystemFeatureFlags ([Key], Name, Description, Category, Type, Value, DefaultValue, IsEnabled, AllowClientOverride, Environment, IsDeleted, CreatedAt, CreatedBy)
 VALUES ('defaultPaymentTerms', 'Default Payment Terms', 'Default payment terms in days', 4, 1, '30', '30', 1, 1, NULL, 0, @Now, 'Seed');
 
+-- Portal Features
+IF NOT EXISTS (SELECT 1 FROM SystemFeatureFlags WHERE [Key] = 'portal.split_invoice')
+INSERT INTO SystemFeatureFlags ([Key], Name, Description, Category, Type, Value, DefaultValue, IsEnabled, AllowClientOverride, Environment, IsDeleted, CreatedAt, CreatedBy)
+VALUES ('portal.split_invoice', 'Split Invoice', 'Generate separate invoices for Commercial and Essential items in customer portal', 1, 0, 'true', 'true', 1, 1, NULL, 0, @Now, 'Seed');
+
 PRINT 'System Feature Flags seeded successfully.';
 
 -- =============================================

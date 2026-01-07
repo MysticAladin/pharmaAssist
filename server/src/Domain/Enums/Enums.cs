@@ -224,3 +224,74 @@ public enum PriceType
     Commercial = 1,
     Essential = 2
 }
+
+/// <summary>
+/// Sales representative type - determines product focus and customer type
+/// </summary>
+public enum RepresentativeType
+{
+    /// <summary>
+    /// Commercial representative - OTC medicines, pharmacy/wholesale visits
+    /// </summary>
+    Commercial = 1,
+    
+    /// <summary>
+    /// Medical representative - RX medicines, physician/hospital visits ("stručni predstavnik")
+    /// </summary>
+    Medical = 2
+}
+
+/// <summary>
+/// Sales representative status
+/// </summary>
+public enum RepresentativeStatus
+{
+    Active = 1,
+    Inactive = 2,
+    OnLeave = 3,
+    Terminated = 4
+}
+
+/// <summary>
+/// Visit plan status - workflow for weekly visit planning
+/// </summary>
+public enum VisitPlanStatus
+{
+    Draft = 1,
+    Submitted = 2,
+    Approved = 3,
+    Rejected = 4,
+    InProgress = 5,
+    Completed = 6
+}
+
+/// <summary>
+/// Visit type - planned or unplanned
+/// </summary>
+public enum VisitType
+{
+    Planned = 1,
+    AdHoc = 2
+}
+
+/// <summary>
+/// Visit outcome - result of a customer visit
+/// </summary>
+public enum VisitOutcome
+{
+    Positive = 1,   // Successful visit, order placed or positive response
+    Neutral = 2,    // Regular visit, no significant outcome
+    Negative = 3    // Issues encountered, complaints, or negative response
+}
+
+/// <summary>
+/// Visit note type - categorizes notes during visits
+/// </summary>
+public enum VisitNoteType
+{
+    Discussion = 1,
+    Issue = 2,
+    Opportunity = 3,
+    Complaint = 4,
+    Other = 5
+}

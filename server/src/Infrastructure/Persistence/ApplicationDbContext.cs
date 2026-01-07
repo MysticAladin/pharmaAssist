@@ -84,6 +84,16 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser, Applicati
     public DbSet<TenderBidItem> TenderBidItems { get; set; } = null!;
     public DbSet<TenderDocument> TenderDocuments { get; set; } = null!;
 
+    // Sales Representatives
+    public DbSet<SalesRepresentative> SalesRepresentatives { get; set; } = null!;
+    public DbSet<RepManagerAssignment> RepManagerAssignments { get; set; } = null!;
+    public DbSet<RepCustomerAssignment> RepCustomerAssignments { get; set; } = null!;
+    public DbSet<VisitPlan> VisitPlans { get; set; } = null!;
+    public DbSet<PlannedVisit> PlannedVisits { get; set; } = null!;
+    public DbSet<ExecutedVisit> ExecutedVisits { get; set; } = null!;
+    public DbSet<VisitNote> VisitNotes { get; set; } = null!;
+    public DbSet<VisitAttachment> VisitAttachments { get; set; } = null!;
+
     protected override void OnModelCreating(ModelBuilder builder)
     {
         base.OnModelCreating(builder);

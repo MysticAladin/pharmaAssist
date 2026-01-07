@@ -29,6 +29,7 @@ public interface IInventoryRepository
 
     // Product Batch operations
     Task<IReadOnlyList<ProductBatch>> GetBatchesByProductAsync(int productId, CancellationToken cancellationToken = default);
+    Task<IReadOnlyList<ProductBatch>> GetBatchesByWarehouseAsync(int warehouseId, CancellationToken cancellationToken = default);
     Task<IReadOnlyList<ProductBatch>> GetActiveBatchesByProductAsync(int productId, CancellationToken cancellationToken = default);
     Task<IReadOnlyList<ProductBatch>> GetExpiringBatchesAsync(DateTime beforeDate, CancellationToken cancellationToken = default);
     Task<IReadOnlyList<ProductBatch>> GetExpiredBatchesAsync(CancellationToken cancellationToken = default);

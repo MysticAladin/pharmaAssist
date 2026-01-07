@@ -1,5 +1,5 @@
 import { Routes } from '@angular/router';
-import { authGuard, noAuthGuard, adminGuard, featureGuard, customerGuard, staffGuard } from './core/guards';
+import { authGuard, noAuthGuard, adminGuard, featureGuard, customerGuard, staffGuard, roleGuard } from './core/guards';
 import { FeatureKey } from './core/models/feature-flag.model';
 import { UserRole } from './core/models/user.model';
 
@@ -78,6 +78,14 @@ export const routes: Routes = [
           roles: [UserRole.SuperAdmin, UserRole.Admin, UserRole.Manager, UserRole.SalesRep]
         },
         loadChildren: () => import('./features/customers/customers.routes').then(m => m.CUSTOMERS_ROUTES)
+      },
+
+      // Visits (Sales Rep mobile workflow)
+      {
+        path: 'visits',
+        canActivate: [roleGuard],
+        data: { roles: [UserRole.SalesRep, UserRole.Manager, UserRole.Admin, UserRole.SuperAdmin] },
+        loadChildren: () => import('./features/visits/visits.routes').then(m => m.VISITS_ROUTES)
       },
 
       // Reports

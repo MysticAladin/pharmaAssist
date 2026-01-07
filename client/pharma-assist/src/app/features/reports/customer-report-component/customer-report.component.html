@@ -25,23 +25,33 @@
       </div>
 
       <div class="field checkbox">
-        <label>
+        <label class="filter-checkbox">
           <input type="checkbox" [(ngModel)]="includeChildBranches" [disabled]="!canIncludeBranches" />
-          {{ 'customers.branches' | translate }}
+          <span>{{ 'customers.details.branches' | translate }}</span>
         </label>
       </div>
 
       <div class="field">
         <label>{{ 'reports.filters.startDate' | translate }}</label>
-        <input type="date" [ngModel]="startDateIso" (ngModelChange)="onStartDateChange($event)" />
+        <input
+          type="text"
+          [ngModel]="startDateText"
+          (ngModelChange)="onStartDateTextChange($event)"
+          placeholder="dd.MM.yyyy"
+        />
       </div>
 
       <div class="field">
         <label>{{ 'reports.filters.endDate' | translate }}</label>
-        <input type="date" [ngModel]="endDateIso" (ngModelChange)="onEndDateChange($event)" />
+        <input
+          type="text"
+          [ngModel]="endDateText"
+          (ngModelChange)="onEndDateTextChange($event)"
+          placeholder="dd.MM.yyyy"
+        />
       </div>
 
-      <button class="btn btn-secondary" (click)="generateReport()" [disabled]="!selectedCustomerId">
+      <button class="btn btn-primary" (click)="generateReport()" [disabled]="!selectedCustomerId">
         {{ 'reports.actions.generate' | translate }}
       </button>
     </div>
@@ -61,13 +71,7 @@
           <span class="metric-label">{{ 'reports.sales.orders' | translate }}</span>
         </div>
       </div>
-      <div class="metric-card">
-        <div class="metric-icon">🔢</div>
-        <div class="metric-content">
-          <span class="metric-value">{{ r.totalQuantity | number }}</span>
-          <span class="metric-label">{{ 'products.fields.quantity' | translate }}</span>
-        </div>
-      </div>
+
       <div class="metric-card success">
         <div class="metric-icon">💰</div>
         <div class="metric-content">
@@ -75,6 +79,7 @@
           <span class="metric-label">{{ 'reports.sales.revenue' | translate }}</span>
         </div>
       </div>
+
       <div class="metric-card">
         <div class="metric-icon">🏷️</div>
         <div class="metric-content">

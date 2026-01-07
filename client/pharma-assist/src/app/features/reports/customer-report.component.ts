@@ -66,24 +66,24 @@ export class CustomerReportComponent implements OnInit {
     this.report.set(null);
   }
 
-  onStartDateChange(value: string): void {
-    const parsed = this.tryParseIsoDateOnly(value);
+  onStartDateTextChange(value: string): void {
+    const parsed = this.tryParseEuDate(value);
     if (!parsed) return;
     this.startDate = this.startOfDay(parsed);
   }
 
-  onEndDateChange(value: string): void {
-    const parsed = this.tryParseIsoDateOnly(value);
+  onEndDateTextChange(value: string): void {
+    const parsed = this.tryParseEuDate(value);
     if (!parsed) return;
     this.endDate = this.endOfDay(parsed);
   }
 
-  get startDateIso(): string {
-    return this.toIsoDateOnly(this.startDate);
+  get startDateText(): string {
+    return this.toEuDateOnly(this.startDate);
   }
 
-  get endDateIso(): string {
-    return this.toIsoDateOnly(this.endDate);
+  get endDateText(): string {
+    return this.toEuDateOnly(this.endDate);
   }
 
   generateReport(): void {
@@ -111,18 +111,37 @@ export class CustomerReportComponent implements OnInit {
     });
   }
 
-  private toIsoDateOnly(date: Date): string {
-    const yyyy = date.getFullYear();
-    const mm = String(date.getMonth() + 1).padStart(2, '0');
+  private toEuDateOnly(date: Date): string {
     const dd = String(date.getDate()).padStart(2, '0');
-    return `${yyyy}-${mm}-${dd}`;
+    const mm = String(date.getMonth() + 1).padStart(2, '0');
+    const yyyy = date.getFullYear();
+    return `${dd}.${mm}.${yyyy}`;
   }
 
-  private tryParseIsoDateOnly(value: string): Date | null {
+  private tryParseEuDate(value: string): Date | null {
     const trimmed = value.trim();
-    if (!/^\d{4}-\d{2}-\d{2}$/.test(trimmed)) return null;
-    const d = new Date(trimmed + 'T00:00:00');
-    return Number.isNaN(d.getTime()) ? null : d;
+    if (!trimmed) return null;
+
+    // Accept both '.' and '/' as separators
+    const normalized = trimmed.replace(/\//g, '.');
+    const match = /^(\d{1,2})\.(\d{1,2})\.(\d{4})$/.exec(normalized);
+    if (!match) return null;
+
+    const day = Number(match[1]);
+    const month = Number(match[2]);
+    const year = Number(match[3]);
+    if (!Number.isFinite(day) || !Number.isFinite(month) || !Number.isFinite(year)) return null;
+
+    const candidate = new Date(year, month - 1, day);
+    if (
+      candidate.getFullYear() !== year ||
+      candidate.getMonth() !== month - 1 ||
+      candidate.getDate() !== day
+    ) {
+      return null;
+    }
+
+    return candidate;
   }
 
   private startOfDay(date: Date): Date {

@@ -1,3 +1,5 @@
+using Domain.Enums;
+
 namespace Domain.Entities;
 
 /// <summary>
@@ -14,6 +16,12 @@ public class OrderItem : BaseEntity
     public decimal DiscountPercent { get; set; } = 0;
     public decimal TaxRate { get; set; } = 17m; // BiH VAT
     public decimal LineTotal { get; set; }
+    
+    /// <summary>
+    /// Price type used for this item (Commercial=1, Essential=2)
+    /// Used for split invoice generation
+    /// </summary>
+    public PriceType PriceType { get; set; } = PriceType.Commercial;
     
     // Prescription
     public bool PrescriptionRequired { get; set; } = false;

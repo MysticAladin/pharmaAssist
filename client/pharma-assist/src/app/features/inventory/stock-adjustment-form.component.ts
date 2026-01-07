@@ -6,7 +6,7 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { InventoryService } from '../../core/services/inventory.service';
 import { ProductService } from '../../core/services/product.service';
 import { NotificationService } from '../../core/services/notification.service';
-import { AdjustmentType, CreateStockAdjustmentRequest, getAdjustmentTypeLabel } from '../../core/models/inventory.model';
+import { AdjustmentType, CreateStockAdjustmentRequest, getAdjustmentTypeLabel, Location as WarehouseLocation } from '../../core/models/inventory.model';
 import { ProductSummary, ProductBatch } from '../../core/models/product.model';
 
 @Component({
@@ -78,7 +78,25 @@ import { ProductSummary, ProductBatch } from '../../core/models/product.model';
                 <div class="product-details">
                   <div class="product-main">
                     <h3>{{ selectedProduct()!.name }}</h3>
-                    <code class="sku">{{ selectedProduct()!.sku }}</code>
+                    <div class="product-meta">
+                      <code class="sku">{{ selectedProduct()!.sku }}</code>
+                      @if (selectedProduct()!.manufacturerName) {
+                        <span class="meta-sep">•</span>
+                        <span>{{ selectedProduct()!.manufacturerName }}</span>
+                      }
+                      @if (selectedProduct()!.packageSize) {
+                        <span class="meta-sep">•</span>
+                        <span>{{ selectedProduct()!.packageSize }}</span>
+                      }
+                      @if (selectedProduct()!.dosageForm) {
+                        <span class="meta-sep">•</span>
+                        <span>{{ selectedProduct()!.dosageForm }}</span>
+                      }
+                      @if (selectedProduct()!.earliestExpiryDate) {
+                        <span class="meta-sep">•</span>
+                        <span>{{ 'inventory.expires' | translate }}: {{ formatExpiry(selectedProduct()!.earliestExpiryDate) }}</span>
+                      }
+                    </div>
                   </div>
                   <div class="product-stats">
                     <div class="stat">
@@ -121,7 +139,24 @@ import { ProductSummary, ProductBatch } from '../../core/models/product.model';
             <section class="form-section">
               <h2>{{ 'inventory.adjustmentDetails' | translate }}</h2>
 
-              <div class="form-row">
+              <div class="form-row form-row-4">
+                <div class="form-group">
+                  <label for="warehouseId">{{ 'inventory.warehouse' | translate }} *</label>
+                  <select
+                    id="warehouseId"
+                    formControlName="warehouseId"
+                    class="form-control"
+                    [class.is-invalid]="isFieldInvalid('warehouseId')">
+                    <option value="">{{ 'inventory.selectWarehouse' | translate }}</option>
+                    @for (warehouse of warehouses(); track warehouse.id) {
+                      <option [value]="warehouse.id">{{ warehouse.name }}</option>
+                    }
+                  </select>
+                  @if (isFieldInvalid('warehouseId')) {
+                    <span class="error-text">{{ 'validation.required' | translate }}</span>
+                  }
+                </div>
+
                 <div class="form-group">
                   <label for="adjustmentType">{{ 'inventory.adjustmentType' | translate }} *</label>
                   <select
@@ -153,7 +188,52 @@ import { ProductSummary, ProductBatch } from '../../core/models/product.model';
                     <span class="error-text">{{ 'validation.minValue' | translate:{ min: 1 } }}</span>
                   }
                 </div>
+
+                <div class="form-group">
+                  <label for="expiryDate">{{ 'inventory.expiryDate' | translate }}</label>
+                  <div class="date-input-wrapper">
+                    <input
+                      type="text"
+                      [value]="formatExpiry(adjustmentForm.get('expiryDate')?.value) || ''"
+                      placeholder="dd.MM.yyyy"
+                      class="form-control date-input"
+                      readonly
+                    />
+                    <input
+                      type="date"
+                      id="expiryDate"
+                      formControlName="expiryDate"
+                      class="hidden-date-picker"
+                      #expiryDatePicker
+                    />
+                    <button type="button" class="calendar-icon" (click)="expiryDatePicker.showPicker()">
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+                        <line x1="16" y1="2" x2="16" y2="6"/>
+                        <line x1="8" y1="2" x2="8" y2="6"/>
+                        <line x1="3" y1="10" x2="21" y2="10"/>
+                      </svg>
+                    </button>
+                  </div>
+                  <small class="form-text text-muted">{{ 'inventory.expiryDateHelp' | translate }}</small>
+                </div>
               </div>
+
+              <!-- Batch info for additions -->
+              @if (isAddition()) {
+                <div class="form-row">
+                  <div class="form-group">
+                    <label for="batchNumber">{{ 'inventory.batchNumber' | translate }}</label>
+                    <input
+                      type="text"
+                      id="batchNumber"
+                      formControlName="batchNumber"
+                      class="form-control"
+                      [placeholder]="'inventory.batchNumberPlaceholder' | translate">
+                    <small class="form-text text-muted">{{ 'inventory.batchNumberHelp' | translate }}</small>
+                  </div>
+                </div>
+              }
 
               <div class="form-group">
                 <label for="reason">{{ 'inventory.reason' | translate }} *</label>
@@ -308,6 +388,10 @@ import { ProductSummary, ProductBatch } from '../../core/models/product.model';
       gap: 1rem;
     }
 
+    .form-row-4 {
+      grid-template-columns: repeat(4, 1fr);
+    }
+
     .form-control {
       width: 100%;
       padding: 0.625rem 0.875rem;
@@ -419,6 +503,63 @@ import { ProductSummary, ProductBatch } from '../../core/models/product.model';
       font-size: 1rem;
       font-weight: 600;
       color: var(--text-primary);
+    }
+
+    .product-meta {
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      font-size: 0.875rem;
+      color: var(--text-secondary);
+    }
+
+    .meta-sep {
+      color: var(--text-muted);
+    }
+
+    .date-input-wrapper {
+      position: relative;
+    }
+
+    .date-input-wrapper .hidden-date-picker {
+      position: absolute;
+      opacity: 0;
+      pointer-events: none;
+      width: 0;
+      height: 0;
+    }
+
+    .date-input-wrapper .date-input {
+      width: 100%;
+      min-width: 160px;
+      padding-right: 2.5rem;
+      cursor: pointer;
+    }
+
+    .date-input-wrapper .calendar-icon {
+      position: absolute;
+      right: 0.5rem;
+      top: 50%;
+      transform: translateY(-50%);
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 0.25rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--neutral-500, #6b7280);
+      transition: color 0.2s;
+
+      &:hover {
+        color: var(--primary);
+      }
+
+      svg {
+        width: 16px;
+        height: 16px;
+      }
     }
 
     .sku {
@@ -608,7 +749,8 @@ import { ProductSummary, ProductBatch } from '../../core/models/product.model';
         padding: 1rem;
       }
 
-      .form-row {
+      .form-row,
+      .form-row-4 {
         grid-template-columns: 1fr;
       }
 
@@ -646,8 +788,13 @@ export class StockAdjustmentFormComponent implements OnInit {
   selectedProduct = signal<ProductSummary | null>(null);
   availableBatches = signal<ProductBatch[]>([]);
   productResults = signal<ProductSummary[]>([]);
+  warehouses = signal<WarehouseLocation[]>([]);
   searchingProducts = signal(false);
   submitting = signal(false);
+
+  // Tracked form values for computed signals
+  quantityValue = signal(0);
+  adjustmentTypeValue = signal<AdjustmentType | ''>('');
 
   productSearchTerm = '';
   private searchTimeout?: ReturnType<typeof setTimeout>;
@@ -656,7 +803,10 @@ export class StockAdjustmentFormComponent implements OnInit {
 
   adjustmentForm: FormGroup = this.fb.group({
     productId: [null, Validators.required],
+    warehouseId: [null, Validators.required],
     batchId: [null],
+    batchNumber: [''],  // For new batches when adding stock
+    expiryDate: [null],
     adjustmentType: ['', Validators.required],
     quantity: [1, [Validators.required, Validators.min(1)]],
     reason: ['', Validators.required],
@@ -667,10 +817,10 @@ export class StockAdjustmentFormComponent implements OnInit {
     const product = this.selectedProduct();
     if (!product) return 0;
 
-    const quantity = this.adjustmentForm.get('quantity')?.value || 0;
-    const type = this.adjustmentForm.get('adjustmentType')?.value;
+    const quantity = this.quantityValue();
+    const type = this.adjustmentTypeValue();
 
-    if (this.isAdditionType(type)) {
+    if (this.isAdditionType(type as AdjustmentType)) {
       return product.stockQuantity + quantity;
     } else {
       return product.stockQuantity - quantity;
@@ -678,11 +828,42 @@ export class StockAdjustmentFormComponent implements OnInit {
   });
 
   ngOnInit(): void {
+    // Load warehouses
+    this.loadWarehouses();
+
     // Check for pre-selected product from query params
     const productId = this.route.snapshot.queryParams['productId'];
     if (productId) {
       this.loadProduct(+productId);
     }
+
+    // Subscribe to form value changes for preview updates
+    this.adjustmentForm.get('quantity')?.valueChanges.subscribe(value => {
+      this.quantityValue.set(value || 0);
+    });
+    this.adjustmentForm.get('adjustmentType')?.valueChanges.subscribe(value => {
+      this.adjustmentTypeValue.set(value || '');
+    });
+  }
+
+  loadWarehouses(): void {
+    this.inventoryService.getActiveLocations().subscribe({
+      next: (response) => {
+        if (response.data) {
+          this.warehouses.set(response.data);
+          // Set default warehouse if available
+          const defaultWarehouse = response.data.find(w => w.isDefault);
+          if (defaultWarehouse) {
+            this.adjustmentForm.patchValue({ warehouseId: defaultWarehouse.id });
+          }
+        }
+      },
+      error: () => {
+        this.notificationService.error(
+          this.translateService.instant('inventory.warehousesLoadError')
+        );
+      }
+    });
   }
 
   loadProduct(productId: number): void {
@@ -697,6 +878,9 @@ export class StockAdjustmentFormComponent implements OnInit {
             sku: product.sku,
             categoryName: product.categoryName,
             manufacturerName: product.manufacturerName,
+            dosageForm: product.dosageForm,
+            packageSize: product.packageSize,
+            earliestExpiryDate: product.earliestExpiryDate,
             unitPrice: product.unitPrice,
             stockQuantity: product.stockQuantity,
             requiresPrescription: product.requiresPrescription,
@@ -782,6 +966,23 @@ export class StockAdjustmentFormComponent implements OnInit {
     return field ? field.invalid && (field.dirty || field.touched) : false;
   }
 
+  formatExpiry(value?: string | null): string | null {
+    if (!value) return null;
+    // Prefer YYYY-MM-DD date part (also works for ISO timestamps like 2026-01-22T00:00:00Z)
+    const m = value.match(/^(\d{4})-(\d{2})-(\d{2})/);
+    if (m) {
+      return `${m[3]}.${m[2]}.${m[1]}`;
+    }
+
+    const d = new Date(value);
+    if (Number.isNaN(d.getTime())) return null;
+
+    const day = String(d.getDate()).padStart(2, '0');
+    const month = String(d.getMonth() + 1).padStart(2, '0');
+    const year = String(d.getFullYear());
+    return `${day}.${month}.${year}`;
+  }
+
   onSubmit(): void {
     if (this.adjustmentForm.invalid || !this.selectedProduct()) {
       Object.keys(this.adjustmentForm.controls).forEach(key => {
@@ -794,7 +995,10 @@ export class StockAdjustmentFormComponent implements OnInit {
 
     const request: CreateStockAdjustmentRequest = {
       productId: this.adjustmentForm.value.productId,
+      warehouseId: this.adjustmentForm.value.warehouseId,
       batchId: this.adjustmentForm.value.batchId || undefined,
+      batchNumber: this.adjustmentForm.value.batchNumber || undefined,
+      expiryDate: this.adjustmentForm.value.expiryDate || undefined,
       adjustmentType: this.adjustmentForm.value.adjustmentType,
       quantity: this.adjustmentForm.value.quantity,
       reason: this.adjustmentForm.value.reason,

@@ -189,11 +189,65 @@ public class InventoryService : IInventoryService
         return ApiResponse<InventoryStockDto>.Fail("GetStockByIdAsync not implemented. Requires repository method.");
     }
 
+    /// <summary>
+    /// Get stock by warehouse - shows ALL active products with their stock from ProductBatches.
+    /// Products without batches show 0 stock but are still visible for stock management.
+    /// </summary>
     public async Task<ApiResponse<IEnumerable<InventoryStockDto>>> GetStockByWarehouseAsync(int warehouseId, CancellationToken cancellationToken = default)
     {
-        var stocks = await _unitOfWork.Inventory.GetStocksByWarehouseAsync(warehouseId, cancellationToken);
-        var dtos = stocks.Select(MapStockToDto);
-        return ApiResponse<IEnumerable<InventoryStockDto>>.Ok(dtos);
+        var warehouse = await _unitOfWork.Inventory.GetWarehouseByIdAsync(warehouseId, cancellationToken);
+        if (warehouse == null)
+            return ApiResponse<IEnumerable<InventoryStockDto>>.Fail($"Warehouse with ID {warehouseId} not found.");
+
+        // Get all active products
+        var allProducts = await _unitOfWork.Products.GetAllAsync(cancellationToken);
+        var activeProducts = allProducts.Where(p => p.IsActive && !p.IsDeleted).ToList();
+
+        // Get all active batches for this warehouse
+        var batches = await _unitOfWork.Inventory.GetBatchesByWarehouseAsync(warehouseId, cancellationToken);
+        
+        // Group batches by product
+        var batchesByProduct = batches
+            .Where(b => b.IsActive && !b.IsDeleted)
+            .GroupBy(b => b.ProductId)
+            .ToDictionary(g => g.Key, g => g.ToList());
+
+        // Build stock list for ALL products (including those without batches)
+        var stockList = activeProducts
+            .Select(product => {
+                var productBatches = batchesByProduct.GetValueOrDefault(product.Id, new List<ProductBatch>());
+                var totalQuantity = productBatches.Sum(b => b.RemainingQuantity);
+                var earliestExpiry = productBatches
+                    .Where(b => b.RemainingQuantity > 0)
+                    .OrderBy(b => b.ExpiryDate)
+                    .FirstOrDefault()?.ExpiryDate;
+                
+                return new InventoryStockDto
+                {
+                    Id = productBatches.FirstOrDefault()?.Id ?? 0,
+                    WarehouseId = warehouseId,
+                    WarehouseName = warehouse.Name,
+                    ProductId = product.Id,
+                    ProductName = product.Name,
+                    ProductSku = product.SKU,
+                    PackageSize = product.PackageSize,
+                    ProductBatchId = null, // Aggregated view
+                    BatchNumber = null,
+                    QuantityOnHand = totalQuantity,
+                    QuantityReserved = 0,
+                    MinimumStockLevel = product.ReorderLevel,
+                    ReorderPoint = product.ReorderLevel,
+                    MaximumStockLevel = product.ReorderLevel * 10,
+                    EarliestExpiryDate = earliestExpiry,
+                    LastUpdated = productBatches.Any() 
+                        ? productBatches.Max(b => b.UpdatedAt ?? b.CreatedAt) 
+                        : product.UpdatedAt ?? product.CreatedAt
+                };
+            })
+            .OrderBy(s => s.ProductName)
+            .ToList();
+
+        return ApiResponse<IEnumerable<InventoryStockDto>>.Ok(stockList);
     }
 
     public async Task<ApiResponse<IEnumerable<InventoryStockDto>>> GetStockByProductAsync(int productId, CancellationToken cancellationToken = default)
@@ -557,43 +611,128 @@ public class InventoryService : IInventoryService
             return ApiResponse<StockAdjustmentListItemDto>.Fail("Invalid adjustment type.");
 
         var isAddition = IsAdditionAdjustmentType(dto.AdjustmentType);
-        var delta = isAddition ? dto.Quantity : -dto.Quantity;
+        ProductBatch? batch = null;
+        string? batchNumber = null;
 
-        InventoryStock? currentStock = dto.BatchId.HasValue
-            ? await _unitOfWork.Inventory.GetStockByBatchAsync(dto.ProductId, dto.BatchId.Value, warehouse.Id, cancellationToken)
-            : await _unitOfWork.Inventory.GetStockByProductAsync(dto.ProductId, warehouse.Id, cancellationToken);
-
-        var currentQuantity = currentStock?.QuantityOnHand ?? 0;
-        var newQuantity = currentQuantity + delta;
-
-        if (newQuantity < 0)
-            return ApiResponse<StockAdjustmentListItemDto>.Fail("This adjustment would result in negative stock.");
-
-        if (currentStock == null)
+        if (isAddition)
         {
-            var stock = new InventoryStock
+            // For additions, we need batch info to create/update ProductBatches (source of truth)
+            if (dto.BatchId.HasValue)
             {
-                WarehouseId = warehouse.Id,
-                ProductId = dto.ProductId,
-                ProductBatchId = dto.BatchId,
-                QuantityOnHand = newQuantity,
-                QuantityReserved = 0,
-                LastMovementDate = DateTime.UtcNow
-            };
-            await _unitOfWork.Inventory.AddStockAsync(stock, cancellationToken);
+                // Adding to existing batch
+                var existingBatches = await _unitOfWork.Inventory.GetBatchesByProductAsync(dto.ProductId, cancellationToken);
+                batch = existingBatches.FirstOrDefault(b => b.Id == dto.BatchId.Value);
+                if (batch == null)
+                    return ApiResponse<StockAdjustmentListItemDto>.Fail($"Batch with ID {dto.BatchId.Value} not found.");
+                
+                batch.RemainingQuantity += dto.Quantity;
+                await _unitOfWork.Inventory.UpdateBatchAsync(batch, cancellationToken);
+                batchNumber = batch.BatchNumber;
+            }
+            else
+            {
+                // Creating a new batch - batch number and expiry date required
+                if (string.IsNullOrWhiteSpace(dto.BatchNumber))
+                {
+                    // Auto-generate batch number
+                    dto.BatchNumber = $"BATCH-{DateTime.UtcNow:yyyyMMdd}-{dto.ProductId:D4}-{Guid.NewGuid().ToString("N")[..4].ToUpper()}";
+                }
+                
+                if (!dto.ExpiryDate.HasValue)
+                {
+                    // Default expiry to 2 years from now if not provided
+                    dto.ExpiryDate = DateTime.UtcNow.AddYears(2);
+                }
+
+                // Check if batch number already exists for this product
+                var existingBatch = await _unitOfWork.Inventory.GetBatchByNumberAsync(dto.ProductId, dto.BatchNumber, cancellationToken);
+                if (existingBatch != null)
+                {
+                    // Add to existing batch with same number
+                    existingBatch.RemainingQuantity += dto.Quantity;
+                    await _unitOfWork.Inventory.UpdateBatchAsync(existingBatch, cancellationToken);
+                    batch = existingBatch;
+                }
+                else
+                {
+                    // Create new batch
+                    batch = new ProductBatch
+                    {
+                        ProductId = dto.ProductId,
+                        WarehouseId = warehouse.Id,
+                        BatchNumber = dto.BatchNumber,
+                        ExpiryDate = dto.ExpiryDate.Value,
+                        ManufactureDate = DateTime.UtcNow,
+                        InitialQuantity = dto.Quantity,
+                        RemainingQuantity = dto.Quantity,
+                        CostPrice = dto.CostPrice ?? product.CostPrice,
+                        IsActive = true
+                    };
+                    await _unitOfWork.Inventory.AddBatchAsync(batch, cancellationToken);
+                }
+                batchNumber = batch.BatchNumber;
+            }
         }
         else
         {
-            currentStock.QuantityOnHand = newQuantity;
-            currentStock.LastMovementDate = DateTime.UtcNow;
-            await _unitOfWork.Inventory.UpdateStockAsync(currentStock, cancellationToken);
+            // For removals (removal, damaged, expired), use FEFO to find the batch
+            if (dto.BatchId.HasValue)
+            {
+                // Removing from specific batch
+                var existingBatches = await _unitOfWork.Inventory.GetBatchesByProductAsync(dto.ProductId, cancellationToken);
+                batch = existingBatches.FirstOrDefault(b => b.Id == dto.BatchId.Value && b.IsActive && !b.IsDeleted);
+                if (batch == null)
+                    return ApiResponse<StockAdjustmentListItemDto>.Fail($"Active batch with ID {dto.BatchId.Value} not found.");
+                
+                if (batch.RemainingQuantity < dto.Quantity)
+                    return ApiResponse<StockAdjustmentListItemDto>.Fail($"Insufficient stock in batch. Available: {batch.RemainingQuantity}");
+                
+                batch.RemainingQuantity -= dto.Quantity;
+                if (batch.RemainingQuantity == 0)
+                    batch.IsActive = false;
+                await _unitOfWork.Inventory.UpdateBatchAsync(batch, cancellationToken);
+                batchNumber = batch.BatchNumber;
+            }
+            else
+            {
+                // Auto-select batches using FEFO (First Expiry First Out)
+                var activeBatches = await _unitOfWork.Inventory.GetActiveBatchesByProductAsync(dto.ProductId, cancellationToken);
+                var totalAvailable = activeBatches.Sum(b => b.RemainingQuantity);
+                
+                if (totalAvailable < dto.Quantity)
+                    return ApiResponse<StockAdjustmentListItemDto>.Fail($"Insufficient total stock. Available: {totalAvailable}");
+
+                var remainingToRemove = dto.Quantity;
+                foreach (var b in activeBatches.OrderBy(b => b.ExpiryDate))
+                {
+                    if (remainingToRemove <= 0) break;
+                    
+                    var removeFromBatch = Math.Min(b.RemainingQuantity, remainingToRemove);
+                    b.RemainingQuantity -= removeFromBatch;
+                    remainingToRemove -= removeFromBatch;
+                    
+                    if (b.RemainingQuantity == 0)
+                        b.IsActive = false;
+                    
+                    await _unitOfWork.Inventory.UpdateBatchAsync(b, cancellationToken);
+                    batch ??= b; // Keep reference to first batch for response
+                }
+                batchNumber = batch?.BatchNumber;
+            }
         }
 
+        // Save batch changes first to get batch IDs before creating movement
+        await _unitOfWork.SaveChangesAsync(cancellationToken);
+
+        // Sync InventoryStocks from batches (computed aggregate)
+        await SyncInventoryStockFromBatchesAsync(dto.ProductId, warehouse.Id, cancellationToken);
+
+        // Record the movement for audit trail - now batch.Id is populated
         var movement = new StockMovement
         {
             WarehouseId = warehouse.Id,
             ProductId = dto.ProductId,
-            ProductBatchId = dto.BatchId,
+            ProductBatchId = batch?.Id,
             MovementType = movementType.Value,
             Quantity = dto.Quantity,
             ReferenceNumber = CreateAdjustmentReference(dto.AdjustmentType),
@@ -612,8 +751,8 @@ public class InventoryService : IInventoryService
             ProductId = dto.ProductId,
             ProductName = product.Name,
             ProductSku = product.SKU,
-            BatchId = dto.BatchId,
-            BatchNumber = currentStock?.ProductBatch?.BatchNumber,
+            BatchId = batch?.Id,
+            BatchNumber = batchNumber,
             AdjustmentType = dto.AdjustmentType,
             Quantity = dto.Quantity,
             Reason = dto.Reason,
@@ -623,6 +762,39 @@ public class InventoryService : IInventoryService
         };
 
         return ApiResponse<StockAdjustmentListItemDto>.Ok(response);
+    }
+
+    /// <summary>
+    /// Synchronizes InventoryStocks from ProductBatches for a given product and warehouse.
+    /// InventoryStocks is a computed aggregate view, ProductBatches is the source of truth.
+    /// </summary>
+    private async Task SyncInventoryStockFromBatchesAsync(int productId, int warehouseId, CancellationToken cancellationToken)
+    {
+        // Get all active batches for this product (optionally filter by warehouse if batches have warehouse)
+        var batches = await _unitOfWork.Inventory.GetActiveBatchesByProductAsync(productId, cancellationToken);
+        var totalQuantity = batches.Where(b => !b.IsDeleted).Sum(b => b.RemainingQuantity);
+
+        var currentStock = await _unitOfWork.Inventory.GetStockByProductAsync(productId, warehouseId, cancellationToken);
+        
+        if (currentStock == null)
+        {
+            var stock = new InventoryStock
+            {
+                WarehouseId = warehouseId,
+                ProductId = productId,
+                QuantityOnHand = totalQuantity,
+                QuantityReserved = 0,
+                LastMovementDate = DateTime.UtcNow
+            };
+            await _unitOfWork.Inventory.AddStockAsync(stock, cancellationToken);
+        }
+        else
+        {
+            // Preserve reservations, update on-hand from batches
+            currentStock.QuantityOnHand = totalQuantity;
+            currentStock.LastMovementDate = DateTime.UtcNow;
+            await _unitOfWork.Inventory.UpdateStockAsync(currentStock, cancellationToken);
+        }
     }
 
     public async Task<ApiResponse<StockMovementDto>> AdjustStockAsync(StockAdjustmentDto dto, string userId, CancellationToken cancellationToken = default)
@@ -1328,6 +1500,7 @@ public class InventoryService : IInventoryService
             ProductId = stock.ProductId,
             ProductName = stock.Product?.Name ?? string.Empty,
             ProductSku = stock.Product?.SKU ?? string.Empty,
+            PackageSize = stock.Product?.PackageSize,
             ProductBatchId = stock.ProductBatchId,
             BatchNumber = stock.ProductBatch?.BatchNumber,
             QuantityOnHand = stock.QuantityOnHand,
@@ -1335,6 +1508,7 @@ public class InventoryService : IInventoryService
             MinimumStockLevel = stock.ReorderLevel,
             ReorderPoint = stock.ReorderLevel,
             MaximumStockLevel = stock.MaxStockLevel,
+            EarliestExpiryDate = stock.ProductBatch?.ExpiryDate,
             LastUpdated = stock.LastMovementDate ?? stock.CreatedAt
         };
     }

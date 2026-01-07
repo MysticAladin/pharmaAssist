@@ -1,5 +1,6 @@
 using Application.DTOs.Claims;
 using Application.DTOs.Common;
+using Application.DTOs.Dashboard;
 using Application.DTOs.Orders;
 using Application.Interfaces;
 using Domain.Enums;
@@ -24,6 +25,7 @@ public class PortalController : ControllerBase
     private readonly IOrderService _orderService;
     private readonly IPdfService _pdfService;
     private readonly IClaimService _claimService;
+    private readonly IPricingService _pricingService;
     private readonly ILogger<PortalController> _logger;
 
     public PortalController(
@@ -31,12 +33,14 @@ public class PortalController : ControllerBase
         IOrderService orderService,
         IPdfService pdfService,
         IClaimService claimService,
+        IPricingService pricingService,
         ILogger<PortalController> logger)
     {
         _context = context;
         _orderService = orderService;
         _pdfService = pdfService;
         _claimService = claimService;
+        _pricingService = pricingService;
         _logger = logger;
     }
 
@@ -78,6 +82,57 @@ public class PortalController : ControllerBase
             .FirstOrDefaultAsync(c => c.UserId == userId && !c.IsDeleted);
         return customer?.Id;
     }
+
+    /// <summary>
+    /// Get the canton ID for the current customer's default address
+    /// </summary>
+    private async Task<int?> GetCurrentCustomerCantonIdAsync(int? customerId)
+    {
+        if (!customerId.HasValue) return null;
+
+        // Get canton from customer's default address
+        var cantonId = await _context.CustomerAddresses
+            .Where(a => a.CustomerId == customerId.Value && a.IsDefault && !a.IsDeleted)
+            .Select(a => a.CantonId)
+            .FirstOrDefaultAsync();
+
+        return cantonId;
+    }
+
+    #region Dashboard Stats
+
+    /// <summary>
+    /// Get dashboard statistics for the current customer
+    /// </summary>
+    [HttpGet("stats")]
+    [ProducesResponseType(typeof(ApiResponse<PortalDashboardStatsDto>), StatusCodes.Status200OK)]
+    public async Task<IActionResult> GetDashboardStats(CancellationToken cancellationToken = default)
+    {
+        var customerId = await GetCurrentCustomerIdAsync();
+        if (!customerId.HasValue)
+            return Unauthorized(ApiResponse<object>.Fail("Customer not found"));
+
+        var pendingOrders = await _context.Orders
+            .Where(o => o.CustomerId == customerId.Value && !o.IsDeleted)
+            .Where(o => o.Status == OrderStatus.Pending || o.Status == OrderStatus.Processing || o.Status == OrderStatus.Shipped)
+            .CountAsync(cancellationToken);
+
+        var totalOrders = await _context.Orders
+            .Where(o => o.CustomerId == customerId.Value && !o.IsDeleted)
+            .CountAsync(cancellationToken);
+
+        var stats = new PortalDashboardStatsDto
+        {
+            PendingOrders = pendingOrders,
+            TotalOrders = totalOrders,
+            FavoriteCount = 0, // TODO: Implement when favorites feature is ready
+            CartItemCount = 0  // Cart is managed client-side
+        };
+
+        return Ok(ApiResponse<PortalDashboardStatsDto>.Ok(stats));
+    }
+
+    #endregion
 
     #region Orders
 
@@ -303,7 +358,7 @@ public class PortalController : ControllerBase
                 DiscountPercent = item.DiscountPercent,
                 TaxPercent = item.TaxRate,
                 LineTotal = item.LineTotal,
-                IsEssential = false
+                IsEssential = item.PriceType == Domain.Enums.PriceType.Essential
             }).ToList(),
 
             SubTotal = order.SubTotal,
@@ -317,6 +372,92 @@ public class PortalController : ControllerBase
 
         var pdfBytes = await _pdfService.GenerateInvoicePdfAsync(request);
         return File(pdfBytes, "application/pdf", $"Faktura-{order.OrderNumber}.pdf");
+    }
+
+    /// <summary>
+    /// Download split invoice PDF for an order (Commercial or Essential items only)
+    /// </summary>
+    /// <param name="id">Order ID</param>
+    /// <param name="priceType">1 = Commercial, 2 = Essential</param>
+    [HttpGet("orders/{id:int}/invoice/split/{priceType:int}")]
+    [Produces("application/pdf")]
+    [ProducesResponseType(typeof(FileContentResult), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> DownloadSplitInvoice(int id, int priceType, CancellationToken cancellationToken)
+    {
+        if (priceType < 1 || priceType > 2)
+            return BadRequest(ApiResponse<object>.Fail("Invalid price type. Use 1 for Commercial or 2 for Essential."));
+
+        var customerId = await GetCurrentCustomerIdAsync();
+        if (!customerId.HasValue)
+            return Unauthorized(ApiResponse<object>.Fail("Customer not found"));
+
+        var order = await _context.Orders
+            .Include(o => o.Customer)
+            .Include(o => o.BillingAddress)
+            .Include(o => o.ShippingAddress)
+            .Include(o => o.OrderItems)
+                .ThenInclude(oi => oi.Product)
+            .FirstOrDefaultAsync(o => o.Id == id && o.CustomerId == customerId.Value, cancellationToken);
+
+        if (order == null)
+            return NotFound(ApiResponse<object>.Fail("Order not found"));
+
+        var targetPriceType = (Domain.Enums.PriceType)priceType;
+        var filteredItems = order.OrderItems.Where(i => i.PriceType == targetPriceType).ToList();
+
+        if (!filteredItems.Any())
+            return NotFound(ApiResponse<object>.Fail($"No items found with price type {(priceType == 1 ? "Commercial" : "Essential")}"));
+
+        var buyerAddress = FormatAddress(order.BillingAddress) ?? FormatAddress(order.ShippingAddress);
+        var invoiceDate = order.OrderDate;
+        var dueDate = invoiceDate.AddDays(Math.Max(0, order.Customer.PaymentTermsDays));
+
+        // Calculate totals for filtered items only
+        var subTotal = filteredItems.Sum(i => i.LineTotal);
+        var taxAmount = filteredItems.Sum(i => i.LineTotal * (i.TaxRate / 100));
+        var discountAmount = filteredItems.Sum(i => i.LineTotal * (i.DiscountPercent / 100));
+        var totalAmount = subTotal + taxAmount - discountAmount;
+
+        var priceTypeSuffix = priceType == 1 ? "K" : "E"; // K = Komercijalna, E = Esencijalna
+        var priceTypeName = priceType == 1 ? "Komercijalna" : "Esencijalna";
+
+        var request = new InvoicePdfRequest
+        {
+            InvoiceNumber = $"{order.OrderNumber}-{priceTypeSuffix}",
+            InvoiceDate = invoiceDate,
+            DueDate = dueDate,
+
+            BuyerName = order.Customer.FullName,
+            BuyerAddress = buyerAddress,
+            BuyerTaxId = order.Customer.TaxId ?? string.Empty,
+            BuyerEmail = order.Customer.Email,
+
+            Items = filteredItems.Select((item, index) => new InvoiceLineItem
+            {
+                LineNumber = index + 1,
+                ProductCode = item.Product.SKU,
+                ProductName = item.Product.Name,
+                Quantity = item.Quantity,
+                UnitPrice = item.UnitPrice,
+                DiscountPercent = item.DiscountPercent,
+                TaxPercent = item.TaxRate,
+                LineTotal = item.LineTotal,
+                IsEssential = priceType == 2
+            }).ToList(),
+
+            SubTotal = subTotal,
+            TaxAmount = taxAmount,
+            DiscountAmount = discountAmount,
+            TotalAmount = totalAmount,
+
+            PaymentTerms = order.Customer.PaymentTermsDays > 0 ? $"Net {order.Customer.PaymentTermsDays}" : string.Empty,
+            Notes = $"Faktura za {priceTypeName.ToLower()}e artikle. {order.Notes ?? string.Empty}".Trim()
+        };
+
+        var pdfBytes = await _pdfService.GenerateInvoicePdfAsync(request);
+        return File(pdfBytes, "application/pdf", $"Faktura-{order.OrderNumber}-{priceTypeName}.pdf");
     }
 
     #endregion
@@ -557,17 +698,9 @@ public class PortalController : ControllerBase
 
         if (inStockOnly == true)
         {
-            if (centralWarehouseId.HasValue)
-            {
-                var wid = centralWarehouseId.Value;
-                query = query.Where(p => _context.InventoryStocks.Any(s =>
-                    !s.IsDeleted && s.ProductId == p.Id && s.WarehouseId == wid &&
-                    (s.QuantityOnHand - s.QuantityReserved) > 0));
-            }
-            else
-            {
-                query = query.Where(p => p.StockQuantity > 0);
-            }
+            // Check ProductBatches (source of truth) for stock availability
+            query = query.Where(p => _context.ProductBatches.Any(b =>
+                b.ProductId == p.Id && b.IsActive && !b.IsDeleted && b.RemainingQuantity > 0));
         }
 
         if (requiresPrescription.HasValue)
@@ -588,6 +721,11 @@ public class PortalController : ControllerBase
         var totalCount = await query.CountAsync(cancellationToken);
         var totalPages = (int)Math.Ceiling(totalCount / (double)pageSize);
 
+        // Get customer and canton info for pricing
+        var customerId = await GetCurrentCustomerIdAsync();
+        var cantonId = await GetCurrentCustomerCantonIdAsync(customerId);
+        var now = DateTime.UtcNow;
+
         if (centralWarehouseId.HasValue)
         {
             var wid = centralWarehouseId.Value;
@@ -607,13 +745,12 @@ public class PortalController : ControllerBase
                     CategoryId = p.CategoryId.ToString(),
                     Manufacturer = p.Manufacturer != null ? p.Manufacturer.Name : "",
                     ManufacturerId = p.ManufacturerId.ToString(),
-                    StockQuantity = _context.InventoryStocks
-                        .Where(s => !s.IsDeleted && s.ProductId == p.Id && s.WarehouseId == wid)
-                        .Select(s => (int?)(s.QuantityOnHand - s.QuantityReserved))
-                        .Sum() ?? 0,
-                    IsAvailable = _context.InventoryStocks.Any(s =>
-                        !s.IsDeleted && s.ProductId == p.Id && s.WarehouseId == wid &&
-                        (s.QuantityOnHand - s.QuantityReserved) > 0),
+                    // Read stock from ProductBatches (source of truth)
+                    StockQuantity = _context.ProductBatches
+                        .Where(b => b.ProductId == p.Id && b.IsActive && !b.IsDeleted && b.RemainingQuantity > 0)
+                        .Sum(b => b.RemainingQuantity),
+                    IsAvailable = _context.ProductBatches.Any(b =>
+                        b.ProductId == p.Id && b.IsActive && !b.IsDeleted && b.RemainingQuantity > 0),
                     RequiresPrescription = p.RequiresPrescription,
                     EarliestExpiryDate = _context.ProductBatches
                         .Where(b => b.ProductId == p.Id && b.IsActive && b.RemainingQuantity > 0 && b.ExpiryDate >= DateTime.UtcNow)
@@ -624,6 +761,9 @@ public class PortalController : ControllerBase
                     PackSize = p.PackageSize
                 })
                 .ToListAsync(cancellationToken);
+
+            // Enrich items with commercial and essential pricing
+            await EnrichProductsWithPricingAsync(items, customerId, cantonId, now, cancellationToken);
 
             return Ok(new
             {
@@ -653,8 +793,12 @@ public class PortalController : ControllerBase
                 CategoryId = p.CategoryId.ToString(),
                 Manufacturer = p.Manufacturer != null ? p.Manufacturer.Name : "",
                 ManufacturerId = p.ManufacturerId.ToString(),
-                IsAvailable = p.StockQuantity > 0,
-                StockQuantity = p.StockQuantity,
+                // Read stock from ProductBatches (source of truth)
+                StockQuantity = _context.ProductBatches
+                    .Where(b => b.ProductId == p.Id && b.IsActive && !b.IsDeleted && b.RemainingQuantity > 0)
+                    .Sum(b => b.RemainingQuantity),
+                IsAvailable = _context.ProductBatches.Any(b =>
+                    b.ProductId == p.Id && b.IsActive && !b.IsDeleted && b.RemainingQuantity > 0),
                 RequiresPrescription = p.RequiresPrescription,
                 EarliestExpiryDate = _context.ProductBatches
                     .Where(b => b.ProductId == p.Id && b.IsActive && b.RemainingQuantity > 0 && b.ExpiryDate >= DateTime.UtcNow)
@@ -665,6 +809,9 @@ public class PortalController : ControllerBase
                 PackSize = p.PackageSize
             })
             .ToListAsync(cancellationToken);
+
+        // Enrich items with commercial and essential pricing
+        await EnrichProductsWithPricingAsync(fallbackItems, customerId, cantonId, now, cancellationToken);
 
         return Ok(new
         {
@@ -687,59 +834,13 @@ public class PortalController : ControllerBase
     [AllowAnonymous]
     public async Task<IActionResult> GetProductById(int id, CancellationToken cancellationToken)
     {
-        var centralWarehouseId = await GetCentralWarehouseIdAsync(cancellationToken);
-
+        // ProductBatches is source of truth - no need to filter by warehouse for stock
         var productQuery = _context.Products
             .Include(p => p.Category)
             .Include(p => p.Manufacturer)
-            .Where(p => p.Id == id && !p.IsDeleted && p.IsActive)
-            ;
+            .Where(p => p.Id == id && !p.IsDeleted && p.IsActive);
 
-        if (centralWarehouseId.HasValue)
-        {
-            var wid = centralWarehouseId.Value;
-            productQuery = productQuery.Where(p => _context.InventoryStocks.Any(s =>
-                !s.IsDeleted && s.ProductId == p.Id && s.WarehouseId == wid));
-
-            var product = await productQuery
-                .Select(p => new PortalProductDto
-                {
-                    Id = p.Id,
-                    Code = p.SKU,
-                    Name = p.Name,
-                    GenericName = p.GenericName,
-                    Description = p.Description ?? "",
-                    UnitPrice = p.UnitPrice,
-                    ImageUrl = p.ImageUrl,
-                    Category = p.Category != null ? p.Category.Name : "",
-                    CategoryId = p.CategoryId.ToString(),
-                    Manufacturer = p.Manufacturer != null ? p.Manufacturer.Name : "",
-                    ManufacturerId = p.ManufacturerId.ToString(),
-                    StockQuantity = _context.InventoryStocks
-                        .Where(s => !s.IsDeleted && s.ProductId == p.Id && s.WarehouseId == wid)
-                        .Select(s => (int?)(s.QuantityOnHand - s.QuantityReserved))
-                        .Sum() ?? 0,
-                    IsAvailable = _context.InventoryStocks.Any(s =>
-                        !s.IsDeleted && s.ProductId == p.Id && s.WarehouseId == wid &&
-                        (s.QuantityOnHand - s.QuantityReserved) > 0),
-                    RequiresPrescription = p.RequiresPrescription,
-                    EarliestExpiryDate = _context.ProductBatches
-                        .Where(b => b.ProductId == p.Id && b.IsActive && b.RemainingQuantity > 0 && b.ExpiryDate >= DateTime.UtcNow)
-                        .Select(b => (DateTime?)b.ExpiryDate)
-                        .Min(),
-                    DosageForm = p.DosageForm,
-                    Strength = p.Strength,
-                    PackSize = p.PackageSize
-                })
-                .FirstOrDefaultAsync(cancellationToken);
-
-            if (product == null)
-                return NotFound();
-
-            return Ok(product);
-        }
-
-        var fallbackProduct = await productQuery
+        var product = await productQuery
             .Select(p => new PortalProductDto
             {
                 Id = p.Id,
@@ -753,8 +854,12 @@ public class PortalController : ControllerBase
                 CategoryId = p.CategoryId.ToString(),
                 Manufacturer = p.Manufacturer != null ? p.Manufacturer.Name : "",
                 ManufacturerId = p.ManufacturerId.ToString(),
-                IsAvailable = p.StockQuantity > 0,
-                StockQuantity = p.StockQuantity,
+                // Read stock from ProductBatches (source of truth)
+                StockQuantity = _context.ProductBatches
+                    .Where(b => b.ProductId == p.Id && b.IsActive && !b.IsDeleted && b.RemainingQuantity > 0)
+                    .Sum(b => b.RemainingQuantity),
+                IsAvailable = _context.ProductBatches.Any(b =>
+                    b.ProductId == p.Id && b.IsActive && !b.IsDeleted && b.RemainingQuantity > 0),
                 RequiresPrescription = p.RequiresPrescription,
                 EarliestExpiryDate = _context.ProductBatches
                     .Where(b => b.ProductId == p.Id && b.IsActive && b.RemainingQuantity > 0 && b.ExpiryDate >= DateTime.UtcNow)
@@ -766,10 +871,221 @@ public class PortalController : ControllerBase
             })
             .FirstOrDefaultAsync(cancellationToken);
 
-        if (fallbackProduct == null)
+        if (product == null)
             return NotFound();
 
-        return Ok(fallbackProduct);
+        return Ok(product);
+    }
+
+    /// <summary>
+    /// Get paginated product batches for portal catalog
+    /// </summary>
+    [HttpGet("product-batches")]
+    [ProducesResponseType(typeof(object), StatusCodes.Status200OK)]
+    [AllowAnonymous]
+    public async Task<IActionResult> GetProductBatches(
+        [FromQuery] string? search = null,
+        [FromQuery] int? categoryId = null,
+        [FromQuery] string? category = null,
+        [FromQuery] int? manufacturerId = null,
+        [FromQuery] decimal? minPrice = null,
+        [FromQuery] decimal? maxPrice = null,
+        [FromQuery] bool? inStockOnly = null,
+        [FromQuery] bool? requiresPrescription = null,
+        [FromQuery] string? sortBy = null,
+        [FromQuery] string? sortOrder = null,
+        [FromQuery] int page = 1,
+        [FromQuery] int pageSize = 20,
+        CancellationToken cancellationToken = default)
+    {
+        var centralWarehouseId = await GetCentralWarehouseIdAsync(cancellationToken);
+        var today = DateTime.UtcNow;
+
+        var query = _context.ProductBatches
+            .Include(b => b.Product)
+                .ThenInclude(p => p.Category)
+            .Include(b => b.Product)
+                .ThenInclude(p => p.Manufacturer)
+            .Where(b => b.IsActive && 
+                        b.RemainingQuantity > 0 && 
+                        b.ExpiryDate >= today &&
+                        !b.Product.IsDeleted && 
+                        b.Product.IsActive);
+
+        // Portal requirement: only list batches for products in the Central warehouse
+        if (centralWarehouseId.HasValue)
+        {
+            var wid = centralWarehouseId.Value;
+            query = query.Where(b => _context.InventoryStocks.Any(s =>
+                !s.IsDeleted && s.ProductId == b.ProductId && s.WarehouseId == wid));
+        }
+
+        // Apply filters
+        if (!string.IsNullOrWhiteSpace(search))
+        {
+            var searchLower = search.ToLower();
+            query = query.Where(b => 
+                b.Product.Name.ToLower().Contains(searchLower) ||
+                b.Product.SKU.ToLower().Contains(searchLower) ||
+                b.BatchNumber.ToLower().Contains(searchLower) ||
+                (b.Product.Description != null && b.Product.Description.ToLower().Contains(searchLower)));
+        }
+
+        // Filter by category ID or category name/slug
+        if (categoryId.HasValue)
+        {
+            query = query.Where(b => b.Product.CategoryId == categoryId.Value);
+        }
+        else if (!string.IsNullOrWhiteSpace(category))
+        {
+            var categorySlugMappings = new Dictionary<string, string[]>(StringComparer.OrdinalIgnoreCase)
+            {
+                { "medications", new[] { "Prescription Medicines", "OTC Medicines", "Antibiotics", "Cardiovascular", "Diabetes", "Neurological", "Respiratory", "Gastroenterology", "Pain Relief", "Cold & Flu", "Allergies", "First Aid" } },
+                { "medical-supplies", new[] { "Medical Devices", "Diagnostic Equipment", "Mobility Aids" } },
+                { "equipment", new[] { "Medical Devices", "Diagnostic Equipment", "Mobility Aids" } }
+            };
+
+            if (categorySlugMappings.TryGetValue(category, out var mappedCategories))
+            {
+                query = query.Where(b => b.Product.Category != null && mappedCategories.Contains(b.Product.Category.Name));
+            }
+            else
+            {
+                var categoryLower = category.ToLower().Replace("-", " ").Replace("_", " ");
+                query = query.Where(b => b.Product.Category != null && 
+                    (b.Product.Category.Name.ToLower() == categoryLower ||
+                     b.Product.Category.Name.ToLower().Replace(" ", "-") == category.ToLower() ||
+                     b.Product.Category.Name.ToLower().Replace(" ", "_") == category.ToLower()));
+            }
+        }
+
+        if (manufacturerId.HasValue)
+            query = query.Where(b => b.Product.ManufacturerId == manufacturerId.Value);
+
+        if (minPrice.HasValue)
+            query = query.Where(b => b.Product.UnitPrice >= minPrice.Value);
+
+        if (maxPrice.HasValue)
+            query = query.Where(b => b.Product.UnitPrice <= maxPrice.Value);
+
+        if (inStockOnly == true)
+        {
+            query = query.Where(b => b.RemainingQuantity > 0);
+        }
+
+        if (requiresPrescription.HasValue)
+            query = query.Where(b => b.Product.RequiresPrescription == requiresPrescription.Value);
+
+        // Apply sorting
+        query = (sortBy?.ToLower(), sortOrder?.ToLower()) switch
+        {
+            ("name", "desc") => query.OrderByDescending(b => b.Product.Name).ThenBy(b => b.ExpiryDate),
+            ("name", _) => query.OrderBy(b => b.Product.Name).ThenBy(b => b.ExpiryDate),
+            ("price", "desc") => query.OrderByDescending(b => b.Product.UnitPrice).ThenBy(b => b.ExpiryDate),
+            ("price", _) => query.OrderBy(b => b.Product.UnitPrice).ThenBy(b => b.ExpiryDate),
+            ("expiry", "desc") or ("expirydate", "desc") => query.OrderByDescending(b => b.ExpiryDate),
+            ("expiry", _) or ("expirydate", _) => query.OrderBy(b => b.ExpiryDate),
+            ("date", "desc") or ("createdat", "desc") => query.OrderByDescending(b => b.CreatedAt),
+            ("date", _) or ("createdat", _) => query.OrderBy(b => b.CreatedAt),
+            _ => query.OrderBy(b => b.Product.Name).ThenBy(b => b.ExpiryDate)
+        };
+
+        var totalCount = await query.CountAsync(cancellationToken);
+        var totalPages = (int)Math.Ceiling(totalCount / (double)pageSize);
+
+        var items = await query
+            .Skip((page - 1) * pageSize)
+            .Take(pageSize)
+            .Select(b => new PortalProductBatchDto
+            {
+                Id = b.Id,
+                ProductId = b.ProductId,
+                ProductCode = b.Product.SKU,
+                ProductName = b.Product.Name,
+                GenericName = b.Product.GenericName,
+                BatchNumber = b.BatchNumber,
+                ExpiryDate = b.ExpiryDate,
+                ManufactureDate = b.ManufactureDate,
+                StockQuantity = b.RemainingQuantity,
+                IsAvailable = b.RemainingQuantity > 0,
+                DaysUntilExpiry = (int)(b.ExpiryDate - today).TotalDays,
+                IsExpiringSoon = b.ExpiryDate < today.AddDays(90),
+                UnitPrice = b.Product.UnitPrice,
+                ImageUrl = b.Product.ImageUrl,
+                Category = b.Product.Category != null ? b.Product.Category.Name : "",
+                CategoryId = b.Product.CategoryId.ToString(),
+                Manufacturer = b.Product.Manufacturer != null ? b.Product.Manufacturer.Name : "",
+                ManufacturerId = b.Product.ManufacturerId.ToString(),
+                Description = b.Product.Description ?? "",
+                RequiresPrescription = b.Product.RequiresPrescription,
+                DosageForm = b.Product.DosageForm,
+                Strength = b.Product.Strength,
+                PackSize = b.Product.PackageSize
+            })
+            .ToListAsync(cancellationToken);
+
+        return Ok(new
+        {
+            items,
+            totalCount,
+            page,
+            pageSize,
+            totalPages,
+            hasPrevious = page > 1,
+            hasNext = page < totalPages
+        });
+    }
+
+    /// <summary>
+    /// Get all batches for a specific product
+    /// </summary>
+    [HttpGet("products/{productId:int}/batches")]
+    [ProducesResponseType(typeof(IEnumerable<PortalProductBatchDto>), StatusCodes.Status200OK)]
+    [AllowAnonymous]
+    public async Task<IActionResult> GetProductBatchesById(int productId, CancellationToken cancellationToken)
+    {
+        var today = DateTime.UtcNow;
+
+        var batches = await _context.ProductBatches
+            .Include(b => b.Product)
+                .ThenInclude(p => p.Category)
+            .Include(b => b.Product)
+                .ThenInclude(p => p.Manufacturer)
+            .Where(b => b.ProductId == productId && 
+                        b.IsActive && 
+                        b.RemainingQuantity > 0 && 
+                        b.ExpiryDate >= today &&
+                        !b.Product.IsDeleted)
+            .OrderByDescending(b => b.ExpiryDate)
+            .Select(b => new PortalProductBatchDto
+            {
+                Id = b.Id,
+                ProductId = b.ProductId,
+                ProductCode = b.Product.SKU,
+                ProductName = b.Product.Name,
+                GenericName = b.Product.GenericName,
+                BatchNumber = b.BatchNumber,
+                ExpiryDate = b.ExpiryDate,
+                ManufactureDate = b.ManufactureDate,
+                StockQuantity = b.RemainingQuantity,
+                IsAvailable = b.RemainingQuantity > 0,
+                DaysUntilExpiry = (int)(b.ExpiryDate - today).TotalDays,
+                IsExpiringSoon = b.ExpiryDate < today.AddDays(90),
+                UnitPrice = b.Product.UnitPrice,
+                ImageUrl = b.Product.ImageUrl,
+                Category = b.Product.Category != null ? b.Product.Category.Name : "",
+                CategoryId = b.Product.CategoryId.ToString(),
+                Manufacturer = b.Product.Manufacturer != null ? b.Product.Manufacturer.Name : "",
+                ManufacturerId = b.Product.ManufacturerId.ToString(),
+                Description = b.Product.Description ?? "",
+                RequiresPrescription = b.Product.RequiresPrescription,
+                DosageForm = b.Product.DosageForm,
+                Strength = b.Product.Strength,
+                PackSize = b.Product.PackageSize
+            })
+            .ToListAsync(cancellationToken);
+
+        return Ok(batches);
     }
 
     /// <summary>
@@ -1010,6 +1326,108 @@ public class PortalController : ControllerBase
     }
 
     #endregion
+
+    #region Pricing Helpers
+
+    /// <summary>
+    /// Enrich product DTOs with commercial and essential pricing
+    /// </summary>
+    private async Task EnrichProductsWithPricingAsync(
+        List<PortalProductDto> items,
+        int? customerId,
+        int? cantonId,
+        DateTime now,
+        CancellationToken cancellationToken)
+    {
+        if (items.Count == 0) return;
+
+        var productIds = items.Select(i => i.Id).ToList();
+
+        // Get all active prices for these products
+        var allPrices = await _context.ProductPrices
+            .Where(p => productIds.Contains(p.ProductId) &&
+                       p.IsActive &&
+                       !p.IsDeleted &&
+                       p.ValidFrom <= now &&
+                       (p.ValidTo == null || p.ValidTo >= now))
+            .Select(p => new
+            {
+                p.ProductId,
+                p.PriceType,
+                p.UnitPrice,
+                p.CantonId,
+                p.CustomerId,
+                p.Priority
+            })
+            .ToListAsync(cancellationToken);
+
+        foreach (var item in items)
+        {
+            var productPrices = allPrices.Where(p => p.ProductId == item.Id).ToList();
+
+            // Find best commercial price (PriceType = 1)
+            var commercialPrices = productPrices
+                .Where(p => p.PriceType == PriceType.Commercial)
+                .ToList();
+
+            // Priority: customer-specific > canton-specific > global
+            var commercialPrice = commercialPrices
+                .Where(p => customerId.HasValue && p.CustomerId == customerId)
+                .OrderByDescending(p => p.Priority)
+                .FirstOrDefault();
+
+            if (commercialPrice == null && cantonId.HasValue)
+            {
+                commercialPrice = commercialPrices
+                    .Where(p => p.CantonId == cantonId && p.CustomerId == null)
+                    .OrderByDescending(p => p.Priority)
+                    .FirstOrDefault();
+            }
+
+            if (commercialPrice == null)
+            {
+                commercialPrice = commercialPrices
+                    .Where(p => p.CantonId == null && p.CustomerId == null)
+                    .OrderByDescending(p => p.Priority)
+                    .FirstOrDefault();
+            }
+
+            // Find best essential price (PriceType = 2)
+            var essentialPrices = productPrices
+                .Where(p => p.PriceType == PriceType.Essential)
+                .ToList();
+
+            // Priority: customer-specific > canton-specific > global
+            var essentialPrice = essentialPrices
+                .Where(p => customerId.HasValue && p.CustomerId == customerId)
+                .OrderByDescending(p => p.Priority)
+                .FirstOrDefault();
+
+            if (essentialPrice == null && cantonId.HasValue)
+            {
+                essentialPrice = essentialPrices
+                    .Where(p => p.CantonId == cantonId && p.CustomerId == null)
+                    .OrderByDescending(p => p.Priority)
+                    .FirstOrDefault();
+            }
+
+            if (essentialPrice == null)
+            {
+                essentialPrice = essentialPrices
+                    .Where(p => p.CantonId == null && p.CustomerId == null)
+                    .OrderByDescending(p => p.Priority)
+                    .FirstOrDefault();
+            }
+
+            // Set pricing on DTO
+            item.CommercialPrice = commercialPrice?.UnitPrice ?? item.UnitPrice;
+            item.EssentialPrice = essentialPrice?.UnitPrice;
+            item.HasEssentialPrice = essentialPrice != null;
+            item.CustomerPrice = item.CommercialPrice; // Default customer price is commercial
+        }
+    }
+
+    #endregion
 }
 
 #region Request DTOs
@@ -1062,6 +1480,18 @@ public class PortalProductDto
     public string Description { get; set; } = string.Empty;
     public decimal UnitPrice { get; set; }
     public decimal? CustomerPrice { get; set; }
+    /// <summary>
+    /// Commercial price for this product (standard pricing)
+    /// </summary>
+    public decimal? CommercialPrice { get; set; }
+    /// <summary>
+    /// Essential price for this product (canton-specific regulated pricing, if available)
+    /// </summary>
+    public decimal? EssentialPrice { get; set; }
+    /// <summary>
+    /// Whether essential pricing is available for this product in customer's canton
+    /// </summary>
+    public bool HasEssentialPrice { get; set; }
     public string? ImageUrl { get; set; }
     public string Category { get; set; } = string.Empty;
     public string? CategoryId { get; set; }
@@ -1089,6 +1519,35 @@ public class PortalManufacturerDto
     public int Id { get; set; }
     public string Name { get; set; } = string.Empty;
     public int ProductCount { get; set; }
+}
+
+public class PortalProductBatchDto
+{
+    public int Id { get; set; } // Batch ID
+    public int ProductId { get; set; }
+    public string ProductCode { get; set; } = string.Empty;
+    public string ProductName { get; set; } = string.Empty;
+    public string? GenericName { get; set; }
+    public string BatchNumber { get; set; } = string.Empty;
+    public DateTime ExpiryDate { get; set; }
+    public DateTime? ManufactureDate { get; set; }
+    public int StockQuantity { get; set; }
+    public bool IsAvailable { get; set; }
+    public bool IsExpiringSoon { get; set; }
+    public int DaysUntilExpiry { get; set; }
+    public decimal UnitPrice { get; set; }
+    public decimal? CustomerPrice { get; set; }
+    public string? PriceType { get; set; }
+    public string? ImageUrl { get; set; }
+    public string Category { get; set; } = string.Empty;
+    public string? CategoryId { get; set; }
+    public string Manufacturer { get; set; } = string.Empty;
+    public string? ManufacturerId { get; set; }
+    public string Description { get; set; } = string.Empty;
+    public bool RequiresPrescription { get; set; }
+    public string? DosageForm { get; set; }
+    public string? Strength { get; set; }
+    public string? PackSize { get; set; }
 }
 
 #endregion

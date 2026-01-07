@@ -122,3 +122,29 @@ public class RegionalSalesDto
     public decimal TotalRevenue { get; set; }
     public decimal PercentageOfTotal { get; set; }
 }
+
+/// <summary>
+/// Portal dashboard statistics for customers
+/// </summary>
+public class PortalDashboardStatsDto
+{
+    /// <summary>
+    /// Number of orders in pending/processing/shipped status
+    /// </summary>
+    public int PendingOrders { get; set; }
+    
+    /// <summary>
+    /// Total number of orders for this customer
+    /// </summary>
+    public int TotalOrders { get; set; }
+    
+    /// <summary>
+    /// Number of products in customer's favorites list
+    /// </summary>
+    public int FavoriteCount { get; set; }
+    
+    /// <summary>
+    /// Number of items in shopping cart (for reference, usually client-side)
+    /// </summary>
+    public int CartItemCount { get; set; }
+}

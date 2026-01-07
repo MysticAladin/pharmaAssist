@@ -154,6 +154,16 @@ public class InventoryRepository : IInventoryRepository
             .ToListAsync(cancellationToken);
     }
 
+    public async Task<IReadOnlyList<ProductBatch>> GetBatchesByWarehouseAsync(int warehouseId, CancellationToken cancellationToken = default)
+    {
+        return await _context.ProductBatches
+            .Include(b => b.Product)
+            .Where(b => b.WarehouseId == warehouseId && b.IsActive && !b.IsDeleted)
+            .OrderBy(b => b.Product!.Name)
+            .ThenBy(b => b.ExpiryDate)
+            .ToListAsync(cancellationToken);
+    }
+
     public async Task<IReadOnlyList<ProductBatch>> GetActiveBatchesByProductAsync(int productId, CancellationToken cancellationToken = default)
     {
         return await _context.ProductBatches

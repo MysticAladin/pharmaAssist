@@ -131,6 +131,11 @@ public class OrderItemDto
     public decimal TaxAmount { get; set; }
     public decimal LineTotal { get; set; }
     public int? PrescriptionId { get; set; }
+    
+    /// <summary>
+    /// Price type used for this item (1=Commercial, 2=Essential)
+    /// </summary>
+    public int PriceType { get; set; } = 1;
 }
 
 /// <summary>
@@ -143,6 +148,19 @@ public class CreateOrderItemDto
     public int Quantity { get; set; }
     public decimal? DiscountPercentage { get; set; }
     public int? PrescriptionId { get; set; }
+    
+    /// <summary>
+    /// The unit price to use for this order item.
+    /// If provided, this price is used directly (e.g., from customer portal with pre-calculated pricing).
+    /// If not provided, the product's base unit price is used.
+    /// </summary>
+    public decimal? UnitPrice { get; set; }
+    
+    /// <summary>
+    /// The price type (Commercial=1, Essential=2).
+    /// Used to track which pricing tier was applied.
+    /// </summary>
+    public int? PriceType { get; set; }
 }
 
 /// <summary>

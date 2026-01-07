@@ -22,7 +22,11 @@ export interface StockAdjustment {
 
 export interface CreateStockAdjustmentRequest {
   productId: number;
+  warehouseId: number;
   batchId?: number;
+  batchNumber?: string;  // Required for additions if not selecting existing batch
+  expiryDate?: string;   // Required for additions when creating new batch
+  costPrice?: number;    // Optional cost price for new batches
   adjustmentType: AdjustmentType;
   quantity: number;
   reason: string;
@@ -116,6 +120,7 @@ export interface InventoryStock {
   productId: number;
   productName: string;
   productSku: string;
+  packageSize?: string;
   productBatchId?: number;
   batchNumber?: string;
   quantityOnHand: number;
@@ -124,6 +129,7 @@ export interface InventoryStock {
   minimumStockLevel: number;
   reorderPoint: number;
   maximumStockLevel: number;
+  earliestExpiryDate?: string;
   isLowStock: boolean;
   isBelowMinimum: boolean;
   lastUpdated: string;

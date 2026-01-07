@@ -1,6 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { map } from 'rxjs/operators';
 import { environment } from '../../../environments/environment';
 import { Category, CategorySummary, CreateCategoryRequest, UpdateCategoryRequest } from '../models/category.model';
 
@@ -22,7 +23,25 @@ export class CategoryService {
   }
 
   getActive(): Observable<ApiResponse<CategorySummary[]>> {
-    return this.http.get<ApiResponse<CategorySummary[]>>(`${this.apiUrl}/active`);
+    // Backend doesn't have /active endpoint, so we get all and filter client-side
+    return this.http.get<ApiResponse<Category[]>>(this.apiUrl).pipe(
+      map(response => {
+        if (!response.success || !response.data) {
+          return response as ApiResponse<CategorySummary[]>;
+        }
+        const activeCategories = response.data
+          .filter(cat => cat.isActive)
+          .map(cat => ({
+            id: cat.id,
+            name: cat.name,
+            nameLocal: cat.nameLocal
+          } as CategorySummary));
+        return {
+          ...response,
+          data: activeCategories
+        };
+      })
+    );
   }
 
   getById(id: number): Observable<ApiResponse<Category>> {

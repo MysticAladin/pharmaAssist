@@ -158,4 +158,10 @@ export class InventoryComponent implements OnInit {
       queryParams: { productId }
     });
   }
+
+  isExpiringSoon(expiryDate: string): boolean {
+    const expiry = new Date(expiryDate);
+    const daysUntilExpiry = Math.floor((expiry.getTime() - Date.now()) / (1000 * 60 * 60 * 24));
+    return daysUntilExpiry <= 90;
+  }
 }

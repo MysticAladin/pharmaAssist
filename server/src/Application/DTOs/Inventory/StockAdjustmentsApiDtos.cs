@@ -7,6 +7,22 @@ public class CreateStockAdjustmentRequestDto
 {
     public int ProductId { get; set; }
     public int? BatchId { get; set; }
+    
+    /// <summary>
+    /// Required for additions - creates a new batch if BatchId is not provided
+    /// </summary>
+    public string? BatchNumber { get; set; }
+    
+    /// <summary>
+    /// Required for additions when creating a new batch
+    /// </summary>
+    public DateTime? ExpiryDate { get; set; }
+    
+    /// <summary>
+    /// Optional cost price for new batches
+    /// </summary>
+    public decimal? CostPrice { get; set; }
+    
     public string AdjustmentType { get; set; } = string.Empty;
     public int Quantity { get; set; }
     public string Reason { get; set; } = string.Empty;

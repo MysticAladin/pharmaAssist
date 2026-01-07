@@ -4,11 +4,12 @@ import { RouterModule, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
 import { CartService } from '../../services/cart.service';
-import { DeliveryAddress, DeliveryOption, PaymentMethod, DELIVERY_OPTIONS } from '../../models/portal.model';
+import { DeliveryAddress, DeliveryOption, PaymentMethod, DELIVERY_OPTIONS, PriceType } from '../../models/portal.model';
 import { DbFeatureFlagService } from '../../../../core/services/db-feature-flag.service';
 import { SYSTEM_FLAGS } from '../../../../core/models/feature-flag.model';
 import { KmCurrencyPipe } from '../../../../core/pipes/km-currency.pipe';
 import { ConfirmationService } from '../../../../core/services/confirmation.service';
+import { PortalOrdersService, PaymentMethod as ApiPaymentMethod, CreateOrderRequest } from '../../services/portal-orders.service';
 
 @Component({
   selector: 'app-checkout',
@@ -22,9 +23,11 @@ export class CheckoutComponent implements OnInit {
   private router = inject(Router);
   private featureFlagService = inject(DbFeatureFlagService);
   private confirmationService = inject(ConfirmationService);
+  private ordersService = inject(PortalOrdersService);
 
   currentStep = signal(1);
   isSubmitting = signal(false);
+  errorMessage = signal('');
 
   address: DeliveryAddress = { label: 'Default', street: '', city: '', postalCode: '', canton: '', country: 'Bosnia and Herzegovina', isDefault: true };
   deliveryOptions = DELIVERY_OPTIONS;
@@ -87,19 +90,56 @@ export class CheckoutComponent implements OnInit {
     if (!confirmed) return;
 
     this.isSubmitting.set(true);
-    setTimeout(() => {
-      const orderId = 'ORD-' + Date.now();
-      const orderData = {
-        splitInvoice: this.splitInvoice && this.hasMixedPriceTypes() && this.splitInvoiceEnabled(),
-        commercialTotal: this.commercialTotal(),
-        essentialTotal: this.essentialTotal(),
-        commercialItemCount: this.commercialItemCount(),
-        essentialItemCount: this.essentialItemCount(),
-        total: this.grandTotal()
-      };
-      sessionStorage.setItem('lastOrderData', JSON.stringify(orderData));
-      this.cartService.clearCart();
-      this.router.navigate(['/portal/order-confirmation', orderId]);
-    }, 1500);
+    this.errorMessage.set('');
+
+    // Convert cart items to order items with proper priceType integer values
+    const orderRequest: CreateOrderRequest = {
+      paymentMethod: this.convertPaymentMethod(this.paymentMethod),
+      notes: this.notes || undefined,
+      items: this.cartItems().map(item => ({
+        productId: parseInt(item.productId, 10),
+        quantity: item.quantity,
+        unitPrice: item.unitPrice,
+        // Convert string enum to integer: Commercial = 1, Essential = 2
+        priceType: item.priceType === PriceType.Essential ? 2 : 1
+      }))
+    };
+
+    this.ordersService.createOrder(orderRequest).subscribe({
+      next: (response) => {
+        this.isSubmitting.set(false);
+        if (response.success && response.data) {
+          const orderData = {
+            orderId: response.data.id,
+            orderNumber: response.data.orderNumber,
+            splitInvoice: this.splitInvoice && this.hasMixedPriceTypes() && this.splitInvoiceEnabled(),
+            commercialTotal: this.commercialTotal(),
+            essentialTotal: this.essentialTotal(),
+            commercialItemCount: this.commercialItemCount(),
+            essentialItemCount: this.essentialItemCount(),
+            total: this.grandTotal()
+          };
+          sessionStorage.setItem('lastOrderData', JSON.stringify(orderData));
+          this.cartService.clearCart();
+          this.router.navigate(['/portal/order-confirmation', response.data.id]);
+        } else {
+          this.errorMessage.set(response.message || 'Greška pri kreiranju narudžbe');
+        }
+      },
+      error: (err) => {
+        this.isSubmitting.set(false);
+        this.errorMessage.set('Greška pri kreiranju narudžbe. Molimo pokušajte ponovo.');
+        console.error('Order creation failed:', err);
+      }
+    });
+  }
+
+  private convertPaymentMethod(method: PaymentMethod): ApiPaymentMethod {
+    switch (method) {
+      case PaymentMethod.BankTransfer: return ApiPaymentMethod.BankTransfer;
+      case PaymentMethod.Invoice:
+      default:
+        return ApiPaymentMethod.Invoice;
+    }
   }
 }

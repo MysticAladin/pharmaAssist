@@ -59,7 +59,7 @@ import { PaymentMethod as ApiPaymentMethod, PortalOrdersService } from '../../se
                         <span>{{ item.packSize }}</span>
                       }
                       <span class="sep">•</span>
-                      <span>{{ 'portal.product.expiry' | translate }}: {{ formatExpiry(item.earliestExpiryDate) || '—' }}</span>
+                      <span>{{ 'portal.product.expiry' | translate }}: {{ formatExpiry(item.expiryDate) || '—' }}</span>
                     </div>
                   </div>
                 </div>
@@ -575,7 +575,12 @@ export class CartComponent {
     if (!confirmed) return;
 
     const orderItems = items
-      .map(i => ({ productId: Number.parseInt(i.productId, 10), quantity: i.quantity }))
+      .map(i => ({
+        productId: Number.parseInt(i.productId, 10),
+        quantity: i.quantity,
+        unitPrice: i.unitPrice,
+        priceType: i.priceType === PriceType.Essential ? 2 : 1
+      }))
       .filter(i => Number.isFinite(i.productId) && i.productId > 0);
 
     if (orderItems.length !== items.length) {

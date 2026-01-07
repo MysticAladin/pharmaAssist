@@ -4,6 +4,7 @@ import { RouterModule } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 import { CatalogService } from '../../services/catalog.service';
 import { CartService } from '../../services/cart.service';
+import { PortalOrdersService } from '../../services/portal-orders.service';
 import { ProductCatalogItem, ReorderSuggestion, PriceType } from '../../models/portal.model';
 import { KmCurrencyPipe } from '../../../../core/pipes/km-currency.pipe';
 
@@ -561,6 +562,7 @@ import { KmCurrencyPipe } from '../../../../core/pipes/km-currency.pipe';
 export class PortalHomeComponent implements OnInit {
   private catalogService = inject(CatalogService);
   private cartService = inject(CartService);
+  private ordersService = inject(PortalOrdersService);
 
   isLoading = signal(true);
   featuredProducts = signal<ProductCatalogItem[]>([]);
@@ -576,6 +578,22 @@ export class PortalHomeComponent implements OnInit {
 
   ngOnInit() {
     this.loadData();
+    this.loadStats();
+  }
+
+  private loadStats() {
+    this.ordersService.getStats().subscribe({
+      next: (response) => {
+        if (response.success && response.data) {
+          this.pendingOrders.set(response.data.pendingOrders);
+          this.totalOrders.set(response.data.totalOrders);
+          this.favoriteCount.set(response.data.favoriteCount);
+        }
+      },
+      error: () => {
+        // Stats failed to load, leave at 0
+      }
+    });
   }
 
   private loadData() {

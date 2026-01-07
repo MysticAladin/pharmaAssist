@@ -401,13 +401,17 @@ export class LoginComponent {
       next: (response: ILoginResponse) => {
         this.isLoading.set(false);
         if (response.succeeded) {
-          // Determine redirect URL based on user role
+          // Determine redirect URL based on user role from response
           const returnUrl = this.route.snapshot.queryParams['returnUrl'];
           let targetUrl = returnUrl || '/dashboard';
 
+          // Check roles directly from response to avoid timing issues with state
+          const userRoles = response.user?.roles ?? [];
+          const isCustomer = userRoles.includes(UserRole.Customer);
+          const isAdminOrManager = userRoles.includes(UserRole.Admin) || userRoles.includes(UserRole.Manager);
+
           // If no explicit return URL, redirect customers to portal
-          if (!returnUrl && this.authState.hasRole(UserRole.Customer) &&
-              !this.authState.hasAnyRole([UserRole.Admin, UserRole.Manager])) {
+          if (!returnUrl && isCustomer && !isAdminOrManager) {
             targetUrl = '/portal';
           }
 

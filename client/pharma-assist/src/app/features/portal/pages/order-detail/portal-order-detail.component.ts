@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { Component, inject, OnInit, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule, ActivatedRoute, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
@@ -6,6 +6,8 @@ import { TranslateModule } from '@ngx-translate/core';
 import { PortalOrdersService, PortalOrder, OrderStatus } from '../../services/portal-orders.service';
 import { PortalClaimsService, ClaimType, CreateClaimRequest } from '../../services/portal-claims.service';
 import { KmCurrencyPipe } from '../../../../core/pipes/km-currency.pipe';
+import { DbFeatureFlagService } from '../../../../core/services/db-feature-flag.service';
+import { SYSTEM_FLAGS } from '../../../../core/models/feature-flag.model';
 
 interface OrderItem {
   id: number;
@@ -15,6 +17,7 @@ interface OrderItem {
   quantity: number;
   unitPrice: number;
   total: number;
+  priceType?: number; // 1 = Commercial, 2 = Essential
 }
 
 @Component({
@@ -332,6 +335,7 @@ export class PortalOrderDetailComponent implements OnInit {
   private readonly router = inject(Router);
   private readonly ordersService = inject(PortalOrdersService);
   private readonly claimsService = inject(PortalClaimsService);
+  private readonly featureFlagService = inject(DbFeatureFlagService);
 
   loading = signal(true);
   actionLoading = signal(false);
@@ -339,6 +343,17 @@ export class PortalOrderDetailComponent implements OnInit {
   orderItems = signal<OrderItem[]>([]);
   successMessage = signal('');
   errorMessage = signal('');
+
+  // Split invoice feature flag
+  splitInvoiceEnabled = this.featureFlagService.createFlagSignal(SYSTEM_FLAGS.PORTAL_SPLIT_INVOICE);
+
+  // Computed: check if order has mixed price types (both commercial and essential items)
+  hasMixedPriceTypes = computed(() => {
+    const items = this.orderItems();
+    const hasCommercial = items.some(i => !i.priceType || i.priceType === 1);
+    const hasEssential = items.some(i => i.priceType === 2);
+    return hasCommercial && hasEssential;
+  });
 
   // Cancel modal
   showCancelModal = signal(false);
@@ -372,10 +387,11 @@ export class PortalOrderDetailComponent implements OnInit {
             id: i.id,
             productId: i.productId,
             productName: i.productName,
-            sku: i.sku,
+            sku: i.productSku,
             quantity: i.quantity,
             unitPrice: i.unitPrice,
-            total: i.total
+            total: i.lineTotal,
+            priceType: i.priceType
           })) || []);
         }
         this.loading.set(false);
@@ -443,29 +459,70 @@ export class PortalOrderDetailComponent implements OnInit {
     const currentOrder = this.order();
     if (!currentOrder) return;
 
+    // Check if split invoices should be generated
+    if (this.splitInvoiceEnabled() && this.hasMixedPriceTypes()) {
+      this.downloadSplitInvoices(currentOrder);
+    } else {
+      this.downloadSingleInvoice(currentOrder);
+    }
+  }
+
+  private downloadSingleInvoice(currentOrder: PortalOrder) {
     this.actionLoading.set(true);
     this.ordersService.downloadInvoice(currentOrder.id).subscribe({
       next: (blob) => {
         this.actionLoading.set(false);
 
         const fileName = `Faktura-${currentOrder.orderNumber}.pdf`;
-        const url = URL.createObjectURL(blob);
-
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = fileName;
-        a.style.display = 'none';
-        document.body.appendChild(a);
-        a.click();
-        a.remove();
-
-        URL.revokeObjectURL(url);
+        this.downloadBlob(blob, fileName);
       },
       error: () => {
         this.actionLoading.set(false);
         this.errorMessage.set('Greška pri preuzimanju fakture');
       }
     });
+  }
+
+  private downloadSplitInvoices(currentOrder: PortalOrder) {
+    this.actionLoading.set(true);
+
+    // Download Commercial invoice (priceType = 1)
+    this.ordersService.downloadSplitInvoice(currentOrder.id, 1).subscribe({
+      next: (commercialBlob) => {
+        const commercialFileName = `Faktura-${currentOrder.orderNumber}-Komercijalna.pdf`;
+        this.downloadBlob(commercialBlob, commercialFileName);
+
+        // Then download Essential invoice (priceType = 2)
+        this.ordersService.downloadSplitInvoice(currentOrder.id, 2).subscribe({
+          next: (essentialBlob) => {
+            this.actionLoading.set(false);
+            const essentialFileName = `Faktura-${currentOrder.orderNumber}-Esencijalna.pdf`;
+            this.downloadBlob(essentialBlob, essentialFileName);
+            this.successMessage.set('Obje fakture su preuzete (Komercijalna i Esencijalna)');
+          },
+          error: () => {
+            this.actionLoading.set(false);
+            this.errorMessage.set('Greška pri preuzimanju esencijalne fakture');
+          }
+        });
+      },
+      error: () => {
+        this.actionLoading.set(false);
+        this.errorMessage.set('Greška pri preuzimanju komercijalne fakture');
+      }
+    });
+  }
+
+  private downloadBlob(blob: Blob, fileName: string) {
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = fileName;
+    a.style.display = 'none';
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
   }
 
   cancelOrder() {

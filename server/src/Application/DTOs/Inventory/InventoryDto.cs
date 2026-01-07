@@ -68,6 +68,7 @@ public class InventoryStockDto
     public int ProductId { get; set; }
     public string ProductName { get; set; } = string.Empty;
     public string ProductSku { get; set; } = string.Empty;
+    public string? PackageSize { get; set; }
     public int? ProductBatchId { get; set; }
     public string? BatchNumber { get; set; }
     public int QuantityOnHand { get; set; }
@@ -76,6 +77,7 @@ public class InventoryStockDto
     public int MinimumStockLevel { get; set; }
     public int ReorderPoint { get; set; }
     public int MaximumStockLevel { get; set; }
+    public DateTime? EarliestExpiryDate { get; set; }
     public bool IsLowStock => QuantityAvailable <= ReorderPoint;
     public bool IsBelowMinimum => QuantityAvailable < MinimumStockLevel;
     public DateTime LastUpdated { get; set; }

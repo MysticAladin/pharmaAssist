@@ -15,7 +15,7 @@
 
 .filters-row {
   display: grid;
-  grid-template-columns: 2fr 1fr 1fr 1fr auto;
+  grid-template-columns: 2fr auto 1fr 1fr auto;
   gap: 1rem;
   align-items: end;
 }
@@ -33,7 +33,10 @@
   }
 
   select,
-  input {
+  input:not([type='checkbox']) {
+    width: 100%;
+    min-width: 0;
+    display: block;
     padding: 0.5rem 1rem;
     border: 1px solid var(--border-color);
     border-radius: 8px;
@@ -42,6 +45,9 @@
 }
 
 .field.checkbox {
+  justify-self: start;
+  padding-top: calc(var(--font-size-xs) + 0.5rem);
+
   label {
     display: inline-flex;
     align-items: center;

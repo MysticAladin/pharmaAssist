@@ -92,7 +92,9 @@
             <tr>
               <th>{{ 'inventory.product' | translate }}</th>
               <th>{{ 'inventory.sku' | translate }}</th>
+              <th>{{ 'inventory.packageSize' | translate }}</th>
               <th>{{ 'inventory.location' | translate }}</th>
+              <th>{{ 'inventory.expiryDate' | translate }}</th>
               <th class="text-right">{{ 'inventory.available' | translate }}</th>
               <th class="text-right">{{ 'inventory.reserved' | translate }}</th>
               <th class="text-right">{{ 'inventory.total' | translate }}</th>
@@ -111,7 +113,15 @@
                 <td>
                   <code class="sku">{{ stock.productSku }}</code>
                 </td>
+                <td>{{ stock.packageSize || '-' }}</td>
                 <td>{{ stock.warehouseName }}</td>
+                <td>
+                  @if (stock.earliestExpiryDate) {
+                    <span [class.text-warning]="isExpiringSoon(stock.earliestExpiryDate)">{{ stock.earliestExpiryDate | date:'dd.MM.yyyy' }}</span>
+                  } @else {
+                    <span class="text-muted">-</span>
+                  }
+                </td>
                 <td class="text-right">
                   <span [class.text-danger]="stock.quantityAvailable < stock.reorderPoint">
                     {{ stock.quantityAvailable }}

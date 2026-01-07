@@ -6,7 +6,7 @@ import { TranslateModule } from '@ngx-translate/core';
 import { Subject, debounceTime, distinctUntilChanged, takeUntil } from 'rxjs';
 import { KmCurrencyPipe } from '../../../../core/pipes/km-currency.pipe';
 import { ConfirmationService } from '../../../../core/services/confirmation.service';
-import { ProductCatalogItem } from '../../models/portal.model';
+import { ProductCatalogItem, PriceType } from '../../models/portal.model';
 import { CartService } from '../../services/cart.service';
 import { CatalogService } from '../../services/catalog.service';
 import { PaymentMethod as ApiPaymentMethod, PortalOrdersService } from '../../services/portal-orders.service';
@@ -55,9 +55,9 @@ import { PaymentMethod as ApiPaymentMethod, PortalOrdersService } from '../../se
                   role="button"
                   tabindex="0"
                   [class.selected]="selectedProduct()?.id === p.id"
-                  (click)="selectProduct(p)"
-                  (keydown.enter)="selectProduct(p)"
-                  (keydown.space)="selectProduct(p)">
+                  (click)="selectProduct(p); addToOrderCommercial(p)"
+                  (keydown.enter)="selectProduct(p); addToOrderCommercial(p)"
+                  (keydown.space)="selectProduct(p); addToOrderCommercial(p)">
                   <div class="left">
                     <div class="name">{{ p.name }}</div>
                     <div class="meta">
@@ -75,20 +75,38 @@ import { PaymentMethod as ApiPaymentMethod, PortalOrdersService } from '../../se
                     </div>
                   </div>
                   <div class="right">
-                    <div class="price">{{ (p.customerPrice ?? p.unitPrice) | kmCurrency }}</div>
+                    <div class="prices-row">
+                      <div class="price commercial">{{ (p.commercialPrice ?? p.customerPrice ?? p.unitPrice) | kmCurrency }}</div>
+                      @if (p.hasEssentialPrice && p.essentialPrice) {
+                        <div class="price essential">{{ p.essentialPrice | kmCurrency }}</div>
+                      }
+                    </div>
                     <div class="stock" [class.out]="!p.isAvailable">
                       {{ p.isAvailable ? ('portal.product.inStock' | translate) : ('portal.product.outOfStock' | translate) }}
                     </div>
                     @if (inCartQty(p.id) > 0) {
                       <div class="in-cart">{{ 'portal.productSearch.inOrder' | translate:{ qty: inCartQty(p.id) } }}</div>
                     }
-                    <button
-                      type="button"
-                      class="btn btn-primary row-add"
-                      (click)="addToOrder(p); $event.stopPropagation()"
-                      [disabled]="!p.isAvailable || isSubmitting()">
-                      + {{ 'portal.product.add' | translate }}
-                    </button>
+                    <div class="add-buttons">
+                      <button
+                        type="button"
+                        class="btn btn-primary row-add"
+                        (click)="addToOrderCommercial(p); $event.stopPropagation()"
+                        [disabled]="!p.isAvailable || isSubmitting()"
+                        [title]="'portal.product.addCommercial' | translate">
+                        + {{ 'portal.product.add' | translate }}
+                      </button>
+                      @if (p.hasEssentialPrice && p.essentialPrice) {
+                        <button
+                          type="button"
+                          class="btn btn-essential row-add"
+                          (click)="addToOrderEssential(p); $event.stopPropagation()"
+                          [disabled]="!p.isAvailable || isSubmitting()"
+                          [title]="'portal.product.addEssential' | translate">
+                          + {{ 'portal.product.essential' | translate }}
+                        </button>
+                      }
+                    </div>
                   </div>
                 </div>
               }
@@ -119,6 +137,20 @@ import { PaymentMethod as ApiPaymentMethod, PortalOrdersService } from '../../se
                 }
               </div>
 
+              <!-- Pricing section -->
+              <div class="d-pricing">
+                <div class="d-price-item commercial">
+                  <span class="price-label">{{ 'portal.product.commercialPrice' | translate }}</span>
+                  <span class="price-value">{{ (selectedProduct()!.commercialPrice ?? selectedProduct()!.customerPrice ?? selectedProduct()!.unitPrice) | kmCurrency }}</span>
+                </div>
+                @if (selectedProduct()!.hasEssentialPrice && selectedProduct()!.essentialPrice) {
+                  <div class="d-price-item essential">
+                    <span class="price-label">{{ 'portal.product.essentialPrice' | translate }}</span>
+                    <span class="price-value">{{ selectedProduct()!.essentialPrice | kmCurrency }}</span>
+                  </div>
+                }
+              </div>
+
               @if (selectedProduct()!.description) {
                 <div class="d-desc">{{ selectedProduct()!.description }}</div>
               }
@@ -127,10 +159,19 @@ import { PaymentMethod as ApiPaymentMethod, PortalOrdersService } from '../../se
                 <button
                   type="button"
                   class="btn btn-primary"
-                  (click)="addToOrder(selectedProduct()!)"
+                  (click)="addToOrderCommercial(selectedProduct()!)"
                   [disabled]="!selectedProduct()!.isAvailable || isSubmitting()">
                   {{ 'portal.product.add' | translate }}
                 </button>
+                @if (selectedProduct()!.hasEssentialPrice && selectedProduct()!.essentialPrice) {
+                  <button
+                    type="button"
+                    class="btn btn-essential"
+                    (click)="addToOrderEssential(selectedProduct()!)"
+                    [disabled]="!selectedProduct()!.isAvailable || isSubmitting()">
+                    + {{ 'portal.product.essential' | translate }}
+                  </button>
+                }
               </div>
             </div>
           }
@@ -175,7 +216,7 @@ import { PaymentMethod as ApiPaymentMethod, PortalOrdersService } from '../../se
                       {{ item.packSize }}
                     }
                     <span class="sep">•</span>
-                    {{ 'portal.product.expiry' | translate }}: {{ formatExpiry(item.earliestExpiryDate) || '—' }}
+                      {{ 'portal.product.expiry' | translate }}: {{ formatExpiry(item.expiryDate) || '—' }}
                   </div>
                 </div>
 
@@ -460,9 +501,93 @@ import { PaymentMethod as ApiPaymentMethod, PortalOrdersService } from '../../se
       white-space: nowrap;
     }
 
+    .prices-row {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 0.15rem;
+    }
+
     .price {
       font-weight: 600;
       color: var(--text-color, #333);
+    }
+
+    .price.commercial {
+      color: var(--text-color, #333);
+    }
+
+    .price.essential {
+      color: #2563eb;
+      font-size: 0.9rem;
+    }
+
+    .add-buttons {
+      display: flex;
+      gap: 0.35rem;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+
+    .btn-essential {
+      background: #2563eb;
+      color: white;
+      border: none;
+      padding: 0.35rem 0.6rem;
+      font-size: 0.85rem;
+      line-height: 1.2;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 500;
+    }
+
+    .btn-essential:hover:not(:disabled) {
+      background: #1d4ed8;
+    }
+
+    .btn-essential:disabled {
+      background: #93c5fd;
+      cursor: not-allowed;
+    }
+
+    /* Details card pricing */
+    .d-pricing {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      margin-top: 0.5rem;
+      padding: 0.75rem;
+      background: var(--surface-ground, #f8f9fa);
+      border-radius: 10px;
+    }
+
+    .d-price-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .d-price-item .price-label {
+      font-size: 0.85rem;
+      color: var(--text-secondary, #666);
+    }
+
+    .d-price-item .price-value {
+      font-weight: 700;
+      font-size: 1rem;
+    }
+
+    .d-price-item.commercial .price-value {
+      color: var(--text-color, #333);
+    }
+
+    .d-price-item.essential .price-value {
+      color: #2563eb;
+    }
+
+    .d-price-item.essential .price-label {
+      color: #2563eb;
     }
 
     .stock {
@@ -663,6 +788,22 @@ export class PortalProductSearchComponent implements OnDestroy {
     this.cartService.addItem(product, 1);
   }
 
+  /**
+   * Add product with commercial pricing
+   */
+  addToOrderCommercial(product: ProductCatalogItem): void {
+    this.cartService.addItem(product, 1, undefined, undefined, undefined, PriceType.Commercial);
+  }
+
+  /**
+   * Add product with essential pricing
+   */
+  addToOrderEssential(product: ProductCatalogItem): void {
+    if (product.hasEssentialPrice && product.essentialPrice) {
+      this.cartService.addItem(product, 1, undefined, undefined, undefined, PriceType.Essential);
+    }
+  }
+
   inCartQty(productId: string): number {
     return this.cartService.getQuantity(productId);
   }
@@ -699,7 +840,12 @@ export class PortalProductSearchComponent implements OnDestroy {
     if (!confirmed) return;
 
     const orderItems = items
-      .map(i => ({ productId: Number.parseInt(i.productId, 10), quantity: i.quantity }))
+      .map(i => ({
+        productId: Number.parseInt(i.productId, 10),
+        quantity: i.quantity,
+        unitPrice: i.unitPrice,
+        priceType: i.priceType === PriceType.Essential ? 2 : 1
+      }))
       .filter(i => Number.isFinite(i.productId) && i.productId > 0);
 
     if (orderItems.length !== items.length) {

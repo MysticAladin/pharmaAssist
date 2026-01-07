@@ -73,6 +73,12 @@ export class SidebarComponent {
       roles: [UserRole.SuperAdmin, UserRole.Admin, UserRole.Manager, UserRole.SalesRep]
     },
     {
+      labelKey: 'nav.visits',
+      icon: 'icon-map-pin',
+      route: '/visits',
+      roles: [UserRole.SuperAdmin, UserRole.Admin, UserRole.Manager, UserRole.SalesRep]
+    },
+    {
       labelKey: 'nav.reports',
       icon: 'icon-bar-chart',
       route: '/reports',
@@ -92,6 +98,12 @@ export class SidebarComponent {
       icon: 'icon-user-cog',
       route: '/admin/users',
       roles: [UserRole.SuperAdmin, UserRole.Admin]
+    },
+    {
+      labelKey: 'nav.salesReps',
+      icon: 'icon-briefcase',
+      route: '/admin/sales-reps',
+      roles: [UserRole.SuperAdmin, UserRole.Admin, UserRole.Manager]
     },
     {
       labelKey: 'nav.featureFlags',

@@ -36,8 +36,15 @@ public class ProductService : IProductService
             }
 
             var dto = _mapper.Map<ProductDto>(product);
-            dto.EarliestExpiryDate = product.Batches
-                .Where(b => b.IsActive && b.RemainingQuantity > 0 && b.ExpiryDate >= DateTime.UtcNow)
+            
+            // Compute stock from active batches (consistent with other methods)
+            var activeBatches = product.Batches
+                .Where(b => b.IsActive && !b.IsDeleted)
+                .ToList();
+            
+            dto.StockQuantity = activeBatches.Sum(b => b.RemainingQuantity);
+            dto.EarliestExpiryDate = activeBatches
+                .Where(b => b.RemainingQuantity > 0 && b.ExpiryDate >= DateTime.UtcNow)
                 .OrderBy(b => b.ExpiryDate)
                 .Select(b => (DateTime?)b.ExpiryDate)
                 .FirstOrDefault();
@@ -181,9 +188,21 @@ public class ProductService : IProductService
             var dtos = _mapper.Map<List<ProductSummaryDto>>(products);
 
             var productIds = products.Select(p => p.Id).ToList();
+            
+            // Get actual stock from ProductBatches
+            var stockQuery = _unitOfWork.Products.AsQueryable()
+                .SelectMany(p => p.Batches)
+                .Where(b => productIds.Contains(b.ProductId) && b.IsActive && !b.IsDeleted)
+                .GroupBy(b => b.ProductId)
+                .Select(g => new { ProductId = g.Key, TotalStock = g.Sum(b => b.RemainingQuantity) });
+            
+            var stockByProductId = await Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions
+                .ToDictionaryAsync(stockQuery, x => x.ProductId, x => x.TotalStock, cancellationToken);
+            
             var expiryByProductId = await GetEarliestExpiryByProductIdAsync(productIds, cancellationToken);
             foreach (var dto in dtos)
             {
+                dto.StockQuantity = stockByProductId.GetValueOrDefault(dto.Id, 0);
                 dto.EarliestExpiryDate = expiryByProductId.GetValueOrDefault(dto.Id);
             }
 
@@ -204,9 +223,21 @@ public class ProductService : IProductService
             var dtos = _mapper.Map<List<ProductSummaryDto>>(products);
 
             var productIds = products.Select(p => p.Id).ToList();
+            
+            // Get actual stock from ProductBatches
+            var stockQuery = _unitOfWork.Products.AsQueryable()
+                .SelectMany(p => p.Batches)
+                .Where(b => productIds.Contains(b.ProductId) && b.IsActive && !b.IsDeleted)
+                .GroupBy(b => b.ProductId)
+                .Select(g => new { ProductId = g.Key, TotalStock = g.Sum(b => b.RemainingQuantity) });
+            
+            var stockByProductId = await Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions
+                .ToDictionaryAsync(stockQuery, x => x.ProductId, x => x.TotalStock, cancellationToken);
+            
             var expiryByProductId = await GetEarliestExpiryByProductIdAsync(productIds, cancellationToken);
             foreach (var dto in dtos)
             {
+                dto.StockQuantity = stockByProductId.GetValueOrDefault(dto.Id, 0);
                 dto.EarliestExpiryDate = expiryByProductId.GetValueOrDefault(dto.Id);
             }
             return ApiResponse<IEnumerable<ProductSummaryDto>>.Ok(dtos);
