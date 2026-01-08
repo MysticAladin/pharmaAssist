@@ -18,6 +18,7 @@ import { NotificationService } from '../../../core/services/notification.service
 import { ConfirmationService } from '../../../core/services/confirmation.service';
 import { StatusBadgeComponent } from '../../../shared/components/status-badge/status-badge.component';
 import { EmptyStateComponent } from '../../../shared/components/empty-state/empty-state.component';
+import { EuropeanDatePipe } from '../../../core/pipes';
 
 @Component({
   selector: 'app-pricing',
@@ -27,7 +28,8 @@ import { EmptyStateComponent } from '../../../shared/components/empty-state/empt
     FormsModule,
     TranslateModule,
     StatusBadgeComponent,
-    EmptyStateComponent
+    EmptyStateComponent,
+    EuropeanDatePipe
   ],
   template: `
     <div class="pricing-page">
@@ -209,7 +211,7 @@ import { EmptyStateComponent } from '../../../shared/components/empty-state/empt
                   </div>
                   <div class="promo-dates">
                     <i class="icon-calendar"></i>
-                    {{ promo.startDate | date:'shortDate' }} - {{ promo.endDate | date:'shortDate' }}
+                    {{ promo.startDate | europeanDate }} - {{ promo.endDate | europeanDate }}
                   </div>
                   <div class="promo-usage">
                     <span>{{ 'pricing.usage' | translate }}: {{ promo.currentUsageCount }}</span>
@@ -347,11 +349,51 @@ import { EmptyStateComponent } from '../../../shared/components/empty-state/empt
             <div class="form-row">
               <div class="form-group">
                 <label>{{ 'pricing.startDate' | translate }}</label>
-                <input type="date" class="form-control" [(ngModel)]="ruleForm.startDate">
+                <div class="date-input-wrapper">
+                  <input
+                    type="text"
+                    class="form-control date-filter"
+                    inputmode="numeric"
+                    placeholder="dd.MM.yyyy"
+                    [ngModel]="ruleStartDateText"
+                    (ngModelChange)="ruleStartDateText = $event"
+                    (blur)="onRuleStartDateBlur()"
+                  />
+                  <input
+                    type="date"
+                    class="hidden-date-picker"
+                    [value]="toIsoDate(ruleForm.startDate)"
+                    (change)="onNativeRuleStartDateChange($event)"
+                    #ruleStartDatePicker
+                  />
+                  <button type="button" class="calendar-icon" (click)="ruleStartDatePicker.showPicker()">
+                    <i class="icon-calendar"></i>
+                  </button>
+                </div>
               </div>
               <div class="form-group">
                 <label>{{ 'pricing.endDate' | translate }}</label>
-                <input type="date" class="form-control" [(ngModel)]="ruleForm.endDate">
+                <div class="date-input-wrapper">
+                  <input
+                    type="text"
+                    class="form-control date-filter"
+                    inputmode="numeric"
+                    placeholder="dd.MM.yyyy"
+                    [ngModel]="ruleEndDateText"
+                    (ngModelChange)="ruleEndDateText = $event"
+                    (blur)="onRuleEndDateBlur()"
+                  />
+                  <input
+                    type="date"
+                    class="hidden-date-picker"
+                    [value]="toIsoDate(ruleForm.endDate)"
+                    (change)="onNativeRuleEndDateChange($event)"
+                    #ruleEndDatePicker
+                  />
+                  <button type="button" class="calendar-icon" (click)="ruleEndDatePicker.showPicker()">
+                    <i class="icon-calendar"></i>
+                  </button>
+                </div>
               </div>
             </div>
             <div class="form-group checkbox-group">
@@ -440,11 +482,53 @@ import { EmptyStateComponent } from '../../../shared/components/empty-state/empt
             <div class="form-row">
               <div class="form-group">
                 <label>{{ 'pricing.startDate' | translate }} *</label>
-                <input type="date" class="form-control" [(ngModel)]="promotionForm.startDate" required>
+                <div class="date-input-wrapper">
+                  <input
+                    type="text"
+                    class="form-control date-filter"
+                    inputmode="numeric"
+                    placeholder="dd.MM.yyyy"
+                    [ngModel]="promotionStartDateText"
+                    (ngModelChange)="promotionStartDateText = $event"
+                    (blur)="onPromotionStartDateBlur()"
+                    required
+                  />
+                  <input
+                    type="date"
+                    class="hidden-date-picker"
+                    [value]="toIsoDate(promotionForm.startDate)"
+                    (change)="onNativePromotionStartDateChange($event)"
+                    #promotionStartDatePicker
+                  />
+                  <button type="button" class="calendar-icon" (click)="promotionStartDatePicker.showPicker()">
+                    <i class="icon-calendar"></i>
+                  </button>
+                </div>
               </div>
               <div class="form-group">
                 <label>{{ 'pricing.endDate' | translate }} *</label>
-                <input type="date" class="form-control" [(ngModel)]="promotionForm.endDate" required>
+                <div class="date-input-wrapper">
+                  <input
+                    type="text"
+                    class="form-control date-filter"
+                    inputmode="numeric"
+                    placeholder="dd.MM.yyyy"
+                    [ngModel]="promotionEndDateText"
+                    (ngModelChange)="promotionEndDateText = $event"
+                    (blur)="onPromotionEndDateBlur()"
+                    required
+                  />
+                  <input
+                    type="date"
+                    class="hidden-date-picker"
+                    [value]="toIsoDate(promotionForm.endDate)"
+                    (change)="onNativePromotionEndDateChange($event)"
+                    #promotionEndDatePicker
+                  />
+                  <button type="button" class="calendar-icon" (click)="promotionEndDatePicker.showPicker()">
+                    <i class="icon-calendar"></i>
+                  </button>
+                </div>
               </div>
             </div>
             <!-- Customer Targeting -->
@@ -877,6 +961,7 @@ import { EmptyStateComponent } from '../../../shared/components/empty-state/empt
       align-items: center;
       gap: 0.5rem;
       cursor: pointer;
+      margin-bottom: 0;
     }
 
     .checkbox-label input[type="checkbox"] {
@@ -913,6 +998,48 @@ import { EmptyStateComponent } from '../../../shared/components/empty-state/empt
 
     .btn-primary:hover {
       background: var(--primary-hover);
+    }
+
+    .btn.btn-primary:hover {
+      background: var(--primary-hover);
+      border-color: var(--primary-hover);
+    }
+
+    /* EU date input with native picker */
+    .date-input-wrapper {
+      position: relative;
+    }
+
+    .hidden-date-picker {
+      position: absolute;
+      opacity: 0;
+      pointer-events: none;
+      width: 0;
+      height: 0;
+    }
+
+    .calendar-icon {
+      position: absolute;
+      right: 0.5rem;
+      top: 50%;
+      transform: translateY(-50%);
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 0.25rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--text-secondary);
+      transition: color 0.15s;
+    }
+
+    .calendar-icon:hover {
+      color: var(--primary-color);
+    }
+
+    .form-control.date-filter {
+      padding-right: 2.5rem;
     }
 
     .btn-sm {
@@ -1003,12 +1130,16 @@ export class PricingComponent implements OnInit {
   editingRule = signal<PriceRule | null>(null);
   savingRule = signal(false);
   ruleForm: CreatePriceRuleRequest = this.getEmptyRuleForm();
+  ruleStartDateText = '';
+  ruleEndDateText = '';
 
   // Promotion modal
   showPromotionModal = signal(false);
   editingPromotion = signal<Promotion | null>(null);
   savingPromotion = signal(false);
   promotionForm: CreatePromotionRequest = this.getEmptyPromotionForm();
+  promotionStartDateText = '';
+  promotionEndDateText = '';
 
   ngOnInit() {
     this.loadRules();
@@ -1058,12 +1189,16 @@ export class PricingComponent implements OnInit {
       this.editingRule.set(null);
       this.ruleForm = this.getEmptyRuleForm();
     }
+    this.ruleStartDateText = this.isoToEuDate(this.toIsoDate(this.ruleForm.startDate));
+    this.ruleEndDateText = this.isoToEuDate(this.toIsoDate(this.ruleForm.endDate));
     this.showRuleModal.set(true);
   }
 
   closeRuleModal() {
     this.showRuleModal.set(false);
     this.editingRule.set(null);
+    this.ruleStartDateText = '';
+    this.ruleEndDateText = '';
   }
 
   editRule(rule: PriceRule) {
@@ -1071,6 +1206,7 @@ export class PricingComponent implements OnInit {
   }
 
   saveRule() {
+    this.normalizeRuleDates();
     if (!this.ruleForm.name || this.ruleForm.discountValue === undefined) {
       this.notification.warning(this.translate.instant('common.fillRequired'));
       return;
@@ -1147,12 +1283,16 @@ export class PricingComponent implements OnInit {
       this.editingPromotion.set(null);
       this.promotionForm = this.getEmptyPromotionForm();
     }
+    this.promotionStartDateText = this.isoToEuDate(this.toIsoDate(this.promotionForm.startDate));
+    this.promotionEndDateText = this.isoToEuDate(this.toIsoDate(this.promotionForm.endDate));
     this.showPromotionModal.set(true);
   }
 
   closePromotionModal() {
     this.showPromotionModal.set(false);
     this.editingPromotion.set(null);
+    this.promotionStartDateText = '';
+    this.promotionEndDateText = '';
   }
 
   editPromotion(promo: Promotion) {
@@ -1160,6 +1300,7 @@ export class PricingComponent implements OnInit {
   }
 
   savePromotion() {
+    this.normalizePromotionDates();
     if (!this.promotionForm.name || !this.promotionForm.startDate || !this.promotionForm.endDate) {
       this.notification.warning(this.translate.instant('common.fillRequired'));
       return;
@@ -1240,6 +1381,9 @@ export class PricingComponent implements OnInit {
     const nextMonth = new Date(today);
     nextMonth.setMonth(nextMonth.getMonth() + 1);
 
+    const todayIso = this.dateToIso(today);
+    const nextMonthIso = this.dateToIso(nextMonth);
+
     return {
       name: '',
       description: '',
@@ -1247,12 +1391,154 @@ export class PricingComponent implements OnInit {
       promotionType: PromotionType.Percentage,
       discountValue: 0,
       minimumOrderValue: 0,
-      startDate: today,
-      endDate: nextMonth,
+      startDate: todayIso as any,
+      endDate: nextMonthIso as any,
       isActive: true,
       appliesToAllProducts: true,
       customerId: undefined,
       applyToChildCustomers: false
     };
+  }
+
+  onNativeRuleStartDateChange(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    this.ruleForm.startDate = (input.value || undefined) as any;
+    this.ruleStartDateText = this.isoToEuDate(input.value);
+  }
+
+  onNativeRuleEndDateChange(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    this.ruleForm.endDate = (input.value || undefined) as any;
+    this.ruleEndDateText = this.isoToEuDate(input.value);
+  }
+
+  onRuleStartDateBlur(): void {
+    const trimmed = (this.ruleStartDateText ?? '').trim();
+    if (!trimmed) {
+      this.ruleForm.startDate = undefined;
+      this.ruleStartDateText = '';
+      return;
+    }
+    const iso = this.euToIsoDate(trimmed);
+    this.ruleForm.startDate = (iso || undefined) as any;
+    if (iso) this.ruleStartDateText = this.isoToEuDate(iso);
+  }
+
+  onRuleEndDateBlur(): void {
+    const trimmed = (this.ruleEndDateText ?? '').trim();
+    if (!trimmed) {
+      this.ruleForm.endDate = undefined;
+      this.ruleEndDateText = '';
+      return;
+    }
+    const iso = this.euToIsoDate(trimmed);
+    this.ruleForm.endDate = (iso || undefined) as any;
+    if (iso) this.ruleEndDateText = this.isoToEuDate(iso);
+  }
+
+  onNativePromotionStartDateChange(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    this.promotionForm.startDate = (input.value || undefined) as any;
+    this.promotionStartDateText = this.isoToEuDate(input.value);
+  }
+
+  onNativePromotionEndDateChange(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    this.promotionForm.endDate = (input.value || undefined) as any;
+    this.promotionEndDateText = this.isoToEuDate(input.value);
+  }
+
+  onPromotionStartDateBlur(): void {
+    const trimmed = (this.promotionStartDateText ?? '').trim();
+    if (!trimmed) {
+      this.promotionForm.startDate = undefined as any;
+      this.promotionStartDateText = '';
+      return;
+    }
+    const iso = this.euToIsoDate(trimmed);
+    this.promotionForm.startDate = (iso || undefined) as any;
+    if (iso) this.promotionStartDateText = this.isoToEuDate(iso);
+  }
+
+  onPromotionEndDateBlur(): void {
+    const trimmed = (this.promotionEndDateText ?? '').trim();
+    if (!trimmed) {
+      this.promotionForm.endDate = undefined as any;
+      this.promotionEndDateText = '';
+      return;
+    }
+    const iso = this.euToIsoDate(trimmed);
+    this.promotionForm.endDate = (iso || undefined) as any;
+    if (iso) this.promotionEndDateText = this.isoToEuDate(iso);
+  }
+
+  private normalizeRuleDates(): void {
+    this.onRuleStartDateBlur();
+    this.onRuleEndDateBlur();
+  }
+
+  private normalizePromotionDates(): void {
+    this.onPromotionStartDateBlur();
+    this.onPromotionEndDateBlur();
+  }
+
+  toIsoDate(value: unknown): string {
+    if (!value) return '';
+    if (typeof value === 'string') {
+      const m = value.match(/^\d{4}-\d{2}-\d{2}$/);
+      if (m) return value;
+      const d = new Date(value);
+      return Number.isNaN(d.getTime()) ? '' : this.dateToIso(d);
+    }
+    if (value instanceof Date) return this.dateToIso(value);
+    return '';
+  }
+
+  private dateToIso(date: Date): string {
+    const yyyy = String(date.getFullYear());
+    const mm = String(date.getMonth() + 1).padStart(2, '0');
+    const dd = String(date.getDate()).padStart(2, '0');
+    return `${yyyy}-${mm}-${dd}`;
+  }
+
+  private isoToEuDate(value: string): string {
+    if (!value) return '';
+    const m = value.match(/^\d{4}-\d{2}-\d{2}$/);
+    if (m) {
+      const [y, mo, d] = value.split('-');
+      return `${d}.${mo}.${y}`;
+    }
+    const d = new Date(value);
+    if (Number.isNaN(d.getTime())) return '';
+    const dd = String(d.getDate()).padStart(2, '0');
+    const mm = String(d.getMonth() + 1).padStart(2, '0');
+    const yyyy = String(d.getFullYear());
+    return `${dd}.${mm}.${yyyy}`;
+  }
+
+  private euToIsoDate(value: string | null | undefined): string | null {
+    const v = (value ?? '').trim();
+    if (!v) return null;
+
+    const match = v.match(/^(\d{1,2})[.\/-](\d{1,2})[.\/-](\d{4})$/);
+    if (!match) return null;
+
+    const day = Number(match[1]);
+    const month = Number(match[2]);
+    const year = Number(match[3]);
+    if (!Number.isFinite(day) || !Number.isFinite(month) || !Number.isFinite(year)) return null;
+
+    const date = new Date(Date.UTC(year, month - 1, day));
+    if (
+      date.getUTCFullYear() !== year ||
+      date.getUTCMonth() !== month - 1 ||
+      date.getUTCDate() !== day
+    ) {
+      return null;
+    }
+
+    const mm = String(month).padStart(2, '0');
+    const dd = String(day).padStart(2, '0');
+    return `${year}-${mm}-${dd}`;
   }
 }

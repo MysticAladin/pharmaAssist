@@ -15,8 +15,10 @@ import {
   BudgetCategory,
   BudgetStatus
 } from '../../../core/services/targets.service';
+import { EuropeanDatePipe } from '../../../core/pipes';
 import { NotificationService } from '../../../core/services/notification.service';
 import { ConfirmationService } from '../../../core/services/confirmation.service';
+import { UserService, UserSummary } from '../../../core/services/user.service';
 import { StatusBadgeComponent } from '../../../shared/components/status-badge/status-badge.component';
 import { EmptyStateComponent } from '../../../shared/components/empty-state/empty-state.component';
 
@@ -27,6 +29,7 @@ import { EmptyStateComponent } from '../../../shared/components/empty-state/empt
     CommonModule,
     FormsModule,
     TranslateModule,
+    EuropeanDatePipe,
     StatusBadgeComponent,
     EmptyStateComponent
   ],
@@ -130,9 +133,9 @@ import { EmptyStateComponent } from '../../../shared/components/empty-state/empt
 
                   <!-- Dates -->
                   <div class="target-dates">
-                    <span>{{ target.startDate | date:'shortDate' }}</span>
+                    <span>{{ target.startDate | europeanDate }}</span>
                     <span>-</span>
-                    <span>{{ target.endDate | date:'shortDate' }}</span>
+                    <span>{{ target.endDate | europeanDate }}</span>
                   </div>
 
                   <!-- Actions -->
@@ -345,6 +348,15 @@ import { EmptyStateComponent } from '../../../shared/components/empty-state/empt
               <input type="text" class="form-control" [(ngModel)]="targetForm.name" required>
             </div>
             <div class="form-group">
+              <label>{{ 'targets.assignedTo' | translate }}</label>
+              <select class="form-select" [(ngModel)]="targetForm.assignedToUserId">
+                <option [ngValue]="undefined">—</option>
+                @for (u of users(); track u.id) {
+                  <option [value]="u.id">{{ u.fullName || (u.firstName + ' ' + u.lastName) }}</option>
+                }
+              </select>
+            </div>
+            <div class="form-group">
               <label>{{ 'targets.description' | translate }}</label>
               <textarea class="form-control" [(ngModel)]="targetForm.description" rows="2"></textarea>
             </div>
@@ -361,7 +373,6 @@ import { EmptyStateComponent } from '../../../shared/components/empty-state/empt
               <div class="form-group">
                 <label>{{ 'targets.period' | translate }} *</label>
                 <select class="form-select" [(ngModel)]="targetForm.period">
-                  <option [value]="TargetPeriod.Weekly">{{ 'targets.periods.weekly' | translate }}</option>
                   <option [value]="TargetPeriod.Monthly">{{ 'targets.periods.monthly' | translate }}</option>
                   <option [value]="TargetPeriod.Quarterly">{{ 'targets.periods.quarterly' | translate }}</option>
                   <option [value]="TargetPeriod.Yearly">{{ 'targets.periods.yearly' | translate }}</option>
@@ -417,6 +428,15 @@ import { EmptyStateComponent } from '../../../shared/components/empty-state/empt
               <input type="text" class="form-control" [(ngModel)]="budgetForm.name" required>
             </div>
             <div class="form-group">
+              <label>{{ 'budgets.assignedTo' | translate }}</label>
+              <select class="form-select" [(ngModel)]="budgetForm.assignedToUserId">
+                <option [ngValue]="undefined">—</option>
+                @for (u of users(); track u.id) {
+                  <option [value]="u.id">{{ u.fullName || (u.firstName + ' ' + u.lastName) }}</option>
+                }
+              </select>
+            </div>
+            <div class="form-group">
               <label>{{ 'budgets.description' | translate }}</label>
               <textarea class="form-control" [(ngModel)]="budgetForm.description" rows="2"></textarea>
             </div>
@@ -424,20 +444,18 @@ import { EmptyStateComponent } from '../../../shared/components/empty-state/empt
               <div class="form-group">
                 <label>{{ 'budgets.category' | translate }} *</label>
                 <select class="form-select" [(ngModel)]="budgetForm.category">
-                  <option [value]="BudgetCategory.Sales">{{ 'budgets.categories.sales' | translate }}</option>
                   <option [value]="BudgetCategory.Marketing">{{ 'budgets.categories.marketing' | translate }}</option>
-                  <option [value]="BudgetCategory.Operations">{{ 'budgets.categories.operations' | translate }}</option>
+                  <option [value]="BudgetCategory.Promotions">{{ 'budgets.categories.promotions' | translate }}</option>
+                  <option [value]="BudgetCategory.Samples">{{ 'budgets.categories.samples' | translate }}</option>
                   <option [value]="BudgetCategory.Travel">{{ 'budgets.categories.travel' | translate }}</option>
-                  <option [value]="BudgetCategory.Entertainment">{{ 'budgets.categories.entertainment' | translate }}</option>
                   <option [value]="BudgetCategory.Training">{{ 'budgets.categories.training' | translate }}</option>
-                  <option [value]="BudgetCategory.Equipment">{{ 'budgets.categories.equipment' | translate }}</option>
+                  <option [value]="BudgetCategory.Events">{{ 'budgets.categories.events' | translate }}</option>
                   <option [value]="BudgetCategory.Other">{{ 'budgets.categories.other' | translate }}</option>
                 </select>
               </div>
               <div class="form-group">
                 <label>{{ 'budgets.period' | translate }} *</label>
                 <select class="form-select" [(ngModel)]="budgetForm.period">
-                  <option [value]="TargetPeriod.Weekly">{{ 'targets.periods.weekly' | translate }}</option>
                   <option [value]="TargetPeriod.Monthly">{{ 'targets.periods.monthly' | translate }}</option>
                   <option [value]="TargetPeriod.Quarterly">{{ 'targets.periods.quarterly' | translate }}</option>
                   <option [value]="TargetPeriod.Yearly">{{ 'targets.periods.yearly' | translate }}</option>
@@ -517,7 +535,7 @@ import { EmptyStateComponent } from '../../../shared/components/empty-state/empt
                 <tbody>
                   @for (expense of expenses(); track expense.id) {
                     <tr>
-                      <td>{{ expense.expenseDate | date:'shortDate' }}</td>
+                      <td>{{ expense.expenseDate | europeanDate }}</td>
                       <td>{{ expense.description }}</td>
                       <td class="text-right font-mono">{{ expense.amount | currency:'BAM':'symbol':'1.2-2' }}</td>
                       <td class="text-center">
@@ -543,6 +561,36 @@ import { EmptyStateComponent } from '../../../shared/components/empty-state/empt
       padding: 1.5rem;
       max-width: 1400px;
       margin: 0 auto;
+    }
+
+    /* Tabs */
+    .pa-tabs {
+      display: flex;
+      gap: 0.5rem;
+      margin-bottom: 1rem;
+      flex-wrap: wrap;
+    }
+
+    .pa-tab {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.625rem 1rem;
+      border: 1px solid var(--border-color);
+      border-radius: 0.5rem;
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      cursor: pointer;
+      transition: background 0.2s, border-color 0.2s;
+    }
+
+    .pa-tab:hover {
+      background: var(--bg-secondary);
+    }
+
+    .pa-tab.active {
+      border-color: var(--primary-color);
+      background: rgba(var(--primary-rgb), 0.08);
     }
 
     .page-header {
@@ -1011,6 +1059,13 @@ import { EmptyStateComponent } from '../../../shared/components/empty-state/empt
       align-items: center;
       gap: 0.5rem;
       cursor: pointer;
+      margin-bottom: 0;
+    }
+
+    .checkbox-label input[type="checkbox"] {
+      width: 1.125rem;
+      height: 1.125rem;
+      accent-color: var(--primary-color);
     }
 
     .expenses-header {
@@ -1073,6 +1128,10 @@ import { EmptyStateComponent } from '../../../shared/components/empty-state/empt
       background: transparent;
     }
 
+    .btn-icon:hover {
+      background: var(--bg-secondary);
+    }
+
     .btn-icon.danger:hover {
       color: var(--danger-color);
     }
@@ -1125,6 +1184,7 @@ import { EmptyStateComponent } from '../../../shared/components/empty-state/empt
 })
 export class TargetsComponent implements OnInit {
   readonly targetsService = inject(TargetsService);
+  private readonly userService = inject(UserService);
   private readonly notification = inject(NotificationService);
   private readonly confirmation = inject(ConfirmationService);
   private readonly translate = inject(TranslateService);
@@ -1145,6 +1205,8 @@ export class TargetsComponent implements OnInit {
   budgets = signal<Budget[]>([]);
   expenses = signal<BudgetExpense[]>([]);
 
+  users = signal<UserSummary[]>([]);
+
   // Target modal
   showTargetModal = signal(false);
   editingTarget = signal<SalesTarget | null>(null);
@@ -1164,6 +1226,19 @@ export class TargetsComponent implements OnInit {
   ngOnInit() {
     this.loadTargets();
     this.loadBudgets();
+    this.loadUsers();
+  }
+
+  loadUsers() {
+    // Used for assignment dropdowns in modals. Users endpoint is Admin-only.
+    this.userService.getUsers({ isActive: true, page: 1, pageSize: 200 }).subscribe({
+      next: (res) => {
+        this.users.set(res.data ?? []);
+      },
+      error: () => {
+        this.users.set([]);
+      }
+    });
   }
 
   setActiveTab(tab: 'targets' | 'budgets' | 'performance') {
@@ -1175,10 +1250,8 @@ export class TargetsComponent implements OnInit {
   loadTargets() {
     this.loadingTargets.set(true);
     this.targetsService.getTargets().subscribe({
-      next: (res) => {
-        if (res.success && res.data) {
-          this.targets.set(res.data);
-        }
+      next: (data) => {
+        this.targets.set(data ?? []);
         this.loadingTargets.set(false);
       },
       error: () => {
@@ -1222,12 +1295,10 @@ export class TargetsComponent implements OnInit {
       : this.targetsService.createTarget(this.targetForm);
 
     request$.subscribe({
-      next: (res) => {
-        if (res.success) {
-          this.notification.success(this.translate.instant(editing ? 'targets.targetUpdated' : 'targets.targetCreated'));
-          this.closeTargetModal();
-          this.loadTargets();
-        }
+      next: () => {
+        this.notification.success(this.translate.instant(editing ? 'targets.targetUpdated' : 'targets.targetCreated'));
+        this.closeTargetModal();
+        this.loadTargets();
         this.savingTarget.set(false);
       },
       error: () => {
@@ -1264,10 +1335,8 @@ export class TargetsComponent implements OnInit {
   loadBudgets() {
     this.loadingBudgets.set(true);
     this.targetsService.getBudgets().subscribe({
-      next: (res) => {
-        if (res.success && res.data) {
-          this.budgets.set(res.data);
-        }
+      next: (data) => {
+        this.budgets.set(data ?? []);
         this.loadingBudgets.set(false);
       },
       error: () => {
@@ -1311,12 +1380,10 @@ export class TargetsComponent implements OnInit {
       : this.targetsService.createBudget(this.budgetForm);
 
     request$.subscribe({
-      next: (res) => {
-        if (res.success) {
-          this.notification.success(this.translate.instant(editing ? 'budgets.budgetUpdated' : 'budgets.budgetCreated'));
-          this.closeBudgetModal();
-          this.loadBudgets();
-        }
+      next: () => {
+        this.notification.success(this.translate.instant(editing ? 'budgets.budgetUpdated' : 'budgets.budgetCreated'));
+        this.closeBudgetModal();
+        this.loadBudgets();
         this.savingBudget.set(false);
       },
       error: () => {
@@ -1365,10 +1432,8 @@ export class TargetsComponent implements OnInit {
   loadExpenses(budgetId: number) {
     this.loadingExpenses.set(true);
     this.targetsService.getExpenses(budgetId).subscribe({
-      next: (res) => {
-        if (res.success && res.data) {
-          this.expenses.set(res.data);
-        }
+      next: (data) => {
+        this.expenses.set(data ?? []);
         this.loadingExpenses.set(false);
       },
       error: () => {
@@ -1397,7 +1462,7 @@ export class TargetsComponent implements OnInit {
     const request: CreateExpenseRequest = {
       description,
       amount,
-      expenseDate: new Date()
+      expenseDate: new Date().toISOString()
     };
 
     this.targetsService.addExpense(budget.id, request).subscribe({
@@ -1425,7 +1490,7 @@ export class TargetsComponent implements OnInit {
     });
 
     if (confirmed) {
-      this.targetsService.deleteExpense(budget.id, expense.id).subscribe({
+      this.targetsService.deleteExpense(expense.id).subscribe({
         next: () => {
           this.notification.success(this.translate.instant('budgets.expenseDeleted'));
           this.loadExpenses(budget.id);
@@ -1470,8 +1535,8 @@ export class TargetsComponent implements OnInit {
       targetType: TargetType.Revenue,
       period: TargetPeriod.Monthly,
       targetValue: 0,
-      startDate: today,
-      endDate: endOfMonth,
+      startDate: today.toISOString().slice(0, 10),
+      endDate: endOfMonth.toISOString().slice(0, 10),
       isActive: true
     };
   }
@@ -1483,12 +1548,12 @@ export class TargetsComponent implements OnInit {
     return {
       name: '',
       description: '',
-      category: BudgetCategory.Sales,
+      category: BudgetCategory.Marketing,
       period: TargetPeriod.Monthly,
       totalAmount: 0,
       alertThreshold: 80,
-      startDate: today,
-      endDate: endOfMonth
+      startDate: today.toISOString().slice(0, 10),
+      endDate: endOfMonth.toISOString().slice(0, 10)
     };
   }
 }

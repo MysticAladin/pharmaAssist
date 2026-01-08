@@ -478,6 +478,7 @@
     "orders": "Orders",
     "allOrders": "All Orders",
     "pending": "Pending",
+    "claims": "Claims",
     "prescriptions": "Prescriptions",
     "customers": "Customers",
     "visits": "Visits",
@@ -987,6 +988,28 @@
       "selectBranchPlaceholder": "Choose a branch...",
     "title": "Orders",
     "subtitle": "Manage and track customer orders",
+    "claims": {
+      "title": "Claims",
+      "subtitle": "Review and approve customer claims",
+      "claimNumber": "Claim #",
+      "orderNumber": "Order #",
+      "type": "Type",
+      "product": "Product",
+      "quantity": "Qty",
+      "submitted": "Submitted",
+      "emptyTitle": "No claims",
+      "emptyDescription": "Claims will appear here when customers submit them",
+      "loadError": "Failed to load claims",
+      "actionError": "Failed to update claim",
+      "approved": "Claim approved",
+      "rejected": "Claim rejected",
+      "enterNotePrompt": "Enter note (required):",
+      "noteRequired": "Note is required",
+      "confirmApproveTitle": "Approve claim",
+      "confirmApproveMessage": "Are you sure you want to approve this claim?",
+      "confirmRejectTitle": "Reject claim",
+      "confirmRejectMessage": "Are you sure you want to reject this claim?"
+    },
     "newOrder": "New Order",
     "createOrder": "Create Order",
     "steps": {
@@ -1097,6 +1120,10 @@
       "timeline": "Order Timeline",
       "created": "Order Created",
       "orderInfo": "Order Information",
+      "updateStatus": "Update status",
+      "statusUpdateNotePlaceholder": "Note (optional)",
+      "statusUpdated": "Order status updated",
+      "statusUpdateError": "Failed to update order status",
       "requiredDate": "Required Date",
       "paymentMethod": "Payment Method",
       "addresses": "Addresses",
@@ -2591,8 +2618,11 @@
         "submitted": "Submitted",
         "underReview": "Under Review",
         "approved": "Approved",
+        "awaitingReturn": "Awaiting Return",
+        "returnReceived": "Return Received",
         "rejected": "Rejected",
         "resolved": "Resolved",
+        "cancelled": "Cancelled",
         "closed": "Closed"
       }
     },
@@ -2840,6 +2870,7 @@
     "targetValue": "Target Value",
     "startDate": "Start Date",
     "endDate": "End Date",
+    "assignedTo": "Assigned To",
     "isActive": "Active",
     "progress": "Progress",
     "totalTargets": "Total Targets",
@@ -2854,6 +2885,7 @@
     "types": {
       "revenue": "Revenue",
       "quantity": "Quantity",
+      "orders": "Orders",
       "visits": "Visits",
       "newCustomers": "New Customers"
     },
@@ -2882,6 +2914,7 @@
     "alertThreshold": "Alert Threshold",
     "startDate": "Start Date",
     "endDate": "End Date",
+    "assignedTo": "Assigned To",
     "expenses": "Expenses",
     "addExpense": "Add Expense",
     "viewExpenses": "View Expenses",
@@ -2902,20 +2935,20 @@
     "deleteExpense": "Delete Expense",
     "deleteExpenseConfirm": "Are you sure you want to delete this expense?",
     "categories": {
-      "sales": "Sales",
       "marketing": "Marketing",
-      "operations": "Operations",
+      "promotions": "Promotions",
+      "samples": "Samples",
       "travel": "Travel",
-      "entertainment": "Entertainment",
       "training": "Training",
-      "equipment": "Equipment",
+      "events": "Events",
       "other": "Other"
     },
     "statuses": {
       "draft": "Draft",
-      "active": "Active",
-      "closed": "Closed",
-      "exceeded": "Exceeded"
+      "submitted": "Submitted",
+      "approved": "Approved",
+      "rejected": "Rejected",
+      "closed": "Closed"
     }
   },
   "tenders": {

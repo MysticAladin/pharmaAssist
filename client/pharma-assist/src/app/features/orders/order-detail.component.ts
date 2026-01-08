@@ -1,10 +1,12 @@
 import { Component, OnInit, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
 import { OrderService } from '../../core/services/order.service';
 import { PrintService, OrderPrintData } from '../../core/services/print.service';
+import { NotificationService } from '../../core/services/notification.service';
 import {
   Order,
   OrderItem,
@@ -27,6 +29,7 @@ import { ConfirmDialogComponent } from '../../shared/components/confirm-dialog';
   standalone: true,
   imports: [
     CommonModule,
+    FormsModule,
     RouterModule,
     TranslateModule,
     StatusBadgeComponent,
@@ -85,6 +88,34 @@ import { ConfirmDialogComponent } from '../../shared/components/confirm-dialog';
             </div>
           </div>
           <div class="header-actions">
+            @if (order() && canManageStatus()) {
+              <div class="status-update">
+                <select
+                  class="status-select"
+                  [(ngModel)]="selectedNextStatus"
+                  [disabled]="statusUpdating()"
+                  aria-label="{{ 'orders.status.label' | translate }}"
+                >
+                  @for (opt of nextStatusOptions(); track opt.value) {
+                    <option [ngValue]="opt.value">{{ opt.label | translate }}</option>
+                  }
+                </select>
+                <input
+                  class="status-note"
+                  type="text"
+                  [(ngModel)]="statusUpdateNote"
+                  [disabled]="statusUpdating()"
+                  [placeholder]="'orders.detail.statusUpdateNotePlaceholder' | translate"
+                />
+                <button
+                  class="btn btn-secondary"
+                  [disabled]="statusUpdating() || !canApplyStatusChange()"
+                  (click)="applyStatusChange()"
+                >
+                  {{ 'orders.detail.updateStatus' | translate }}
+                </button>
+              </div>
+            }
             @if (canEditOrder()) {
               <button class="btn btn-secondary" (click)="editOrder()">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -441,6 +472,10 @@ import { ConfirmDialogComponent } from '../../shared/components/confirm-dialog';
     .header-left{display:flex;flex-direction:column;gap:.75rem}
     .order-number{font-size:1.75rem;font-weight:600;color:var(--c1);margin:0}
     .order-badges,.header-actions{display:flex;gap:.5rem;flex-wrap:wrap}
+    .status-update{display:flex;gap:.5rem;align-items:center;flex-wrap:wrap}
+    .status-select{height:36px;border-radius:8px;border:1px solid var(--c4);padding:0 .75rem;background:#fff;color:var(--c1);font-size:.875rem}
+    .status-note{height:36px;min-width:220px;border-radius:8px;border:1px solid var(--c4);padding:0 .75rem;font-size:.875rem;color:var(--c1)}
+    .status-note:disabled,.status-select:disabled{opacity:.7;cursor:not-allowed}
     .content-grid{display:grid;grid-template-columns:1fr 360px;gap:1.5rem}
     @media(max-width:1024px){.content-grid{grid-template-columns:1fr}}
     .card{background:#fff;border-radius:12px;box-shadow:0 1px 3px rgba(0,0,0,.08);border:1px solid var(--c4);margin-bottom:1rem}
@@ -531,6 +566,7 @@ export class OrderDetailComponent implements OnInit {
   private readonly orderService = inject(OrderService);
   private readonly printService = inject(PrintService);
   private readonly translateService = inject(TranslateService);
+  private readonly notification = inject(NotificationService);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
 
@@ -538,6 +574,10 @@ export class OrderDetailComponent implements OnInit {
   loading = signal(true);
   order = signal<Order | null>(null);
   showCancelConfirm = signal(false);
+  statusUpdating = signal(false);
+
+  selectedNextStatus: OrderStatus | null = null;
+  statusUpdateNote = '';
 
   // Expose enum for template
   OrderStatus = OrderStatus;
@@ -555,6 +595,7 @@ export class OrderDetailComponent implements OnInit {
     this.orderService.getOrder(id).subscribe({
       next: (order) => {
         this.order.set(order);
+        this.selectedNextStatus = order.status;
         this.loading.set(false);
       },
       error: (error) => {
@@ -658,6 +699,7 @@ export class OrderDetailComponent implements OnInit {
     };
 
     this.order.set(mockOrder);
+    this.selectedNextStatus = mockOrder.status;
   }
 
   // Actions
@@ -680,6 +722,75 @@ export class OrderDetailComponent implements OnInit {
         this.showCancelConfirm.set(false);
       }
     });
+  }
+
+  canManageStatus(): boolean {
+    // Keep permissive for now; route-level guards already restrict Orders area.
+    return true;
+  }
+
+  nextStatusOptions = computed((): { value: OrderStatus; label: string }[] => {
+    const order = this.order();
+    if (!order) return [];
+
+    const allowed = this.getAllowedNextStatuses(order.status);
+    return allowed.map((s) => ({ value: s, label: getOrderStatusLabel(s) }));
+  });
+
+  canApplyStatusChange(): boolean {
+    const order = this.order();
+    if (!order) return false;
+    if (this.selectedNextStatus == null) return false;
+    return this.selectedNextStatus !== order.status;
+  }
+
+  applyStatusChange(): void {
+    const order = this.order();
+    if (!order) return;
+    if (this.selectedNextStatus == null) return;
+    if (this.selectedNextStatus === order.status) return;
+
+    this.statusUpdating.set(true);
+    const notes = this.statusUpdateNote?.trim();
+
+    this.orderService.updateOrderStatus(order.id, { status: this.selectedNextStatus, notes: notes || undefined }).subscribe({
+      next: (updated) => {
+        this.order.set(updated);
+        this.selectedNextStatus = updated.status;
+        this.statusUpdateNote = '';
+        this.statusUpdating.set(false);
+        this.notification.success(this.translateService.instant('orders.detail.statusUpdated'));
+      },
+      error: (error) => {
+        console.error('Error updating order status:', error);
+        this.statusUpdating.set(false);
+        this.notification.error(this.translateService.instant('orders.detail.statusUpdateError'));
+      }
+    });
+  }
+
+  private getAllowedNextStatuses(current: OrderStatus): OrderStatus[] {
+    // Mirrors backend OrderService.IsValidStatusTransition
+    switch (current) {
+      case OrderStatus.Pending:
+        return [OrderStatus.Pending, OrderStatus.Confirmed, OrderStatus.Processing, OrderStatus.Cancelled];
+      case OrderStatus.Confirmed:
+        return [OrderStatus.Confirmed, OrderStatus.Processing, OrderStatus.Cancelled];
+      case OrderStatus.Processing:
+        return [OrderStatus.Processing, OrderStatus.ReadyForShipment, OrderStatus.Shipped, OrderStatus.Cancelled];
+      case OrderStatus.ReadyForShipment:
+        return [OrderStatus.ReadyForShipment, OrderStatus.Shipped, OrderStatus.Cancelled];
+      case OrderStatus.Shipped:
+        return [OrderStatus.Shipped, OrderStatus.Delivered];
+      case OrderStatus.Delivered:
+        return [OrderStatus.Delivered, OrderStatus.Returned];
+      case OrderStatus.Cancelled:
+        return [OrderStatus.Cancelled];
+      case OrderStatus.Returned:
+        return [OrderStatus.Returned];
+      default:
+        return [current];
+    }
   }
 
   printOrder(): void {

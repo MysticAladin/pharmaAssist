@@ -62,7 +62,7 @@ export class SidebarComponent {
       children: [
         { labelKey: 'nav.allOrders', route: '/orders' },
         { labelKey: 'nav.pending', route: '/orders/pending' },
-        { labelKey: 'nav.prescriptions', route: '/orders/prescriptions', feature: 'prescription_management' }
+        { labelKey: 'nav.claims', route: '/orders/claims' },
       ]
     },
     {
@@ -101,7 +101,7 @@ export class SidebarComponent {
     },
     {
       labelKey: 'nav.salesReps',
-      icon: 'icon-briefcase',
+      icon: 'icon-users',
       route: '/admin/sales-reps',
       roles: [UserRole.SuperAdmin, UserRole.Admin, UserRole.Manager]
     },

@@ -1,0 +1,90 @@
+<div class="claims-page">
+  <div class="page-header">
+    <div class="header-content">
+      <h1 class="page-title">{{ 'orders.claims.title' | translate }}</h1>
+      <p class="page-subtitle">{{ 'orders.claims.subtitle' | translate }}</p>
+    </div>
+
+    <div class="header-actions">
+      <div class="filter">
+        <label class="filter-label">{{ 'portal.claims.status' | translate }}</label>
+        <select class="filter-select" (change)="onStatusChange($event)">
+          @for (opt of statusOptions; track opt.label) {
+            <option [value]="opt.value ?? ''">{{ opt.label | translate }}</option>
+          }
+        </select>
+      </div>
+    </div>
+  </div>
+
+  @if (loading()) {
+    <div class="loading">{{ 'common.loading' | translate }}</div>
+  } @else if (items().length === 0) {
+    <app-empty-state
+      icon="file-text"
+      [title]="'orders.claims.emptyTitle' | translate"
+      [description]="'orders.claims.emptyDescription' | translate">
+    </app-empty-state>
+  } @else {
+    <div class="table-container">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>{{ 'orders.claims.claimNumber' | translate }}</th>
+            <th>{{ 'orders.claims.orderNumber' | translate }}</th>
+            <th>{{ 'orders.claims.type' | translate }}</th>
+            <th>{{ 'orders.claims.product' | translate }}</th>
+            <th class="text-right">{{ 'orders.claims.quantity' | translate }}</th>
+            <th>{{ 'orders.claims.submitted' | translate }}</th>
+            <th class="text-center">{{ 'portal.claims.status' | translate }}</th>
+            <th class="text-center">{{ 'common.actions' | translate }}</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (c of items(); track c.id) {
+            <tr>
+              <td class="mono">{{ c.claimNumber }}</td>
+              <td class="mono">{{ c.orderNumber }}</td>
+              <td>{{ c.typeName }}</td>
+              <td>{{ c.productName }}</td>
+              <td class="text-right mono">{{ c.quantity }}</td>
+              <td>{{ c.createdAt | europeanDate:'datetime' }}</td>
+              <td class="text-center">
+                <app-status-badge
+                  [variant]="getStatusVariant(c.status)"
+                  [label]="c.statusName"
+                  [shouldTranslate]="false"
+                ></app-status-badge>
+              </td>
+              <td class="text-center">
+                <div class="actions">
+                  <button
+                    class="btn btn-sm btn-primary"
+                    [disabled]="!canApprove(c)"
+                    (click)="approve(c)">
+                    {{ 'common.approve' | translate }}
+                  </button>
+                  <button
+                    class="btn btn-sm danger"
+                    [disabled]="!canReject(c)"
+                    (click)="reject(c)">
+                    {{ 'common.reject' | translate }}
+                  </button>
+                </div>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+
+    <div class="pagination-container">
+      <app-pagination
+        [page]="currentPage()"
+        [size]="pageSize"
+        [totalItems]="totalItems()"
+        (pageChange)="onPageChange($event)">
+      </app-pagination>
+    </div>
+  }
+</div>

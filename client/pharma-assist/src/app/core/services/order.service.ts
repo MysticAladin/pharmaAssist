@@ -13,6 +13,7 @@ import {
   OrderStatus,
   PaymentStatus
 } from '../models/order.model';
+import { ApiResponse, PagedResponse } from '../models/customer.model';
 
 export type { OrderSummary };
 
@@ -82,7 +83,19 @@ export class OrderService {
       }
     }
 
-    return this.http.get<PaginatedResult<OrderSummary>>(`${this.baseUrl}/paged`, { params });
+    return this.http
+      .get<PagedResponse<OrderSummary>>(`${this.baseUrl}/paged`, { params })
+      .pipe(
+        map((res) => ({
+          data: res.items ?? [],
+          totalCount: res.totalCount ?? 0,
+          currentPage: res.page ?? page,
+          pageSize: res.pageSize ?? pageSize,
+          totalPages: res.totalPages ?? 1,
+          hasPrevious: res.hasPreviousPage,
+          hasNext: res.hasNextPage
+        }))
+      );
   }
 
   /**
@@ -136,21 +149,28 @@ export class OrderService {
    * Update order status
    */
   updateOrderStatus(id: number, statusUpdate: UpdateOrderStatusDto): Observable<Order> {
-    return this.http.patch<Order>(`${this.baseUrl}/${id}/status`, statusUpdate);
+    return this.http.patch<ApiResponse<Order>>(`${this.baseUrl}/${id}/status`, statusUpdate).pipe(
+      map((res) => (res && typeof res === 'object' && 'data' in res ? (res.data as Order) : (res as unknown as Order)))
+    );
   }
 
   /**
    * Update payment status
    */
   updatePaymentStatus(id: number, paymentUpdate: UpdatePaymentStatusDto): Observable<Order> {
-    return this.http.patch<Order>(`${this.baseUrl}/${id}/payment-status`, paymentUpdate);
+    return this.http.patch<ApiResponse<Order>>(`${this.baseUrl}/${id}/payment-status`, paymentUpdate).pipe(
+      map((res) => (res && typeof res === 'object' && 'data' in res ? (res.data as Order) : (res as unknown as Order)))
+    );
   }
 
   /**
    * Cancel an order
    */
   cancelOrder(id: number, reason?: string): Observable<Order> {
-    return this.http.post<Order>(`${this.baseUrl}/${id}/cancel`, { reason });
+    const body = (reason ?? '').toString();
+    return this.http.patch<ApiResponse<Order>>(`${this.baseUrl}/${id}/cancel`, body).pipe(
+      map((res) => (res && typeof res === 'object' && 'data' in res ? (res.data as Order) : (res as unknown as Order)))
+    );
   }
 
   /**
