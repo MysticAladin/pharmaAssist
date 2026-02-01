@@ -25,7 +25,10 @@ import {
   ReportBuilderResult,
   DataSourceFields,
   SavedReport,
-  ReportColumnType
+  ReportColumnType,
+  SalesRepPerformanceFilter,
+  SalesRepPerformanceReport,
+  SalesRepOption
 } from '../models/report.model';
 
 @Injectable({
@@ -582,5 +585,46 @@ export class ReportService {
       [ReportColumnType.Percentage]: 'Percentage'
     };
     return names[type] || 'Unknown';
+  }
+
+  // ========== Sales Rep Performance Report ==========
+
+  /**
+   * Get sales rep performance report with filters
+   */
+  getSalesRepPerformanceReport(filter: SalesRepPerformanceFilter): Observable<SalesRepPerformanceReport> {
+    let params = new HttpParams();
+
+    if (filter.fromDate) {
+      const date = filter.fromDate instanceof Date ? filter.fromDate : new Date(filter.fromDate);
+      params = params.set('fromDate', date.toISOString());
+    }
+    if (filter.toDate) {
+      const date = filter.toDate instanceof Date ? filter.toDate : new Date(filter.toDate);
+      params = params.set('toDate', date.toISOString());
+    }
+    if (filter.repId) {
+      params = params.set('repId', filter.repId.toString());
+    }
+    if (filter.repType !== undefined && filter.repType !== null) {
+      params = params.set('repType', filter.repType.toString());
+    }
+    if (filter.includeInactive) {
+      params = params.set('includeInactive', 'true');
+    }
+
+    return this.http.get<SalesRepPerformanceReport>(
+      `${environment.apiUrl}/reports/sales-rep-performance`,
+      { params }
+    );
+  }
+
+  /**
+   * Get list of sales reps for filter dropdown
+   */
+  getSalesRepsForFilter(): Observable<SalesRepOption[]> {
+    return this.http.get<SalesRepOption[]>(
+      `${environment.apiUrl}/reports/sales-rep-performance/reps`
+    );
   }
 }

@@ -28,7 +28,7 @@ public class SalesRepService : ISalesRepService
             query.Search,
             query.RepType,
             query.Status,
-            query.ManagerId,
+            query.ManagerUserId,
             query.PageNumber,
             query.PageSize,
             query.SortBy,
@@ -93,13 +93,13 @@ public class SalesRepService : ISalesRepService
         await _unitOfWork.SalesReps.AddAsync(salesRep, cancellationToken);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
 
-        // Add manager assignments if provided
-        if (dto.ManagerIds.Any())
+        // Add manager/supervisor assignments if provided
+        if (dto.ManagerUserIds.Any())
         {
             await _unitOfWork.SalesReps.UpdateManagerAssignmentsAsync(
                 salesRep.Id,
-                dto.ManagerIds,
-                dto.PrimaryManagerId,
+                dto.ManagerUserIds,
+                dto.PrimaryManagerUserId,
                 cancellationToken);
             await _unitOfWork.SaveChangesAsync(cancellationToken);
         }
@@ -144,12 +144,6 @@ public class SalesRepService : ISalesRepService
         return true;
     }
 
-    public async Task<IReadOnlyList<SalesRepresentativeSummaryDto>> GetManagersAsync(RepresentativeType? repType, CancellationToken cancellationToken = default)
-    {
-        var managers = await _unitOfWork.SalesReps.GetManagersAsync(repType, cancellationToken);
-        return managers.Select(MapToSummaryDto).ToList();
-    }
-
     public async Task<SalesRepresentativeDto?> UpdateManagerAssignmentsAsync(int repId, UpdateManagerAssignmentsDto dto, CancellationToken cancellationToken = default)
     {
         var salesRep = await _unitOfWork.SalesReps.GetByIdAsync(repId, cancellationToken);
@@ -157,8 +151,8 @@ public class SalesRepService : ISalesRepService
 
         await _unitOfWork.SalesReps.UpdateManagerAssignmentsAsync(
             repId,
-            dto.ManagerIds,
-            dto.PrimaryManagerId,
+            dto.ManagerUserIds,
+            dto.PrimaryManagerUserId,
             cancellationToken);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
 
@@ -211,10 +205,9 @@ public class SalesRepService : ISalesRepService
         var hierarchy = await _unitOfWork.SalesReps.GetHierarchyAsync(repType, cancellationToken);
         return hierarchy.Select(h => new RepHierarchyDto
         {
-            ManagerId = h.Manager.Id,
-            ManagerName = h.Manager.User?.FullName ?? "",
-            ManagerEmployeeCode = h.Manager.EmployeeCode,
-            ManagerRepType = h.Manager.RepType,
+            ManagerUserId = h.Manager.Id,
+            ManagerName = h.Manager.FullName,
+            ManagerEmail = h.Manager.Email ?? "",
             TeamMembers = h.Team.Select(MapToSummaryDto).ToList()
         }).ToList();
     }
@@ -245,9 +238,9 @@ public class SalesRepService : ISalesRepService
                 .Select(ma => new ManagerAssignmentDto
                 {
                     AssignmentId = ma.Id,
-                    ManagerId = ma.ManagerId,
-                    ManagerName = ma.Manager?.User?.FullName ?? "",
-                    ManagerEmployeeCode = ma.Manager?.EmployeeCode ?? "",
+                    ManagerUserId = ma.ManagerUserId,
+                    ManagerName = ma.ManagerUser?.FullName ?? "",
+                    ManagerEmail = ma.ManagerUser?.Email ?? "",
                     IsPrimary = ma.IsPrimary,
                     IsActive = ma.IsActive,
                     AssignmentDate = ma.AssignmentDate
@@ -272,7 +265,7 @@ public class SalesRepService : ISalesRepService
             Status = rep.Status,
             StatusName = rep.Status.ToString(),
             TerritoryDescription = rep.TerritoryDescription,
-            PrimaryManagerName = primaryManager?.Manager?.User?.FullName,
+            PrimaryManagerName = primaryManager?.ManagerUser?.FullName,
             AssignedCustomersCount = rep.CustomerAssignments?.Count(ca => ca.IsActive && !ca.IsDeleted) ?? 0
         };
     }

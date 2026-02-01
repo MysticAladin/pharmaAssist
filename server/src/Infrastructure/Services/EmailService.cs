@@ -51,7 +51,7 @@ public class EmailService : IEmailService
 
         try
         {
-            await SendSmtpEmailAsync(emailLog);
+            await SendSmtpEmailAsync(emailLog, message.Attachments);
             
             emailLog.Status = EmailStatus.Sent;
             emailLog.SentAt = DateTime.UtcNow;
@@ -298,7 +298,7 @@ public class EmailService : IEmailService
         });
     }
 
-    private async Task SendSmtpEmailAsync(EmailLog email)
+    private async Task SendSmtpEmailAsync(EmailLog email, List<EmailAttachmentDto>? attachments = null)
     {
         if (!_smtpSettings.Enabled)
         {
@@ -335,6 +335,17 @@ public class EmailService : IEmailService
             foreach (var bcc in email.BccEmail.Split(',', StringSplitOptions.RemoveEmptyEntries))
             {
                 mailMessage.Bcc.Add(bcc.Trim());
+            }
+        }
+
+        // Add attachments
+        if (attachments != null && attachments.Count > 0)
+        {
+            foreach (var attachment in attachments)
+            {
+                var stream = new MemoryStream(attachment.Content);
+                var att = new Attachment(stream, attachment.FileName, attachment.ContentType);
+                mailMessage.Attachments.Add(att);
             }
         }
 
@@ -453,6 +464,78 @@ public class EmailService : IEmailService
                     </body>
                     </html>"
             },
+            "order-status-update" => new EmailTemplate
+            {
+                Subject = "Order Update - {{OrderNumber}} is now {{StatusName}}",
+                Body = @"
+                    <html>
+                    <body style='font-family: Arial, sans-serif;'>
+                        <h2>Order Status Update</h2>
+                        <p>Dear {{CustomerName}},</p>
+                        <p>Your order <strong>{{OrderNumber}}</strong> has been updated:</p>
+                        <table style='border-collapse: collapse; margin: 20px 0;'>
+                            <tr><td style='padding: 8px; border: 1px solid #ddd;'><strong>Previous Status:</strong></td><td style='padding: 8px; border: 1px solid #ddd;'>{{PreviousStatus}}</td></tr>
+                            <tr><td style='padding: 8px; border: 1px solid #ddd;'><strong>New Status:</strong></td><td style='padding: 8px; border: 1px solid #ddd; color: #28a745; font-weight: bold;'>{{StatusName}}</td></tr>
+                            <tr><td style='padding: 8px; border: 1px solid #ddd;'><strong>Updated:</strong></td><td style='padding: 8px; border: 1px solid #ddd;'>{{UpdatedAt}}</td></tr>
+                        </table>
+                        <p>Thank you for your business!</p>
+                        <p>Best regards,<br/>The PharmaAssist Team</p>
+                    </body>
+                    </html>"
+            },
+            "order-delivered" => new EmailTemplate
+            {
+                Subject = "Your Order Has Been Delivered - {{OrderNumber}}",
+                Body = @"
+                    <html>
+                    <body style='font-family: Arial, sans-serif;'>
+                        <h2 style='color: #28a745;'>Order Delivered!</h2>
+                        <p>Dear {{CustomerName}},</p>
+                        <p>Great news! Your order <strong>{{OrderNumber}}</strong> has been delivered.</p>
+                        <p>Order Total: <strong>{{OrderTotal}}</strong></p>
+                        <p>Thank you for your business! We hope you're satisfied with your order.</p>
+                        <p>If you have any questions or concerns, please don't hesitate to contact us.</p>
+                        <p>Best regards,<br/>The PharmaAssist Team</p>
+                    </body>
+                    </html>"
+            },
+            "weekly-manager-report" => new EmailTemplate
+            {
+                Subject = "Weekly Visit Report - {{RegionName}} ({{WeekRange}})",
+                Body = @"
+                    <html>
+                    <body style='font-family: Arial, sans-serif;'>
+                        <h2>Weekly Visit Report</h2>
+                        <p>Dear {{ManagerName}},</p>
+                        <p>Please find attached the weekly visit report for your team.</p>
+                        <h3>Summary for {{WeekRange}}:</h3>
+                        <table style='border-collapse: collapse; margin: 20px 0;'>
+                            <tr><td style='padding: 8px; border: 1px solid #ddd;'><strong>Total Visits:</strong></td><td style='padding: 8px; border: 1px solid #ddd;'>{{TotalVisits}}</td></tr>
+                            <tr><td style='padding: 8px; border: 1px solid #ddd;'><strong>Visits Completed:</strong></td><td style='padding: 8px; border: 1px solid #ddd;'>{{CompletedVisits}} ({{CompletionRate}}%)</td></tr>
+                            <tr><td style='padding: 8px; border: 1px solid #ddd;'><strong>Orders Placed:</strong></td><td style='padding: 8px; border: 1px solid #ddd;'>{{OrdersPlaced}}</td></tr>
+                            <tr><td style='padding: 8px; border: 1px solid #ddd;'><strong>Total Revenue:</strong></td><td style='padding: 8px; border: 1px solid #ddd;'>{{TotalRevenue}} BAM</td></tr>
+                        </table>
+                        <p><strong>Top Performer:</strong> {{TopRepName}} ({{TopRepVisits}} visits)</p>
+                        <p>See attached Excel file for full details.</p>
+                        <p>Best regards,<br/>PharmaAssist Reporting System</p>
+                    </body>
+                    </html>"
+            },
+            "visit-reminder" => new EmailTemplate
+            {
+                Subject = "Today's Visit Schedule - {{VisitCount}} visits planned",
+                Body = @"
+                    <html>
+                    <body style='font-family: Arial, sans-serif;'>
+                        <h2>Daily Visit Reminder</h2>
+                        <p>Dear {{RepName}},</p>
+                        <p>You have <strong>{{VisitCount}}</strong> visits scheduled for today ({{Date}}):</p>
+                        {{VisitsList}}
+                        <p>Good luck with your visits!</p>
+                        <p>Best regards,<br/>PharmaAssist Team</p>
+                    </body>
+                    </html>"
+            },
             _ => null
         };
     }
@@ -475,8 +558,12 @@ public class EmailService : IEmailService
             "order-confirmation" => (int)EmailType.OrderConfirmation,
             "order-received-internal" => (int)EmailType.OrderReceivedInternal,
             "order-shipped" => (int)EmailType.OrderShipped,
+            "order-delivered" => (int)EmailType.OrderDelivered,
+            "order-status-update" => (int)EmailType.OrderStatusUpdate,
             "low-stock-alert" => (int)EmailType.LowStockAlert,
             "expiry-alert" => (int)EmailType.ExpiryAlert,
+            "weekly-manager-report" => (int)EmailType.WeeklyManagerReport,
+            "visit-reminder" => (int)EmailType.VisitReminder,
             _ => (int)EmailType.Newsletter
         };
     }

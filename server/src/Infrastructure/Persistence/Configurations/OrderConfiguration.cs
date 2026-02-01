@@ -49,11 +49,25 @@ public class OrderConfiguration : IEntityTypeConfiguration<Order>
 
         builder.HasIndex(e => e.Status);
 
+        builder.HasIndex(e => e.RepId);
+
+        builder.HasIndex(e => e.VisitId);
+
         // Relationships
         builder.HasOne(e => e.Customer)
             .WithMany(c => c.Orders)
             .HasForeignKey(e => e.CustomerId)
             .OnDelete(DeleteBehavior.Restrict);
+
+        builder.HasOne(e => e.Rep)
+            .WithMany()
+            .HasForeignKey(e => e.RepId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        builder.HasOne(e => e.Visit)
+            .WithMany()
+            .HasForeignKey(e => e.VisitId)
+            .OnDelete(DeleteBehavior.SetNull);
 
         builder.HasOne(e => e.ShippingAddress)
             .WithMany()
@@ -69,5 +83,9 @@ public class OrderConfiguration : IEntityTypeConfiguration<Order>
             .WithOne(i => i.Order)
             .HasForeignKey(i => i.OrderId)
             .OnDelete(DeleteBehavior.Cascade);
+
+        // Rep-specific properties
+        builder.Property(e => e.RepDeviceId)
+            .HasMaxLength(100);
     }
 }

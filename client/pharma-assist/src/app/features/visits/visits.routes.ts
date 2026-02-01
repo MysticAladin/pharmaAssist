@@ -17,12 +17,42 @@ export const VISITS_ROUTES: Routes = [
     data: { roles: [UserRole.SalesRep] },
     loadComponent: () => import('./visit-check-in.component').then(m => m.VisitCheckInComponent)
   },
+  {
+    path: 'planner',
+    canActivate: [roleGuard],
+    data: { roles: [UserRole.SalesRep] },
+    loadComponent: () => import('./visit-planner.component').then(m => m.VisitPlannerComponent)
+  },
+  {
+    path: 'planning-hierarchy',
+    canActivate: [roleGuard],
+    data: { roles: [UserRole.SalesRep, UserRole.Manager] },
+    loadComponent: () => import('./planning-hierarchy.component').then(m => m.PlanningHierarchyComponent)
+  },
+  {
+    path: 'history',
+    canActivate: [roleGuard],
+    data: { roles: [UserRole.SalesRep] },
+    loadComponent: () => import('./visit-history.component').then(m => m.VisitHistoryComponent)
+  },
 
   {
     path: 'team',
     canActivate: [roleGuard],
     data: { roles: [UserRole.SuperAdmin, UserRole.Admin, UserRole.Manager] },
     loadComponent: () => import('./visits-team.component').then(m => m.VisitsTeamComponent)
+  },
+  {
+    path: 'team-activity',
+    canActivate: [roleGuard],
+    data: { roles: [UserRole.SuperAdmin, UserRole.Admin, UserRole.Manager] },
+    loadComponent: () => import('./team-activity-dashboard.component').then(m => m.TeamActivityDashboardComponent)
+  },
+  {
+    path: 'audit',
+    canActivate: [roleGuard],
+    data: { roles: [UserRole.SuperAdmin, UserRole.Admin, UserRole.Manager] },
+    loadComponent: () => import('./visit-audit.component').then(m => m.VisitAuditComponent)
   },
   {
     path: 'plans/:planId',

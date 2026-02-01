@@ -1,8 +1,9 @@
 namespace Domain.Entities;
 
 /// <summary>
-/// Many-to-many relationship between sales representatives and their managers
+/// Many-to-many relationship between sales representatives and their managers/supervisors
 /// Supports the hierarchical structure where reps can report to multiple managers
+/// Managers are Users with Manager role (not necessarily SalesRepresentatives)
 /// </summary>
 public class RepManagerAssignment : BaseEntity
 {
@@ -12,9 +13,9 @@ public class RepManagerAssignment : BaseEntity
     public int RepId { get; set; }
     
     /// <summary>
-    /// FK to the manager (who is also a SalesRepresentative with manager permissions)
+    /// FK to the manager/supervisor (User with Manager role)
     /// </summary>
-    public int ManagerId { get; set; }
+    public string ManagerUserId { get; set; } = string.Empty;
     
     /// <summary>
     /// Date when this assignment was made
@@ -39,7 +40,7 @@ public class RepManagerAssignment : BaseEntity
     public virtual SalesRepresentative? Rep { get; set; }
     
     /// <summary>
-    /// The manager
+    /// The manager/supervisor user
     /// </summary>
-    public virtual SalesRepresentative? Manager { get; set; }
+    public virtual ApplicationUser? ManagerUser { get; set; }
 }

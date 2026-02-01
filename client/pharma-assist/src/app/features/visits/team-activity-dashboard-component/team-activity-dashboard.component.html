@@ -1,0 +1,187 @@
+<div class="visits-team-page">
+  <!-- Page Header -->
+  <div class="page-header">
+    <div class="header-content">
+      <h1 class="page-title">{{ 'visits.teamTitle' | translate }}</h1>
+      <p class="page-subtitle">{{ 'visits.weekPlans' | translate }}</p>
+    </div>
+    <div class="header-actions">
+      <div class="date-input-wrapper">
+        <input
+          type="text"
+          [ngModel]="displayDate"
+          (ngModelChange)="onDateInputChange($event)"
+          placeholder="dd.MM.yyyy"
+          class="filter-select date-filter"
+        />
+        <input
+          type="date"
+          class="hidden-date-picker"
+          [ngModel]="selectedDate"
+          (change)="onNativeDateChange($event)"
+          #datePicker
+        />
+        <button type="button" class="calendar-icon" (click)="datePicker.showPicker()">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+            <line x1="16" y1="2" x2="16" y2="6"/>
+            <line x1="8" y1="2" x2="8" y2="6"/>
+            <line x1="3" y1="10" x2="21" y2="10"/>
+          </svg>
+        </button>
+      </div>
+      <button class="btn btn-secondary" (click)="refresh()" [disabled]="loading()">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M23 4v6h-6M1 20v-6h6"/>
+          <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/>
+        </svg>
+        {{ 'common.refresh' | translate }}
+      </button>
+    </div>
+  </div>
+
+  @if (loading()) {
+    <div class="loading-state">
+      <div class="spinner"></div>
+      <p>{{ 'common.loading' | translate }}</p>
+    </div>
+  } @else if (data()) {
+    <!-- Stats Cards -->
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-icon active-reps">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+            <circle cx="9" cy="7" r="4"/>
+            <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+            <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+          </svg>
+        </div>
+        <div class="stat-content">
+          <span class="stat-value">{{ data()!.totals.activeReps }}</span>
+          <span class="stat-label">{{ 'teamActivity.activeReps' | translate }}</span>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon visits">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+            <polyline points="22 4 12 14.01 9 11.01"/>
+          </svg>
+        </div>
+        <div class="stat-content">
+          <span class="stat-value">{{ data()!.totals.totalExecutedVisits }} / {{ data()!.totals.totalPlannedVisits }}</span>
+          <span class="stat-label">{{ 'teamActivity.visitsToday' | translate }}</span>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon completion">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="12" y1="20" x2="12" y2="10"/>
+            <line x1="18" y1="20" x2="18" y2="4"/>
+            <line x1="6" y1="20" x2="6" y2="16"/>
+          </svg>
+        </div>
+        <div class="stat-content">
+          <span class="stat-value">{{ data()!.totals.overallCompletionRate }}%</span>
+          <span class="stat-label">{{ 'teamActivity.completionRate' | translate }}</span>
+        </div>
+      </div>
+      <div class="stat-card" [class.stat-card--alert]="data()!.totals.locationAlertCount > 0">
+        <div class="stat-icon alerts">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+            <line x1="12" y1="9" x2="12" y2="13"/>
+            <line x1="12" y1="17" x2="12.01" y2="17"/>
+          </svg>
+        </div>
+        <div class="stat-content">
+          <span class="stat-value">{{ data()!.totals.locationAlertCount }}</span>
+          <span class="stat-label">{{ 'teamActivity.locationAlerts' | translate }}</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Rep Activity Cards -->
+    <div class="rep-grid">
+      @for (rep of data()!.repActivities; track rep.repId) {
+        <div class="rep-card" [class.rep-card--active]="rep.currentVisit">
+          <div class="rep-card__header">
+            <div class="rep-card__name">{{ rep.repName }}</div>
+            <div class="rep-card__type" [class.commercial]="rep.repType === 1" [class.medical]="rep.repType === 2">
+              {{ rep.repType === 1 ? 'C' : 'M' }}
+            </div>
+          </div>
+
+          <div class="rep-card__stats">
+            <div class="rep-stat">
+              <span class="rep-stat__value">{{ rep.executedVisitsCount }}/{{ rep.plannedVisitsCount }}</span>
+              <span class="rep-stat__label">{{ 'teamActivity.visits' | translate }}</span>
+            </div>
+            <div class="rep-stat">
+              <span class="rep-stat__value">{{ rep.completionRate }}%</span>
+              <span class="rep-stat__label">{{ 'teamActivity.done' | translate }}</span>
+            </div>
+            @if (rep.locationAlertCount > 0) {
+              <div class="rep-stat rep-stat--alert">
+                <span class="rep-stat__value">{{ rep.locationAlertCount }}</span>
+                <span class="rep-stat__label">{{ 'teamActivity.alerts' | translate }}</span>
+              </div>
+            }
+          </div>
+
+          @if (rep.currentVisit) {
+            <div class="rep-card__current">
+              <div class="current-label">{{ 'teamActivity.currentlyAt' | translate }}:</div>
+              <div class="current-customer" (click)="openVisit(rep.currentVisit.visitId)">
+                {{ rep.currentVisit.customerName }}
+                @if (rep.currentVisit.customerCity) {
+                  <span class="city">({{ rep.currentVisit.customerCity }})</span>
+                }
+              </div>
+              <div class="current-time">{{ rep.currentVisit.checkInTime | europeanDate:'datetime' }}</div>
+            </div>
+          } @else if (rep.todayVisits.length > 0) {
+            <div class="rep-card__last">
+              <div class="last-label">{{ 'teamActivity.lastVisit' | translate }}:</div>
+              <div class="last-customer">{{ rep.todayVisits[0].customerName }}</div>
+            </div>
+          } @else {
+            <div class="rep-card__idle">{{ 'teamActivity.noVisitsToday' | translate }}</div>
+          }
+
+          @if (rep.todayVisits.length > 0) {
+            <button class="btn btn-ghost btn-sm" (click)="toggleExpand(rep.repId)">
+              {{ expandedRepId() === rep.repId ? ('teamActivity.hideVisits' | translate) : ('teamActivity.showVisits' | translate) }}
+            </button>
+          }
+
+          @if (expandedRepId() === rep.repId) {
+            <div class="rep-card__visits">
+              @for (v of rep.todayVisits; track v.visitId) {
+                <div class="visit-row" (click)="openVisit(v.visitId)">
+                  <div class="visit-row__main">
+                    <span class="visit-row__time">{{ v.checkInTime | europeanDate:'datetime' }}</span>
+                    <span class="visit-row__customer">{{ v.customerName }}</span>
+                  </div>
+                  <div class="visit-row__badges">
+                    <span class="badge" [class]="getLocationBadgeClass(v)">
+                      {{ v.locationVerified ? '✓' : '?' }}
+                    </span>
+                    <span class="badge" [class]="getOutcomeBadgeClass(v.outcome)">
+                      {{ getOutcomeIcon(v.outcome) }}
+                    </span>
+                  </div>
+                </div>
+              }
+            </div>
+          }
+        </div>
+      }
+    </div>
+  }
+
+  @if (error()) {
+    <div class="error-message">{{ error() }}</div>
+  }
+</div>

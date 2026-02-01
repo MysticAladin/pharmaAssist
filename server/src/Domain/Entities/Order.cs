@@ -10,6 +10,14 @@ public class Order : BaseEntity
     public string OrderNumber { get; set; } = string.Empty;
     public int CustomerId { get; set; }
     
+    // Sales Rep Attribution
+    public int? RepId { get; set; }
+    public int? VisitId { get; set; }
+    public bool CreatedViaApp { get; set; } = false;
+    public string? RepDeviceId { get; set; }
+    public DateTime? OfflineCreatedAt { get; set; }
+    public DateTime? SyncedAt { get; set; }
+    
     // Dates
     public DateTime OrderDate { get; set; } = DateTime.UtcNow;
     public DateTime? RequiredDate { get; set; }
@@ -42,6 +50,8 @@ public class Order : BaseEntity
 
     // Navigation properties
     public virtual Customer Customer { get; set; } = null!;
+    public virtual SalesRepresentative? Rep { get; set; }
+    public virtual ExecutedVisit? Visit { get; set; }
     public virtual CustomerAddress? ShippingAddress { get; set; }
     public virtual CustomerAddress? BillingAddress { get; set; }
     public virtual ICollection<OrderItem> OrderItems { get; set; } = new List<OrderItem>();

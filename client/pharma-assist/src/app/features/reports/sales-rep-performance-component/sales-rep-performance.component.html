@@ -1,0 +1,198 @@
+<div class="sales-rep-performance-report">
+  <div class="breadcrumb">
+    <a routerLink="/reports">{{ 'reports.title' | translate }}</a>
+    <span class="separator">/</span>
+    <span>{{ 'reports.salesRepPerformance.title' | translate }}</span>
+  </div>
+
+  <div class="page-header">
+    <div class="header-content">
+      <h1 class="page-title">{{ 'reports.salesRepPerformance.title' | translate }}</h1>
+      <p class="page-subtitle">{{ 'reports.salesRepPerformance.subtitle' | translate }}</p>
+    </div>
+  </div>
+
+  <div class="filters">
+    <div class="filters-row">
+      <div class="field">
+        <label>{{ 'reports.salesRepPerformance.selectRep' | translate }}</label>
+        <select [(ngModel)]="selectedRepId">
+          <option [ngValue]="null">{{ 'reports.salesRepPerformance.allReps' | translate }}</option>
+          @for (r of reps(); track r.id) {
+            <option [ngValue]="r.id">{{ r.repCode }} — {{ r.name }}</option>
+          }
+        </select>
+      </div>
+
+      <div class="field">
+        <label>{{ 'reports.salesRepPerformance.repType' | translate }}</label>
+        <select [(ngModel)]="selectedRepType">
+          <option [ngValue]="null">{{ 'common.all' | translate }}</option>
+          @for (type of repTypes; track type.value) {
+            <option [ngValue]="type.value">{{ type.label | translate }}</option>
+          }
+        </select>
+      </div>
+
+      <div class="field">
+        <label>{{ 'reports.filters.startDate' | translate }}</label>
+        <input
+          type="text"
+          [ngModel]="startDateText"
+          (ngModelChange)="onStartDateTextChange($event)"
+          placeholder="dd.MM.yyyy"
+        />
+      </div>
+
+      <div class="field">
+        <label>{{ 'reports.filters.endDate' | translate }}</label>
+        <input
+          type="text"
+          [ngModel]="endDateText"
+          (ngModelChange)="onEndDateTextChange($event)"
+          placeholder="dd.MM.yyyy"
+        />
+      </div>
+
+      <div class="field checkbox">
+        <label class="filter-checkbox">
+          <input type="checkbox" [(ngModel)]="includeInactive" />
+          <span>{{ 'reports.salesRepPerformance.includeInactive' | translate }}</span>
+        </label>
+      </div>
+    </div>
+
+    <div class="filters-actions">
+      <button class="btn btn-secondary" (click)="clearFilters()">
+        {{ 'reports.actions.clear' | translate }}
+      </button>
+      <button class="btn btn-primary" (click)="generateReport()">
+        {{ 'reports.actions.generate' | translate }}
+      </button>
+    </div>
+  </div>
+
+  @if (loading()) {
+    <div class="loading">
+      <div class="spinner"></div>
+      <span>{{ 'common.loading' | translate }}</span>
+    </div>
+  } @else if (report(); as r) {
+    <!-- Summary Metrics -->
+    <section class="metrics-section">
+      <div class="metric-card">
+        <div class="metric-icon">👥</div>
+        <div class="metric-content">
+          <span class="metric-value">{{ r.totalReps | number }}</span>
+          <span class="metric-label">{{ 'reports.salesRepPerformance.totalReps' | translate }}</span>
+        </div>
+      </div>
+
+      <div class="metric-card primary">
+        <div class="metric-icon">📦</div>
+        <div class="metric-content">
+          <span class="metric-value">{{ r.totalOrders | number }}</span>
+          <span class="metric-label">{{ 'reports.salesRepPerformance.totalOrders' | translate }}</span>
+        </div>
+      </div>
+
+      <div class="metric-card success">
+        <div class="metric-icon">💰</div>
+        <div class="metric-content">
+          <span class="metric-value">{{ r.totalRevenue | currency:'BAM':'symbol':'1.0-0' }}</span>
+          <span class="metric-label">{{ 'reports.salesRepPerformance.totalRevenue' | translate }}</span>
+        </div>
+      </div>
+
+      <div class="metric-card info">
+        <div class="metric-icon">📍</div>
+        <div class="metric-content">
+          <span class="metric-value">{{ r.totalVisits | number }}</span>
+          <span class="metric-label">{{ 'reports.salesRepPerformance.totalVisits' | translate }}</span>
+        </div>
+      </div>
+
+      <div class="metric-card">
+        <div class="metric-icon">🏪</div>
+        <div class="metric-content">
+          <span class="metric-value">{{ r.totalCustomersVisited | number }}</span>
+          <span class="metric-label">{{ 'reports.salesRepPerformance.customersVisited' | translate }}</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- Performance Table -->
+    <section class="table-section">
+      <div class="table-card">
+        <div class="table-header">
+          <h3>{{ 'reports.salesRepPerformance.performanceDetails' | translate }}</h3>
+        </div>
+
+        @if (r.reps.length === 0) {
+          <div class="no-data">
+            <p>{{ 'common.noResults' | translate }}</p>
+          </div>
+        } @else {
+          <div class="table-responsive">
+            <table>
+              <thead>
+                <tr>
+                  <th>{{ 'reports.salesRepPerformance.repName' | translate }}</th>
+                  <th>{{ 'reports.salesRepPerformance.repCode' | translate }}</th>
+                  <th>{{ 'reports.salesRepPerformance.repType' | translate }}</th>
+                  <th>{{ 'common.status' | translate }}</th>
+                  <th class="text-right">{{ 'reports.salesRepPerformance.orders' | translate }}</th>
+                  <th class="text-right">{{ 'reports.salesRepPerformance.revenue' | translate }}</th>
+                  <th class="text-center">{{ 'reports.salesRepPerformance.visitsPlanned' | translate }}</th>
+                  <th class="text-center">{{ 'reports.salesRepPerformance.visitsExecuted' | translate }}</th>
+                  <th class="text-center">{{ 'reports.salesRepPerformance.visitCompletion' | translate }}</th>
+                  <th class="text-center">{{ 'reports.salesRepPerformance.customers' | translate }}</th>
+                  <th class="text-center">{{ 'reports.salesRepPerformance.coverage' | translate }}</th>
+                  <th class="text-center">{{ 'reports.salesRepPerformance.targets' | translate }}</th>
+                  <th class="text-center">{{ 'reports.salesRepPerformance.performance' | translate }}</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (rep of r.reps; track rep.repId) {
+                  <tr>
+                    <td>
+                      <span class="rep-name">{{ rep.repName }}</span>
+                    </td>
+                    <td>{{ rep.repCode }}</td>
+                    <td>{{ getRepTypeName(rep.repType) | translate }}</td>
+                    <td>
+                      <span class="status-badge" [class.active]="rep.isActive" [class.inactive]="!rep.isActive">
+                        {{ (rep.isActive ? 'common.active' : 'common.inactive') | translate }}
+                      </span>
+                    </td>
+                    <td class="text-right">{{ rep.orderCount | number }}</td>
+                    <td class="text-right">{{ rep.orderRevenue | currency:'BAM':'symbol':'1.0-0' }}</td>
+                    <td class="text-center">{{ rep.visitsPlanned | number }}</td>
+                    <td class="text-center">{{ rep.visitsExecuted | number }}</td>
+                    <td class="text-center">
+                      <span class="rate" [class]="getPerformanceClass(rep.visitCompletionRate)">
+                        {{ rep.visitCompletionRate / 100 | percent:'1.0-0' }}
+                      </span>
+                    </td>
+                    <td class="text-center">{{ rep.customersVisited }} / {{ rep.assignedCustomers }}</td>
+                    <td class="text-center">
+                      <span class="rate" [class]="getPerformanceClass(rep.customerCoverage)">
+                        {{ rep.customerCoverage / 100 | percent:'1.0-0' }}
+                      </span>
+                    </td>
+                    <td class="text-center">{{ rep.targetsAchieved }} / {{ rep.targetsAssigned }}</td>
+                    <td class="text-center">
+                      <span class="performance-score" [class]="getPerformanceClass(rep.performanceScore)">
+                        {{ rep.performanceScore | number:'1.0-0' }}
+                      </span>
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        }
+      </div>
+    </section>
+  }
+</div>

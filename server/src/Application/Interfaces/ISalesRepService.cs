@@ -39,12 +39,7 @@ public interface ISalesRepService
     Task<bool> DeleteAsync(int id, CancellationToken cancellationToken = default);
     
     /// <summary>
-    /// Get managers list
-    /// </summary>
-    Task<IReadOnlyList<SalesRepresentativeSummaryDto>> GetManagersAsync(Domain.Enums.RepresentativeType? repType, CancellationToken cancellationToken = default);
-    
-    /// <summary>
-    /// Update manager assignments for a rep
+    /// Update manager/supervisor assignments for a rep
     /// </summary>
     Task<SalesRepresentativeDto?> UpdateManagerAssignmentsAsync(int repId, UpdateManagerAssignmentsDto dto, CancellationToken cancellationToken = default);
     

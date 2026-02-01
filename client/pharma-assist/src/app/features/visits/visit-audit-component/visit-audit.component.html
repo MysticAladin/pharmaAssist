@@ -1,0 +1,236 @@
+<div class="visit-audit-page">
+  <!-- Page Header -->
+  <div class="page-header">
+    <div class="header-content">
+      <h1 class="page-title">{{ 'visitAudit.title' | translate }}</h1>
+      <p class="page-subtitle">{{ 'visitAudit.subtitle' | translate }}</p>
+    </div>
+    <div class="header-actions">
+      <button class="btn btn-ghost" (click)="navigateBack()">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M19 12H5M12 19l-7-7 7-7"/>
+        </svg>
+        {{ 'common.back' | translate }}
+      </button>
+    </div>
+  </div>
+
+  <!-- Filters Section -->
+  <div class="filters-section">
+    <div class="filter-row">
+      <div class="filter-group">
+        <label class="filter-label">{{ 'visitAudit.fromDate' | translate }}</label>
+        <div class="date-input-wrapper">
+          <input
+            type="text"
+            [ngModel]="displayFromDate"
+            (ngModelChange)="onFromDateInputChange($event)"
+            placeholder="dd.MM.yyyy"
+            class="filter-select date-filter"
+          />
+          <input
+            type="date"
+            class="hidden-date-picker"
+            [ngModel]="filterFromDate"
+            (change)="onNativeFromDateChange($event)"
+            #fromDatePicker
+          />
+          <button type="button" class="calendar-icon" (click)="fromDatePicker.showPicker()">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+              <line x1="16" y1="2" x2="16" y2="6"/>
+              <line x1="8" y1="2" x2="8" y2="6"/>
+              <line x1="3" y1="10" x2="21" y2="10"/>
+            </svg>
+          </button>
+        </div>
+      </div>
+      <div class="filter-group">
+        <label class="filter-label">{{ 'visitAudit.toDate' | translate }}</label>
+        <div class="date-input-wrapper">
+          <input
+            type="text"
+            [ngModel]="displayToDate"
+            (ngModelChange)="onToDateInputChange($event)"
+            placeholder="dd.MM.yyyy"
+            class="filter-select date-filter"
+          />
+          <input
+            type="date"
+            class="hidden-date-picker"
+            [ngModel]="filterToDate"
+            (change)="onNativeToDateChange($event)"
+            #toDatePicker
+          />
+          <button type="button" class="calendar-icon" (click)="toDatePicker.showPicker()">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+              <line x1="16" y1="2" x2="16" y2="6"/>
+              <line x1="8" y1="2" x2="8" y2="6"/>
+              <line x1="3" y1="10" x2="21" y2="10"/>
+            </svg>
+          </button>
+        </div>
+      </div>
+      <div class="filter-group filter-group--wide">
+        <label class="filter-label">{{ 'visitAudit.rep' | translate }}</label>
+        <select class="filter-select" [(ngModel)]="filterRepId" (change)="applyFilters()">
+          <option [ngValue]="null">{{ 'common.all' | translate }}</option>
+          @for (rep of reps(); track rep.repId) {
+            <option [ngValue]="rep.repId">{{ rep.repName }}</option>
+          }
+        </select>
+      </div>
+      <div class="filter-group">
+        <label class="filter-label">{{ 'visitAudit.locationStatus' | translate }}</label>
+        <select class="filter-select" [(ngModel)]="filterLocationVerified" (change)="applyFilters()">
+          <option [ngValue]="null">{{ 'common.all' | translate }}</option>
+          <option [ngValue]="true">{{ 'visitAudit.verifiedOnly' | translate }}</option>
+          <option [ngValue]="false">{{ 'visitAudit.unverifiedOnly' | translate }}</option>
+        </select>
+      </div>
+      <div class="filter-actions">
+        <button class="btn btn-primary" (click)="applyFilters()">{{ 'common.search' | translate }}</button>
+        <button class="btn btn-ghost" (click)="clearFilters()">{{ 'common.clearFilters' | translate }}</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Stats Cards -->
+  @if (result()) {
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-icon total">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+            <polyline points="22 4 12 14.01 9 11.01"/>
+          </svg>
+        </div>
+        <div class="stat-content">
+          <span class="stat-value">{{ result()!.totalCount }}</span>
+          <span class="stat-label">{{ 'visitAudit.totalVisits' | translate }}</span>
+        </div>
+      </div>
+      <div class="stat-card stat-card--success">
+        <div class="stat-icon verified">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+            <polyline points="22 4 12 14.01 9 11.01"/>
+          </svg>
+        </div>
+        <div class="stat-content">
+          <span class="stat-value">{{ verifiedCount() }}</span>
+          <span class="stat-label">{{ 'visitAudit.verified' | translate }}</span>
+        </div>
+      </div>
+      <div class="stat-card stat-card--warning">
+        <div class="stat-icon warning">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="10"/>
+            <line x1="12" y1="8" x2="12" y2="12"/>
+            <line x1="12" y1="16" x2="12.01" y2="16"/>
+          </svg>
+        </div>
+        <div class="stat-content">
+          <span class="stat-value">{{ warningCount() }}</span>
+          <span class="stat-label">{{ 'visitAudit.warnings' | translate }}</span>
+        </div>
+      </div>
+      <div class="stat-card stat-card--danger">
+        <div class="stat-icon alert">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+            <line x1="12" y1="9" x2="12" y2="13"/>
+            <line x1="12" y1="17" x2="12.01" y2="17"/>
+          </svg>
+        </div>
+        <div class="stat-content">
+          <span class="stat-value">{{ alertCount() }}</span>
+          <span class="stat-label">{{ 'visitAudit.alerts' | translate }}</span>
+        </div>
+      </div>
+    </div>
+  }
+
+  <!-- Results Card -->
+  <div class="results-card">
+    <div class="card-header">
+      <span>{{ 'visitAudit.results' | translate }}: {{ totalCount() }}</span>
+    </div>
+    <div class="card-content">
+      @if (loading()) {
+        <div class="loading-state">
+          <div class="spinner"></div>
+          <p>{{ 'common.loading' | translate }}</p>
+        </div>
+      } @else if (items().length === 0) {
+        <div class="empty-state">
+          <p>{{ 'visitAudit.noResults' | translate }}</p>
+        </div>
+      } @else {
+        <div class="audit-list">
+          @for (item of items(); track item.visitId) {
+            <div class="audit-row" (click)="openVisit(item.visitId)">
+              <div class="audit-row__main">
+                <div class="audit-row__header">
+                  <div class="audit-row__title">{{ item.customerName }}</div>
+                  <span class="badge" [class]="getLocationBadgeClass(item)">
+                    {{ getLocationLabel(item) }}
+                  </span>
+                </div>
+                <div class="audit-row__meta">
+                  <span class="rep-name">{{ item.repName }}</span> ·
+                  {{ item.checkInTime | europeanDate:'datetime' }}
+                  @if (item.customerCity) { · {{ item.customerCity }} }
+                </div>
+                <div class="audit-row__coordinates">
+                  @if (item.visitLatitude && item.visitLongitude) {
+                    <span class="coord">
+                      <span class="coord-label">{{ 'visitAudit.visitCoords' | translate }}:</span>
+                      {{ item.visitLatitude.toFixed(6) }}, {{ item.visitLongitude.toFixed(6) }}
+                    </span>
+                  }
+                  @if (item.customerLatitude && item.customerLongitude) {
+                    <span class="coord">
+                      <span class="coord-label">{{ 'visitAudit.customerCoords' | translate }}:</span>
+                      {{ item.customerLatitude.toFixed(6) }}, {{ item.customerLongitude.toFixed(6) }}
+                    </span>
+                  }
+                  @if (item.distanceFromCustomerMeters != null) {
+                    <span class="distance" [class]="getDistanceClass(item)">
+                      {{ formatDistance(item.distanceFromCustomerMeters) }}
+                    </span>
+                  }
+                </div>
+              </div>
+              <div class="audit-row__actions">
+                @if (item.visitLatitude && item.visitLongitude) {
+                  <button class="btn-icon" (click)="openMap($event, item)" [title]="'visitAudit.viewOnMap' | translate">
+                    🗺️
+                  </button>
+                }
+              </div>
+            </div>
+          }
+        </div>
+
+        <!-- Pagination -->
+        @if (totalPages() > 1) {
+          <div class="pagination">
+            <button class="btn btn-ghost" [disabled]="currentPage() <= 1" (click)="goToPage(currentPage() - 1)">
+              {{ 'common.previous' | translate }}
+            </button>
+            <span class="pagination__info">{{ currentPage() }} / {{ totalPages() }}</span>
+            <button class="btn btn-ghost" [disabled]="currentPage() >= totalPages()" (click)="goToPage(currentPage() + 1)">
+              {{ 'common.next' | translate }}
+            </button>
+          </div>
+        }
+      }
+    </div>
+  </div>
+
+  @if (error()) {
+    <div class="error-message">{{ error() }}</div>
+  }
+</div>

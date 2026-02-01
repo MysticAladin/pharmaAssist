@@ -49,9 +49,9 @@ export interface SalesRepresentativeSummary {
 
 export interface ManagerAssignment {
   assignmentId: number;
-  managerId: number;
+  managerUserId: string;
   managerName: string;
-  managerEmployeeCode: string;
+  managerEmail: string;
   isPrimary: boolean;
   isActive: boolean;
   assignmentDate: string;
@@ -74,8 +74,8 @@ export interface CreateSalesRepresentative {
   mobile?: string;
   hireDate: string;
   territoryDescription?: string;
-  managerIds: number[];
-  primaryManagerId?: number;
+  managerUserIds: string[];
+  primaryManagerUserId?: string;
 }
 
 export interface UpdateSalesRepresentative {
@@ -87,8 +87,8 @@ export interface UpdateSalesRepresentative {
 }
 
 export interface UpdateManagerAssignments {
-  managerIds: number[];
-  primaryManagerId?: number;
+  managerUserIds: string[];
+  primaryManagerUserId?: string;
 }
 
 export interface AssignCustomers {
@@ -96,10 +96,9 @@ export interface AssignCustomers {
 }
 
 export interface RepHierarchy {
-  managerId: number;
+  managerUserId: string;
   managerName: string;
-  managerEmployeeCode: string;
-  managerRepType: RepresentativeType;
+  managerEmail: string;
   teamMembers: SalesRepresentativeSummary[];
 }
 
@@ -107,7 +106,7 @@ export interface SalesRepQuery {
   search?: string;
   repType?: RepresentativeType;
   status?: RepresentativeStatus;
-  managerId?: number;
+  managerUserId?: string;
   pageNumber?: number;
   pageSize?: number;
   sortBy?: string;

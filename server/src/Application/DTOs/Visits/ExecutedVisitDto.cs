@@ -24,10 +24,16 @@ public class ExecutedVisitDto
     public decimal? CheckOutLongitude { get; set; }
 
     public bool LocationVerified { get; set; }
+    public int? DistanceFromCustomerMeters { get; set; }
 
     public VisitOutcome? Outcome { get; set; }
     public string? Summary { get; set; }
     public string? ProductsDiscussed { get; set; }
+    
+    // Visit notes fields
+    public string? GeneralComment { get; set; }
+    public string? AgreedDeals { get; set; }
+    public string? CompetitionNotes { get; set; }
 
     public bool IsCompleted => CheckOutTime.HasValue;
 }

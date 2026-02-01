@@ -18,6 +18,12 @@ public class EmailLog : BaseEntity
     public int RetryCount { get; set; } = 0;
     
     public DateTime? SentAt { get; set; }
+    public DateTime? LastAttempt { get; set; }
+    
+    /// <summary>
+    /// Quick check if email was sent successfully
+    /// </summary>
+    public bool IsSent => Status == EmailStatus.Sent;
     
     public EmailType EmailType { get; set; }
     public string? RelatedEntityType { get; set; }
@@ -48,5 +54,12 @@ public enum EmailType
     PaymentReceived = 12,
     AccountDeactivated = 13,
     OrderReceivedInternal = 14,
+    OrderStatusUpdate = 15,
+    WeeklyManagerReport = 16,
+    MonthlySummary = 17,
+    VisitReminder = 18,
+    PaymentReminder = 19,
+    NewCustomerAssigned = 20,
+    TargetAchievement = 21,
     Newsletter = 99
 }

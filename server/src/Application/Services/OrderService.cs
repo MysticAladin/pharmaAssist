@@ -17,13 +17,20 @@ public class OrderService : IOrderService
     private readonly IUnitOfWork _unitOfWork;
     private readonly IMapper _mapper;
     private readonly IEmailService _emailService;
+    private readonly IOrderEmailService _orderEmailService;
     private readonly ILogger<OrderService> _logger;
 
-    public OrderService(IUnitOfWork unitOfWork, IMapper mapper, IEmailService emailService, ILogger<OrderService> logger)
+    public OrderService(
+        IUnitOfWork unitOfWork, 
+        IMapper mapper, 
+        IEmailService emailService, 
+        IOrderEmailService orderEmailService,
+        ILogger<OrderService> logger)
     {
         _unitOfWork = unitOfWork;
         _mapper = mapper;
         _emailService = emailService;
+        _orderEmailService = orderEmailService;
         _logger = logger;
     }
 
@@ -287,6 +294,35 @@ public class OrderService : IOrderService
         }
     }
 
+    private async Task TrySendStatusUpdateEmailAsync(Order order, OrderStatus previousStatus, string? trackingNumber, string? carrier, CancellationToken cancellationToken)
+    {
+        try
+        {
+            // Get full order with customer info
+            var fullOrder = await _unitOfWork.Orders.GetFullOrderAsync(order.Id, cancellationToken);
+            if (fullOrder == null) return;
+
+            switch (order.Status)
+            {
+                case OrderStatus.Shipped:
+                    await _orderEmailService.SendOrderShippedAsync(fullOrder, trackingNumber, carrier);
+                    break;
+                case OrderStatus.Delivered:
+                    await _orderEmailService.SendOrderDeliveredAsync(fullOrder);
+                    break;
+                default:
+                    // For other status changes, send generic update
+                    await _orderEmailService.SendOrderStatusUpdateAsync(fullOrder, previousStatus);
+                    break;
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to send status update email for order {OrderNumber}, status changed from {From} to {To}", 
+                order.OrderNumber, previousStatus, order.Status);
+        }
+    }
+
     public async Task<ApiResponse<OrderDto>> UpdateAsync(int id, UpdateOrderDto dto, CancellationToken cancellationToken = default)
     {
         var order = await _unitOfWork.Orders.GetByIdAsync(id, cancellationToken);
@@ -341,6 +377,7 @@ public class OrderService : IOrderService
         if (!IsValidStatusTransition(order.Status, dto.Status))
             return ApiResponse<OrderDto>.Fail($"Invalid status transition from {order.Status} to {dto.Status}.");
 
+        var previousStatus = order.Status;
         order.Status = dto.Status;
         
         if (!string.IsNullOrEmpty(dto.Notes))
@@ -350,6 +387,9 @@ public class OrderService : IOrderService
 
         await _unitOfWork.Orders.UpdateAsync(order, cancellationToken);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
+
+        // Send status update email
+        await TrySendStatusUpdateEmailAsync(order, previousStatus, dto.TrackingNumber, dto.Carrier, cancellationToken);
 
         var updatedOrder = await _unitOfWork.Orders.GetFullOrderAsync(id, cancellationToken);
         var resultDto = MapOrderToDto(updatedOrder!);

@@ -146,6 +146,26 @@ public class VisitService : IVisitService
             LocationVerified = false
         };
 
+        // Calculate distance from customer location if GPS is available
+        if (dto.Latitude.HasValue && dto.Longitude.HasValue)
+        {
+            var customerAddress = await _context.CustomerAddresses
+                .Where(a => a.CustomerId == customerId && a.IsDefault && a.IsActive)
+                .FirstOrDefaultAsync(cancellationToken);
+
+            if (customerAddress?.Latitude != null && customerAddress.Longitude != null)
+            {
+                var distance = CalculateDistanceMeters(
+                    (double)dto.Latitude.Value, (double)dto.Longitude.Value,
+                    (double)customerAddress.Latitude.Value, (double)customerAddress.Longitude.Value);
+
+                visit.DistanceFromCustomerMeters = (int)distance;
+                
+                // Thresholds: <100m = verified, 100-500m = warning, >500m = alert
+                visit.LocationVerified = distance < 100;
+            }
+        }
+
         _context.ExecutedVisits.Add(visit);
         await _context.SaveChangesAsync(cancellationToken);
 
@@ -169,6 +189,11 @@ public class VisitService : IVisitService
         if (dto.Outcome.HasValue) visit.Outcome = dto.Outcome;
         if (dto.Summary != null) visit.Summary = dto.Summary;
         if (dto.ProductsDiscussed != null) visit.ProductsDiscussed = dto.ProductsDiscussed;
+        
+        // Update visit notes
+        if (dto.GeneralComment != null) visit.GeneralComment = dto.GeneralComment;
+        if (dto.AgreedDeals != null) visit.AgreedDeals = dto.AgreedDeals;
+        if (dto.CompetitionNotes != null) visit.CompetitionNotes = dto.CompetitionNotes;
 
         if (dto.FollowUpRequired.HasValue) visit.FollowUpRequired = dto.FollowUpRequired.Value;
         if (dto.FollowUpDate.HasValue) visit.FollowUpDate = dto.FollowUpDate;
@@ -233,10 +258,118 @@ public class VisitService : IVisitService
             CheckOutTime = visit.CheckOutTime,
             CheckOutLatitude = visit.CheckOutLatitude,
             CheckOutLongitude = visit.CheckOutLongitude,
+            DistanceFromCustomerMeters = visit.DistanceFromCustomerMeters,
             LocationVerified = visit.LocationVerified,
             Outcome = visit.Outcome,
             Summary = visit.Summary,
-            ProductsDiscussed = visit.ProductsDiscussed
+            ProductsDiscussed = visit.ProductsDiscussed,
+            GeneralComment = visit.GeneralComment,
+            AgreedDeals = visit.AgreedDeals,
+            CompetitionNotes = visit.CompetitionNotes
+        };
+    }
+
+    /// <summary>
+    /// Calculate distance between two GPS coordinates using Haversine formula
+    /// </summary>
+    private static double CalculateDistanceMeters(double lat1, double lon1, double lat2, double lon2)
+    {
+        const double R = 6371000; // Earth's radius in meters
+
+        var dLat = ToRadians(lat2 - lat1);
+        var dLon = ToRadians(lon2 - lon1);
+
+        var a = Math.Sin(dLat / 2) * Math.Sin(dLat / 2) +
+                Math.Cos(ToRadians(lat1)) * Math.Cos(ToRadians(lat2)) *
+                Math.Sin(dLon / 2) * Math.Sin(dLon / 2);
+
+        var c = 2 * Math.Atan2(Math.Sqrt(a), Math.Sqrt(1 - a));
+
+        return R * c;
+    }
+
+    private static double ToRadians(double degrees) => degrees * Math.PI / 180;
+
+    public async Task<VisitHistoryResultDto> GetVisitHistoryAsync(string userId, VisitHistoryFilterDto filter, CancellationToken cancellationToken = default)
+    {
+        var repId = await GetRepIdAsync(userId, cancellationToken);
+
+        var query = _context.ExecutedVisits
+            .Include(v => v.Customer)
+                .ThenInclude(c => c!.Addresses)
+            .Where(v => v.RepId == repId)
+            .AsQueryable();
+
+        // Apply filters
+        if (filter.FromDate.HasValue)
+        {
+            var fromDate = filter.FromDate.Value.Date;
+            query = query.Where(v => v.CheckInTime >= fromDate);
+        }
+
+        if (filter.ToDate.HasValue)
+        {
+            var toDate = filter.ToDate.Value.Date.AddDays(1);
+            query = query.Where(v => v.CheckInTime < toDate);
+        }
+
+        if (filter.CustomerId.HasValue)
+        {
+            query = query.Where(v => v.CustomerId == filter.CustomerId.Value);
+        }
+
+        if (filter.Outcome.HasValue)
+        {
+            query = query.Where(v => v.Outcome == filter.Outcome.Value);
+        }
+
+        if (!string.IsNullOrWhiteSpace(filter.SearchTerm))
+        {
+            var term = filter.SearchTerm.Trim().ToLower();
+            query = query.Where(v =>
+                (v.Summary != null && v.Summary.ToLower().Contains(term)) ||
+                (v.ProductsDiscussed != null && v.ProductsDiscussed.ToLower().Contains(term)) ||
+                (v.Customer != null && v.Customer.CompanyName != null && v.Customer.CompanyName.ToLower().Contains(term))
+            );
+        }
+
+        // Get total count
+        var totalCount = await query.CountAsync(cancellationToken);
+
+        // Apply pagination and ordering
+        var items = await query
+            .OrderByDescending(v => v.CheckInTime)
+            .Skip((filter.Page - 1) * filter.PageSize)
+            .Take(filter.PageSize)
+            .Select(v => new VisitHistoryItemDto
+            {
+                Id = v.Id,
+                CustomerId = v.CustomerId,
+                CustomerName = v.Customer != null
+                    ? (v.Customer.CompanyName ?? ((v.Customer.FirstName ?? "") + " " + (v.Customer.LastName ?? "")).Trim())
+                    : "",
+                CustomerCity = v.Customer != null && v.Customer.Addresses.Any()
+                    ? v.Customer.Addresses.OrderByDescending(a => a.IsDefault).First().City
+                    : null,
+                VisitType = v.VisitType,
+                CheckInTime = v.CheckInTime,
+                CheckOutTime = v.CheckOutTime,
+                DurationMinutes = v.CheckOutTime.HasValue
+                    ? (int?)(v.CheckOutTime.Value - v.CheckInTime).TotalMinutes
+                    : null,
+                LocationVerified = v.LocationVerified,
+                DistanceFromCustomerMeters = v.DistanceFromCustomerMeters,
+                Outcome = v.Outcome,
+                Summary = v.Summary
+            })
+            .ToListAsync(cancellationToken);
+
+        return new VisitHistoryResultDto
+        {
+            Items = items,
+            TotalCount = totalCount,
+            Page = filter.Page,
+            PageSize = filter.PageSize
         };
     }
 }

@@ -33,9 +33,8 @@ public class SalesRepRepository : Repository<SalesRepresentative>, ISalesRepRepo
     {
         return await _dbSet
             .Include(sr => sr.User)
-            .Include(sr => sr.ManagerAssignments)
-                .ThenInclude(ma => ma.Manager)
-                    .ThenInclude(m => m!.User)
+            .Include(sr => sr.ManagerAssignments.Where(ma => ma.IsActive && !ma.IsDeleted))
+                .ThenInclude(ma => ma.ManagerUser)
             .Include(sr => sr.CustomerAssignments)
                 .ThenInclude(ca => ca.Customer)
             .FirstOrDefaultAsync(sr => sr.Id == id, cancellationToken);
@@ -45,7 +44,7 @@ public class SalesRepRepository : Repository<SalesRepresentative>, ISalesRepRepo
         string? search,
         RepresentativeType? repType,
         RepresentativeStatus? status,
-        int? managerId,
+        string? managerUserId,
         int pageNumber,
         int pageSize,
         string? sortBy,
@@ -55,8 +54,7 @@ public class SalesRepRepository : Repository<SalesRepresentative>, ISalesRepRepo
         var query = _dbSet
             .Include(sr => sr.User)
             .Include(sr => sr.ManagerAssignments.Where(ma => ma.IsActive && !ma.IsDeleted))
-                .ThenInclude(ma => ma.Manager)
-                    .ThenInclude(m => m!.User)
+                .ThenInclude(ma => ma.ManagerUser)
             .Include(sr => sr.CustomerAssignments.Where(ca => ca.IsActive && !ca.IsDeleted))
             .AsQueryable();
 
@@ -82,9 +80,11 @@ public class SalesRepRepository : Repository<SalesRepresentative>, ISalesRepRepo
             query = query.Where(sr => sr.Status == status.Value);
         }
 
-        if (managerId.HasValue)
+        // Filter by manager user ID
+        if (!string.IsNullOrWhiteSpace(managerUserId))
         {
-            query = query.Where(sr => sr.ManagerAssignments.Any(ma => ma.ManagerId == managerId.Value && ma.IsActive && !ma.IsDeleted));
+            query = query.Where(sr => sr.ManagerAssignments.Any(ma => 
+                ma.ManagerUserId == managerUserId && ma.IsActive && !ma.IsDeleted));
         }
 
         // Get total count before pagination
@@ -120,31 +120,6 @@ public class SalesRepRepository : Repository<SalesRepresentative>, ISalesRepRepo
         return (items, totalCount);
     }
 
-    public async Task<IReadOnlyList<SalesRepresentative>> GetByManagerIdAsync(int managerId, CancellationToken cancellationToken = default)
-    {
-        return await _context.RepManagerAssignments
-            .Where(ma => ma.ManagerId == managerId && ma.IsActive && !ma.IsDeleted)
-            .Include(ma => ma.Rep)
-                .ThenInclude(r => r!.User)
-            .Select(ma => ma.Rep!)
-            .ToListAsync(cancellationToken);
-    }
-
-    public async Task<IReadOnlyList<SalesRepresentative>> GetManagersAsync(RepresentativeType? repType, CancellationToken cancellationToken = default)
-    {
-        var query = _dbSet
-            .Include(sr => sr.User)
-            .Include(sr => sr.ManagedReps.Where(mr => mr.IsActive && !mr.IsDeleted))
-            .Where(sr => sr.ManagedReps.Any(mr => mr.IsActive && !mr.IsDeleted));
-
-        if (repType.HasValue)
-        {
-            query = query.Where(sr => sr.RepType == repType.Value);
-        }
-
-        return await query.ToListAsync(cancellationToken);
-    }
-
     public async Task<IReadOnlyList<RepCustomerAssignment>> GetCustomerAssignmentsAsync(int repId, CancellationToken cancellationToken = default)
     {
         return await _context.RepCustomerAssignments
@@ -152,6 +127,12 @@ public class SalesRepRepository : Repository<SalesRepresentative>, ISalesRepRepo
             .Include(ca => ca.Customer)
                 .ThenInclude(c => c!.Addresses)
             .ToListAsync(cancellationToken);
+    }
+
+    public async Task<RepCustomerAssignment?> GetCustomerAssignmentAsync(int repId, int customerId, CancellationToken cancellationToken = default)
+    {
+        return await _context.RepCustomerAssignments
+            .FirstOrDefaultAsync(ca => ca.RepId == repId && ca.CustomerId == customerId && ca.IsActive && !ca.IsDeleted, cancellationToken);
     }
 
     public async Task AddCustomerAssignmentsAsync(int repId, IEnumerable<int> customerIds, CancellationToken cancellationToken = default)
@@ -198,17 +179,19 @@ public class SalesRepRepository : Repository<SalesRepresentative>, ISalesRepRepo
         }
     }
 
-    public async Task UpdateManagerAssignmentsAsync(int repId, IEnumerable<int> managerIds, int? primaryManagerId, CancellationToken cancellationToken = default)
+    public async Task UpdateManagerAssignmentsAsync(int repId, IEnumerable<string> managerUserIds, string? primaryManagerUserId, CancellationToken cancellationToken = default)
     {
+        var managerUserIdsList = managerUserIds.ToList();
+        
         // Get existing assignments
         var existingAssignments = await _context.RepManagerAssignments
             .Where(ma => ma.RepId == repId)
             .ToListAsync(cancellationToken);
 
-        // Mark all as inactive/deleted first
+        // Mark all as inactive/deleted first for those not in the new list
         foreach (var existing in existingAssignments)
         {
-            if (!managerIds.Contains(existing.ManagerId))
+            if (!managerUserIdsList.Contains(existing.ManagerUserId))
             {
                 existing.IsActive = false;
                 existing.IsDeleted = true;
@@ -217,14 +200,14 @@ public class SalesRepRepository : Repository<SalesRepresentative>, ISalesRepRepo
         }
 
         // Add/reactivate assignments
-        foreach (var managerId in managerIds)
+        foreach (var managerUserId in managerUserIdsList)
         {
-            var existing = existingAssignments.FirstOrDefault(ma => ma.ManagerId == managerId);
+            var existing = existingAssignments.FirstOrDefault(ma => ma.ManagerUserId == managerUserId);
             if (existing != null)
             {
                 existing.IsActive = true;
                 existing.IsDeleted = false;
-                existing.IsPrimary = primaryManagerId.HasValue && managerId == primaryManagerId.Value;
+                existing.IsPrimary = !string.IsNullOrEmpty(primaryManagerUserId) && managerUserId == primaryManagerUserId;
                 existing.UpdatedAt = DateTime.UtcNow;
             }
             else
@@ -232,28 +215,50 @@ public class SalesRepRepository : Repository<SalesRepresentative>, ISalesRepRepo
                 _context.RepManagerAssignments.Add(new RepManagerAssignment
                 {
                     RepId = repId,
-                    ManagerId = managerId,
+                    ManagerUserId = managerUserId,
                     AssignmentDate = DateTime.UtcNow,
                     IsActive = true,
-                    IsPrimary = primaryManagerId.HasValue && managerId == primaryManagerId.Value
+                    IsPrimary = !string.IsNullOrEmpty(primaryManagerUserId) && managerUserId == primaryManagerUserId
                 });
             }
         }
     }
 
-    public async Task<IReadOnlyList<(SalesRepresentative Manager, IReadOnlyList<SalesRepresentative> Team)>> GetHierarchyAsync(
-        RepresentativeType? repType,
-        CancellationToken cancellationToken = default)
+    public async Task<IReadOnlyList<SalesRepresentative>> GetRepsByManagerUserIdAsync(string managerUserId, CancellationToken cancellationToken = default)
     {
-        var managers = await GetManagersAsync(repType, cancellationToken);
-        var result = new List<(SalesRepresentative Manager, IReadOnlyList<SalesRepresentative> Team)>();
+        return await _context.SalesRepresentatives
+            .Include(sr => sr.User)
+            .Where(sr => !sr.IsDeleted && sr.ManagerAssignments.Any(ma => ma.ManagerUserId == managerUserId && ma.IsActive && !ma.IsDeleted))
+            .ToListAsync(cancellationToken);
+    }
 
-        foreach (var manager in managers)
-        {
-            var team = await GetByManagerIdAsync(manager.Id, cancellationToken);
-            result.Add((manager, team));
-        }
+    public async Task<IReadOnlyList<(ApplicationUser Manager, IReadOnlyList<SalesRepresentative> Team)>> GetHierarchyAsync(RepresentativeType? repType, CancellationToken cancellationToken = default)
+    {
+        // Get all active manager assignments with manager user and rep details
+        var assignments = await _context.RepManagerAssignments
+            .Include(ma => ma.ManagerUser)
+            .Include(ma => ma.Rep)
+                .ThenInclude(sr => sr!.User)
+            .Where(ma => !ma.IsDeleted && ma.IsActive)
+            .Where(ma => ma.Rep != null && !ma.Rep.IsDeleted)
+            .Where(ma => repType == null || ma.Rep!.RepType == repType)
+            .ToListAsync(cancellationToken);
 
-        return result;
+        // Group by manager user
+        var hierarchy = assignments
+            .GroupBy(a => a.ManagerUser!)
+            .Select(g => (
+                Manager: g.Key,
+                Team: (IReadOnlyList<SalesRepresentative>)g
+                    .Select(a => a.Rep!)
+                    .Where(r => r != null)
+                    .DistinctBy(r => r.Id)
+                    .ToList()
+            ))
+            .Where(h => h.Team.Count > 0)
+            .OrderBy(h => h.Manager.FullName)
+            .ToList();
+
+        return hierarchy;
     }
 }

@@ -39,8 +39,8 @@ export class SalesRepService {
     if (query.status !== undefined) {
       params = params.set('status', query.status.toString());
     }
-    if (query.managerId !== undefined) {
-      params = params.set('managerId', query.managerId.toString());
+    if (query.managerUserId) {
+      params = params.set('managerUserId', query.managerUserId);
     }
     if (query.pageNumber !== undefined) {
       params = params.set('pageNumber', query.pageNumber.toString());
@@ -94,18 +94,8 @@ export class SalesRepService {
   }
 
   /**
-   * Get all managers
-   */
-  getManagers(repType?: RepresentativeType): Observable<SalesRepresentativeSummary[]> {
-    let params = new HttpParams();
-    if (repType !== undefined) {
-      params = params.set('repType', repType.toString());
-    }
-    return this.http.get<SalesRepresentativeSummary[]>(`${this.apiUrl}/managers`, { params });
-  }
-
-  /**
-   * Update manager assignments for a sales representative
+   * Update manager/supervisor assignments for a sales representative
+   * Managers are users with Manager/Admin roles
    */
   updateManagerAssignments(repId: number, data: UpdateManagerAssignments): Observable<SalesRepresentative> {
     return this.http.put<SalesRepresentative>(`${this.apiUrl}/${repId}/managers`, data);

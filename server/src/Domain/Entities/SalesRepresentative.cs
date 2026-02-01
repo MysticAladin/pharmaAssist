@@ -52,14 +52,9 @@ public class SalesRepresentative : BaseEntity
     public virtual ApplicationUser? User { get; set; }
     
     /// <summary>
-    /// Manager assignments (who manages this rep)
+    /// Manager/supervisor assignments (users who manage this rep)
     /// </summary>
     public virtual ICollection<RepManagerAssignment> ManagerAssignments { get; set; } = new List<RepManagerAssignment>();
-    
-    /// <summary>
-    /// Reps managed by this person (if they are a manager)
-    /// </summary>
-    public virtual ICollection<RepManagerAssignment> ManagedReps { get; set; } = new List<RepManagerAssignment>();
     
     /// <summary>
     /// Customer assignments for this representative

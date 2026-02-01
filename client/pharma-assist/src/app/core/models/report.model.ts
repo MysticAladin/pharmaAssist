@@ -360,3 +360,51 @@ export interface SavedReport {
   createdAt: Date;
   createdBy?: string;
 }
+
+// Sales Rep Performance Report Types
+export interface SalesRepPerformanceFilter {
+  fromDate?: Date | string;
+  toDate?: Date | string;
+  repId?: number;
+  repType?: number;
+  includeInactive?: boolean;
+}
+
+export interface SalesRepPerformanceItem {
+  repId: number;
+  repName: string;
+  repCode: string;
+  repType: number;
+  isActive: boolean;
+  orderCount: number;
+  orderRevenue: number;
+  visitsPlanned: number;
+  visitsExecuted: number;
+  visitsWithLocationVerified: number;
+  assignedCustomers: number;
+  customersVisited: number;
+  targetsAssigned: number;
+  targetsAchieved: number;
+  visitCompletionRate: number;
+  customerCoverage: number;
+  performanceScore: number;
+}
+
+export interface SalesRepPerformanceReport {
+  fromDate: Date | string;
+  toDate: Date | string;
+  totalReps: number;
+  totalOrders: number;
+  totalRevenue: number;
+  totalVisits: number;
+  totalCustomersVisited: number;
+  reps: SalesRepPerformanceItem[];
+}
+
+export interface SalesRepOption {
+  id: number;
+  name: string;
+  repCode: string;
+  repType: number;
+  isActive: boolean;
+}

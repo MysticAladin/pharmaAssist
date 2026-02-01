@@ -8,6 +8,8 @@ export const REPORTS_ROUTES: Routes = [
   { path: 'analytics', loadComponent: () => import('./analytics.component').then(m => m.AnalyticsComponent) },
   { path: 'financial', loadComponent: () => import('./financial-report.component').then(m => m.FinancialReportComponent) },
   { path: 'customers', loadComponent: () => import('./customer-report.component').then(m => m.CustomerReportComponent) },
+  { path: 'sales-rep-performance', loadComponent: () => import('./sales-rep-performance.component').then(m => m.SalesRepPerformanceComponent) },
+  { path: 'activity', loadComponent: () => import('./activity-report.component').then(m => m.ActivityReportComponent) },
   { path: 'builder', loadComponent: () => import('./report-builder/report-builder.component').then(m => m.ReportBuilderComponent) },
   { path: 'builder/:id', loadComponent: () => import('./report-builder/report-builder.component').then(m => m.ReportBuilderComponent) }
 ];

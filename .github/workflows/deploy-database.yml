@@ -1,0 +1,106 @@
+name: Run Database Migrations
+
+on:
+  workflow_dispatch:
+    inputs:
+      confirm:
+        description: 'Type "migrate" to confirm database migration'
+        required: true
+        type: string
+
+env:
+  DOTNET_VERSION: '8.0.x'
+
+jobs:
+  migrate:
+    runs-on: ubuntu-latest
+    if: github.event.inputs.confirm == 'migrate'
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+      
+      - name: Install EF Core tools
+        run: dotnet tool install --global dotnet-ef
+      
+      - name: Restore dependencies
+        working-directory: server
+        run: dotnet restore
+      
+      - name: Generate migration script
+        working-directory: server
+        run: |
+          dotnet ef migrations script \
+            --idempotent \
+            --project src/Infrastructure \
+            --startup-project src/Api \
+            --output ./migration.sql
+          
+          echo "📄 Migration script generated:"
+          head -50 ./migration.sql
+      
+      - name: Copy migration script to server
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.CONTABO_HOST }}
+          username: ${{ secrets.CONTABO_USER }}
+          key: ${{ secrets.CONTABO_SSH_KEY }}
+          source: "server/migration.sql"
+          target: "/tmp/"
+          strip_components: 1
+      
+      - name: Create database backup
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.CONTABO_HOST }}
+          username: ${{ secrets.CONTABO_USER }}
+          key: ${{ secrets.CONTABO_SSH_KEY }}
+          script: |
+            BACKUP_FILE="/var/backups/pharmaassist/pre_migration_$(date +%Y%m%d_%H%M%S).bak"
+            echo "📦 Creating backup: $BACKUP_FILE"
+            
+            /opt/mssql-tools18/bin/sqlcmd \
+              -S localhost \
+              -U SA \
+              -P "${{ secrets.DB_SA_PASSWORD }}" \
+              -Q "BACKUP DATABASE PharmaAssist TO DISK='$BACKUP_FILE'" \
+              -C
+            
+            gzip $BACKUP_FILE
+            echo "✅ Backup created: $BACKUP_FILE.gz"
+      
+      - name: Apply migrations
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.CONTABO_HOST }}
+          username: ${{ secrets.CONTABO_USER }}
+          key: ${{ secrets.CONTABO_SSH_KEY }}
+          script: |
+            echo "🔄 Applying migrations..."
+            
+            /opt/mssql-tools18/bin/sqlcmd \
+              -S localhost \
+              -U SA \
+              -P "${{ secrets.DB_SA_PASSWORD }}" \
+              -d PharmaAssist \
+              -i /tmp/migration.sql \
+              -C
+            
+            rm /tmp/migration.sql
+            echo "✅ Migrations applied successfully!"
+      
+      - name: Restart API to apply changes
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.CONTABO_HOST }}
+          username: ${{ secrets.CONTABO_USER }}
+          key: ${{ secrets.CONTABO_SSH_KEY }}
+          script: |
+            sudo systemctl restart pharmaassist-api
+            sleep 10
+            curl -sf http://localhost:5000/health && echo "✅ API restarted successfully!"

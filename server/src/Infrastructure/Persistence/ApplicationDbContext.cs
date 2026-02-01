@@ -30,6 +30,7 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser, Applicati
     // Order Management
     public DbSet<Order> Orders { get; set; } = null!;
     public DbSet<OrderItem> OrderItems { get; set; } = null!;
+    public DbSet<OrderTemplate> OrderTemplates { get; set; } = null!;
     public DbSet<Prescription> Prescriptions { get; set; } = null!;
     public DbSet<Claim> Claims { get; set; } = null!;
 
@@ -88,6 +89,11 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser, Applicati
     public DbSet<SalesRepresentative> SalesRepresentatives { get; set; } = null!;
     public DbSet<RepManagerAssignment> RepManagerAssignments { get; set; } = null!;
     public DbSet<RepCustomerAssignment> RepCustomerAssignments { get; set; } = null!;
+    
+    // Planning Hierarchy
+    public DbSet<AnnualPlan> AnnualPlans { get; set; } = null!;
+    public DbSet<QuarterlyPlan> QuarterlyPlans { get; set; } = null!;
+    public DbSet<MonthlyPlan> MonthlyPlans { get; set; } = null!;
     public DbSet<VisitPlan> VisitPlans { get; set; } = null!;
     public DbSet<PlannedVisit> PlannedVisits { get; set; } = null!;
     public DbSet<ExecutedVisit> ExecutedVisits { get; set; } = null!;

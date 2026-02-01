@@ -12,4 +12,7 @@ public interface IVisitService
     Task<ExecutedVisitDto> CheckInAsync(string userId, CheckInVisitDto dto, CancellationToken cancellationToken = default);
     Task<ExecutedVisitDto?> UpdateExecutedVisitAsync(string userId, int id, UpdateExecutedVisitDto dto, CancellationToken cancellationToken = default);
     Task<ExecutedVisitDto?> CheckOutAsync(string userId, int id, CheckOutVisitDto dto, CancellationToken cancellationToken = default);
+
+    // Visit History
+    Task<VisitHistoryResultDto> GetVisitHistoryAsync(string userId, VisitHistoryFilterDto filter, CancellationToken cancellationToken = default);
 }

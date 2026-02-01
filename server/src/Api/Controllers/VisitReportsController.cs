@@ -1,3 +1,4 @@
+using Application.DTOs.Visits.Reports;
 using Application.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -70,6 +71,46 @@ public class VisitReportsController : ControllerBase
         catch (InvalidOperationException ex)
         {
             _logger.LogWarning(ex, "Visit report executed query failed");
+            return BadRequest(new { message = ex.Message });
+        }
+    }
+
+    /// <summary>
+    /// Get team activity dashboard for today or specified date
+    /// </summary>
+    [HttpGet("team-activity")]
+    [ProducesResponseType(typeof(TeamActivityDashboardDto), StatusCodes.Status200OK)]
+    public async Task<IActionResult> GetTeamActivity([FromQuery] DateTime? date, CancellationToken cancellationToken)
+    {
+        try
+        {
+            var userId = GetUserId();
+            var dashboard = await _service.GetTeamActivityAsync(userId, date, cancellationToken);
+            return Ok(dashboard);
+        }
+        catch (InvalidOperationException ex)
+        {
+            _logger.LogWarning(ex, "Team activity query failed");
+            return BadRequest(new { message = ex.Message });
+        }
+    }
+
+    /// <summary>
+    /// Get visit audit log with location verification details
+    /// </summary>
+    [HttpGet("audit")]
+    [ProducesResponseType(typeof(VisitAuditResultDto), StatusCodes.Status200OK)]
+    public async Task<IActionResult> GetVisitAudit([FromQuery] VisitAuditFilterDto filter, CancellationToken cancellationToken)
+    {
+        try
+        {
+            var userId = GetUserId();
+            var result = await _service.GetVisitAuditAsync(userId, filter, cancellationToken);
+            return Ok(result);
+        }
+        catch (InvalidOperationException ex)
+        {
+            _logger.LogWarning(ex, "Visit audit query failed");
             return BadRequest(new { message = ex.Message });
         }
     }

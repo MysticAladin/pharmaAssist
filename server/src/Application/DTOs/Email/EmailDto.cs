@@ -12,6 +12,32 @@ public class EmailMessageDto
     public int EmailType { get; set; }
     public string? RelatedEntityType { get; set; }
     public int? RelatedEntityId { get; set; }
+    
+    /// <summary>
+    /// Email attachments
+    /// </summary>
+    public List<EmailAttachmentDto> Attachments { get; set; } = [];
+}
+
+/// <summary>
+/// Email attachment data
+/// </summary>
+public class EmailAttachmentDto
+{
+    /// <summary>
+    /// File name with extension (e.g., "Order_12345.pdf")
+    /// </summary>
+    public string FileName { get; set; } = string.Empty;
+    
+    /// <summary>
+    /// File content as byte array
+    /// </summary>
+    public byte[] Content { get; set; } = [];
+    
+    /// <summary>
+    /// MIME content type (e.g., "application/pdf", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+    /// </summary>
+    public string ContentType { get; set; } = "application/octet-stream";
 }
 
 public class EmailLogDto

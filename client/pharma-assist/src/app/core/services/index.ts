@@ -7,3 +7,5 @@ export * from './pdf.service';
 export * from './pricing.service';
 export * from './targets.service';
 export * from './tender.service';
+export * from './offline-storage.service';
+export * from './order-sync.service';

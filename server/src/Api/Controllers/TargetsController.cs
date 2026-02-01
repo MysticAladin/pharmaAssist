@@ -124,6 +124,74 @@ public class TargetsController : ControllerBase
     }
 
     /// <summary>
+    /// Get current sales rep's targets with progress
+    /// </summary>
+    [HttpGet("rep/my-targets")]
+    [Authorize(Roles = "SalesRep,Admin,Manager")]
+    public async Task<ActionResult<RepTargetProgressDto>> GetMyTargets(
+        [FromQuery] int? year = null,
+        [FromQuery] int? month = null,
+        CancellationToken cancellationToken = default)
+    {
+        var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        if (string.IsNullOrEmpty(userId))
+            return Unauthorized();
+
+        year ??= DateTime.UtcNow.Year;
+        month ??= DateTime.UtcNow.Month;
+
+        // Get targets for this rep
+        var targets = await _context.SalesTargets
+            .Where(t => t.UserId == userId && t.IsActive)
+            .Where(t => t.Year == year.Value)
+            .Where(t => t.Month == null || t.Month == month.Value) // Include annual + current month
+            .AsNoTracking()
+            .ToListAsync(cancellationToken);
+
+        // Calculate time progress
+        var now = DateTime.UtcNow;
+        var daysInMonth = DateTime.DaysInMonth(year.Value, month.Value);
+        var daysElapsed = now.Year == year.Value && now.Month == month.Value 
+            ? now.Day 
+            : (now.Year > year.Value || (now.Year == year.Value && now.Month > month.Value) ? daysInMonth : 0);
+
+        var result = new RepTargetProgressDto
+        {
+            Year = year.Value,
+            Month = month.Value,
+            DaysElapsed = daysElapsed,
+            TotalDays = daysInMonth,
+            Targets = targets.Select(t => 
+            {
+                var achievementPercent = t.AchievementPercentage;
+                var expectedPercent = (decimal)daysElapsed / daysInMonth * 100;
+                
+                string status;
+                if (achievementPercent >= expectedPercent * 0.9m)
+                    status = "OnTrack";
+                else if (achievementPercent >= expectedPercent * 0.7m)
+                    status = "AtRisk";
+                else
+                    status = "Behind";
+
+                return new RepTargetItemDto
+                {
+                    TargetId = t.Id,
+                    Name = t.Name,
+                    Type = t.Metric.ToString(),
+                    TargetValue = t.TargetValue,
+                    CurrentValue = t.CurrentValue,
+                    AchievementPercent = achievementPercent,
+                    IsAchieved = t.IsAchieved,
+                    Status = status
+                };
+            }).ToList()
+        };
+
+        return Ok(result);
+    }
+
+    /// <summary>
     /// Get a specific sales target
     /// </summary>
     [HttpGet("{id}")]

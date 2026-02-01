@@ -6,6 +6,7 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
 import { OrderService } from '../../core/services/order.service';
 import { PrintService, OrderPrintData } from '../../core/services/print.service';
+import { PdfService, OrderPdfData } from '../../core/services/pdf.service';
 import { NotificationService } from '../../core/services/notification.service';
 import {
   Order,
@@ -142,6 +143,14 @@ import { ConfirmDialogComponent } from '../../shared/components/confirm-dialog';
                 <rect x="6" y="14" width="12" height="8"/>
               </svg>
               {{ 'common.print' | translate }}
+            </button>
+            <button class="btn btn-secondary" (click)="downloadPdf()" [disabled]="downloading()">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                <polyline points="7 10 12 15 17 10"/>
+                <line x1="12" y1="15" x2="12" y2="3"/>
+              </svg>
+              {{ downloading() ? 'Preuzimanje...' : 'Preuzmi PDF' }}
             </button>
           </div>
         </div>
@@ -565,6 +574,7 @@ import { ConfirmDialogComponent } from '../../shared/components/confirm-dialog';
 export class OrderDetailComponent implements OnInit {
   private readonly orderService = inject(OrderService);
   private readonly printService = inject(PrintService);
+  private readonly pdfService = inject(PdfService);
   private readonly translateService = inject(TranslateService);
   private readonly notification = inject(NotificationService);
   private readonly route = inject(ActivatedRoute);
@@ -572,6 +582,7 @@ export class OrderDetailComponent implements OnInit {
 
   // State
   loading = signal(true);
+  downloading = signal(false);
   order = signal<Order | null>(null);
   showCancelConfirm = signal(false);
   statusUpdating = signal(false);
@@ -823,6 +834,53 @@ export class OrderDetailComponent implements OnInit {
 
     this.printService.printOrder(printData, {
       title: `Order ${order.orderNumber}`
+    });
+  }
+
+  downloadPdf(): void {
+    const order = this.order();
+    if (!order) return;
+
+    this.downloading.set(true);
+
+    const pdfData: OrderPdfData = {
+      orderNumber: order.orderNumber,
+      orderDate: order.createdAt ? new Date(order.createdAt) : new Date(order.orderDate),
+      customer: {
+        name: order.customerName || 'N/A',
+        address: order.shippingAddress || '',
+        city: '',
+        email: order.customerEmail,
+        phone: order.customerPhone
+      },
+      items: order.items.map(item => ({
+        sku: item.productSku || '',
+        name: item.productName,
+        quantity: item.quantity,
+        unit: 'kom',
+        unitPrice: item.unitPrice,
+        total: item.lineTotal
+      })),
+      subtotal: order.subtotal,
+      tax: order.taxAmount || 0,
+      discount: order.discountAmount || 0,
+      total: order.totalAmount,
+      currency: 'KM',
+      status: order.status?.toString() || 'Unknown',
+      notes: order.notes
+    };
+
+    this.pdfService.generateOrder(pdfData).subscribe({
+      next: (blob) => {
+        this.pdfService.downloadPdf(blob, `Narudzba-${order.orderNumber}.pdf`);
+        this.downloading.set(false);
+        this.notification.success('PDF uspješno preuzet');
+      },
+      error: (err) => {
+        console.error('PDF generation failed:', err);
+        this.downloading.set(false);
+        this.notification.error('Greška pri generiranju PDF-a');
+      }
     });
   }
 

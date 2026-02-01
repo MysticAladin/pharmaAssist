@@ -139,4 +139,49 @@ public class OrderRepository : Repository<Order>, IOrderRepository
                         o.Status != OrderStatus.Cancelled)
             .CountAsync(cancellationToken);
     }
+
+    // Rep-specific methods
+    public IQueryable<Order> Query()
+    {
+        return _dbSet
+            .Include(o => o.Customer)
+                .ThenInclude(c => c.Addresses)
+            .Include(o => o.OrderItems)
+            .AsQueryable();
+    }
+
+    public async Task<int> CountAsync(IQueryable<Order> query, CancellationToken cancellationToken = default)
+    {
+        return await query.CountAsync(cancellationToken);
+    }
+
+    public async Task<decimal> SumAsync(IQueryable<Order> query, System.Linq.Expressions.Expression<Func<Order, decimal>> selector, CancellationToken cancellationToken = default)
+    {
+        return await query.SumAsync(selector, cancellationToken);
+    }
+
+    public async Task<IReadOnlyList<Order>> GetPagedAsync(IQueryable<Order> query, int page, int pageSize, CancellationToken cancellationToken = default)
+    {
+        return await query
+            .Skip((page - 1) * pageSize)
+            .Take(pageSize)
+            .ToListAsync(cancellationToken);
+    }
+
+    public async Task<IReadOnlyList<Order>> ToListAsync(IQueryable<Order> query, CancellationToken cancellationToken = default)
+    {
+        return await query.ToListAsync(cancellationToken);
+    }
+
+    public async Task<IReadOnlyList<Order>> GetRecentByCustomerAsync(int customerId, int count, CancellationToken cancellationToken = default)
+    {
+        return await _dbSet
+            .Where(o => o.CustomerId == customerId)
+            .Include(o => o.Customer)
+                .ThenInclude(c => c.Addresses)
+            .Include(o => o.OrderItems)
+            .OrderByDescending(o => o.OrderDate)
+            .Take(count)
+            .ToListAsync(cancellationToken);
+    }
 }

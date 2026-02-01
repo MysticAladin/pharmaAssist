@@ -1,0 +1,66 @@
+<div class="visits-team-page">
+  <!-- Page Header -->
+  <div class="page-header">
+    <div class="header-content">
+      <h1 class="page-title">{{ 'visits.teamTitle' | translate }}</h1>
+      <p class="page-subtitle">{{ 'visits.teamSubtitle' | translate }}</p>
+    </div>
+    <div class="header-actions">
+      <button class="btn btn-secondary" routerLink="/visits/audit">
+        {{ 'visitAudit.title' | translate }}
+      </button>
+      <button class="btn btn-primary" routerLink="/visits/team-activity">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+          <circle cx="9" cy="7" r="4"/>
+          <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+          <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+        </svg>
+        {{ 'teamActivity.title' | translate }}
+      </button>
+    </div>
+  </div>
+
+  <!-- Week Plans Section -->
+  <div class="plans-card">
+    <div class="card-header">
+      <h2 class="card-title">{{ 'visits.weekPlans' | translate }}</h2>
+    </div>
+    <div class="card-content">
+      @if (loading()) {
+        <div class="loading-state">
+          <div class="spinner"></div>
+          <p>{{ 'common.loading' | translate }}</p>
+        </div>
+      } @else if (items().length === 0) {
+        <div class="empty-state">
+          <p>{{ 'visits.noTeamPlans' | translate }}</p>
+        </div>
+      } @else {
+        <div class="plans-list">
+          @for (p of items(); track p.planId) {
+            <div class="plan-item" (click)="openPlan(p.planId)">
+              <div class="plan-item__main">
+                <div class="plan-item__title">{{ p.repName }}</div>
+                <div class="plan-item__meta">
+                  {{ 'visits.planned' | translate }}: {{ p.plannedCount }} ·
+                  {{ 'visits.executed' | translate }}: {{ p.executedCount }}
+                </div>
+              </div>
+              <button class="btn btn-ghost" (click)="openPlan(p.planId); $event.stopPropagation()">
+                {{ 'visits.viewPlan' | translate }}
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M5 12h14M12 5l7 7-7 7"/>
+                </svg>
+              </button>
+            </div>
+          }
+        </div>
+      }
+    </div>
+  </div>
+
+  @if (error()) {
+    <div class="error-message">{{ error() }}</div>
+  }
+</div>

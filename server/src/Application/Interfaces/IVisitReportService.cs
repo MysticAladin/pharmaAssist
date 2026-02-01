@@ -19,4 +19,14 @@ public interface IVisitReportService
         string managerUserId,
         int executedVisitId,
         CancellationToken cancellationToken = default);
+
+    Task<TeamActivityDashboardDto> GetTeamActivityAsync(
+        string managerUserId,
+        DateTime? date,
+        CancellationToken cancellationToken = default);
+
+    Task<VisitAuditResultDto> GetVisitAuditAsync(
+        string managerUserId,
+        VisitAuditFilterDto filter,
+        CancellationToken cancellationToken = default);
 }

@@ -22,6 +22,82 @@ namespace Infrastructure.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
+            modelBuilder.Entity("Domain.Entities.AnnualPlan", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime?>("ApprovedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("ApprovedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("AssignedCantons")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("FocusProducts")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("MajorEvents")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int?>("NewCustomersTarget")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Notes")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("RepId")
+                        .HasColumnType("int");
+
+                    b.Property<decimal?>("RevenueTarget")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("int");
+
+                    b.Property<string>("StrategicPriorities")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("TerritoryDescription")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int?>("VisitsTarget")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Year")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("RepId");
+
+                    b.ToTable("AnnualPlans");
+                });
+
             modelBuilder.Entity("Domain.Entities.ApplicationRole", b =>
                 {
                     b.Property<string>("Id")
@@ -974,6 +1050,12 @@ namespace Infrastructure.Migrations
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("bit");
 
+                    b.Property<decimal?>("Latitude")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal?>("Longitude")
+                        .HasColumnType("decimal(18,2)");
+
                     b.Property<int?>("MunicipalityId")
                         .HasColumnType("int");
 
@@ -1053,6 +1135,9 @@ namespace Infrastructure.Migrations
                     b.Property<bool>("IsHtml")
                         .HasColumnType("bit");
 
+                    b.Property<DateTime?>("LastAttempt")
+                        .HasColumnType("datetime2");
+
                     b.Property<int?>("RelatedEntityId")
                         .HasColumnType("int");
 
@@ -1117,6 +1202,9 @@ namespace Infrastructure.Migrations
                     b.Property<int?>("ActualDurationMinutes")
                         .HasColumnType("int");
 
+                    b.Property<string>("AgreedDeals")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<int>("AttachmentsCount")
                         .HasColumnType("int");
 
@@ -1146,6 +1234,9 @@ namespace Infrastructure.Migrations
                     b.Property<DateTime?>("CheckOutTime")
                         .HasColumnType("datetime2");
 
+                    b.Property<string>("CompetitionNotes")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
@@ -1163,6 +1254,9 @@ namespace Infrastructure.Migrations
 
                     b.Property<bool>("FollowUpRequired")
                         .HasColumnType("bit");
+
+                    b.Property<string>("GeneralComment")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("bit");
@@ -1507,6 +1601,102 @@ namespace Infrastructure.Migrations
                     b.ToTable("Manufacturers", (string)null);
                 });
 
+            modelBuilder.Entity("Domain.Entities.MonthlyPlan", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<decimal?>("ActualRevenue")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<int?>("ActualVisits")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime?>("ApprovedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("ApprovedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("FocusProducts")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<int>("Month")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Notes")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("PriorityCustomers")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("PromotionalActivities")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int?>("QuarterlyPlanId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("RejectionReason")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("RepId")
+                        .HasColumnType("int");
+
+                    b.Property<decimal?>("RevenueTarget")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("TierACoverageTarget")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("TierBCoverageTarget")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("TierCCoverageTarget")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("TrainingSchedule")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int?>("VisitsTarget")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Year")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("QuarterlyPlanId");
+
+                    b.HasIndex("RepId");
+
+                    b.ToTable("MonthlyPlans");
+                });
+
             modelBuilder.Entity("Domain.Entities.Municipality", b =>
                 {
                     b.Property<int>("Id")
@@ -1627,6 +1817,9 @@ namespace Infrastructure.Migrations
                     b.Property<string>("CreatedBy")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<bool>("CreatedViaApp")
+                        .HasColumnType("bit");
+
                     b.Property<int>("CustomerId")
                         .HasColumnType("int");
 
@@ -1648,6 +1841,9 @@ namespace Infrastructure.Migrations
                         .HasMaxLength(1000)
                         .HasColumnType("nvarchar(1000)");
 
+                    b.Property<DateTime?>("OfflineCreatedAt")
+                        .HasColumnType("datetime2");
+
                     b.Property<DateTime>("OrderDate")
                         .HasColumnType("datetime2");
 
@@ -1663,6 +1859,13 @@ namespace Infrastructure.Migrations
                         .HasColumnType("int");
 
                     b.Property<int>("PaymentStatus")
+                        .HasColumnType("int");
+
+                    b.Property<string>("RepDeviceId")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<int?>("RepId")
                         .HasColumnType("int");
 
                     b.Property<DateTime?>("RequiredDate")
@@ -1685,6 +1888,9 @@ namespace Infrastructure.Migrations
                         .HasPrecision(18, 2)
                         .HasColumnType("decimal(18,2)");
 
+                    b.Property<DateTime?>("SyncedAt")
+                        .HasColumnType("datetime2");
+
                     b.Property<decimal>("TaxAmount")
                         .HasPrecision(18, 2)
                         .HasColumnType("decimal(18,2)");
@@ -1699,6 +1905,9 @@ namespace Infrastructure.Migrations
                     b.Property<string>("UpdatedBy")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<int?>("VisitId")
+                        .HasColumnType("int");
+
                     b.HasKey("Id");
 
                     b.HasIndex("BillingAddressId");
@@ -1710,9 +1919,13 @@ namespace Infrastructure.Migrations
                     b.HasIndex("OrderNumber")
                         .IsUnique();
 
+                    b.HasIndex("RepId");
+
                     b.HasIndex("ShippingAddressId");
 
                     b.HasIndex("Status");
+
+                    b.HasIndex("VisitId");
 
                     b.ToTable("Orders", (string)null);
                 });
@@ -1788,6 +2001,67 @@ namespace Infrastructure.Migrations
                     b.HasIndex("ProductId");
 
                     b.ToTable("OrderItems", (string)null);
+                });
+
+            modelBuilder.Entity("Domain.Entities.OrderTemplate", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("CustomerId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Description")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsAutoGenerated")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("ItemsJson")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("LastUsedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int?>("RepId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("TemplateName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("UsageCount")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CustomerId");
+
+                    b.HasIndex("RepId");
+
+                    b.ToTable("OrderTemplates");
                 });
 
             modelBuilder.Entity("Domain.Entities.Permission", b =>
@@ -2617,6 +2891,93 @@ namespace Infrastructure.Migrations
                     b.ToTable("PromotionUsages", (string)null);
                 });
 
+            modelBuilder.Entity("Domain.Entities.QuarterlyPlan", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int?>("AnnualPlanId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime?>("ApprovedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("ApprovedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("CampaignSchedule")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("FocusProducts")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("KeyObjectives")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int?>("NewCustomersTarget")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Notes")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("Quarter")
+                        .HasColumnType("int");
+
+                    b.Property<string>("RejectionReason")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("RepId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("ResourceAllocation")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<decimal?>("RevenueTarget")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("TrainingSchedule")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int?>("VisitsTarget")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Year")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AnnualPlanId");
+
+                    b.HasIndex("RepId");
+
+                    b.ToTable("QuarterlyPlans");
+                });
+
             modelBuilder.Entity("Domain.Entities.RefreshToken", b =>
                 {
                     b.Property<int>("Id")
@@ -2737,8 +3098,10 @@ namespace Infrastructure.Migrations
                     b.Property<bool>("IsPrimary")
                         .HasColumnType("bit");
 
-                    b.Property<int>("ManagerId")
-                        .HasColumnType("int");
+                    b.Property<string>("ManagerUserId")
+                        .IsRequired()
+                        .HasMaxLength(450)
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<int>("RepId")
                         .HasColumnType("int");
@@ -2751,9 +3114,9 @@ namespace Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("ManagerId");
+                    b.HasIndex("ManagerUserId");
 
-                    b.HasIndex("RepId", "ManagerId")
+                    b.HasIndex("RepId", "ManagerUserId")
                         .IsUnique();
 
                     b.ToTable("RepManagerAssignments", (string)null);
@@ -3771,6 +4134,9 @@ namespace Infrastructure.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<string>("ApprovalComments")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<DateTime?>("ApprovedAt")
                         .HasColumnType("datetime2");
 
@@ -3786,6 +4152,9 @@ namespace Infrastructure.Migrations
 
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("bit");
+
+                    b.Property<int?>("MonthlyPlanId")
+                        .HasColumnType("int");
 
                     b.Property<DateTime>("PlanWeek")
                         .HasColumnType("datetime2");
@@ -3810,6 +4179,8 @@ namespace Infrastructure.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("MonthlyPlanId");
 
                     b.HasIndex("RepId", "PlanWeek");
 
@@ -4009,6 +4380,17 @@ namespace Infrastructure.Migrations
                     b.HasKey("UserId", "LoginProvider", "Name");
 
                     b.ToTable("AspNetUserTokens", (string)null);
+                });
+
+            modelBuilder.Entity("Domain.Entities.AnnualPlan", b =>
+                {
+                    b.HasOne("Domain.Entities.SalesRepresentative", "Rep")
+                        .WithMany()
+                        .HasForeignKey("RepId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Rep");
                 });
 
             modelBuilder.Entity("Domain.Entities.ApplicationUser", b =>
@@ -4286,6 +4668,23 @@ namespace Infrastructure.Migrations
                     b.Navigation("Warehouse");
                 });
 
+            modelBuilder.Entity("Domain.Entities.MonthlyPlan", b =>
+                {
+                    b.HasOne("Domain.Entities.QuarterlyPlan", "QuarterlyPlan")
+                        .WithMany("MonthlyPlans")
+                        .HasForeignKey("QuarterlyPlanId");
+
+                    b.HasOne("Domain.Entities.SalesRepresentative", "Rep")
+                        .WithMany()
+                        .HasForeignKey("RepId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("QuarterlyPlan");
+
+                    b.Navigation("Rep");
+                });
+
             modelBuilder.Entity("Domain.Entities.Municipality", b =>
                 {
                     b.HasOne("Domain.Entities.Canton", "Canton")
@@ -4310,16 +4709,30 @@ namespace Infrastructure.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
+                    b.HasOne("Domain.Entities.SalesRepresentative", "Rep")
+                        .WithMany()
+                        .HasForeignKey("RepId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
                     b.HasOne("Domain.Entities.CustomerAddress", "ShippingAddress")
                         .WithMany()
                         .HasForeignKey("ShippingAddressId")
                         .OnDelete(DeleteBehavior.Restrict);
 
+                    b.HasOne("Domain.Entities.ExecutedVisit", "Visit")
+                        .WithMany()
+                        .HasForeignKey("VisitId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
                     b.Navigation("BillingAddress");
 
                     b.Navigation("Customer");
 
+                    b.Navigation("Rep");
+
                     b.Navigation("ShippingAddress");
+
+                    b.Navigation("Visit");
                 });
 
             modelBuilder.Entity("Domain.Entities.OrderItem", b =>
@@ -4353,6 +4766,23 @@ namespace Infrastructure.Migrations
                     b.Navigation("Product");
 
                     b.Navigation("ProductBatch");
+                });
+
+            modelBuilder.Entity("Domain.Entities.OrderTemplate", b =>
+                {
+                    b.HasOne("Domain.Entities.Customer", "Customer")
+                        .WithMany()
+                        .HasForeignKey("CustomerId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Domain.Entities.SalesRepresentative", "Rep")
+                        .WithMany()
+                        .HasForeignKey("RepId");
+
+                    b.Navigation("Customer");
+
+                    b.Navigation("Rep");
                 });
 
             modelBuilder.Entity("Domain.Entities.PlannedVisit", b =>
@@ -4557,6 +4987,23 @@ namespace Infrastructure.Migrations
                     b.Navigation("Promotion");
                 });
 
+            modelBuilder.Entity("Domain.Entities.QuarterlyPlan", b =>
+                {
+                    b.HasOne("Domain.Entities.AnnualPlan", "AnnualPlan")
+                        .WithMany("QuarterlyPlans")
+                        .HasForeignKey("AnnualPlanId");
+
+                    b.HasOne("Domain.Entities.SalesRepresentative", "Rep")
+                        .WithMany()
+                        .HasForeignKey("RepId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("AnnualPlan");
+
+                    b.Navigation("Rep");
+                });
+
             modelBuilder.Entity("Domain.Entities.RefreshToken", b =>
                 {
                     b.HasOne("Domain.Entities.ApplicationUser", "User")
@@ -4589,9 +5036,9 @@ namespace Infrastructure.Migrations
 
             modelBuilder.Entity("Domain.Entities.RepManagerAssignment", b =>
                 {
-                    b.HasOne("Domain.Entities.SalesRepresentative", "Manager")
-                        .WithMany("ManagedReps")
-                        .HasForeignKey("ManagerId")
+                    b.HasOne("Domain.Entities.ApplicationUser", "ManagerUser")
+                        .WithMany()
+                        .HasForeignKey("ManagerUserId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
@@ -4601,7 +5048,7 @@ namespace Infrastructure.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.Navigation("Manager");
+                    b.Navigation("ManagerUser");
 
                     b.Navigation("Rep");
                 });
@@ -4868,11 +5315,17 @@ namespace Infrastructure.Migrations
 
             modelBuilder.Entity("Domain.Entities.VisitPlan", b =>
                 {
+                    b.HasOne("Domain.Entities.MonthlyPlan", "MonthlyPlan")
+                        .WithMany("WeeklyPlans")
+                        .HasForeignKey("MonthlyPlanId");
+
                     b.HasOne("Domain.Entities.SalesRepresentative", "Rep")
                         .WithMany("VisitPlans")
                         .HasForeignKey("RepId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
+
+                    b.Navigation("MonthlyPlan");
 
                     b.Navigation("Rep");
                 });
@@ -4938,6 +5391,11 @@ namespace Infrastructure.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("Domain.Entities.AnnualPlan", b =>
+                {
+                    b.Navigation("QuarterlyPlans");
+                });
+
             modelBuilder.Entity("Domain.Entities.ApplicationRole", b =>
                 {
                     b.Navigation("RolePermissions");
@@ -4988,6 +5446,11 @@ namespace Infrastructure.Migrations
                     b.Navigation("Products");
                 });
 
+            modelBuilder.Entity("Domain.Entities.MonthlyPlan", b =>
+                {
+                    b.Navigation("WeeklyPlans");
+                });
+
             modelBuilder.Entity("Domain.Entities.Municipality", b =>
                 {
                     b.Navigation("Cities");
@@ -5029,13 +5492,16 @@ namespace Infrastructure.Migrations
                     b.Navigation("Usages");
                 });
 
+            modelBuilder.Entity("Domain.Entities.QuarterlyPlan", b =>
+                {
+                    b.Navigation("MonthlyPlans");
+                });
+
             modelBuilder.Entity("Domain.Entities.SalesRepresentative", b =>
                 {
                     b.Navigation("CustomerAssignments");
 
                     b.Navigation("ExecutedVisits");
-
-                    b.Navigation("ManagedReps");
 
                     b.Navigation("ManagerAssignments");
 

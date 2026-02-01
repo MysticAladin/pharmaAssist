@@ -60,8 +60,14 @@ public class CreateSalesRepresentativeDto
     public string? Mobile { get; set; }
     public DateTime HireDate { get; set; }
     public string? TerritoryDescription { get; set; }
-    public List<int> ManagerIds { get; set; } = new();
-    public int? PrimaryManagerId { get; set; }
+    /// <summary>
+    /// User IDs of managers/supervisors to assign
+    /// </summary>
+    public List<string> ManagerUserIds { get; set; } = new();
+    /// <summary>
+    /// User ID of the primary manager
+    /// </summary>
+    public string? PrimaryManagerUserId { get; set; }
 }
 
 /// <summary>
@@ -77,26 +83,26 @@ public class UpdateSalesRepresentativeDto
 }
 
 /// <summary>
-/// Manager assignment info DTO
+/// Manager/supervisor assignment info DTO
 /// </summary>
 public class ManagerAssignmentDto
 {
     public int AssignmentId { get; set; }
-    public int ManagerId { get; set; }
+    public string ManagerUserId { get; set; } = string.Empty;
     public string ManagerName { get; set; } = string.Empty;
-    public string ManagerEmployeeCode { get; set; } = string.Empty;
+    public string ManagerEmail { get; set; } = string.Empty;
     public bool IsPrimary { get; set; }
     public bool IsActive { get; set; }
     public DateTime AssignmentDate { get; set; }
 }
 
 /// <summary>
-/// Update manager assignments for a rep
+/// Update manager/supervisor assignments for a rep
 /// </summary>
 public class UpdateManagerAssignmentsDto
 {
-    public List<int> ManagerIds { get; set; } = new();
-    public int? PrimaryManagerId { get; set; }
+    public List<string> ManagerUserIds { get; set; } = new();
+    public string? PrimaryManagerUserId { get; set; }
 }
 
 /// <summary>
@@ -122,14 +128,16 @@ public class AssignCustomersDto
 }
 
 /// <summary>
-/// Rep hierarchy view DTO
+/// Rep hierarchy view DTO - shows manager users and their team members
 /// </summary>
 public class RepHierarchyDto
 {
-    public int ManagerId { get; set; }
+    /// <summary>
+    /// The manager's user ID (not a SalesRep ID)
+    /// </summary>
+    public string ManagerUserId { get; set; } = string.Empty;
     public string ManagerName { get; set; } = string.Empty;
-    public string ManagerEmployeeCode { get; set; } = string.Empty;
-    public RepresentativeType ManagerRepType { get; set; }
+    public string ManagerEmail { get; set; } = string.Empty;
     public List<SalesRepresentativeSummaryDto> TeamMembers { get; set; } = new();
 }
 
@@ -141,7 +149,7 @@ public class SalesRepQueryDto
     public string? Search { get; set; }
     public RepresentativeType? RepType { get; set; }
     public RepresentativeStatus? Status { get; set; }
-    public int? ManagerId { get; set; }
+    public string? ManagerUserId { get; set; }
     public int PageNumber { get; set; } = 1;
     public int PageSize { get; set; } = 20;
     public string? SortBy { get; set; }

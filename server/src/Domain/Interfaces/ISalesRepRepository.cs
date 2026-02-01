@@ -30,7 +30,7 @@ public interface ISalesRepRepository : IRepository<SalesRepresentative>
         string? search,
         RepresentativeType? repType,
         RepresentativeStatus? status,
-        int? managerId,
+        string? managerUserId,
         int pageNumber,
         int pageSize,
         string? sortBy,
@@ -38,19 +38,14 @@ public interface ISalesRepRepository : IRepository<SalesRepresentative>
         CancellationToken cancellationToken = default);
     
     /// <summary>
-    /// Get all reps managed by a specific manager
-    /// </summary>
-    Task<IReadOnlyList<SalesRepresentative>> GetByManagerIdAsync(int managerId, CancellationToken cancellationToken = default);
-    
-    /// <summary>
-    /// Get managers (reps who have managed reps)
-    /// </summary>
-    Task<IReadOnlyList<SalesRepresentative>> GetManagersAsync(RepresentativeType? repType, CancellationToken cancellationToken = default);
-    
-    /// <summary>
     /// Get customer assignments for a rep
     /// </summary>
     Task<IReadOnlyList<RepCustomerAssignment>> GetCustomerAssignmentsAsync(int repId, CancellationToken cancellationToken = default);
+    
+    /// <summary>
+    /// Get a specific customer assignment for a rep
+    /// </summary>
+    Task<RepCustomerAssignment?> GetCustomerAssignmentAsync(int repId, int customerId, CancellationToken cancellationToken = default);
     
     /// <summary>
     /// Add customer assignments
@@ -63,14 +58,18 @@ public interface ISalesRepRepository : IRepository<SalesRepresentative>
     Task RemoveCustomerAssignmentsAsync(int repId, IEnumerable<int> customerIds, CancellationToken cancellationToken = default);
     
     /// <summary>
-    /// Update manager assignments for a rep
+    /// Update manager/supervisor assignments for a rep (managers are Users with Manager role)
     /// </summary>
-    Task UpdateManagerAssignmentsAsync(int repId, IEnumerable<int> managerIds, int? primaryManagerId, CancellationToken cancellationToken = default);
+    Task UpdateManagerAssignmentsAsync(int repId, IEnumerable<string> managerUserIds, string? primaryManagerUserId, CancellationToken cancellationToken = default);
     
     /// <summary>
-    /// Get hierarchy view (managers and their teams)
+    /// Get reps managed by a specific user
     /// </summary>
-    Task<IReadOnlyList<(SalesRepresentative Manager, IReadOnlyList<SalesRepresentative> Team)>> GetHierarchyAsync(
-        RepresentativeType? repType,
-        CancellationToken cancellationToken = default);
+    Task<IReadOnlyList<SalesRepresentative>> GetRepsByManagerUserIdAsync(string managerUserId, CancellationToken cancellationToken = default);
+    
+    /// <summary>
+    /// Get the organizational hierarchy - all manager users and their teams
+    /// Returns tuples of (ManagerUser, ListOfManagedReps)
+    /// </summary>
+    Task<IReadOnlyList<(ApplicationUser Manager, IReadOnlyList<SalesRepresentative> Team)>> GetHierarchyAsync(RepresentativeType? repType, CancellationToken cancellationToken = default);
 }

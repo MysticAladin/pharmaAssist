@@ -100,6 +100,16 @@ public class UpdateOrderStatusDto
 {
     public OrderStatus Status { get; set; }
     public string? Notes { get; set; }
+    
+    /// <summary>
+    /// Tracking number for shipped orders
+    /// </summary>
+    public string? TrackingNumber { get; set; }
+    
+    /// <summary>
+    /// Carrier/shipping company name
+    /// </summary>
+    public string? Carrier { get; set; }
 }
 
 /// <summary>

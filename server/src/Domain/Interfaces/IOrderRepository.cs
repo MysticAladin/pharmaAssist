@@ -20,4 +20,12 @@ public interface IOrderRepository : IRepository<Order>
     Task<string> GenerateOrderNumberAsync(CancellationToken cancellationToken = default);
     Task<decimal> GetTotalSalesAsync(DateTime startDate, DateTime endDate, CancellationToken cancellationToken = default);
     Task<int> GetOrderCountAsync(DateTime startDate, DateTime endDate, CancellationToken cancellationToken = default);
+    
+    // Rep-specific methods
+    IQueryable<Order> Query();
+    Task<int> CountAsync(IQueryable<Order> query, CancellationToken cancellationToken = default);
+    Task<decimal> SumAsync(IQueryable<Order> query, System.Linq.Expressions.Expression<Func<Order, decimal>> selector, CancellationToken cancellationToken = default);
+    Task<IReadOnlyList<Order>> GetPagedAsync(IQueryable<Order> query, int page, int pageSize, CancellationToken cancellationToken = default);
+    Task<IReadOnlyList<Order>> ToListAsync(IQueryable<Order> query, CancellationToken cancellationToken = default);
+    Task<IReadOnlyList<Order>> GetRecentByCustomerAsync(int customerId, int count, CancellationToken cancellationToken = default);
 }

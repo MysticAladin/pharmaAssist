@@ -14,7 +14,17 @@ import { PlannedVisitSummary, ExecutedVisitSummary } from '../../core/models/vis
     <div class="visits">
       <div class="visits__header">
         <h1 class="visits__title">{{ 'visits.todayTitle' | translate }}</h1>
-        <button class="btn btn-primary" (click)="goCheckIn()">{{ 'visits.adHocCheckIn' | translate }}</button>
+        <div class="visits__actions">
+          <button class="btn btn-outline" routerLink="/visits/planner">
+            <i class="material-icons">calendar_month</i>
+            {{ 'visitPlanner.title' | translate }}
+          </button>
+          <button class="btn btn-outline" routerLink="/visits/history">
+            <i class="material-icons">history</i>
+            {{ 'visitHistory.title' | translate }}
+          </button>
+          <button class="btn btn-primary" (click)="goCheckIn()">{{ 'visits.adHocCheckIn' | translate }}</button>
+        </div>
       </div>
 
       <section class="card">
@@ -98,6 +108,8 @@ import { PlannedVisitSummary, ExecutedVisitSummary } from '../../core/models/vis
     .visits { display: grid; gap: 16px; max-width: 720px; }
     .visits__header { display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap; }
     .visits__title { font-size: 20px; font-weight: 700; margin: 0; }
+    .visits__actions { display: flex; gap: 8px; align-items: center; }
+    .visits__actions i { font-size: 18px; margin-right: 4px; vertical-align: middle; }
 
     .list { display: grid; gap: 10px; }
     .list__row { display:flex; align-items:flex-start; justify-content:space-between; gap:12px; padding: 10px 0; border-bottom: 1px solid var(--border-light); }

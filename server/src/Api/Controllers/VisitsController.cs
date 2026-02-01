@@ -93,6 +93,18 @@ public class VisitsController : ControllerBase
         return Ok(updated);
     }
 
+    /// <summary>
+    /// Get paginated visit history with filters
+    /// </summary>
+    [HttpGet("history")]
+    [ProducesResponseType(typeof(VisitHistoryResultDto), StatusCodes.Status200OK)]
+    public async Task<IActionResult> GetHistory([FromQuery] VisitHistoryFilterDto filter, CancellationToken cancellationToken)
+    {
+        var userId = GetUserId();
+        var result = await _visitService.GetVisitHistoryAsync(userId, filter, cancellationToken);
+        return Ok(result);
+    }
+
     private string GetUserId()
     {
         var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);

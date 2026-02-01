@@ -108,6 +108,63 @@ IF NOT EXISTS (SELECT 1 FROM SystemFeatureFlags WHERE [Key] = 'portal.split_invo
 INSERT INTO SystemFeatureFlags ([Key], Name, Description, Category, Type, Value, DefaultValue, IsEnabled, AllowClientOverride, Environment, IsDeleted, CreatedAt, CreatedBy)
 VALUES ('portal.split_invoice', 'Split Invoice', 'Generate separate invoices for Commercial and Essential items in customer portal', 1, 0, 'true', 'true', 1, 1, NULL, 0, @Now, 'Seed');
 
+-- =============================================
+-- EMAIL FEATURE FLAGS
+-- =============================================
+PRINT 'Seeding Email Feature Flags...';
+
+-- Global email switch
+IF NOT EXISTS (SELECT 1 FROM SystemFeatureFlags WHERE [Key] = 'email.globalEnabled')
+INSERT INTO SystemFeatureFlags ([Key], Name, Description, Category, Type, Value, DefaultValue, IsEnabled, AllowClientOverride, Environment, IsDeleted, CreatedAt, CreatedBy)
+VALUES ('email.globalEnabled', 'Email Global Switch', 'Master switch to enable/disable all email sending', 0, 0, 'true', 'true', 1, 0, NULL, 0, @Now, 'Seed');
+
+-- Order confirmation email to customer
+IF NOT EXISTS (SELECT 1 FROM SystemFeatureFlags WHERE [Key] = 'email.orderConfirmation')
+INSERT INTO SystemFeatureFlags ([Key], Name, Description, Category, Type, Value, DefaultValue, IsEnabled, AllowClientOverride, Environment, IsDeleted, CreatedAt, CreatedBy)
+VALUES ('email.orderConfirmation', 'Order Confirmation Email', 'Send order confirmation email to customers when order is created', 4, 0, 'true', 'true', 1, 1, NULL, 0, @Now, 'Seed');
+
+-- Order status update emails
+IF NOT EXISTS (SELECT 1 FROM SystemFeatureFlags WHERE [Key] = 'email.orderStatusUpdates')
+INSERT INTO SystemFeatureFlags ([Key], Name, Description, Category, Type, Value, DefaultValue, IsEnabled, AllowClientOverride, Environment, IsDeleted, CreatedAt, CreatedBy)
+VALUES ('email.orderStatusUpdates', 'Order Status Update Emails', 'Send email to customers when order status changes', 4, 0, 'true', 'true', 1, 1, NULL, 0, @Now, 'Seed');
+
+-- Order shipped email
+IF NOT EXISTS (SELECT 1 FROM SystemFeatureFlags WHERE [Key] = 'email.orderShipped')
+INSERT INTO SystemFeatureFlags ([Key], Name, Description, Category, Type, Value, DefaultValue, IsEnabled, AllowClientOverride, Environment, IsDeleted, CreatedAt, CreatedBy)
+VALUES ('email.orderShipped', 'Order Shipped Email', 'Send notification when order is shipped', 4, 0, 'true', 'true', 1, 1, NULL, 0, @Now, 'Seed');
+
+-- Order delivered email
+IF NOT EXISTS (SELECT 1 FROM SystemFeatureFlags WHERE [Key] = 'email.orderDelivered')
+INSERT INTO SystemFeatureFlags ([Key], Name, Description, Category, Type, Value, DefaultValue, IsEnabled, AllowClientOverride, Environment, IsDeleted, CreatedAt, CreatedBy)
+VALUES ('email.orderDelivered', 'Order Delivered Email', 'Send confirmation when order is delivered', 4, 0, 'true', 'true', 1, 1, NULL, 0, @Now, 'Seed');
+
+-- Internal order notification
+IF NOT EXISTS (SELECT 1 FROM SystemFeatureFlags WHERE [Key] = 'email.internalOrderNotification')
+INSERT INTO SystemFeatureFlags ([Key], Name, Description, Category, Type, Value, DefaultValue, IsEnabled, AllowClientOverride, Environment, IsDeleted, CreatedAt, CreatedBy)
+VALUES ('email.internalOrderNotification', 'Internal Order Notification', 'Send new order notifications to orders@pharmaassist.com', 4, 0, 'true', 'true', 1, 0, NULL, 0, @Now, 'Seed');
+
+-- Weekly manager reports
+IF NOT EXISTS (SELECT 1 FROM SystemFeatureFlags WHERE [Key] = 'email.weeklyManagerReports')
+INSERT INTO SystemFeatureFlags ([Key], Name, Description, Category, Type, Value, DefaultValue, IsEnabled, AllowClientOverride, Environment, IsDeleted, CreatedAt, CreatedBy)
+VALUES ('email.weeklyManagerReports', 'Weekly Manager Reports', 'Send weekly visit reports to managers every Monday at 7:30 AM', 5, 0, 'true', 'true', 1, 0, NULL, 0, @Now, 'Seed');
+
+-- Daily visit reminders
+IF NOT EXISTS (SELECT 1 FROM SystemFeatureFlags WHERE [Key] = 'email.dailyVisitReminders')
+INSERT INTO SystemFeatureFlags ([Key], Name, Description, Category, Type, Value, DefaultValue, IsEnabled, AllowClientOverride, Environment, IsDeleted, CreatedAt, CreatedBy)
+VALUES ('email.dailyVisitReminders', 'Daily Visit Reminders', 'Send daily visit schedule reminders to sales reps', 5, 0, 'false', 'false', 0, 0, NULL, 0, @Now, 'Seed');
+
+-- Low stock alerts
+IF NOT EXISTS (SELECT 1 FROM SystemFeatureFlags WHERE [Key] = 'email.lowStockAlerts')
+INSERT INTO SystemFeatureFlags ([Key], Name, Description, Category, Type, Value, DefaultValue, IsEnabled, AllowClientOverride, Environment, IsDeleted, CreatedAt, CreatedBy)
+VALUES ('email.lowStockAlerts', 'Low Stock Alerts', 'Send low stock notifications to inventory team', 3, 0, 'true', 'true', 1, 0, NULL, 0, @Now, 'Seed');
+
+-- Expiry alerts
+IF NOT EXISTS (SELECT 1 FROM SystemFeatureFlags WHERE [Key] = 'email.expiryAlerts')
+INSERT INTO SystemFeatureFlags ([Key], Name, Description, Category, Type, Value, DefaultValue, IsEnabled, AllowClientOverride, Environment, IsDeleted, CreatedAt, CreatedBy)
+VALUES ('email.expiryAlerts', 'Expiry Alerts', 'Send product expiry notifications', 3, 0, 'true', 'true', 1, 0, NULL, 0, @Now, 'Seed');
+
+PRINT 'Email Feature Flags seeded successfully.';
+
 PRINT 'System Feature Flags seeded successfully.';
 
 -- =============================================

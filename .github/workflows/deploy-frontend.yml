@@ -1,0 +1,56 @@
+name: Deploy Frontend to Contabo
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'client/pharma-assist/**'
+  workflow_dispatch:
+
+env:
+  NODE_VERSION: '20.x'
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+          cache-dependency-path: client/pharma-assist/package-lock.json
+      
+      - name: Install dependencies
+        working-directory: client/pharma-assist
+        run: npm ci
+      
+      - name: Build Angular app
+        working-directory: client/pharma-assist
+        run: npm run build -- --configuration=production
+        env:
+          NODE_OPTIONS: --max_old_space_size=4096
+      
+      - name: Deploy to Contabo
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.CONTABO_HOST }}
+          username: ${{ secrets.CONTABO_USER }}
+          key: ${{ secrets.CONTABO_SSH_KEY }}
+          source: "client/pharma-assist/dist/pharma-assist/browser/*"
+          target: "/var/www/pharmaassist/frontend/"
+          strip_components: 5
+      
+      - name: Reload Nginx
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.CONTABO_HOST }}
+          username: ${{ secrets.CONTABO_USER }}
+          key: ${{ secrets.CONTABO_SSH_KEY }}
+          script: |
+            sudo systemctl reload nginx
+            echo "✅ Frontend deployed successfully!"

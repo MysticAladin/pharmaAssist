@@ -22,8 +22,7 @@ public class VisitReportService : IVisitReportService
         DateTime weekStartUtc,
         CancellationToken cancellationToken = default)
     {
-        var managerRepId = await GetRepIdAsync(managerUserId, cancellationToken);
-        var teamRepIds = await GetTeamRepIdsAsync(managerRepId, cancellationToken);
+        var teamRepIds = await GetTeamRepIdsByManagerUserIdAsync(managerUserId, cancellationToken);
 
         if (teamRepIds.Count == 0)
             return Array.Empty<TeamVisitPlanSummaryDto>();
@@ -59,8 +58,7 @@ public class VisitReportService : IVisitReportService
         int planId,
         CancellationToken cancellationToken = default)
     {
-        var managerRepId = await GetRepIdAsync(managerUserId, cancellationToken);
-        var teamRepIds = await GetTeamRepIdsAsync(managerRepId, cancellationToken);
+        var teamRepIds = await GetTeamRepIdsByManagerUserIdAsync(managerUserId, cancellationToken);
 
         var plan = await _context.VisitPlans
             .AsNoTracking()
@@ -97,8 +95,7 @@ public class VisitReportService : IVisitReportService
         int executedVisitId,
         CancellationToken cancellationToken = default)
     {
-        var managerRepId = await GetRepIdAsync(managerUserId, cancellationToken);
-        var teamRepIds = await GetTeamRepIdsAsync(managerRepId, cancellationToken);
+        var teamRepIds = await GetTeamRepIdsByManagerUserIdAsync(managerUserId, cancellationToken);
 
         var visit = await _context.ExecutedVisits
             .AsNoTracking()
@@ -108,25 +105,11 @@ public class VisitReportService : IVisitReportService
         return visit == null ? null : MapExecutedVisit(visit);
     }
 
-    private async Task<int> GetRepIdAsync(string userId, CancellationToken cancellationToken)
-    {
-        var repId = await _context.SalesRepresentatives
-            .AsNoTracking()
-            .Where(r => r.UserId == userId && !r.IsDeleted)
-            .Select(r => (int?)r.Id)
-            .FirstOrDefaultAsync(cancellationToken);
-
-        if (!repId.HasValue)
-            throw new InvalidOperationException("Sales representative not found for this user");
-
-        return repId.Value;
-    }
-
-    private async Task<List<int>> GetTeamRepIdsAsync(int managerRepId, CancellationToken cancellationToken)
+    private async Task<List<int>> GetTeamRepIdsByManagerUserIdAsync(string managerUserId, CancellationToken cancellationToken)
     {
         return await _context.RepManagerAssignments
             .AsNoTracking()
-            .Where(a => a.ManagerId == managerRepId && a.IsActive && !a.IsDeleted)
+            .Where(a => a.ManagerUserId == managerUserId && a.IsActive && !a.IsDeleted)
             .Select(a => a.RepId)
             .Distinct()
             .ToListAsync(cancellationToken);
@@ -167,9 +150,210 @@ public class VisitReportService : IVisitReportService
             CheckOutLatitude = visit.CheckOutLatitude,
             CheckOutLongitude = visit.CheckOutLongitude,
             LocationVerified = visit.LocationVerified,
+            DistanceFromCustomerMeters = visit.DistanceFromCustomerMeters,
             Outcome = visit.Outcome,
             Summary = visit.Summary,
-            ProductsDiscussed = visit.ProductsDiscussed
+            ProductsDiscussed = visit.ProductsDiscussed,
+            GeneralComment = visit.GeneralComment,
+            AgreedDeals = visit.AgreedDeals,
+            CompetitionNotes = visit.CompetitionNotes
+        };
+    }
+
+    public async Task<TeamActivityDashboardDto> GetTeamActivityAsync(
+        string managerUserId,
+        DateTime? date,
+        CancellationToken cancellationToken = default)
+    {
+        var targetDate = date?.Date ?? DateTime.UtcNow.Date;
+        var nextDate = targetDate.AddDays(1);
+
+        var teamRepIds = await GetTeamRepIdsByManagerUserIdAsync(managerUserId, cancellationToken);
+
+        if (teamRepIds.Count == 0)
+        {
+            return new TeamActivityDashboardDto { Date = targetDate };
+        }
+
+        // Get team reps with today's visits
+        var reps = await _context.SalesRepresentatives
+            .AsNoTracking()
+            .Include(r => r.User)
+            .Where(r => teamRepIds.Contains(r.Id) && !r.IsDeleted)
+            .ToListAsync(cancellationToken);
+
+        // Get today's planned visits for team
+        var todayPlanned = await _context.PlannedVisits
+            .AsNoTracking()
+            .Where(pv => teamRepIds.Contains(pv.Plan!.RepId))
+            .Where(pv => pv.PlannedDate >= targetDate && pv.PlannedDate < nextDate)
+            .GroupBy(pv => pv.Plan!.RepId)
+            .Select(g => new { RepId = g.Key, Count = g.Count() })
+            .ToListAsync(cancellationToken);
+
+        // Get today's executed visits for team
+        var todayVisits = await _context.ExecutedVisits
+            .AsNoTracking()
+            .Include(v => v.Customer)
+                .ThenInclude(c => c!.Addresses)
+            .Where(v => teamRepIds.Contains(v.RepId))
+            .Where(v => v.CheckInTime >= targetDate && v.CheckInTime < nextDate)
+            .ToListAsync(cancellationToken);
+
+        var visitsByRep = todayVisits.GroupBy(v => v.RepId).ToDictionary(g => g.Key, g => g.ToList());
+        var plannedByRep = todayPlanned.ToDictionary(x => x.RepId, x => x.Count);
+
+        var repActivities = reps.Select(rep =>
+        {
+            var repVisits = visitsByRep.GetValueOrDefault(rep.Id, new List<ExecutedVisit>());
+            var plannedCount = plannedByRep.GetValueOrDefault(rep.Id, 0);
+            var executedCount = repVisits.Count;
+            var completedCount = repVisits.Count(v => v.CheckOutTime.HasValue);
+            var verifiedCount = repVisits.Count(v => v.LocationVerified);
+            var alertCount = repVisits.Count(v => !v.LocationVerified && v.DistanceFromCustomerMeters > 500);
+            var currentVisit = repVisits.FirstOrDefault(v => !v.CheckOutTime.HasValue);
+
+            return new RepActivitySummaryDto
+            {
+                RepId = rep.Id,
+                RepName = rep.User?.FullName ?? "",
+                RepType = rep.RepType,
+                PlannedVisitsCount = plannedCount,
+                ExecutedVisitsCount = executedCount,
+                CompletedVisitsCount = completedCount,
+                LocationVerifiedCount = verifiedCount,
+                LocationAlertCount = alertCount,
+                CurrentVisit = currentVisit != null ? MapVisitActivity(currentVisit) : null,
+                TodayVisits = repVisits.OrderByDescending(v => v.CheckInTime).Select(MapVisitActivity).ToList()
+            };
+        }).ToList();
+
+        var totals = new TeamActivityTotalsDto
+        {
+            TotalReps = reps.Count,
+            ActiveReps = repActivities.Count(r => r.CurrentVisit != null),
+            TotalPlannedVisits = repActivities.Sum(r => r.PlannedVisitsCount),
+            TotalExecutedVisits = repActivities.Sum(r => r.ExecutedVisitsCount),
+            TotalCompletedVisits = repActivities.Sum(r => r.CompletedVisitsCount),
+            LocationVerifiedCount = repActivities.Sum(r => r.LocationVerifiedCount),
+            LocationAlertCount = repActivities.Sum(r => r.LocationAlertCount)
+        };
+
+        return new TeamActivityDashboardDto
+        {
+            Date = targetDate,
+            RepActivities = repActivities,
+            Totals = totals
+        };
+    }
+
+    private static VisitActivityDto MapVisitActivity(ExecutedVisit visit)
+    {
+        var city = visit.Customer?.Addresses?.OrderByDescending(a => a.IsDefault).FirstOrDefault()?.City;
+
+        return new VisitActivityDto
+        {
+            VisitId = visit.Id,
+            CustomerId = visit.CustomerId,
+            CustomerName = visit.Customer?.CompanyName ?? ((visit.Customer?.FirstName ?? "") + " " + (visit.Customer?.LastName ?? "")).Trim(),
+            CustomerCity = city,
+            CheckInTime = visit.CheckInTime,
+            CheckOutTime = visit.CheckOutTime,
+            Latitude = visit.CheckInLatitude,
+            Longitude = visit.CheckInLongitude,
+            LocationVerified = visit.LocationVerified,
+            DistanceFromCustomerMeters = visit.DistanceFromCustomerMeters,
+            Outcome = visit.Outcome
+        };
+    }
+
+    public async Task<VisitAuditResultDto> GetVisitAuditAsync(
+        string managerUserId,
+        VisitAuditFilterDto filter,
+        CancellationToken cancellationToken = default)
+    {
+        var teamRepIds = await GetTeamRepIdsByManagerUserIdAsync(managerUserId, cancellationToken);
+
+        if (teamRepIds.Count == 0)
+        {
+            return new VisitAuditResultDto { Page = filter.Page, PageSize = filter.PageSize };
+        }
+
+        var query = _context.ExecutedVisits
+            .AsNoTracking()
+            .Include(v => v.Rep)
+                .ThenInclude(r => r!.User)
+            .Include(v => v.Customer)
+                .ThenInclude(c => c!.Addresses)
+            .Where(v => teamRepIds.Contains(v.RepId))
+            .AsQueryable();
+
+        // Apply filters
+        if (filter.FromDate.HasValue)
+        {
+            var fromDate = filter.FromDate.Value.Date;
+            query = query.Where(v => v.CheckInTime >= fromDate);
+        }
+
+        if (filter.ToDate.HasValue)
+        {
+            var toDate = filter.ToDate.Value.Date.AddDays(1);
+            query = query.Where(v => v.CheckInTime < toDate);
+        }
+
+        if (filter.RepId.HasValue)
+        {
+            query = query.Where(v => v.RepId == filter.RepId.Value);
+        }
+
+        if (filter.LocationVerified.HasValue)
+        {
+            query = query.Where(v => v.LocationVerified == filter.LocationVerified.Value);
+        }
+
+        if (filter.HasLocationAlert == true)
+        {
+            query = query.Where(v => !v.LocationVerified && v.DistanceFromCustomerMeters > 500);
+        }
+
+        var totalCount = await query.CountAsync(cancellationToken);
+
+        var visits = await query
+            .OrderByDescending(v => v.CheckInTime)
+            .Skip((filter.Page - 1) * filter.PageSize)
+            .Take(filter.PageSize)
+            .ToListAsync(cancellationToken);
+
+        var items = visits.Select(v =>
+        {
+            var address = v.Customer?.Addresses?.OrderByDescending(a => a.IsDefault).FirstOrDefault();
+
+            return new VisitAuditItemDto
+            {
+                VisitId = v.Id,
+                RepId = v.RepId,
+                RepName = v.Rep?.User?.FullName ?? "",
+                CustomerId = v.CustomerId,
+                CustomerName = v.Customer?.CompanyName ?? ((v.Customer?.FirstName ?? "") + " " + (v.Customer?.LastName ?? "")).Trim(),
+                CustomerCity = address?.City,
+                CheckInTime = v.CheckInTime,
+                CheckOutTime = v.CheckOutTime,
+                CheckInLatitude = v.CheckInLatitude,
+                CheckInLongitude = v.CheckInLongitude,
+                CustomerLatitude = address?.Latitude,
+                CustomerLongitude = address?.Longitude,
+                LocationVerified = v.LocationVerified,
+                DistanceFromCustomerMeters = v.DistanceFromCustomerMeters,
+                Outcome = v.Outcome
+            };
+        }).ToList();
+
+        return new VisitAuditResultDto
+        {
+            Items = items,
+            TotalCount = totalCount,
+            Page = filter.Page,
+            PageSize = filter.PageSize
         };
     }
 }

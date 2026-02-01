@@ -15,11 +15,12 @@ public class RepManagerAssignmentConfiguration : IEntityTypeConfiguration<RepMan
         builder.Property(e => e.RepId)
             .IsRequired();
 
-        builder.Property(e => e.ManagerId)
+        builder.Property(e => e.ManagerUserId)
+            .HasMaxLength(450)
             .IsRequired();
 
-        // Unique constraint on rep-manager pair
-        builder.HasIndex(e => new { e.RepId, e.ManagerId })
+        // Unique constraint on rep-manager user pair
+        builder.HasIndex(e => new { e.RepId, e.ManagerUserId })
             .IsUnique();
 
         // FK to SalesRepresentative (the rep being managed)
@@ -28,10 +29,10 @@ public class RepManagerAssignmentConfiguration : IEntityTypeConfiguration<RepMan
             .HasForeignKey(e => e.RepId)
             .OnDelete(DeleteBehavior.Restrict);
 
-        // FK to SalesRepresentative (the manager)
-        builder.HasOne(e => e.Manager)
-            .WithMany(sr => sr.ManagedReps)
-            .HasForeignKey(e => e.ManagerId)
+        // FK to ApplicationUser (the manager user)
+        builder.HasOne(e => e.ManagerUser)
+            .WithMany()
+            .HasForeignKey(e => e.ManagerUserId)
             .OnDelete(DeleteBehavior.Restrict);
 
         // Global query filter for soft delete

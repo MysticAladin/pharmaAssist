@@ -8,6 +8,11 @@ namespace Domain.Entities;
 public class VisitPlan : BaseEntity
 {
     /// <summary>
+    /// FK to parent monthly plan (optional - can exist standalone)
+    /// </summary>
+    public int? MonthlyPlanId { get; set; }
+    
+    /// <summary>
     /// FK to the sales representative
     /// </summary>
     public int RepId { get; set; }
@@ -42,7 +47,17 @@ public class VisitPlan : BaseEntity
     /// </summary>
     public string? RejectionReason { get; set; }
     
+    /// <summary>
+    /// Manager comments when approving
+    /// </summary>
+    public string? ApprovalComments { get; set; }
+    
     // Navigation properties
+    
+    /// <summary>
+    /// Parent monthly plan (if linked to planning hierarchy)
+    /// </summary>
+    public virtual MonthlyPlan? MonthlyPlan { get; set; }
     
     /// <summary>
     /// The sales representative who created this plan

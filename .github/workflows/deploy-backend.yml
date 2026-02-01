@@ -1,0 +1,124 @@
+name: Deploy Backend to Contabo
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'server/**'
+  workflow_dispatch:
+
+env:
+  DOTNET_VERSION: '8.0.x'
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+      
+      - name: Restore dependencies
+        working-directory: server
+        run: dotnet restore
+      
+      - name: Build
+        working-directory: server
+        run: dotnet build --configuration Release --no-restore
+      
+      - name: Run tests
+        working-directory: server
+        run: dotnet test --configuration Release --no-build --verbosity normal
+        continue-on-error: false
+      
+      - name: Publish
+        working-directory: server/src/Api
+        run: dotnet publish -c Release -o ./publish --no-restore
+      
+      - name: Create deployment package
+        run: |
+          cd server/src/Api/publish
+          tar -czvf ../../../../api-package.tar.gz .
+      
+      - name: Deploy to Contabo
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.CONTABO_HOST }}
+          username: ${{ secrets.CONTABO_USER }}
+          key: ${{ secrets.CONTABO_SSH_KEY }}
+          source: "api-package.tar.gz"
+          target: "/tmp/"
+      
+      - name: Extract and restart API
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.CONTABO_HOST }}
+          username: ${{ secrets.CONTABO_USER }}
+          key: ${{ secrets.CONTABO_SSH_KEY }}
+          script: |
+            set -e
+            
+            echo "🛑 Stopping API service..."
+            sudo systemctl stop pharmaassist-api
+            
+            # Backup current deployment
+            if [ -d "/var/www/pharmaassist/api" ]; then
+              BACKUP_NAME="api.backup.$(date +%Y%m%d%H%M%S)"
+              echo "📦 Backing up to $BACKUP_NAME..."
+              sudo mv /var/www/pharmaassist/api /var/www/pharmaassist/$BACKUP_NAME
+            fi
+            
+            # Extract new deployment
+            echo "📂 Extracting new deployment..."
+            sudo mkdir -p /var/www/pharmaassist/api
+            sudo tar -xzvf /tmp/api-package.tar.gz -C /var/www/pharmaassist/api
+            
+            # Copy production settings (preserved on server)
+            if [ -f "/var/www/pharmaassist/config/appsettings.Production.json" ]; then
+              echo "⚙️ Copying production settings..."
+              sudo cp /var/www/pharmaassist/config/appsettings.Production.json /var/www/pharmaassist/api/
+            fi
+            
+            # Set permissions
+            sudo chown -R pharmaassist:pharmaassist /var/www/pharmaassist/api
+            
+            # Start API service
+            echo "🚀 Starting API service..."
+            sudo systemctl start pharmaassist-api
+            
+            # Cleanup
+            rm /tmp/api-package.tar.gz
+            
+            # Keep only last 3 backups
+            cd /var/www/pharmaassist
+            ls -dt api.backup.* 2>/dev/null | tail -n +4 | xargs -r sudo rm -rf
+            
+            echo "✅ Backend deployed successfully!"
+      
+      - name: Health check
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.CONTABO_HOST }}
+          username: ${{ secrets.CONTABO_USER }}
+          key: ${{ secrets.CONTABO_SSH_KEY }}
+          script: |
+            echo "⏳ Waiting for API to start..."
+            sleep 15
+            
+            # Health check with retries
+            for i in 1 2 3 4 5; do
+              if curl -sf http://localhost:5000/health > /dev/null 2>&1; then
+                echo "✅ Health check passed!"
+                exit 0
+              fi
+              echo "Attempt $i failed, retrying in 5 seconds..."
+              sleep 5
+            done
+            
+            echo "❌ Health check failed after 5 attempts"
+            exit 1

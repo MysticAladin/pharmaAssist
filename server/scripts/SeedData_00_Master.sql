@@ -78,13 +78,18 @@ PRINT 'Running Part 9: Feature Flags and Promotions...';
 :r SeedData_09_FeatureFlags_Promotions.sql
 PRINT '';
 
+PRINT 'Running Part 10: Sales Representatives and Manager Assignments...';
+-- Include content from SeedData_10_SalesReps.sql
+:r SeedData_10_SalesReps.sql
+PRINT '';
+
 PRINT '================================================';
 PRINT 'Seed completed at: ' + CONVERT(NVARCHAR, GETDATE(), 120);
 PRINT '================================================';
 PRINT '';
 PRINT 'SUMMARY:';
 PRINT '--------';
-PRINT 'Users created: 7 (one per role)';
+PRINT 'Users created: 10+ (base users + sales reps)';
 PRINT 'Roles created: 7';
 PRINT 'BiH Entities: 3 (FBiH, RS, BD)';
 PRINT 'Cantons/Regions: 15';
@@ -98,6 +103,8 @@ PRINT 'Warehouses: 4';
 PRINT 'Orders: ~60-100 (last 6 months)';
 PRINT 'Feature Flags: 15+';
 PRINT 'Promotions: 3';
+PRINT 'Sales Representatives: 4 (2 Commercial, 2 Medical)';
+PRINT 'Manager Assignments: 5 (linking reps to manager users)';
 PRINT '';
 PRINT 'Login with any user using password: Test123!';
 PRINT '';

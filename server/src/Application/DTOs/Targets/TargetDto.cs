@@ -112,6 +112,36 @@ public class TargetSummaryDto
     public List<SalesTargetDto> NeedsAttention { get; set; } = new();
 }
 
+/// <summary>
+/// Rep's target progress summary for dashboard
+/// </summary>
+public class RepTargetProgressDto
+{
+    public int Year { get; set; }
+    public int Month { get; set; }
+    public int DaysElapsed { get; set; }
+    public int TotalDays { get; set; }
+    public List<RepTargetItemDto> Targets { get; set; } = new();
+}
+
+/// <summary>
+/// Individual target item for rep dashboard
+/// </summary>
+public class RepTargetItemDto
+{
+    public int TargetId { get; set; }
+    public string Name { get; set; } = string.Empty;
+    public string Type { get; set; } = string.Empty;
+    public decimal TargetValue { get; set; }
+    public decimal CurrentValue { get; set; }
+    public decimal AchievementPercent { get; set; }
+    public bool IsAchieved { get; set; }
+    /// <summary>
+    /// OnTrack, AtRisk, Behind
+    /// </summary>
+    public string Status { get; set; } = "OnTrack";
+}
+
 #endregion
 
 #region Budgets

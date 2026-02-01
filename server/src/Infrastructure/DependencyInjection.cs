@@ -21,6 +21,9 @@ public static class DependencyInjection
 {
     public static IServiceCollection AddInfrastructure(this IServiceCollection services, IConfiguration configuration)
     {
+        // Configure EmailSettings
+        services.Configure<EmailSettings>(configuration.GetSection("EmailSettings"));
+        
         // Add HTTP Context Accessor for audit logging
         services.AddHttpContextAccessor();
         services.AddScoped<AuditableEntityInterceptor>();
@@ -104,6 +107,7 @@ public static class DependencyInjection
         // Add File, Email, and Report Services
         services.AddScoped<IFileService, FileService>();
         services.AddScoped<IEmailService, EmailService>();
+        services.AddScoped<IOrderEmailService, OrderEmailService>();
         services.AddScoped<IReportService, ReportService>();
         services.AddScoped<IPdfService, PdfService>();
 
@@ -119,6 +123,32 @@ public static class DependencyInjection
         // Visits
         services.AddScoped<IVisitService, VisitService>();
         services.AddScoped<IVisitReportService, VisitReportService>();
+        services.AddScoped<IVisitPlanService, VisitPlanService>();
+        
+        // Planning Hierarchy
+        services.AddScoped<IPlanningHierarchyService, PlanningHierarchyService>();
+        
+        // Plan Execution Reports
+        services.AddScoped<IPlanExecutionReportService, PlanExecutionReportService>();
+        
+        // Rep Customer Service
+        services.AddScoped<IRepCustomerService, RepCustomerService>();
+        
+        // Order Template Service
+        services.AddScoped<IOrderTemplateService, OrderTemplateService>();
+        
+        // Promotion Engine Service
+        services.AddScoped<IPromotionEngineService, PromotionEngineService>();
+        
+        // Email Scheduling Manager
+        services.AddScoped<Application.Services.IEmailSchedulingManager, EmailSchedulingManager>();
+        
+        // Hangfire Jobs
+        services.AddScoped<Infrastructure.Jobs.WeeklyManagerReportJob>();
+        services.AddScoped<Infrastructure.Jobs.DailyVisitReminderJob>();
+        services.AddScoped<Infrastructure.Jobs.RetryFailedEmailsJob>();
+        services.AddScoped<Infrastructure.Jobs.CleanupEmailLogsJob>();
+        
         return services;
     }
 }

@@ -119,18 +119,8 @@ public class SalesRepsController : ControllerBase
     }
 
     /// <summary>
-    /// Get all managers
-    /// </summary>
-    [HttpGet("managers")]
-    [ProducesResponseType(typeof(IReadOnlyList<SalesRepresentativeSummaryDto>), StatusCodes.Status200OK)]
-    public async Task<IActionResult> GetManagers([FromQuery] RepresentativeType? repType, CancellationToken cancellationToken)
-    {
-        var result = await _salesRepService.GetManagersAsync(repType, cancellationToken);
-        return Ok(result);
-    }
-
-    /// <summary>
-    /// Update manager assignments for a sales representative
+    /// Update manager/supervisor assignments for a sales representative
+    /// Managers are users with Manager/Admin roles
     /// </summary>
     [HttpPut("{id:int}/managers")]
     [ProducesResponseType(typeof(SalesRepresentativeDto), StatusCodes.Status200OK)]

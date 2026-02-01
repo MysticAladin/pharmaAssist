@@ -8,7 +8,9 @@ import {
   ExecutedVisit,
   CheckInVisitRequest,
   UpdateExecutedVisitRequest,
-  CheckOutVisitRequest
+  CheckOutVisitRequest,
+  VisitHistoryFilter,
+  VisitHistoryResult
 } from '../models/visit.model';
 
 @Injectable({
@@ -40,5 +42,19 @@ export class VisitService {
 
   checkOut(id: number, dto: CheckOutVisitRequest): Observable<ExecutedVisit> {
     return this.http.post<ExecutedVisit>(`${this.apiUrl}/executed/${id}/check-out`, dto);
+  }
+
+  getHistory(filter: VisitHistoryFilter): Observable<VisitHistoryResult> {
+    const params: Record<string, string> = {
+      page: filter.page.toString(),
+      pageSize: filter.pageSize.toString()
+    };
+    if (filter.fromDate) params['fromDate'] = filter.fromDate;
+    if (filter.toDate) params['toDate'] = filter.toDate;
+    if (filter.customerId != null) params['customerId'] = filter.customerId.toString();
+    if (filter.outcome != null) params['outcome'] = filter.outcome.toString();
+    if (filter.searchTerm) params['searchTerm'] = filter.searchTerm;
+
+    return this.http.get<VisitHistoryResult>(`${this.apiUrl}/history`, { params });
   }
 }

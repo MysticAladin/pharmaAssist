@@ -1,8 +1,58 @@
 # PharmaAssist — Current Progress & TODOs
 
-_Last updated: 2025-12-25_
+_Last updated: 2025-01-31_
 
 This document summarizes what is implemented today, the highest-impact gaps vs the requirements, and a prioritized TODO list.
+
+## ✅ Recently Completed (Session Jan 2025)
+
+### Email & Scheduler Implementation (Complete)
+- **Hangfire Scheduler**: Background job processing with SQL Server storage
+  - Dashboard at `/hangfire` (Admin only)
+  - 4 queues: default, emails, reports
+- **Email Infrastructure**:
+  - Email attachment support in `EmailService`
+  - New email types: OrderStatusUpdate, WeeklyManagerReport, MonthlySummary, VisitReminder, PaymentReminder, NewCustomerAssigned, TargetAchievement
+  - 10 email feature flags added to database
+- **Order Email Service**: `IOrderEmailService` / `OrderEmailService` with:
+  - Order confirmation to customer (with PDF attachment support)
+  - Order notification to company (orders@pharmaassist.ba)
+  - Order status update emails
+  - Order shipped/delivered notifications
+- **Scheduled Jobs**:
+  - `WeeklyManagerReportJob` - Every Monday 7:30 AM (Central European Time)
+  - `DailyVisitReminderJob` - Every weekday 7:00 AM
+  - `RetryFailedEmailsJob` - Every 15 minutes
+  - `CleanupEmailLogsJob` - Daily at 2:00 AM
+- **Jobs Controller**: `JobsController` with manual triggers and job management
+- **Email Scheduling Manager**: `IEmailSchedulingManager` for coordinating all scheduled email operations
+- **Configuration**: `EmailSettings` in appsettings.json
+
+### Phase 3: Sales Rep Order Entry (Complete)
+- **Promotion Engine**: PromotionEngineService with tiered discounts, volume-based pricing, combo offers (BOGO, bundle deals)
+- **Offline Order Support**: OfflineStorageService with IndexedDB, SyncService for background sync, offline indicator component
+- **Order Confirmation & Sharing**: PDF generation, WhatsApp/Email sharing for order confirmations
+- **Unit Tests**: 31 backend tests passing (xUnit + FluentAssertions + Moq)
+
+### Phase 4: Sales Rep Mobile Features (Complete)
+- **Dashboard Widgets API**: `SalesRepDashboardController` with:
+  - GET `/api/sales-rep/dashboard` - Summary metrics
+  - GET `/api/sales-rep/dashboard/widgets` - Quick stat widgets  
+  - GET `/api/sales-rep/dashboard/recent-orders` - Recent orders list
+  - GET `/api/sales-rep/dashboard/today-schedule` - Today's visits
+  - GET `/api/sales-rep/dashboard/top-customers` - Top performing customers
+  - GET `/api/sales-rep/dashboard/trends` - Sales trend data for charts
+  - GET `/api/sales-rep/dashboard/targets` - Target progress
+- **Dashboard Frontend**: `RepDashboardComponent` in Angular with:
+  - Stats cards (orders, revenue, visits, customers)
+  - Today's schedule widget
+  - Recent orders table
+  - Top customers list
+  - Target progress with visual indicators
+  - Quick action buttons
+- **Visit Scheduling**: `VisitPlannerComponent` (853 lines) with weekly calendar, customer assignment
+- **Route Optimization**: GPS check-in/check-out in `VisitCheckInComponent`, location verification
+- **Activity Tracking**: `VisitHistoryComponent` with filters, `TeamActivityDashboardComponent` for managers
 
 ## What’s working / implemented (high level)
 

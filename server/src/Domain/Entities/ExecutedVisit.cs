@@ -94,6 +94,21 @@ public class ExecutedVisit : BaseEntity
     public string? ProductsDiscussed { get; set; }
     
     /// <summary>
+    /// General comments about the visit
+    /// </summary>
+    public string? GeneralComment { get; set; }
+    
+    /// <summary>
+    /// Notes about agreed deals during the visit
+    /// </summary>
+    public string? AgreedDeals { get; set; }
+    
+    /// <summary>
+    /// Notes about competitor activity or products
+    /// </summary>
+    public string? CompetitionNotes { get; set; }
+    
+    /// <summary>
     /// Whether follow-up is required
     /// </summary>
     public bool FollowUpRequired { get; set; }

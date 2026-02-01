@@ -24,6 +24,16 @@ public class CustomerAddress : BaseEntity
     public string? ContactPhone { get; set; }
     public string? Notes { get; set; }
     
+    /// <summary>
+    /// GPS latitude for location verification
+    /// </summary>
+    public decimal? Latitude { get; set; }
+    
+    /// <summary>
+    /// GPS longitude for location verification
+    /// </summary>
+    public decimal? Longitude { get; set; }
+    
     public bool IsDefault { get; set; } = false;
     public bool IsActive { get; set; } = true;
 

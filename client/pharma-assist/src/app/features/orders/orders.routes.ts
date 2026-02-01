@@ -5,6 +5,22 @@ import { UserRole } from '../../core/models/user.model';
 export const ORDERS_ROUTES: Routes = [
   { path: '', loadComponent: () => import('./orders-list.component').then(m => m.OrdersListComponent) },
   { path: 'new', loadComponent: () => import('./order-create.component').then(m => m.OrderCreateComponent) },
+  {
+    path: 'rep/new',
+    canActivate: [roleGuard],
+    data: { roles: [UserRole.SalesRep] },
+    loadComponent: () => import('./rep-order-create.component').then(m => m.RepOrderCreateComponent)
+  },
+  {
+    path: 'rep/confirmation/:id',
+    canActivate: [roleGuard],
+    data: { roles: [UserRole.SalesRep] },
+    loadComponent: () => import('./order-confirmation.component').then(m => m.OrderConfirmationComponent)
+  },
+  {
+    path: 'templates',
+    loadComponent: () => import('./order-templates.component').then(m => m.OrderTemplatesComponent)
+  },
   { path: 'pending', loadComponent: () => import('./pending-orders.component').then(m => m.PendingOrdersComponent) },
   {
     path: 'claims',

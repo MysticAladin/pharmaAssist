@@ -1,0 +1,782 @@
+<div class="activity-report">
+  <div class="breadcrumb">
+    <a routerLink="/reports">{{ 'reports.title' | translate }}</a>
+    <span class="separator">/</span>
+    <span>{{ 'reports.activityReport.title' | translate }}</span>
+  </div>
+
+  <div class="page-header">
+    <div class="header-content">
+      <h1 class="page-title">{{ 'reports.activityReport.title' | translate }}</h1>
+      <p class="page-subtitle">{{ 'reports.activityReport.subtitle' | translate }}</p>
+    </div>
+  </div>
+
+  <!-- View Tabs -->
+  <div class="view-tabs">
+    <button
+      class="tab-btn"
+      [class.active]="activeView() === 'daily'"
+      (click)="setActiveView('daily')">
+      {{ 'reports.activityReport.daily' | translate }}
+    </button>
+    <button
+      class="tab-btn"
+      [class.active]="activeView() === 'weekly'"
+      (click)="setActiveView('weekly')">
+      {{ 'reports.activityReport.weekly' | translate }}
+    </button>
+    <button
+      class="tab-btn"
+      [class.active]="activeView() === 'monthly'"
+      (click)="setActiveView('monthly')">
+      {{ 'reports.activityReport.monthly' | translate }}
+    </button>
+    <button
+      class="tab-btn"
+      [class.active]="activeView() === 'execution'"
+      (click)="setActiveView('execution')">
+      {{ 'reports.activityReport.execution' | translate }}
+    </button>
+    @if (isManager()) {
+      <button
+        class="tab-btn"
+        [class.active]="activeView() === 'team'"
+        (click)="setActiveView('team')">
+        {{ 'reports.activityReport.team' | translate }}
+      </button>
+    }
+  </div>
+
+  <!-- Filters -->
+  <div class="filters">
+    <div class="filters-row">
+      <!-- Rep Selection (not for team view) -->
+      @if (activeView() !== 'team') {
+        <div class="field">
+          <label>{{ 'reports.activityReport.selectRep' | translate }}</label>
+          <select [(ngModel)]="selectedRepId">
+            <option [ngValue]="null" disabled>{{ 'reports.activityReport.selectRepPlaceholder' | translate }}</option>
+            @for (r of reps(); track r.id) {
+              <option [ngValue]="r.id">{{ r.repCode }} — {{ r.name }}</option>
+            }
+          </select>
+        </div>
+      }
+
+      <!-- Daily View: Single Date -->
+      @if (activeView() === 'daily') {
+        <div class="field">
+          <label>{{ 'reports.activityReport.date' | translate }}</label>
+          <input
+            type="text"
+            [ngModel]="getDateText('selectedDate')"
+            (ngModelChange)="onDateTextChange($event, 'selectedDate')"
+            placeholder="dd.MM.yyyy"
+          />
+        </div>
+      }
+
+      <!-- Weekly View: Week Start -->
+      @if (activeView() === 'weekly') {
+        <div class="field">
+          <label>{{ 'reports.activityReport.weekOf' | translate }}</label>
+          <input
+            type="text"
+            [ngModel]="getDateText('selectedDate')"
+            (ngModelChange)="onDateTextChange($event, 'selectedDate')"
+            placeholder="dd.MM.yyyy"
+          />
+        </div>
+      }
+
+      <!-- Monthly View: Year and Month -->
+      @if (activeView() === 'monthly') {
+        <div class="field">
+          <label>{{ 'reports.activityReport.year' | translate }}</label>
+          <select [(ngModel)]="selectedYear">
+            @for (year of availableYears; track year) {
+              <option [ngValue]="year">{{ year }}</option>
+            }
+          </select>
+        </div>
+        <div class="field">
+          <label>{{ 'reports.activityReport.month' | translate }}</label>
+          <select [(ngModel)]="selectedMonth">
+            @for (m of months; track m.value) {
+              <option [ngValue]="m.value">{{ m.label | translate }}</option>
+            }
+          </select>
+        </div>
+      }
+
+      <!-- Execution and Team View: Date Range -->
+      @if (activeView() === 'execution' || activeView() === 'team') {
+        <div class="field">
+          <label>{{ 'reports.filters.startDate' | translate }}</label>
+          <input
+            type="text"
+            [ngModel]="getDateText('startDate')"
+            (ngModelChange)="onDateTextChange($event, 'startDate')"
+            placeholder="dd.MM.yyyy"
+          />
+        </div>
+        <div class="field">
+          <label>{{ 'reports.filters.endDate' | translate }}</label>
+          <input
+            type="text"
+            [ngModel]="getDateText('endDate')"
+            (ngModelChange)="onDateTextChange($event, 'endDate')"
+            placeholder="dd.MM.yyyy"
+          />
+        </div>
+      }
+
+      <!-- Monthly View Options -->
+      @if (activeView() === 'monthly') {
+        <div class="field checkbox">
+          <label class="filter-checkbox">
+            <input type="checkbox" [(ngModel)]="includeProducts" />
+            <span>{{ 'reports.activityReport.includeProducts' | translate }}</span>
+          </label>
+        </div>
+        <div class="field checkbox">
+          <label class="filter-checkbox">
+            <input type="checkbox" [(ngModel)]="includeCustomers" />
+            <span>{{ 'reports.activityReport.includeCustomers' | translate }}</span>
+          </label>
+        </div>
+      }
+    </div>
+
+    <div class="filters-actions">
+      <button class="btn btn-primary" (click)="generateReport()" [disabled]="!selectedRepId && activeView() !== 'team'">
+        {{ 'reports.actions.generate' | translate }}
+      </button>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  @if (loading()) {
+    <div class="loading">
+      <div class="spinner"></div>
+      <span>{{ 'common.loading' | translate }}</span>
+    </div>
+  } @else {
+    <!-- Daily Report View -->
+    @if (activeView() === 'daily' && dailyReport(); as report) {
+      <section class="metrics-section">
+        <div class="metric-card primary">
+          <div class="metric-icon">📍</div>
+          <div class="metric-content">
+            <span class="metric-value">{{ report.completedVisits }} / {{ report.plannedVisits }}</span>
+            <span class="metric-label">{{ 'reports.activityReport.visitsCompletedPlanned' | translate }}</span>
+          </div>
+        </div>
+        <div class="metric-card success">
+          <div class="metric-icon">📦</div>
+          <div class="metric-content">
+            <span class="metric-value">{{ report.ordersCollected }}</span>
+            <span class="metric-label">{{ 'reports.activityReport.ordersCollected' | translate }}</span>
+          </div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-icon">💰</div>
+          <div class="metric-content">
+            <span class="metric-value">{{ report.orderValue | currency:'BAM':'symbol':'1.0-0' }}</span>
+            <span class="metric-label">{{ 'reports.activityReport.orderValue' | translate }}</span>
+          </div>
+        </div>
+        <div class="metric-card info">
+          <div class="metric-icon">⏱️</div>
+          <div class="metric-content">
+            <span class="metric-value">{{ report.totalVisitTime }}</span>
+            <span class="metric-label">{{ 'reports.activityReport.fieldTime' | translate }}</span>
+          </div>
+        </div>
+      </section>
+
+      <section class="table-section">
+        <div class="table-card">
+          <div class="table-header">
+            <h3>{{ 'reports.activityReport.visitedCustomers' | translate }}</h3>
+          </div>
+          @if (report.customersVisited.length === 0) {
+            <div class="no-data">
+              <p>{{ 'reports.activityReport.noVisits' | translate }}</p>
+            </div>
+          } @else {
+            <div class="table-responsive">
+              <table>
+                <thead>
+                  <tr>
+                    <th>{{ 'reports.activityReport.customerName' | translate }}</th>
+                    <th>{{ 'reports.activityReport.customerTier' | translate }}</th>
+                    <th>{{ 'reports.activityReport.visitTime' | translate }}</th>
+                    <th class="text-center">{{ 'reports.activityReport.orderPlaced' | translate }}</th>
+                    <th class="text-right">{{ 'reports.activityReport.orderAmount' | translate }}</th>
+                    <th>{{ 'reports.activityReport.notes' | translate }}</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  @for (customer of report.customersVisited; track customer.customerId) {
+                    <tr>
+                      <td>{{ customer.customerName }}</td>
+                      <td><span class="tier-badge">{{ customer.customerType || '—' }}</span></td>
+                      <td>{{ customer.checkInTime }}</td>
+                      <td class="text-center">
+                        @if (customer.hasOrder) {
+                          <span class="status-badge active">✓</span>
+                        } @else {
+                          <span class="status-badge inactive">—</span>
+                        }
+                      </td>
+                      <td class="text-right">
+                        @if (customer.hasOrder) {
+                          {{ customer.orderAmount | currency:'BAM':'symbol':'1.0-0' }}
+                        } @else {
+                          —
+                        }
+                      </td>
+                      <td class="notes-cell">{{ customer.notes || '—' }}</td>
+                    </tr>
+                  }
+                </tbody>
+              </table>
+            </div>
+          }
+        </div>
+      </section>
+    }
+
+    <!-- Weekly Report View -->
+    @if (activeView() === 'weekly' && weeklyReport(); as report) {
+      <section class="metrics-section">
+        <div class="metric-card primary">
+          <div class="metric-icon">📍</div>
+          <div class="metric-content">
+            <span class="metric-value">{{ report.completedVisits }}</span>
+            <span class="metric-label">{{ 'reports.activityReport.totalVisits' | translate }}</span>
+          </div>
+        </div>
+        <div class="metric-card success">
+          <div class="metric-icon">📦</div>
+          <div class="metric-content">
+            <span class="metric-value">{{ report.totalOrders }}</span>
+            <span class="metric-label">{{ 'reports.activityReport.totalOrders' | translate }}</span>
+          </div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-icon">💰</div>
+          <div class="metric-content">
+            <span class="metric-value">{{ report.orderValue | currency:'BAM':'symbol':'1.0-0' }}</span>
+            <span class="metric-label">{{ 'reports.activityReport.totalRevenue' | translate }}</span>
+          </div>
+        </div>
+        <div class="metric-card info">
+          <div class="metric-icon">📈</div>
+          <div class="metric-content">
+            <span class="metric-value trend" [class]="getTrendClass(report.orderValueGrowth)">
+              {{ getTrendIcon(report.orderValueGrowth) }} {{ report.orderValueGrowth | number:'1.1-1' }}%
+            </span>
+            <span class="metric-label">{{ 'reports.activityReport.orderGrowth' | translate }}</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- Customer Coverage by Tier -->
+      <section class="tier-coverage">
+        <h3>{{ 'reports.activityReport.customerCoverage' | translate }}</h3>
+        <div class="coverage-grid">
+          <div class="coverage-card">
+            <div class="tier-header">
+              <span class="tier-badge large">A</span>
+            </div>
+            <div class="coverage-stats">
+              <div class="stat">
+                <span class="stat-value">{{ report.tierACoverage.visitedCustomers }} / {{ report.tierACoverage.totalCustomers }}</span>
+                <span class="stat-label">{{ 'reports.activityReport.visited' | translate }}</span>
+              </div>
+              <div class="stat">
+                <span class="stat-value rate" [class]="getPerformanceClass(report.tierACoverage.coveragePercent)">
+                  {{ report.tierACoverage.coveragePercent | number:'1.0-0' }}%
+                </span>
+                <span class="stat-label">{{ 'reports.activityReport.coverage' | translate }}</span>
+              </div>
+            </div>
+          </div>
+          <div class="coverage-card">
+            <div class="tier-header">
+              <span class="tier-badge large">B</span>
+            </div>
+            <div class="coverage-stats">
+              <div class="stat">
+                <span class="stat-value">{{ report.tierBCoverage.visitedCustomers }} / {{ report.tierBCoverage.totalCustomers }}</span>
+                <span class="stat-label">{{ 'reports.activityReport.visited' | translate }}</span>
+              </div>
+              <div class="stat">
+                <span class="stat-value rate" [class]="getPerformanceClass(report.tierBCoverage.coveragePercent)">
+                  {{ report.tierBCoverage.coveragePercent | number:'1.0-0' }}%
+                </span>
+                <span class="stat-label">{{ 'reports.activityReport.coverage' | translate }}</span>
+              </div>
+            </div>
+          </div>
+          <div class="coverage-card">
+            <div class="tier-header">
+              <span class="tier-badge large">C</span>
+            </div>
+            <div class="coverage-stats">
+              <div class="stat">
+                <span class="stat-value">{{ report.tierCCoverage.visitedCustomers }} / {{ report.tierCCoverage.totalCustomers }}</span>
+                <span class="stat-label">{{ 'reports.activityReport.visited' | translate }}</span>
+              </div>
+              <div class="stat">
+                <span class="stat-value rate" [class]="getPerformanceClass(report.tierCCoverage.coveragePercent)">
+                  {{ report.tierCCoverage.coveragePercent | number:'1.0-0' }}%
+                </span>
+                <span class="stat-label">{{ 'reports.activityReport.coverage' | translate }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Daily Breakdown -->
+      <section class="table-section">
+        <div class="table-card">
+          <div class="table-header">
+            <h3>{{ 'reports.activityReport.dailyBreakdown' | translate }}</h3>
+          </div>
+          <div class="table-responsive">
+            <table>
+              <thead>
+                <tr>
+                  <th>{{ 'reports.activityReport.day' | translate }}</th>
+                  <th class="text-center">{{ 'reports.activityReport.visits' | translate }}</th>
+                  <th class="text-center">{{ 'reports.activityReport.orders' | translate }}</th>
+                  <th class="text-right">{{ 'reports.activityReport.revenue' | translate }}</th>
+                  <th class="text-center">{{ 'reports.activityReport.fieldTime' | translate }}</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (day of report.dailyBreakdown; track day.date) {
+                  <tr>
+                    <td>{{ day.dayName }} ({{ day.date | date:'dd.MM' }})</td>
+                    <td class="text-center">{{ day.completedVisits }}</td>
+                    <td class="text-center">{{ day.orders }}</td>
+                    <td class="text-right">{{ day.orderValue | currency:'BAM':'symbol':'1.0-0' }}</td>
+                    <td class="text-center">—</td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+    }
+
+    <!-- Monthly Report View -->
+    @if (activeView() === 'monthly' && monthlyReport(); as report) {
+      <section class="metrics-section large">
+        <div class="metric-card primary">
+          <div class="metric-icon">🎯</div>
+          <div class="metric-content">
+            <span class="metric-value">{{ report.visitsTarget }}</span>
+            <span class="metric-label">{{ 'reports.activityReport.visitTarget' | translate }}</span>
+          </div>
+        </div>
+        <div class="metric-card success">
+          <div class="metric-icon">✅</div>
+          <div class="metric-content">
+            <span class="metric-value">{{ report.visitsActual }}</span>
+            <span class="metric-label">{{ 'reports.activityReport.visitActual' | translate }}</span>
+          </div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-icon">📊</div>
+          <div class="metric-content">
+            <span class="metric-value rate" [class]="getPerformanceClass(report.visitsAchievement)">
+              {{ report.visitsAchievement | number:'1.0-0' }}%
+            </span>
+            <span class="metric-label">{{ 'reports.activityReport.visitAchievement' | translate }}</span>
+          </div>
+        </div>
+        <div class="metric-card primary">
+          <div class="metric-icon">💵</div>
+          <div class="metric-content">
+            <span class="metric-value">{{ report.revenueTarget | currency:'BAM':'symbol':'1.0-0' }}</span>
+            <span class="metric-label">{{ 'reports.activityReport.revenueTarget' | translate }}</span>
+          </div>
+        </div>
+        <div class="metric-card success">
+          <div class="metric-icon">💰</div>
+          <div class="metric-content">
+            <span class="metric-value">{{ report.revenueActual | currency:'BAM':'symbol':'1.0-0' }}</span>
+            <span class="metric-label">{{ 'reports.activityReport.revenueActual' | translate }}</span>
+          </div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-icon">📈</div>
+          <div class="metric-content">
+            <span class="metric-value rate" [class]="getPerformanceClass(report.revenueAchievement)">
+              {{ report.revenueAchievement | number:'1.0-0' }}%
+            </span>
+            <span class="metric-label">{{ 'reports.activityReport.revenueAchievement' | translate }}</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- Weekly Trends -->
+      <section class="table-section">
+        <div class="table-card">
+          <div class="table-header">
+            <h3>{{ 'reports.activityReport.weeklyTrends' | translate }}</h3>
+          </div>
+          <div class="table-responsive">
+            <table>
+              <thead>
+                <tr>
+                  <th>{{ 'reports.activityReport.weekNumber' | translate }}</th>
+                  <th class="text-center">{{ 'reports.activityReport.visits' | translate }}</th>
+                  <th class="text-center">{{ 'reports.activityReport.orders' | translate }}</th>
+                  <th class="text-right">{{ 'reports.activityReport.revenue' | translate }}</th>
+                  <th class="text-center">{{ 'reports.activityReport.avgVisitTime' | translate }}</th>
+                  <th class="text-center">{{ 'reports.activityReport.orderRate' | translate }}</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (week of report.weeklyTrends; track week.weekNumber) {
+                  <tr>
+                    <td>{{ 'reports.activityReport.week' | translate }} {{ week.weekNumber }}</td>
+                    <td class="text-center">{{ week.visits }}</td>
+                    <td class="text-center">{{ week.orders }}</td>
+                    <td class="text-right">{{ week.revenue | currency:'BAM':'symbol':'1.0-0' }}</td>
+                    <td class="text-center">—</td>
+                    <td class="text-center">—</td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- Product Performance (if included) -->
+      @if (includeProducts && report.productPerformance?.length) {
+        <section class="table-section">
+          <div class="table-card">
+            <div class="table-header">
+              <h3>{{ 'reports.activityReport.topProducts' | translate }}</h3>
+            </div>
+            <div class="table-responsive">
+              <table>
+                <thead>
+                  <tr>
+                    <th>{{ 'reports.activityReport.productName' | translate }}</th>
+                    <th class="text-right">{{ 'reports.activityReport.quantity' | translate }}</th>
+                    <th class="text-right">{{ 'reports.activityReport.revenue' | translate }}</th>
+                    <th class="text-right">{{ 'reports.activityReport.revenueShare' | translate }}</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  @for (product of report.productPerformance; track product.productId) {
+                    <tr>
+                      <td>{{ product.productName }}</td>
+                      <td class="text-right">{{ product.unitsSold | number }}</td>
+                      <td class="text-right">{{ product.actual | currency:'BAM':'symbol':'1.0-0' }}</td>
+                      <td class="text-right">{{ product.achievement || 0 | number:'1.1-1' }}%</td>
+                    </tr>
+                  }
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+      }
+
+      <!-- Customer Performance (if included) -->
+      @if (includeCustomers && report.topCustomers?.length) {
+        <section class="table-section">
+          <div class="table-card">
+            <div class="table-header">
+              <h3>{{ 'reports.activityReport.topCustomers' | translate }}</h3>
+            </div>
+            <div class="table-responsive">
+              <table>
+                <thead>
+                  <tr>
+                    <th>{{ 'reports.activityReport.customerName' | translate }}</th>
+                    <th>{{ 'reports.activityReport.customerTier' | translate }}</th>
+                    <th class="text-center">{{ 'reports.activityReport.visits' | translate }}</th>
+                    <th class="text-center">{{ 'reports.activityReport.orders' | translate }}</th>
+                    <th class="text-right">{{ 'reports.activityReport.revenue' | translate }}</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  @for (customer of report.topCustomers; track customer.customerId) {
+                    <tr>
+                      <td>{{ customer.customerName }}</td>
+                      <td><span class="tier-badge">{{ customer.tier || '—' }}</span></td>
+                      <td class="text-center">{{ customer.visitCount }}</td>
+                      <td class="text-center">{{ customer.orderCount }}</td>
+                      <td class="text-right">{{ customer.revenue | currency:'BAM':'symbol':'1.0-0' }}</td>
+                    </tr>
+                  }
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+      }
+    }
+
+    <!-- Execution Report View -->
+    @if (activeView() === 'execution' && executionReport(); as report) {
+      <section class="execution-summary">
+        <h3>{{ 'reports.activityReport.planExecution' | translate }}</h3>
+        <div class="metrics-section">
+          <div class="metric-card success">
+            <div class="metric-icon">✅</div>
+            <div class="metric-content">
+              <span class="metric-value rate" [class]="getPerformanceClass(report.overallMetrics.overallVisitsProgress)">
+                {{ report.overallMetrics.overallVisitsProgress | number:'1.0-0' }}%
+              </span>
+              <span class="metric-label">{{ 'reports.activityReport.overallVisits' | translate }}</span>
+            </div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-icon">📊</div>
+            <div class="metric-content">
+              <span class="metric-value rate" [class]="getPerformanceClass(report.overallMetrics.planAdherence)">
+                {{ report.overallMetrics.planAdherence | number:'1.0-0' }}%
+              </span>
+              <span class="metric-label">{{ 'reports.activityReport.overallAchievement' | translate }}</span>
+            </div>
+          </div>
+          <div class="metric-card primary">
+            <div class="metric-icon">💰</div>
+            <div class="metric-content">
+              <span class="metric-value rate" [class]="getPerformanceClass(report.overallMetrics.overallRevenueProgress)">
+                {{ report.overallMetrics.overallRevenueProgress | number:'1.0-0' }}%
+              </span>
+              <span class="metric-label">{{ 'reports.activityReport.totalRevenue' | translate }}</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Annual Execution -->
+      @if (report.annualExecution) {
+        <section class="plan-card">
+          <div class="plan-header">
+            <h4>{{ 'reports.activityReport.annualPlan' | translate }}: {{ report.annualExecution.year }}</h4>
+          </div>
+          <div class="plan-metrics">
+            <div class="plan-stat">
+              <span class="label">{{ 'reports.activityReport.visitsTarget' | translate }}</span>
+              <span class="value">{{ report.annualExecution.visitsTarget }}</span>
+            </div>
+            <div class="plan-stat">
+              <span class="label">{{ 'reports.activityReport.visitsActual' | translate }}</span>
+              <span class="value">{{ report.annualExecution.visitsActual }}</span>
+            </div>
+            <div class="plan-stat">
+              <span class="label">{{ 'reports.activityReport.achievement' | translate }}</span>
+              <span class="value rate" [class]="getPerformanceClass(report.annualExecution.visitsProgress)">
+                {{ report.annualExecution.visitsProgress | number:'1.0-0' }}%
+              </span>
+            </div>
+          </div>
+        </section>
+      }
+
+      <!-- Quarterly Execution -->
+      @if (report.quarterlyExecution) {
+        <section class="plan-card">
+          <div class="plan-header">
+            <h4>{{ 'reports.activityReport.quarterlyBreakdown' | translate }}: Q{{ report.quarterlyExecution.quarter }}</h4>
+          </div>
+          <div class="plan-metrics">
+            <div class="plan-stat">
+              <span class="label">{{ 'reports.activityReport.visitsTarget' | translate }}</span>
+              <span class="value">{{ report.quarterlyExecution.visitsTarget }}</span>
+            </div>
+            <div class="plan-stat">
+              <span class="label">{{ 'reports.activityReport.visitsActual' | translate }}</span>
+              <span class="value">{{ report.quarterlyExecution.visitsActual }}</span>
+            </div>
+            <div class="plan-stat">
+              <span class="label">{{ 'reports.activityReport.achievement' | translate }}</span>
+              <span class="value rate" [class]="getPerformanceClass(report.quarterlyExecution.visitsProgress)">
+                {{ report.quarterlyExecution.visitsProgress | number:'1.0-0' }}%
+              </span>
+            </div>
+          </div>
+        </section>
+      }
+
+      <!-- Weekly Executions -->
+      @if (report.weeklyExecutions?.length) {
+        <section class="table-section">
+          <div class="table-card">
+            <div class="table-header">
+              <h3>{{ 'reports.activityReport.weeklyTrends' | translate }}</h3>
+            </div>
+            <div class="table-responsive">
+              <table>
+                <thead>
+                  <tr>
+                    <th>{{ 'reports.activityReport.week' | translate }}</th>
+                    <th class="text-center">{{ 'reports.activityReport.visitsPlanned' | translate }}</th>
+                    <th class="text-center">{{ 'reports.activityReport.visitsActual' | translate }}</th>
+                    <th class="text-center">{{ 'reports.activityReport.achievement' | translate }}</th>
+                    <th class="text-center">{{ 'reports.activityReport.orders' | translate }}</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  @for (w of report.weeklyExecutions; track w.weekStart) {
+                    <tr>
+                      <td>{{ w.weekStart | date:'dd.MM' }}</td>
+                      <td class="text-center">{{ w.plannedVisits }}</td>
+                      <td class="text-center">{{ w.executedVisits }}</td>
+                      <td class="text-center">
+                        <span class="rate" [class]="getPerformanceClass(w.completionRate)">
+                          {{ w.completionRate | number:'1.0-0' }}%
+                        </span>
+                      </td>
+                      <td class="text-center">{{ w.ordersCollected || 0 }}</td>
+                    </tr>
+                  }
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+      }
+    }
+
+    <!-- Team Summary View -->
+    @if (activeView() === 'team' && teamSummary(); as summary) {
+      <section class="team-summary">
+        <div class="metrics-section">
+          <div class="metric-card">
+            <div class="metric-icon">👥</div>
+            <div class="metric-content">
+              <span class="metric-value">{{ summary.totalReps }}</span>
+              <span class="metric-label">{{ 'reports.activityReport.teamSize' | translate }}</span>
+            </div>
+          </div>
+          <div class="metric-card primary">
+            <div class="metric-icon">📍</div>
+            <div class="metric-content">
+              <span class="metric-value">{{ summary.totalVisitsActual }} / {{ summary.totalVisitsTarget }}</span>
+              <span class="metric-label">{{ 'reports.activityReport.teamVisits' | translate }}</span>
+            </div>
+          </div>
+          <div class="metric-card success">
+            <div class="metric-icon">💰</div>
+            <div class="metric-content">
+              <span class="metric-value">{{ summary.totalRevenueActual | currency:'BAM':'symbol':'1.0-0' }}</span>
+              <span class="metric-label">{{ 'reports.activityReport.teamRevenue' | translate }}</span>
+            </div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-icon">📊</div>
+            <div class="metric-content">
+              <span class="metric-value rate" [class]="getPerformanceClass(summary.visitsProgress)">
+                {{ summary.visitsProgress | number:'1.0-0' }}%
+              </span>
+              <span class="metric-label">{{ 'reports.activityReport.teamAchievement' | translate }}</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Rep Performance Table -->
+      <section class="table-section">
+        <div class="table-card">
+          <div class="table-header">
+            <h3>{{ 'reports.activityReport.repPerformance' | translate }}</h3>
+          </div>
+          <div class="table-responsive">
+            <table>
+              <thead>
+                <tr>
+                  <th>{{ 'reports.activityReport.rank' | translate }}</th>
+                  <th>{{ 'reports.activityReport.repName' | translate }}</th>
+                  <th class="text-center">{{ 'reports.activityReport.visitsPlanned' | translate }}</th>
+                  <th class="text-center">{{ 'reports.activityReport.visitsActual' | translate }}</th>
+                  <th class="text-center">{{ 'reports.activityReport.achievement' | translate }}</th>
+                  <th class="text-right">{{ 'reports.activityReport.revenue' | translate }}</th>
+                  <th class="text-center">{{ 'reports.activityReport.orders' | translate }}</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (rep of summary.repSummaries; track rep.repId; let i = $index) {
+                  <tr [class.top-performer]="i < 3" [class.needs-attention]="rep.visitsProgress < 50">
+                    <td>
+                      @if (i === 0) {
+                        <span class="rank-badge gold">🥇</span>
+                      } @else if (i === 1) {
+                        <span class="rank-badge silver">🥈</span>
+                      } @else if (i === 2) {
+                        <span class="rank-badge bronze">🥉</span>
+                      } @else {
+                        <span class="rank-number">{{ rep.rank }}</span>
+                      }
+                    </td>
+                    <td>{{ rep.repName }}</td>
+                    <td class="text-center">{{ rep.visitsTarget }}</td>
+                    <td class="text-center">{{ rep.visitsActual }}</td>
+                    <td class="text-center">
+                      <span class="rate" [class]="getPerformanceClass(rep.visitsProgress)">
+                        {{ rep.visitsProgress | number:'1.0-0' }}%
+                      </span>
+                    </td>
+                    <td class="text-right">{{ rep.revenueActual | currency:'BAM':'symbol':'1.0-0' }}</td>
+                    <td class="text-center">{{ rep.orderCount }}</td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- Top Performers -->
+      @if (summary.topPerformers?.length) {
+        <section class="performers-section">
+          <div class="performers-card success">
+            <h4>{{ 'reports.activityReport.topPerformers' | translate }}</h4>
+            <div class="performers-list">
+              @for (rep of summary.topPerformers; track rep.repId) {
+                <div class="performer-item">
+                  <span class="performer-name">{{ rep.repName }}</span>
+                  <span class="performer-score rate excellent">{{ rep.visitsProgress | number:'1.0-0' }}%</span>
+                </div>
+              }
+            </div>
+          </div>
+        </section>
+      }
+
+      <!-- Reps Needing Attention -->
+      @if (summary.needingAttention?.length) {
+        <section class="performers-section">
+          <div class="performers-card warning">
+            <h4>{{ 'reports.activityReport.needsAttention' | translate }}</h4>
+            <div class="performers-list">
+              @for (rep of summary.needingAttention; track rep.repId) {
+                <div class="performer-item">
+                  <span class="performer-name">{{ rep.repName }}</span>
+                  <span class="performer-score rate poor">{{ rep.visitsProgress | number:'1.0-0' }}%</span>
+                </div>
+              }
+            </div>
+          </div>
+        </section>
+      }
+    }
+  }
+</div>

@@ -1,0 +1,290 @@
+name: Full Deployment
+
+on:
+  workflow_dispatch:
+    inputs:
+      deploy_frontend:
+        description: 'Deploy Frontend'
+        required: true
+        type: boolean
+        default: true
+      deploy_backend:
+        description: 'Deploy Backend'
+        required: true
+        type: boolean
+        default: true
+      run_migrations:
+        description: 'Run Database Migrations'
+        required: true
+        type: boolean
+        default: false
+
+env:
+  NODE_VERSION: '20.x'
+  DOTNET_VERSION: '8.0.x'
+
+jobs:
+  # ==========================================
+  # Build Frontend
+  # ==========================================
+  build-frontend:
+    if: ${{ github.event.inputs.deploy_frontend == 'true' }}
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+          cache-dependency-path: client/pharma-assist/package-lock.json
+      
+      - name: Install dependencies
+        working-directory: client/pharma-assist
+        run: npm ci
+      
+      - name: Build Angular app
+        working-directory: client/pharma-assist
+        run: npm run build -- --configuration=production
+        env:
+          NODE_OPTIONS: --max_old_space_size=4096
+      
+      - name: Upload frontend artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: frontend-build
+          path: client/pharma-assist/dist/pharma-assist/browser/
+          retention-days: 1
+
+  # ==========================================
+  # Build Backend
+  # ==========================================
+  build-backend:
+    if: ${{ github.event.inputs.deploy_backend == 'true' }}
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+      
+      - name: Restore dependencies
+        working-directory: server
+        run: dotnet restore
+      
+      - name: Build
+        working-directory: server
+        run: dotnet build --configuration Release --no-restore
+      
+      - name: Run tests
+        working-directory: server
+        run: dotnet test --configuration Release --no-build --verbosity normal
+      
+      - name: Publish
+        working-directory: server/src/Api
+        run: dotnet publish -c Release -o ./publish --no-restore
+      
+      - name: Upload backend artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: backend-build
+          path: server/src/Api/publish/
+          retention-days: 1
+
+  # ==========================================
+  # Generate Migration Script
+  # ==========================================
+  generate-migrations:
+    if: ${{ github.event.inputs.run_migrations == 'true' }}
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+      
+      - name: Install EF Core tools
+        run: dotnet tool install --global dotnet-ef
+      
+      - name: Restore dependencies
+        working-directory: server
+        run: dotnet restore
+      
+      - name: Generate migration script
+        working-directory: server
+        run: |
+          dotnet ef migrations script \
+            --idempotent \
+            --project src/Infrastructure \
+            --startup-project src/Api \
+            --output ./migration.sql
+      
+      - name: Upload migration artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: migration-script
+          path: server/migration.sql
+          retention-days: 1
+
+  # ==========================================
+  # Deploy Everything
+  # ==========================================
+  deploy:
+    needs: [build-frontend, build-backend, generate-migrations]
+    if: always() && !failure() && !cancelled()
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Download frontend artifact
+        if: ${{ github.event.inputs.deploy_frontend == 'true' }}
+        uses: actions/download-artifact@v4
+        with:
+          name: frontend-build
+          path: ./frontend/
+      
+      - name: Download backend artifact
+        if: ${{ github.event.inputs.deploy_backend == 'true' }}
+        uses: actions/download-artifact@v4
+        with:
+          name: backend-build
+          path: ./backend/
+      
+      - name: Download migration artifact
+        if: ${{ github.event.inputs.run_migrations == 'true' }}
+        uses: actions/download-artifact@v4
+        with:
+          name: migration-script
+          path: ./migrations/
+      
+      - name: Create deployment packages
+        run: |
+          if [ -d "./frontend" ]; then
+            tar -czvf frontend-package.tar.gz -C ./frontend .
+          fi
+          if [ -d "./backend" ]; then
+            tar -czvf backend-package.tar.gz -C ./backend .
+          fi
+      
+      - name: Copy packages to server
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.CONTABO_HOST }}
+          username: ${{ secrets.CONTABO_USER }}
+          key: ${{ secrets.CONTABO_SSH_KEY }}
+          source: "*.tar.gz,migrations/"
+          target: "/tmp/deployment/"
+      
+      - name: Deploy to server
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.CONTABO_HOST }}
+          username: ${{ secrets.CONTABO_USER }}
+          key: ${{ secrets.CONTABO_SSH_KEY }}
+          script: |
+            set -e
+            cd /tmp/deployment
+            
+            # Run migrations first (if present)
+            if [ -f "migrations/migration.sql" ]; then
+              echo "🔄 Running database migrations..."
+              
+              # Backup database first
+              BACKUP_FILE="/var/backups/pharmaassist/pre_deploy_$(date +%Y%m%d_%H%M%S).bak"
+              /opt/mssql-tools18/bin/sqlcmd -S localhost -U SA -P "${{ secrets.DB_SA_PASSWORD }}" \
+                -Q "BACKUP DATABASE PharmaAssist TO DISK='$BACKUP_FILE'" -C
+              gzip $BACKUP_FILE
+              
+              # Apply migrations
+              /opt/mssql-tools18/bin/sqlcmd -S localhost -U SA -P "${{ secrets.DB_SA_PASSWORD }}" \
+                -d PharmaAssist -i migrations/migration.sql -C
+              echo "✅ Migrations applied!"
+            fi
+            
+            # Deploy backend (if present)
+            if [ -f "backend-package.tar.gz" ]; then
+              echo "🛑 Stopping API..."
+              sudo systemctl stop pharmaassist-api
+              
+              # Backup and extract
+              if [ -d "/var/www/pharmaassist/api" ]; then
+                sudo mv /var/www/pharmaassist/api /var/www/pharmaassist/api.backup.$(date +%Y%m%d%H%M%S)
+              fi
+              sudo mkdir -p /var/www/pharmaassist/api
+              sudo tar -xzvf backend-package.tar.gz -C /var/www/pharmaassist/api
+              
+              # Copy production config
+              if [ -f "/var/www/pharmaassist/config/appsettings.Production.json" ]; then
+                sudo cp /var/www/pharmaassist/config/appsettings.Production.json /var/www/pharmaassist/api/
+              fi
+              
+              sudo chown -R pharmaassist:pharmaassist /var/www/pharmaassist/api
+              
+              echo "🚀 Starting API..."
+              sudo systemctl start pharmaassist-api
+              
+              # Cleanup old backups
+              cd /var/www/pharmaassist
+              ls -dt api.backup.* 2>/dev/null | tail -n +4 | xargs -r sudo rm -rf
+              
+              echo "✅ Backend deployed!"
+            fi
+            
+            # Deploy frontend (if present)
+            if [ -f "/tmp/deployment/frontend-package.tar.gz" ]; then
+              echo "📂 Deploying frontend..."
+              sudo rm -rf /var/www/pharmaassist/frontend/browser/*
+              sudo mkdir -p /var/www/pharmaassist/frontend/browser
+              sudo tar -xzvf /tmp/deployment/frontend-package.tar.gz -C /var/www/pharmaassist/frontend/browser
+              sudo chown -R pharmaassist:pharmaassist /var/www/pharmaassist/frontend
+              sudo systemctl reload nginx
+              echo "✅ Frontend deployed!"
+            fi
+            
+            # Cleanup
+            rm -rf /tmp/deployment
+            
+            echo ""
+            echo "=========================================="
+            echo "✅ DEPLOYMENT COMPLETE!"
+            echo "=========================================="
+      
+      - name: Health check
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.CONTABO_HOST }}
+          username: ${{ secrets.CONTABO_USER }}
+          key: ${{ secrets.CONTABO_SSH_KEY }}
+          script: |
+            echo "⏳ Running health checks..."
+            sleep 15
+            
+            # API health check
+            for i in 1 2 3 4 5; do
+              if curl -sf http://localhost:5000/health > /dev/null 2>&1; then
+                echo "✅ API health check passed!"
+                break
+              fi
+              if [ $i -eq 5 ]; then
+                echo "❌ API health check failed!"
+                exit 1
+              fi
+              sleep 5
+            done
+            
+            # LLM health check
+            if curl -sf http://localhost:8080/health > /dev/null 2>&1; then
+              echo "✅ LLM health check passed!"
+            else
+              echo "⚠️ LLM health check failed (may be loading model)"
+            fi
