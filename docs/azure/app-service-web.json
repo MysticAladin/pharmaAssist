@@ -1,0 +1,52 @@
+{
+    "apiVersion": "2025-03-01",
+    "id": "/subscriptions/cdb91903-49b0-47df-9ebd-009d3a39e29c/resourceGroups/sp-pharma-assist_group/providers/Microsoft.Web/sites/pharma-assist-web",
+    "name": "pharma-assist-web",
+    "type": "microsoft.web/sites",
+    "kind": "app,linux",
+    "location": "westeurope",
+    "properties": {
+        "name": "pharma-assist-web",
+        "state": "Running",
+        "hostNames": [
+            "pharma-assist-web-bth0auf3ajg3hge8.westeurope-01.azurewebsites.net"
+        ],
+        "webSpace": "fantasy-dev-WestEuropewebspace-Linux",
+        "selfLink": "https://waws-prod-am2-803.api.azurewebsites.windows.net:454/subscriptions/cdb91903-49b0-47df-9ebd-009d3a39e29c/webspaces/fantasy-dev-WestEuropewebspace-Linux/sites/pharma-assist-web",
+        "repositorySiteName": "pharma-assist-web",
+        "usageState": "Normal",
+        "enabled": true,
+        "adminEnabled": true,
+        "enabledHostNames": [
+            "pharma-assist-web-bth0auf3ajg3hge8.scm.westeurope-01.azurewebsites.net",
+            "pharma-assist-web-bth0auf3ajg3hge8.westeurope-01.azurewebsites.net"
+        ],
+        "siteProperties": {
+            "properties": [
+                {
+                    "name": "LinuxFxVersion",
+                    "value": "NODE|24-lts"
+                }
+            ]
+        },
+        "availabilityState": "Normal",
+        "serverFarmId": "/subscriptions/cdb91903-49b0-47df-9ebd-009d3a39e29c/resourceGroups/fantasy-dev/providers/Microsoft.Web/serverfarms/ASP-fantasydev-8ae7",
+        "reserved": true,
+        "lastModifiedTimeUtc": "2026-02-02T00:16:14.23Z",
+        "siteConfig": {
+            "numberOfWorkers": 1,
+            "linuxFxVersion": "NODE|24-lts",
+            "alwaysOn": false,
+            "http20Enabled": false
+        },
+        "sku": "Free",
+        "clientAffinityEnabled": false,
+        "resourceGroup": "sp-pharma-assist_group",
+        "defaultHostName": "pharma-assist-web-bth0auf3ajg3hge8.westeurope-01.azurewebsites.net",
+        "httpsOnly": true,
+        "publicNetworkAccess": "Enabled",
+        "inboundIpAddress": "20.105.224.43",
+        "ftpUsername": "pharma-assist-web\\$pharma-assist-web",
+        "ftpsHostName": "ftps://waws-prod-am2-803.ftp.azurewebsites.windows.net/site/wwwroot"
+    }
+}

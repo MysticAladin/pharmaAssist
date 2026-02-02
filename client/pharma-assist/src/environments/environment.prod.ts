@@ -1,6 +1,6 @@
 export const environment = {
   production: true,
-  apiUrl: 'https://api.pharmaassist.ba/api',
+  apiUrl: 'https://pharma-assist-api-adgfdgh8bjbafugj.westeurope-01.azurewebsites.net/api',
   appName: 'PharmaAssist',
   appVersion: '1.0.0',
 

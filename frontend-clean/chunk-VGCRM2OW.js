@@ -1,0 +1,1 @@
+import"./chunk-C6Q5SG76.js";var t=[{path:"",loadComponent:()=>import("./chunk-PAQUG3JS.js").then(o=>o.PrescriptionsListComponent)},{path:":id",loadComponent:()=>import("./chunk-KTYZOI4T.js").then(o=>o.PrescriptionDetailComponent)},{path:":id/dispense",loadComponent:()=>import("./chunk-OSBVEXXW.js").then(o=>o.PrescriptionDispenseComponent)}];export{t as PRESCRIPTIONS_ROUTES};

@@ -1,0 +1,1 @@
+import{Lb as a,Ra as n,nb as o,ob as i}from"./chunk-M6HJP2RW.js";import"./chunk-C6Q5SG76.js";var s=class t{static \u0275fac=function(e){return new(e||t)};static \u0275cmp=n({type:t,selectors:[["app-integrations"]],decls:2,vars:0,template:function(e,m){e&1&&(o(0,"h1"),a(1,"API Integracije"),i())},encapsulation:2})};export{s as IntegrationsComponent};

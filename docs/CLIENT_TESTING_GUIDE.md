@@ -9,12 +9,12 @@ Ovaj dokument sadrži sve potrebne informacije za testiranje PharmaAssist aplika
 ## 🔑 Pristupni Podaci
 
 ### URL Aplikacije
-- **Frontend**: `http://localhost:4200`
-- **Backend API**: `http://localhost:5000/api`
+https://calm-hill-0c8eb5803.6.azurestaticapps.net
+
 
 ### Test Korisnici
 
-Svi test korisnici koriste istu lozinku: **`test123`**
+Svi test korisnici koriste istu lozinku: **`Admin@123!`**
 
 #### Osnovni Korisnici
 
@@ -22,17 +22,16 @@ Svi test korisnici koriste istu lozinku: **`test123`**
 |-------|-------|------|
 | **System Admin** | `admin@pharmaassist.ba` | Puni pristup sistemu, upravljanje svim klijentima |
 | **Manager** | `manager.user@pharmaassist.com` | Operativni nadzor, upravljanje prodajom i zalihama |
-| **Pharmacist** | `pharmacist.user@pharmaassist.com` | Obrada recepata, izdavanje lijekova |
 | **Sales Rep** | `salesrep.user@pharmaassist.com` | Odnosi s kupcima, kreiranje narudžbi |
 | **Warehouse** | `warehouse.user@pharmaassist.com` | Operacije skladišta i otpreme |
 | **Customer** | `customer.user@pharmaassist.com` | Pristup portalu za kupce (e-Apoteka) |
 
 #### Menadžeri Timova
 
-| Uloga | Email | Tim |
-|-------|-------|-----|
-| **Manager** | `amir.hodzic@pharmaassist.com` | Menadžer komercijalnog tima (OTC) |
-| **Manager** | `selma.begovic@pharmaassist.com` | Menadžer medicinskog tima (RX) |
+| Email | Ime | Tim |
+|-------|-----|-----|
+| `amir.hodzic@pharmaassist.com` | Amir Hodžić | Menadžer komercijalnog tima (OTC) |
+| `selma.begovic@pharmaassist.com` | Selma Begović | Menadžer medicinskog tima (RX) |
 
 #### Komercijalni Prodajni Predstavnici (OTC)
 
@@ -97,22 +96,6 @@ Svi test korisnici koriste istu lozinku: **`test123`**
 
 ---
 
-### 💊 Pharmacist (Farmaceut)
-**Kliničke operacije** - Recepti i lijekovi
-
-| Sekcija Menija | Pristup |
-|----------------|---------|
-| Kontrolna Tabla | ✅ Pregled |
-| Proizvodi | ✅ Samo pregled |
-| Zalihe | ✅ Samo pregled |
-| Narudžbe | ✅ Pregled + Uređivanje |
-| Kupci | ✅ Samo pregled |
-| Recepti | ✅ Potpun (kreiranje, odobravanje, odbijanje, izdavanje) |
-| Izvještaji | ✅ Samo pregled |
-| **Administracija** | ❌ |
-
----
-
 ### 💼 Sales Rep (Prodajni Predstavnik)
 **Odnosi s kupcima** - Prodaja i upravljanje kupcima
 
@@ -153,62 +136,6 @@ Svi test korisnici koriste istu lozinku: **`test123`**
 | Moje Narudžbe | ✅ Kreiranje i praćenje |
 | Moj Profil | ✅ Uređivanje |
 | **Administracija** | ❌ |
-
----
-
-## ✅ Scenariji za Testiranje
-
-### 1. Prijava i Autentifikacija
-- [ ] Prijava s ispravnim kredencijalima
-- [ ] Prijava s pogrešnom lozinkom (očekuje se greška)
-- [ ] Odjava iz sistema
-- [ ] Provjera da li meni prikazuje samo dozvoljene stavke za ulogu
-
-### 2. Proizvodi (Admin/Manager)
-- [ ] Pregled liste proizvoda
-- [ ] Pretraga proizvoda po nazivu
-- [ ] Filtriranje po kategoriji
-- [ ] Kreiranje novog proizvoda
-- [ ] Uređivanje postojećeg proizvoda
-- [ ] Deaktivacija proizvoda
-
-### 3. Narudžbe
-- [ ] Pregled liste narudžbi
-- [ ] Filtriranje po statusu
-- [ ] Kreiranje nove narudžbe
-- [ ] Dodavanje stavki u narudžbu
-- [ ] Procesiranje narudžbe (promjena statusa)
-
-### 4. Kupci (Admin/Manager)
-- [ ] Pregled liste kupaca
-- [ ] Pretraga po nazivu ili PIB-u
-- [ ] Kreiranje novog kupca
-- [ ] Uređivanje podataka kupca
-- [ ] Pregled historije narudžbi kupca
-
-### 5. Zalihe (Warehouse/Admin)
-- [ ] Pregled zaliha po skladištu
-- [ ] Filtriranje proizvoda s niskim zalihama
-- [ ] Ažuriranje količine zaliha
-- [ ] Premještanje zaliha između skladišta
-
-### 6. Posjete (Sales Rep)
-- [ ] Pregled vlastitih posjeta
-- [ ] Kreiranje nove posjete
-- [ ] Uređivanje postojeće posjete
-- [ ] Dodavanje bilješki o posjeti
-- [ ] Filtriranje po datumu
-
-### 7. Izvještaji
-- [ ] Generiranje izvještaja o prodaji
-- [ ] Izvoz izvještaja u Excel/PDF
-- [ ] Filtriranje izvještaja po datumu
-
-### 8. Administracija (Admin)
-- [ ] Upravljanje korisnicima
-- [ ] Kreiranje novog korisnika
-- [ ] Dodjela uloga korisnicima
-- [ ] Pregled audit logova
 
 ---
 

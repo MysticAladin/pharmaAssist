@@ -689,7 +689,7 @@ export class OrderConfirmationComponent implements OnInit {
     const subject = encodeURIComponent(`Order Confirmation - ${order.orderNumber}`);
     const body = encodeURIComponent(this.generateEmailBody(order));
     const mailtoLink = `mailto:${order.customer.email}?subject=${subject}&body=${body}`;
-    
+
     window.open(mailtoLink);
   }
 
@@ -701,7 +701,7 @@ export class OrderConfirmationComponent implements OnInit {
     const phone = order.customer.phone.replace(/[^\d+]/g, '');
     const message = encodeURIComponent(this.generateWhatsAppMessage(order));
     const whatsappUrl = `https://wa.me/${phone}?text=${message}`;
-    
+
     window.open(whatsappUrl, '_blank');
   }
 
@@ -783,7 +783,7 @@ export class OrderConfirmationComponent implements OnInit {
   }
 
   private generateEmailBody(order: OrderConfirmation): string {
-    const items = order.items.map(item => 
+    const items = order.items.map(item =>
       `• ${item.productName} x${item.quantity} - ${item.lineTotal.toFixed(2)} KM`
     ).join('\n');
 
@@ -808,7 +808,7 @@ Thank you for your business!
   }
 
   private generateWhatsAppMessage(order: OrderConfirmation): string {
-    const items = order.items.slice(0, 5).map(item => 
+    const items = order.items.slice(0, 5).map(item =>
       `• ${item.productName} x${item.quantity}`
     ).join('\n');
 

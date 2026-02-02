@@ -7,6 +7,7 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { VisitService } from '../../core/services/visit.service';
 import { SalesRepService } from '../../core/services/sales-rep.service';
 import { AuthStateService } from '../../core/state/auth-state.service';
+import { EuropeanDatePipe } from '../../core/pipes/european-date.pipe';
 import {
   VisitHistoryFilter,
   VisitHistoryItem,
@@ -18,154 +19,9 @@ import { CustomerAssignment } from '../../core/models/sales-rep.model';
 @Component({
   selector: 'app-visit-history',
   standalone: true,
-  imports: [CommonModule, RouterModule, FormsModule, TranslateModule],
-  template: `
-    <div class="history">
-      <div class="history__header">
-        <h1 class="history__title">{{ 'visitHistory.title' | translate }}</h1>
-        <button class="btn" routerLink="/visits">{{ 'common.back' | translate }}</button>
-      </div>
-
-      <!-- Filters -->
-      <div class="card filters">
-        <div class="card-content">
-          <div class="filters__row">
-            <div class="filter-group">
-              <label class="label">{{ 'visitHistory.fromDate' | translate }}</label>
-              <input type="date" class="input" [(ngModel)]="filterFromDate" (change)="applyFilters()" />
-            </div>
-            <div class="filter-group">
-              <label class="label">{{ 'visitHistory.toDate' | translate }}</label>
-              <input type="date" class="input" [(ngModel)]="filterToDate" (change)="applyFilters()" />
-            </div>
-            <div class="filter-group">
-              <label class="label">{{ 'visitHistory.customer' | translate }}</label>
-              <select class="input" [(ngModel)]="filterCustomerId" (change)="applyFilters()">
-                <option [ngValue]="null">{{ 'common.all' | translate }}</option>
-                @for (c of customers(); track c.customerId) {
-                  <option [ngValue]="c.customerId">{{ c.customerName }}</option>
-                }
-              </select>
-            </div>
-            <div class="filter-group">
-              <label class="label">{{ 'visitHistory.outcome' | translate }}</label>
-              <select class="input" [(ngModel)]="filterOutcome" (change)="applyFilters()">
-                <option [ngValue]="null">{{ 'common.all' | translate }}</option>
-                <option [ngValue]="VisitOutcome.Positive">{{ 'visits.outcomePositive' | translate }}</option>
-                <option [ngValue]="VisitOutcome.Neutral">{{ 'visits.outcomeNeutral' | translate }}</option>
-                <option [ngValue]="VisitOutcome.Negative">{{ 'visits.outcomeNegative' | translate }}</option>
-              </select>
-            </div>
-          </div>
-          <div class="filters__row">
-            <div class="filter-group filter-group--wide">
-              <label class="label">{{ 'visitHistory.search' | translate }}</label>
-              <input type="text" class="input" [(ngModel)]="filterSearch"
-                     [placeholder]="'visitHistory.searchPlaceholder' | translate"
-                     (keyup.enter)="applyFilters()" />
-            </div>
-            <div class="filter-actions">
-              <button class="btn btn-primary" (click)="applyFilters()">{{ 'common.search' | translate }}</button>
-              <button class="btn" (click)="clearFilters()">{{ 'common.clearFilters' | translate }}</button>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Results -->
-      <div class="card">
-        <div class="card-header">
-          <span>{{ 'visitHistory.results' | translate }}: {{ totalCount() }}</span>
-        </div>
-        <div class="card-content">
-          @if (loading()) {
-            <div class="muted">{{ 'common.loading' | translate }}</div>
-          } @else if (items().length === 0) {
-            <div class="muted">{{ 'visitHistory.noResults' | translate }}</div>
-          } @else {
-            <div class="list">
-              @for (item of items(); track item.id) {
-                <div class="list__row" (click)="openVisit(item.id)">
-                  <div class="list__main">
-                    <div class="list__title">{{ item.customerName }}</div>
-                    <div class="list__meta">
-                      {{ formatDate(item.checkInTime) }}
-                      @if (item.customerCity) { · {{ item.customerCity }} }
-                      @if (item.durationMinutes != null) { · {{ formatDuration(item.durationMinutes) }} }
-                    </div>
-                    @if (item.summary) {
-                      <div class="list__summary">{{ item.summary | slice:0:100 }}{{ item.summary.length > 100 ? '...' : '' }}</div>
-                    }
-                  </div>
-                  <div class="list__badges">
-                    <span class="badge" [class]="getOutcomeBadgeClass(item.outcome)">
-                      {{ getOutcomeLabel(item.outcome) }}
-                    </span>
-                    <span class="badge" [class]="getLocationBadgeClass(item)">
-                      {{ item.locationVerified ? '✓' : '?' }}
-                    </span>
-                  </div>
-                </div>
-              }
-            </div>
-
-            <!-- Pagination -->
-            @if (totalPages() > 1) {
-              <div class="pagination">
-                <button class="btn" [disabled]="currentPage() <= 1" (click)="goToPage(currentPage() - 1)">
-                  {{ 'common.previous' | translate }}
-                </button>
-                <span class="pagination__info">{{ currentPage() }} / {{ totalPages() }}</span>
-                <button class="btn" [disabled]="currentPage() >= totalPages()" (click)="goToPage(currentPage() + 1)">
-                  {{ 'common.next' | translate }}
-                </button>
-              </div>
-            }
-          }
-        </div>
-      </div>
-
-      @if (error()) {
-        <div class="error">{{ error() }}</div>
-      }
-    </div>
-  `,
-  styles: [`
-    .history { display: grid; gap: 16px; max-width: 900px; }
-    .history__header { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
-    .history__title { margin: 0; font-size: 20px; font-weight: 700; }
-
-    .filters__row { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 12px; }
-    .filters__row:last-child { margin-bottom: 0; }
-    .filter-group { display: grid; gap: 4px; min-width: 140px; flex: 1; }
-    .filter-group--wide { flex: 2; min-width: 200px; }
-    .filter-actions { display: flex; gap: 8px; align-items: flex-end; }
-    .label { font-size: 12px; font-weight: 600; }
-    .input { padding: 10px 12px; border: 1px solid var(--border-light); border-radius: 8px; background: var(--bg-primary); color: var(--text-primary); font-size: 13px; }
-
-    .list { display: grid; gap: 8px; }
-    .list__row { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; padding: 14px; border: 1px solid var(--border-light); border-radius: 10px; cursor: pointer; transition: background 0.15s; }
-    .list__row:hover { background: var(--bg-secondary); }
-    .list__main { min-width: 0; flex: 1; }
-    .list__title { font-weight: 700; font-size: 14px; }
-    .list__meta { font-size: 12px; opacity: 0.7; margin-top: 2px; }
-    .list__summary { font-size: 12px; opacity: 0.8; margin-top: 6px; }
-    .list__badges { display: flex; gap: 6px; flex-shrink: 0; }
-
-    .badge { padding: 4px 10px; border-radius: 6px; font-size: 11px; font-weight: 600; }
-    .badge--positive { background: rgba(34, 197, 94, 0.15); color: #16a34a; }
-    .badge--neutral { background: rgba(234, 179, 8, 0.15); color: #ca8a04; }
-    .badge--negative { background: rgba(239, 68, 68, 0.15); color: #dc2626; }
-    .badge--none { background: rgba(107, 114, 128, 0.15); color: #6b7280; }
-    .badge--verified { background: rgba(34, 197, 94, 0.15); color: #16a34a; }
-    .badge--unverified { background: rgba(234, 179, 8, 0.15); color: #ca8a04; }
-
-    .pagination { display: flex; align-items: center; justify-content: center; gap: 16px; margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--border-light); }
-    .pagination__info { font-size: 13px; font-weight: 600; }
-
-    .muted { font-size: 13px; opacity: 0.75; }
-    .error { padding: 10px 12px; border: 1px solid var(--error); border-radius: 10px; color: var(--error); }
-  `]
+  imports: [CommonModule, RouterModule, FormsModule, TranslateModule, EuropeanDatePipe],
+  templateUrl: './visit-history-component/visit-history.component.html',
+  styleUrls: ['./visit-history-component/visit-history.component.scss']
 })
 export class VisitHistoryComponent implements OnInit {
   private readonly visitService = inject(VisitService);
@@ -311,5 +167,53 @@ export class VisitHistoryComponent implements OnInit {
 
   private formatDateForInput(date: Date): string {
     return date.toISOString().split('T')[0];
+  }
+
+  formatDateForDisplay(dateStr: string | null): string {
+    if (!dateStr) return '';
+    const date = new Date(dateStr);
+    if (isNaN(date.getTime())) return '';
+    const day = date.getDate().toString().padStart(2, '0');
+    const month = (date.getMonth() + 1).toString().padStart(2, '0');
+    const year = date.getFullYear();
+    return `${day}.${month}.${year}`;
+  }
+
+  onFromDateChange(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const value = input.value;
+    const match = value.match(/^(\d{1,2})\.(\d{1,2})\.(\d{4})$/);
+    if (match) {
+      const day = match[1].padStart(2, '0');
+      const month = match[2].padStart(2, '0');
+      const year = match[3];
+      this.filterFromDate = `${year}-${month}-${day}`;
+      this.applyFilters();
+    }
+  }
+
+  onFromDatePickerChange(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    this.filterFromDate = input.value;
+    this.applyFilters();
+  }
+
+  onToDateChange(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const value = input.value;
+    const match = value.match(/^(\d{1,2})\.(\d{1,2})\.(\d{4})$/);
+    if (match) {
+      const day = match[1].padStart(2, '0');
+      const month = match[2].padStart(2, '0');
+      const year = match[3];
+      this.filterToDate = `${year}-${month}-${day}`;
+      this.applyFilters();
+    }
+  }
+
+  onToDatePickerChange(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    this.filterToDate = input.value;
+    this.applyFilters();
   }
 }

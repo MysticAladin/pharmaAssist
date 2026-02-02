@@ -37,16 +37,16 @@ export class OrderSyncService implements OnDestroy {
   private readonly notification = inject(NotificationService);
   private readonly translate = inject(TranslateService);
   private readonly repOrderService = inject(RepOrderService);
-  
+
   private readonly apiUrl = `${environment.apiUrl}/api/rep-orders`;
   private readonly destroy$ = new Subject<void>();
   private syncTimer: any;
-  
+
   constructor() {
     this.setupEventListeners();
     this.startAutoSync();
   }
-  
+
   ngOnDestroy(): void {
     this.destroy$.next();
     this.destroy$.complete();
@@ -54,7 +54,7 @@ export class OrderSyncService implements OnDestroy {
       clearInterval(this.syncTimer);
     }
   }
-  
+
   /**
    * Setup event listeners for sync triggers
    */
@@ -63,7 +63,7 @@ export class OrderSyncService implements OnDestroy {
       this.syncPendingOrders();
     });
   }
-  
+
   /**
    * Start automatic sync timer
    */
@@ -74,7 +74,7 @@ export class OrderSyncService implements OnDestroy {
       }
     }, SYNC_INTERVAL);
   }
-  
+
   /**
    * Sync all pending orders to the server
    */
@@ -82,51 +82,51 @@ export class OrderSyncService implements OnDestroy {
     if (!this.offlineStorage.isOnline()) {
       return [];
     }
-    
+
     const ordersToSync = await this.offlineStorage.getOrdersToSync();
     if (ordersToSync.length === 0) {
       return [];
     }
-    
+
     this.offlineStorage.setSyncing(true);
     const results: SyncResult[] = [];
-    
+
     try {
       for (const order of ordersToSync) {
         const result = await this.syncSingleOrder(order);
         results.push(result);
-        
+
         // Small delay between syncs to avoid overwhelming the server
         await this.delay(200);
       }
-      
+
       const successCount = results.filter(r => r.success).length;
       const failCount = results.filter(r => !r.success).length;
-      
+
       if (successCount > 0) {
         this.notification.success(
           this.translate.instant('repOrders.sync.syncedOrders', { count: successCount })
         );
       }
-      
+
       if (failCount > 0) {
         this.notification.warning(
           this.translate.instant('repOrders.sync.failedOrders', { count: failCount })
         );
       }
-      
-      await this.offlineStorage.logSync('sync', 'orders', ordersToSync.length, 
+
+      await this.offlineStorage.logSync('sync', 'orders', ordersToSync.length,
         failCount === 0 ? 'success' : 'failed',
         `Synced ${successCount}, failed ${failCount}`
       );
-      
+
     } finally {
       this.offlineStorage.setSyncing(false);
     }
-    
+
     return results;
   }
-  
+
   /**
    * Sync a single order to the server
    */
@@ -136,38 +136,38 @@ export class OrderSyncService implements OnDestroy {
     order.syncAttempts++;
     order.lastSyncAttempt = new Date().toISOString();
     await this.offlineStorage.updatePendingOrder(order);
-    
+
     try {
       const result = await this.createOrderOnServer(order);
-      
+
       if (result.success && result.serverId) {
         // Mark as synced
         order.syncStatus = 'synced';
         order.serverId = result.serverId;
         order.syncError = undefined;
         await this.offlineStorage.updatePendingOrder(order);
-        
+
         // Optionally delete after successful sync
         // await this.offlineStorage.deletePendingOrder(order.id);
-        
+
         return result;
       } else {
         throw new Error(result.error || 'Unknown error');
       }
-      
+
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Sync failed';
-      
+
       // Determine if we should retry or mark as permanently failed
       if (order.syncAttempts >= MAX_RETRY_ATTEMPTS) {
         order.syncStatus = 'failed';
       } else {
         order.syncStatus = 'pending'; // Will retry later
       }
-      
+
       order.syncError = errorMessage;
       await this.offlineStorage.updatePendingOrder(order);
-      
+
       return {
         orderId: order.id,
         success: false,
@@ -175,7 +175,7 @@ export class OrderSyncService implements OnDestroy {
       };
     }
   }
-  
+
   /**
    * Create order on the server
    */
@@ -194,7 +194,7 @@ export class OrderSyncService implements OnDestroy {
         promoCode: order.promoCode,
         offlineCreatedAt: order.createdAt,
       };
-      
+
       this.http.post<{ orderId: number }>(`${this.apiUrl}/create`, createDto)
         .pipe(
           retry({
@@ -225,14 +225,14 @@ export class OrderSyncService implements OnDestroy {
         });
     });
   }
-  
+
   /**
    * Retry failed orders
    */
   async retryFailedOrders(): Promise<SyncResult[]> {
     const pendingOrders = await this.offlineStorage.getPendingOrdersAsync();
     const failedOrders = pendingOrders.filter(o => o.syncStatus === 'failed');
-    
+
     // Reset sync attempts for retry
     for (const order of failedOrders) {
       order.syncStatus = 'pending';
@@ -240,28 +240,28 @@ export class OrderSyncService implements OnDestroy {
       order.syncError = undefined;
       await this.offlineStorage.updatePendingOrder(order);
     }
-    
+
     return this.syncPendingOrders();
   }
-  
+
   /**
    * Force sync a specific order
    */
   async forceSyncOrder(orderId: string): Promise<SyncResult> {
     const orders = await this.offlineStorage.getPendingOrdersAsync();
     const order = orders.find(o => o.id === orderId);
-    
+
     if (!order) {
       return { orderId, success: false, error: 'Order not found' };
     }
-    
+
     // Reset for force sync
     order.syncAttempts = 0;
     order.syncStatus = 'pending';
-    
+
     return this.syncSingleOrder(order);
   }
-  
+
   /**
    * Refresh cached data from server
    */
@@ -275,34 +275,34 @@ export class OrderSyncService implements OnDestroy {
         error: 'Offline',
       };
     }
-    
+
     this.offlineStorage.setSyncing(true);
-    
+
     try {
       const [customers, products, promotions] = await Promise.all([
         this.fetchAndCacheCustomers(),
         this.fetchAndCacheProducts(),
         this.fetchAndCachePromotions(),
       ]);
-      
+
       this.notification.success(
         this.translate.instant('repOrders.sync.cacheRefreshed')
       );
-      
+
       return {
         customers,
         products,
         promotions,
         success: true,
       };
-      
+
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Cache refresh failed';
-      
+
       this.notification.error(
         this.translate.instant('repOrders.sync.cacheError')
       );
-      
+
       return {
         customers: 0,
         products: 0,
@@ -310,12 +310,12 @@ export class OrderSyncService implements OnDestroy {
         success: false,
         error: errorMessage,
       };
-      
+
     } finally {
       this.offlineStorage.setSyncing(false);
     }
   }
-  
+
   /**
    * Fetch and cache customers
    */
@@ -342,14 +342,14 @@ export class OrderSyncService implements OnDestroy {
               creditUsed: c.creditUsed,
               cachedAt: new Date().toISOString(),
             }));
-            
+
             await this.offlineStorage.cacheCustomers(cachedCustomers);
           }
           resolve(customers.length);
         });
     });
   }
-  
+
   /**
    * Fetch and cache products
    */
@@ -377,14 +377,14 @@ export class OrderSyncService implements OnDestroy {
               imageUrl: p.imageUrl,
               cachedAt: new Date().toISOString(),
             }));
-            
+
             await this.offlineStorage.cacheProducts(cachedProducts);
           }
           resolve(products.length);
         });
     });
   }
-  
+
   /**
    * Fetch and cache promotions
    */
@@ -410,35 +410,35 @@ export class OrderSyncService implements OnDestroy {
               endDate: p.endDate,
               cachedAt: new Date().toISOString(),
             }));
-            
+
             await this.offlineStorage.cachePromotions(cachedPromotions);
           }
           resolve(promotions.length);
         });
     });
   }
-  
+
   /**
    * Check if data needs refresh (e.g., cached data is stale)
    */
   async shouldRefreshCache(): Promise<boolean> {
     const customers = await this.offlineStorage.getCachedCustomers();
-    
+
     // If no cached data, definitely refresh
     if (customers.length === 0) {
       return true;
     }
-    
+
     // Check if oldest cache is more than 24 hours old
     const oldestCache = customers.reduce((oldest, c) => {
       const cachedAt = new Date(c.cachedAt).getTime();
       return cachedAt < oldest ? cachedAt : oldest;
     }, Date.now());
-    
+
     const twentyFourHours = 24 * 60 * 60 * 1000;
     return Date.now() - oldestCache > twentyFourHours;
   }
-  
+
   /**
    * Helper delay function
    */

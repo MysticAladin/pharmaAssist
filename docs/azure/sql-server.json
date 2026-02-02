@@ -1,0 +1,29 @@
+{
+    "apiVersion": "2024-11-01-preview",
+    "id": "/subscriptions/cdb91903-49b0-47df-9ebd-009d3a39e29c/resourceGroups/sp-pharma-assist_group/providers/Microsoft.Sql/servers/codian-tech-sql-server",
+    "name": "codian-tech-sql-server",
+    "type": "microsoft.sql/servers",
+    "kind": "v12.0",
+    "location": "germanywestcentral",
+    "tags": {},
+    "properties": {
+        "administratorLogin": "Codian",
+        "version": "12.0",
+        "state": "Ready",
+        "fullyQualifiedDomainName": "codian-tech-sql-server.database.windows.net",
+        "privateEndpointConnections": [],
+        "minimalTlsVersion": "1.2",
+        "publicNetworkAccess": "Disabled",
+        "administrators": {
+            "administratorType": "ActiveDirectory",
+            "principalType": "User",
+            "login": "elmir.halilcevic@hotmail.com",
+            "sid": "56e466cc-4552-47f4-aa91-6b8f9d67d994",
+            "tenantId": "8026f3f1-4bd8-4bed-a2a2-a55212fcfe44",
+            "azureADOnlyAuthentication": false
+        },
+        "restrictOutboundNetworkAccess": "Disabled",
+        "externalGovernanceStatus": "Disabled",
+        "retentionDays": -1
+    }
+}

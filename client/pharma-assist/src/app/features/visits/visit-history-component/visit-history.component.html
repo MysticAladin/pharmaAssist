@@ -1,0 +1,189 @@
+<div class="visit-history-page">
+  <!-- Page Header -->
+  <div class="page-header">
+    <div class="header-content">
+      <h1 class="page-title">{{ 'visitHistory.title' | translate }}</h1>
+    </div>
+    <div class="header-actions">
+      <button class="btn btn-secondary" routerLink="/visits">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="19" y1="12" x2="5" y2="12"/>
+          <polyline points="12 19 5 12 12 5"/>
+        </svg>
+        {{ 'common.back' | translate }}
+      </button>
+    </div>
+  </div>
+
+  <!-- Filters Card -->
+  <div class="content-card filters-card">
+    <div class="card-content">
+      <div class="filters-row">
+        <div class="filter-group">
+          <label class="filter-label">{{ 'visitHistory.fromDate' | translate }}</label>
+          <div class="date-input-wrapper">
+            <input type="text"
+                   class="filter-input"
+                   [value]="formatDateForDisplay(filterFromDate)"
+                   (change)="onFromDateChange($event)"
+                   placeholder="dd.MM.yyyy"/>
+            <input type="date"
+                   class="hidden-date-picker"
+                   [value]="filterFromDate"
+                   (change)="onFromDatePickerChange($event)"
+                   #fromDatePicker/>
+            <button type="button" class="calendar-btn" (click)="fromDatePicker.showPicker()">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+                <line x1="16" y1="2" x2="16" y2="6"/>
+                <line x1="8" y1="2" x2="8" y2="6"/>
+                <line x1="3" y1="10" x2="21" y2="10"/>
+              </svg>
+            </button>
+          </div>
+        </div>
+        <div class="filter-group">
+          <label class="filter-label">{{ 'visitHistory.toDate' | translate }}</label>
+          <div class="date-input-wrapper">
+            <input type="text"
+                   class="filter-input"
+                   [value]="formatDateForDisplay(filterToDate)"
+                   (change)="onToDateChange($event)"
+                   placeholder="dd.MM.yyyy"/>
+            <input type="date"
+                   class="hidden-date-picker"
+                   [value]="filterToDate"
+                   (change)="onToDatePickerChange($event)"
+                   #toDatePicker/>
+            <button type="button" class="calendar-btn" (click)="toDatePicker.showPicker()">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+                <line x1="16" y1="2" x2="16" y2="6"/>
+                <line x1="8" y1="2" x2="8" y2="6"/>
+                <line x1="3" y1="10" x2="21" y2="10"/>
+              </svg>
+            </button>
+          </div>
+        </div>
+        <div class="filter-group">
+          <label class="filter-label">{{ 'visitHistory.customer' | translate }}</label>
+          <select class="filter-input" [(ngModel)]="filterCustomerId" (change)="applyFilters()">
+            <option [ngValue]="null">{{ 'common.all' | translate }}</option>
+            @for (c of customers(); track c.customerId) {
+              <option [ngValue]="c.customerId">{{ c.customerName }}</option>
+            }
+          </select>
+        </div>
+        <div class="filter-group">
+          <label class="filter-label">{{ 'visitHistory.outcome' | translate }}</label>
+          <select class="filter-input" [(ngModel)]="filterOutcome" (change)="applyFilters()">
+            <option [ngValue]="null">{{ 'common.all' | translate }}</option>
+            <option [ngValue]="VisitOutcome.Positive">{{ 'visits.outcomePositive' | translate }}</option>
+            <option [ngValue]="VisitOutcome.Neutral">{{ 'visits.outcomeNeutral' | translate }}</option>
+            <option [ngValue]="VisitOutcome.Negative">{{ 'visits.outcomeNegative' | translate }}</option>
+          </select>
+        </div>
+      </div>
+      <div class="filters-row">
+        <div class="filter-group filter-group--wide">
+          <label class="filter-label">{{ 'visitHistory.search' | translate }}</label>
+          <input type="text"
+                 class="filter-input"
+                 [(ngModel)]="filterSearch"
+                 [placeholder]="'visitHistory.searchPlaceholder' | translate"
+                 (keyup.enter)="applyFilters()" />
+        </div>
+        <div class="filter-actions">
+          <button class="btn btn-primary" (click)="applyFilters()">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="11" cy="11" r="8"/>
+              <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+            </svg>
+            {{ 'common.search' | translate }}
+          </button>
+          <button class="btn btn-secondary" (click)="clearFilters()">{{ 'common.clearFilters' | translate }}</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Results Card -->
+  <div class="content-card">
+    <div class="card-header">
+      <h2>{{ 'visitHistory.results' | translate }}: {{ totalCount() }}</h2>
+    </div>
+    <div class="card-content">
+      @if (loading()) {
+        <div class="loading-state">
+          <div class="spinner"></div>
+          <p>{{ 'common.loading' | translate }}</p>
+        </div>
+      } @else if (items().length === 0) {
+        <div class="empty-message">{{ 'visitHistory.noResults' | translate }}</div>
+      } @else {
+        <div class="results-list">
+          @for (item of items(); track item.id) {
+            <div class="result-item" (click)="openVisit(item.id)">
+              <div class="result-main">
+                <div class="result-customer">{{ item.customerName }}</div>
+                <div class="result-meta">
+                  <span class="result-date">{{ item.checkInTime | europeanDate:'datetime' }}</span>
+                  @if (item.customerCity) {
+                    <span class="result-city">{{ item.customerCity }}</span>
+                  }
+                  @if (item.durationMinutes != null) {
+                    <span class="result-duration">{{ formatDuration(item.durationMinutes) }}</span>
+                  }
+                </div>
+                @if (item.summary) {
+                  <div class="result-summary">{{ item.summary | slice:0:100 }}{{ item.summary.length > 100 ? '...' : '' }}</div>
+                }
+              </div>
+              <div class="result-badges">
+                <span class="outcome-badge" [ngClass]="getOutcomeBadgeClass(item.outcome)">
+                  {{ getOutcomeLabel(item.outcome) }}
+                </span>
+                <span class="location-badge" [ngClass]="getLocationBadgeClass(item)">
+                  @if (item.locationVerified) {
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <polyline points="20 6 9 17 4 12"/>
+                    </svg>
+                  } @else {
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <circle cx="12" cy="12" r="10"/>
+                      <line x1="12" y1="8" x2="12" y2="12"/>
+                      <line x1="12" y1="16" x2="12.01" y2="16"/>
+                    </svg>
+                  }
+                </span>
+              </div>
+            </div>
+          }
+        </div>
+
+        <!-- Pagination -->
+        @if (totalPages() > 1) {
+          <div class="pagination">
+            <button class="btn btn-secondary" [disabled]="currentPage() <= 1" (click)="goToPage(currentPage() - 1)">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="15 18 9 12 15 6"/>
+              </svg>
+              {{ 'common.previous' | translate }}
+            </button>
+            <span class="pagination-info">{{ currentPage() }} / {{ totalPages() }}</span>
+            <button class="btn btn-secondary" [disabled]="currentPage() >= totalPages()" (click)="goToPage(currentPage() + 1)">
+              {{ 'common.next' | translate }}
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="9 18 15 12 9 6"/>
+              </svg>
+            </button>
+          </div>
+        }
+      }
+    </div>
+  </div>
+
+  @if (error()) {
+    <div class="error-message">{{ error() }}</div>
+  }
+</div>

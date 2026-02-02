@@ -1,0 +1,20 @@
+{
+  "navigationFallback": {
+    "rewrite": "/index.html",
+    "exclude": ["/assets/*", "/media/*", "*.js", "*.css", "*.ico", "*.json", "*.svg", "*.png", "*.jpg", "*.gif", "*.woff", "*.woff2", "*.ttf", "*.eot"]
+  },
+  "mimeTypes": {
+    ".json": "application/json"
+  },
+  "globalHeaders": {
+    "Cache-Control": "public, max-age=31536000"
+  },
+  "routes": [
+    {
+      "route": "/index.html",
+      "headers": {
+        "Cache-Control": "no-cache"
+      }
+    }
+  ]
+}

@@ -364,18 +364,18 @@ import { EmptyStateComponent } from '../../../shared/components/empty-state/empt
               <div class="form-group">
                 <label>{{ 'targets.type' | translate }} *</label>
                 <select class="form-select" [(ngModel)]="targetForm.targetType">
-                  <option [value]="TargetType.Revenue">{{ 'targets.types.revenue' | translate }}</option>
-                  <option [value]="TargetType.Quantity">{{ 'targets.types.quantity' | translate }}</option>
-                  <option [value]="TargetType.Visits">{{ 'targets.types.visits' | translate }}</option>
-                  <option [value]="TargetType.NewCustomers">{{ 'targets.types.newCustomers' | translate }}</option>
+                  <option [ngValue]="TargetType.Revenue">{{ 'targets.types.revenue' | translate }}</option>
+                  <option [ngValue]="TargetType.Quantity">{{ 'targets.types.quantity' | translate }}</option>
+                  <option [ngValue]="TargetType.Visits">{{ 'targets.types.visits' | translate }}</option>
+                  <option [ngValue]="TargetType.NewCustomers">{{ 'targets.types.newCustomers' | translate }}</option>
                 </select>
               </div>
               <div class="form-group">
                 <label>{{ 'targets.period' | translate }} *</label>
                 <select class="form-select" [(ngModel)]="targetForm.period">
-                  <option [value]="TargetPeriod.Monthly">{{ 'targets.periods.monthly' | translate }}</option>
-                  <option [value]="TargetPeriod.Quarterly">{{ 'targets.periods.quarterly' | translate }}</option>
-                  <option [value]="TargetPeriod.Yearly">{{ 'targets.periods.yearly' | translate }}</option>
+                  <option [ngValue]="TargetPeriod.Monthly">{{ 'targets.periods.monthly' | translate }}</option>
+                  <option [ngValue]="TargetPeriod.Quarterly">{{ 'targets.periods.quarterly' | translate }}</option>
+                  <option [ngValue]="TargetPeriod.Yearly">{{ 'targets.periods.yearly' | translate }}</option>
                 </select>
               </div>
             </div>
@@ -386,17 +386,65 @@ import { EmptyStateComponent } from '../../../shared/components/empty-state/empt
             <div class="form-row">
               <div class="form-group">
                 <label>{{ 'targets.startDate' | translate }} *</label>
-                <input type="date" class="form-control" [(ngModel)]="targetForm.startDate" required>
+                <div class="date-input-wrapper">
+                  <input
+                    type="text"
+                    class="form-control date-input"
+                    [value]="formatDateForDisplay(targetForm.startDate)"
+                    (change)="onTargetStartDateChange($event)"
+                    placeholder="dd.MM.yyyy"
+                    required
+                  />
+                  <input
+                    type="date"
+                    class="hidden-date-picker"
+                    [value]="targetForm.startDate"
+                    (change)="onTargetStartDatePickerChange($event)"
+                    #targetStartDatePicker
+                  />
+                  <button type="button" class="calendar-btn" (click)="targetStartDatePicker.showPicker()">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+                      <line x1="16" y1="2" x2="16" y2="6"/>
+                      <line x1="8" y1="2" x2="8" y2="6"/>
+                      <line x1="3" y1="10" x2="21" y2="10"/>
+                    </svg>
+                  </button>
+                </div>
               </div>
               <div class="form-group">
                 <label>{{ 'targets.endDate' | translate }} *</label>
-                <input type="date" class="form-control" [(ngModel)]="targetForm.endDate" required>
+                <div class="date-input-wrapper">
+                  <input
+                    type="text"
+                    class="form-control date-input"
+                    [value]="formatDateForDisplay(targetForm.endDate)"
+                    (change)="onTargetEndDateChange($event)"
+                    placeholder="dd.MM.yyyy"
+                    required
+                  />
+                  <input
+                    type="date"
+                    class="hidden-date-picker"
+                    [value]="targetForm.endDate"
+                    (change)="onTargetEndDatePickerChange($event)"
+                    #targetEndDatePicker
+                  />
+                  <button type="button" class="calendar-btn" (click)="targetEndDatePicker.showPicker()">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+                      <line x1="16" y1="2" x2="16" y2="6"/>
+                      <line x1="8" y1="2" x2="8" y2="6"/>
+                      <line x1="3" y1="10" x2="21" y2="10"/>
+                    </svg>
+                  </button>
+                </div>
               </div>
             </div>
-            <div class="form-group checkbox-group">
+            <div class="checkbox-group">
               <label class="checkbox-label">
                 <input type="checkbox" [(ngModel)]="targetForm.isActive">
-                {{ 'targets.isActive' | translate }}
+                <span>{{ 'targets.isActive' | translate }}</span>
               </label>
             </div>
           </div>
@@ -475,11 +523,59 @@ import { EmptyStateComponent } from '../../../shared/components/empty-state/empt
             <div class="form-row">
               <div class="form-group">
                 <label>{{ 'budgets.startDate' | translate }} *</label>
-                <input type="date" class="form-control" [(ngModel)]="budgetForm.startDate" required>
+                <div class="date-input-wrapper">
+                  <input
+                    type="text"
+                    class="form-control date-input"
+                    [value]="formatDateForDisplay(budgetForm.startDate)"
+                    (change)="onBudgetStartDateChange($event)"
+                    placeholder="dd.MM.yyyy"
+                    required
+                  />
+                  <input
+                    type="date"
+                    class="hidden-date-picker"
+                    [value]="budgetForm.startDate"
+                    (change)="onBudgetStartDatePickerChange($event)"
+                    #budgetStartDatePicker
+                  />
+                  <button type="button" class="calendar-btn" (click)="budgetStartDatePicker.showPicker()">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+                      <line x1="16" y1="2" x2="16" y2="6"/>
+                      <line x1="8" y1="2" x2="8" y2="6"/>
+                      <line x1="3" y1="10" x2="21" y2="10"/>
+                    </svg>
+                  </button>
+                </div>
               </div>
               <div class="form-group">
                 <label>{{ 'budgets.endDate' | translate }} *</label>
-                <input type="date" class="form-control" [(ngModel)]="budgetForm.endDate" required>
+                <div class="date-input-wrapper">
+                  <input
+                    type="text"
+                    class="form-control date-input"
+                    [value]="formatDateForDisplay(budgetForm.endDate)"
+                    (change)="onBudgetEndDateChange($event)"
+                    placeholder="dd.MM.yyyy"
+                    required
+                  />
+                  <input
+                    type="date"
+                    class="hidden-date-picker"
+                    [value]="budgetForm.endDate"
+                    (change)="onBudgetEndDatePickerChange($event)"
+                    #budgetEndDatePicker
+                  />
+                  <button type="button" class="calendar-btn" (click)="budgetEndDatePicker.showPicker()">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+                      <line x1="16" y1="2" x2="16" y2="6"/>
+                      <line x1="8" y1="2" x2="8" y2="6"/>
+                      <line x1="3" y1="10" x2="21" y2="10"/>
+                    </svg>
+                  </button>
+                </div>
               </div>
             </div>
           </div>
@@ -1037,6 +1133,42 @@ import { EmptyStateComponent } from '../../../shared/components/empty-state/empt
       color: var(--text-primary);
     }
 
+    /* Date Input Wrapper - European format */
+    .date-input-wrapper {
+      position: relative;
+
+      .date-input {
+        padding-right: 2.5rem;
+      }
+
+      .hidden-date-picker {
+        position: absolute;
+        opacity: 0;
+        pointer-events: none;
+        width: 0;
+        height: 0;
+      }
+
+      .calendar-btn {
+        position: absolute;
+        right: 0.5rem;
+        top: 50%;
+        transform: translateY(-50%);
+        background: none;
+        border: none;
+        cursor: pointer;
+        padding: 0.25rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--text-secondary);
+        transition: color 0.15s ease;
+
+        &:hover {
+          color: var(--primary-color, #14b8a6);
+        }
+      }
+    }
     .form-row {
       display: grid;
       grid-template-columns: 1fr 1fr;
@@ -1050,22 +1182,24 @@ import { EmptyStateComponent } from '../../../shared/components/empty-state/empt
     }
 
     .checkbox-group {
-      display: flex;
-      gap: 1.5rem;
+      margin-bottom: 1rem;
     }
 
-    .checkbox-label {
-      display: flex;
+    .checkbox-group > .checkbox-label {
+      display: inline-flex;
       align-items: center;
-      gap: 0.5rem;
+      gap: 10px;
       cursor: pointer;
-      margin-bottom: 0;
+      padding: 8px 0;
+      font-weight: 400;
     }
 
-    .checkbox-label input[type="checkbox"] {
-      width: 1.125rem;
-      height: 1.125rem;
+    .checkbox-group > .checkbox-label input[type="checkbox"] {
+      width: 18px;
+      height: 18px;
+      margin: 0;
       accent-color: var(--primary-color);
+      cursor: pointer;
     }
 
     .expenses-header {
@@ -1108,13 +1242,25 @@ import { EmptyStateComponent } from '../../../shared/components/empty-state/empt
     }
 
     .btn-primary {
-      background: var(--primary-color);
-      border-color: var(--primary-color);
+      background: var(--primary-color, #14b8a6);
+      border-color: var(--primary-color, #14b8a6);
       color: white;
     }
 
     .btn-primary:hover {
-      background: var(--primary-hover);
+      background: var(--primary-hover, #0d9488);
+      border-color: var(--primary-hover, #0d9488);
+    }
+
+    .btn-primary:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    input[type="date"] {
+      appearance: auto;
+      -webkit-appearance: auto;
+      min-height: 42px;
     }
 
     .btn-sm {
@@ -1555,5 +1701,65 @@ export class TargetsComponent implements OnInit {
       startDate: today.toISOString().slice(0, 10),
       endDate: endOfMonth.toISOString().slice(0, 10)
     };
+  }
+
+  // === Date Formatting Helpers ===
+
+  /**
+   * Convert ISO date (yyyy-MM-dd) to European format (dd.MM.yyyy)
+   */
+  formatDateForDisplay(isoDate: string): string {
+    if (!isoDate) return '';
+    const parts = isoDate.split('-');
+    if (parts.length !== 3) return isoDate;
+    return `${parts[2]}.${parts[1]}.${parts[0]}`;
+  }
+
+  /**
+   * Convert European format (dd.MM.yyyy) to ISO date (yyyy-MM-dd)
+   */
+  parseEuropeanDate(europeanDate: string): string {
+    if (!europeanDate) return '';
+    const parts = europeanDate.split('.');
+    if (parts.length !== 3) return europeanDate;
+    return `${parts[2]}-${parts[1].padStart(2, '0')}-${parts[0].padStart(2, '0')}`;
+  }
+
+  // Target date handlers
+  onTargetStartDateChange(event: Event): void {
+    const value = (event.target as HTMLInputElement).value;
+    this.targetForm.startDate = this.parseEuropeanDate(value);
+  }
+
+  onTargetEndDateChange(event: Event): void {
+    const value = (event.target as HTMLInputElement).value;
+    this.targetForm.endDate = this.parseEuropeanDate(value);
+  }
+
+  onTargetStartDatePickerChange(event: Event): void {
+    this.targetForm.startDate = (event.target as HTMLInputElement).value;
+  }
+
+  onTargetEndDatePickerChange(event: Event): void {
+    this.targetForm.endDate = (event.target as HTMLInputElement).value;
+  }
+
+  // Budget date handlers
+  onBudgetStartDateChange(event: Event): void {
+    const value = (event.target as HTMLInputElement).value;
+    this.budgetForm.startDate = this.parseEuropeanDate(value);
+  }
+
+  onBudgetEndDateChange(event: Event): void {
+    const value = (event.target as HTMLInputElement).value;
+    this.budgetForm.endDate = this.parseEuropeanDate(value);
+  }
+
+  onBudgetStartDatePickerChange(event: Event): void {
+    this.budgetForm.startDate = (event.target as HTMLInputElement).value;
+  }
+
+  onBudgetEndDatePickerChange(event: Event): void {
+    this.budgetForm.endDate = (event.target as HTMLInputElement).value;
   }
 }

@@ -1,0 +1,44 @@
+{
+    "apiVersion": "2025-03-01",
+    "id": "/subscriptions/cdb91903-49b0-47df-9ebd-009d3a39e29c/resourceGroups/sp-pharma-assist_group/providers/Microsoft.Web/sites/pharma-assist-api",
+    "name": "pharma-assist-api",
+    "type": "microsoft.web/sites",
+    "kind": "app",
+    "location": "westeurope",
+    "properties": {
+        "name": "pharma-assist-api",
+        "state": "Running",
+        "hostNames": [
+            "pharma-assist-api-adgfdgh8bjbafugj.westeurope-01.azurewebsites.net"
+        ],
+        "webSpace": "sp-pharma-assist_group-WestEuropewebspace",
+        "selfLink": "https://waws-prod-am2-761.api.azurewebsites.windows.net:454/subscriptions/cdb91903-49b0-47df-9ebd-009d3a39e29c/webspaces/sp-pharma-assist_group-WestEuropewebspace/sites/pharma-assist-api",
+        "repositorySiteName": "pharma-assist-api",
+        "usageState": "Normal",
+        "enabled": true,
+        "adminEnabled": true,
+        "enabledHostNames": [
+            "pharma-assist-api-adgfdgh8bjbafugj.scm.westeurope-01.azurewebsites.net",
+            "pharma-assist-api-adgfdgh8bjbafugj.westeurope-01.azurewebsites.net"
+        ],
+        "availabilityState": "Normal",
+        "serverFarmId": "/subscriptions/cdb91903-49b0-47df-9ebd-009d3a39e29c/resourceGroups/sp-pharma-assist_group/providers/Microsoft.Web/serverfarms/ASP-sppharmaassistgroup-a637",
+        "reserved": false,
+        "lastModifiedTimeUtc": "2026-02-02T00:19:36.306Z",
+        "siteConfig": {
+            "numberOfWorkers": 1,
+            "linuxFxVersion": "",
+            "alwaysOn": false,
+            "http20Enabled": false
+        },
+        "sku": "Free",
+        "clientAffinityEnabled": true,
+        "resourceGroup": "sp-pharma-assist_group",
+        "defaultHostName": "pharma-assist-api-adgfdgh8bjbafugj.westeurope-01.azurewebsites.net",
+        "httpsOnly": true,
+        "publicNetworkAccess": "Enabled",
+        "inboundIpAddress": "20.105.216.37",
+        "ftpUsername": "pharma-assist-api\\$pharma-assist-api",
+        "ftpsHostName": "ftps://waws-prod-am2-761.ftp.azurewebsites.windows.net/site/wwwroot"
+    }
+}

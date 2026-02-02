@@ -225,7 +225,7 @@ describe('RepOrderService', () => {
         expect(response.length).toBe(2);
       });
 
-      const req = httpMock.expectOne(r => 
+      const req = httpMock.expectOne(r =>
         r.url.includes(`${baseUrl}/customer/${customerId}/recent`)
       );
       expect(req.request.params.get('count')).toBe('5');

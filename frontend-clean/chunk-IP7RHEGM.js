@@ -1,0 +1,1 @@
+var r=(t=>(t[t.Planned=1]="Planned",t[t.AdHoc=2]="AdHoc",t))(r||{}),i=(e=>(e[e.Draft=1]="Draft",e[e.Submitted=2]="Submitted",e[e.Approved=3]="Approved",e[e.Rejected=4]="Rejected",e[e.InProgress=5]="InProgress",e[e.Completed=6]="Completed",e))(i||{}),u=(n=>(n[n.Positive=1]="Positive",n[n.Neutral=2]="Neutral",n[n.Negative=3]="Negative",n))(u||{});export{r as a,i as b,u as c};

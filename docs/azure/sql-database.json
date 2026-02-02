@@ -1,0 +1,38 @@
+{
+    "apiVersion": "2024-11-01-preview",
+    "id": "/subscriptions/cdb91903-49b0-47df-9ebd-009d3a39e29c/resourceGroups/sp-pharma-assist_group/providers/Microsoft.Sql/servers/codian-tech-sql-server/databases/PharmaAssist",
+    "name": "PharmaAssist",
+    "type": "microsoft.sql/servers/databases",
+    "sku": {
+        "name": "Standard",
+        "tier": "Standard",
+        "capacity": 10
+    },
+    "kind": "v12.0,user",
+    "location": "germanywestcentral",
+    "tags": {},
+    "properties": {
+        "collation": "SQL_Latin1_General_CP1_CI_AS",
+        "maxSizeBytes": 268435456000,
+        "status": "Online",
+        "databaseId": "10e0e2d3-c976-4d55-b6c7-cf1076b28038",
+        "creationDate": "2026-02-02T00:26:03.107Z",
+        "currentServiceObjectiveName": "S0",
+        "requestedServiceObjectiveName": "S0",
+        "defaultSecondaryLocation": "germanynorth",
+        "catalogCollation": "SQL_Latin1_General_CP1_CI_AS",
+        "zoneRedundant": false,
+        "readScale": "Disabled",
+        "currentSku": {
+            "name": "Standard",
+            "tier": "Standard",
+            "capacity": 10
+        },
+        "currentBackupStorageRedundancy": "Local",
+        "requestedBackupStorageRedundancy": "Local",
+        "maintenanceConfigurationId": "/subscriptions/cdb91903-49b0-47df-9ebd-009d3a39e29c/providers/Microsoft.Maintenance/publicMaintenanceConfigurations/SQL_Default",
+        "isLedgerOn": false,
+        "isInfraEncryptionEnabled": false,
+        "availabilityZone": "NoPreference"
+    }
+}

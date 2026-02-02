@@ -1,0 +1,1 @@
+function r(e){return{addition:"success",removal:"danger",correction:"warning",damaged:"danger",expired:"neutral",returned:"info"}[e]}function n(e){return{pending:"warning",in_transit:"info",completed:"success",cancelled:"danger"}[e]}export{r as a,n as b};

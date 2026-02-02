@@ -1,0 +1,1 @@
+import{Lb as s,Ra as t,nb as o,ob as r}from"./chunk-M6HJP2RW.js";import"./chunk-C6Q5SG76.js";var i=class n{static \u0275fac=function(e){return new(e||n)};static \u0275cmp=t({type:n,selectors:[["app-pending-orders"]],decls:2,vars:0,template:function(e,d){e&1&&(o(0,"h1"),s(1,"Narud\u017Ebe na \u010Dekanju"),r())},encapsulation:2})};export{i as PendingOrdersComponent};

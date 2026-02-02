@@ -574,7 +574,7 @@ export class RepOrderCreateComponent implements OnInit {
   promotionResult = signal<PromotionCalculationResult | null>(null);
 
   // Computed
-  totalDiscount = computed(() => 
+  totalDiscount = computed(() =>
     this.promotionResult()?.discountTotal ?? 0
   );
 

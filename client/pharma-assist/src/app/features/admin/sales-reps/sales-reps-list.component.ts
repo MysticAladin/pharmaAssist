@@ -222,7 +222,7 @@ import { SearchInputComponent } from '../../../shared/components/search-input';
                     </svg>
                   }
                 </th>
-                <th>{{ 'common.actions' | translate }}</th>
+                <th class="actions-header">{{ 'common.actions' | translate }}</th>
               </tr>
             </thead>
             <tbody>
@@ -252,7 +252,7 @@ import { SearchInputComponent } from '../../../shared/components/search-input';
                       [variant]="getStatusVariant(rep.status)"
                     ></app-status-badge>
                   </td>
-                  <td class="actions-cell">
+                  <td class="actions-cell sticky-actions">
                     <button class="btn btn-icon" (click)="viewRep(rep)" [title]="'common.view' | translate">
                       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
@@ -412,8 +412,8 @@ import { SearchInputComponent } from '../../../shared/components/search-input';
                     }
                   </select>
                 </div>
-                <div class="form-group full-width">
-                  <label>{{ 'salesReps.supervisors' | translate }}</label>
+                <div class="checkbox-section">
+                  <label class="section-label">{{ 'salesReps.supervisors' | translate }}</label>
                   <div class="checkbox-list">
                     @for (supervisor of availableSupervisors(); track supervisor.id) {
                       <label class="checkbox-label">
@@ -762,12 +762,14 @@ import { SearchInputComponent } from '../../../shared/components/search-input';
     .table-container {
       background: var(--surface);
       border-radius: 8px;
-      overflow: hidden;
+      overflow-x: auto;
       margin-bottom: 16px;
+      position: relative;
     }
 
     .data-table {
       width: 100%;
+      min-width: 900px;
       border-collapse: collapse;
 
       th, td {
@@ -870,6 +872,23 @@ import { SearchInputComponent } from '../../../shared/components/search-input';
     .actions-cell {
       display: flex;
       gap: 4px;
+    }
+
+    .actions-header,
+    .sticky-actions {
+      position: sticky;
+      right: 0;
+      background: var(--surface);
+      z-index: 1;
+      box-shadow: -4px 0 8px -4px rgba(0, 0, 0, 0.1);
+    }
+
+    .actions-header {
+      background: var(--surface-secondary);
+    }
+
+    tbody tr:hover .sticky-actions {
+      background: var(--surface-hover);
     }
 
     .btn-icon {
@@ -1079,37 +1098,61 @@ import { SearchInputComponent } from '../../../shared/components/search-input';
       gap: 24px;
     }
 
+    .checkbox-section {
+      margin-bottom: 16px;
+
+      .section-label {
+        display: block;
+        font-size: 14px;
+        font-weight: 500;
+        color: var(--text-secondary);
+        margin-bottom: 8px;
+      }
+    }
+
     .checkbox-list {
       display: flex;
       flex-direction: column;
-      gap: 8px;
+      gap: 0;
       max-height: 180px;
       overflow-y: auto;
-      padding: 12px;
+      padding: 8px;
       border: 1px solid var(--border);
       border-radius: 6px;
       background: var(--background);
     }
 
     .checkbox-label {
-      display: inline-flex;
+      display: grid;
+      grid-template-columns: 20px 1fr;
       align-items: center;
-      gap: 0.5rem;
+      gap: 12px;
       cursor: pointer;
-      padding: 4px 0;
+      padding: 10px 8px;
       font-size: 14px;
+      border-radius: 4px;
+      transition: background-color 0.15s ease;
+      line-height: 1;
+
+      &:hover {
+        background-color: var(--background-hover, rgba(0, 0, 0, 0.04));
+      }
 
       input[type="checkbox"] {
-        width: 16px;
-        height: 16px;
+        width: 18px;
+        height: 18px;
+        margin: 0;
+        padding: 0;
         cursor: pointer;
         accent-color: var(--primary);
-        flex-shrink: 0;
+        appearance: auto;
+        -webkit-appearance: checkbox;
       }
 
       span {
         font-weight: 400;
         color: var(--text-primary);
+        white-space: nowrap;
       }
     }
 

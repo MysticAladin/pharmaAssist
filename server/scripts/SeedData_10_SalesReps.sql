@@ -280,46 +280,46 @@ END
 -- =============================================
 PRINT 'Creating SalesRepresentatives records...';
 
--- Commercial Reps (Type = 0)
+-- Commercial Reps (Type = 1 per RepresentativeType enum)
 -- Rep 1: Edin Mujić - Commercial, Sarajevo Canton
-INSERT INTO SalesRepresentatives (UserId, RepType, EmployeeCode, Mobile, HireDate, Status, TerritoryDescription, CreatedAt, UpdatedAt, CreatedBy, UpdatedBy)
-VALUES (@SalesRep1UserId, 0, 'COM-001', '+387-61-333-001', '2020-03-01', 0, N'Kanton Sarajevo - Centar, Novi Grad, Novo Sarajevo', @Now, NULL, NULL, NULL);
+INSERT INTO SalesRepresentatives (UserId, RepType, EmployeeCode, Mobile, HireDate, Status, TerritoryDescription, CreatedAt, UpdatedAt, CreatedBy, UpdatedBy, IsDeleted)
+VALUES (@SalesRep1UserId, 1, 'COM-001', '+387-61-333-001', '2020-03-01', 0, N'Kanton Sarajevo - Centar, Novi Grad, Novo Sarajevo', @Now, NULL, NULL, NULL, 0);
 DECLARE @Rep1Id INT = SCOPE_IDENTITY();
 
 -- Rep 2: Amela Hadžić - Commercial, Zenica-Doboj Canton
-INSERT INTO SalesRepresentatives (UserId, RepType, EmployeeCode, Mobile, HireDate, Status, TerritoryDescription, CreatedAt, UpdatedAt, CreatedBy, UpdatedBy)
-VALUES (@SalesRep2UserId, 0, 'COM-002', '+387-61-333-002', '2021-06-15', 0, N'Zeničko-dobojski kanton - Zenica, Kakanj, Visoko', @Now, NULL, NULL, NULL);
+INSERT INTO SalesRepresentatives (UserId, RepType, EmployeeCode, Mobile, HireDate, Status, TerritoryDescription, CreatedAt, UpdatedAt, CreatedBy, UpdatedBy, IsDeleted)
+VALUES (@SalesRep2UserId, 1, 'COM-002', '+387-61-333-002', '2021-06-15', 0, N'Zeničko-dobojski kanton - Zenica, Kakanj, Visoko', @Now, NULL, NULL, NULL, 0);
 DECLARE @Rep2Id INT = SCOPE_IDENTITY();
 
 -- Rep 3: Mirza Delić - Commercial, Tuzla Canton
-INSERT INTO SalesRepresentatives (UserId, RepType, EmployeeCode, Mobile, HireDate, Status, TerritoryDescription, CreatedAt, UpdatedAt, CreatedBy, UpdatedBy)
-VALUES (@SalesRep3UserId, 0, 'COM-003', '+387-61-333-003', '2019-09-01', 0, N'Tuzlanski kanton - Tuzla, Lukavac, Živinice', @Now, NULL, NULL, NULL);
+INSERT INTO SalesRepresentatives (UserId, RepType, EmployeeCode, Mobile, HireDate, Status, TerritoryDescription, CreatedAt, UpdatedAt, CreatedBy, UpdatedBy, IsDeleted)
+VALUES (@SalesRep3UserId, 1, 'COM-003', '+387-61-333-003', '2019-09-01', 0, N'Tuzlanski kanton - Tuzla, Lukavac, Živinice', @Now, NULL, NULL, NULL, 0);
 DECLARE @Rep3Id INT = SCOPE_IDENTITY();
 
 -- Rep 4: Lejla Imamović - Commercial, Herzegovina
-INSERT INTO SalesRepresentatives (UserId, RepType, EmployeeCode, Mobile, HireDate, Status, TerritoryDescription, CreatedAt, UpdatedAt, CreatedBy, UpdatedBy)
-VALUES (@SalesRep4UserId, 0, 'COM-004', '+387-61-333-004', '2022-01-10', 0, N'Hercegovačko-neretvanski kanton - Mostar, Čapljina, Konjic', @Now, NULL, NULL, NULL);
+INSERT INTO SalesRepresentatives (UserId, RepType, EmployeeCode, Mobile, HireDate, Status, TerritoryDescription, CreatedAt, UpdatedAt, CreatedBy, UpdatedBy, IsDeleted)
+VALUES (@SalesRep4UserId, 1, 'COM-004', '+387-61-333-004', '2022-01-10', 0, N'Hercegovačko-neretvanski kanton - Mostar, Čapljina, Konjic', @Now, NULL, NULL, NULL, 0);
 DECLARE @Rep4Id INT = SCOPE_IDENTITY();
 
--- Medical Reps (Type = 1)
+-- Medical Reps (Type = 2 per RepresentativeType enum)
 -- Rep 5: Adnan Kovačević - Medical, Sarajevo
-INSERT INTO SalesRepresentatives (UserId, RepType, EmployeeCode, Mobile, HireDate, Status, TerritoryDescription, CreatedAt, UpdatedAt, CreatedBy, UpdatedBy)
-VALUES (@SalesRep5UserId, 1, 'MED-001', '+387-61-333-005', '2018-05-01', 0, N'Kanton Sarajevo - Bolnice, Domovi zdravlja, Specijalizirane klinike', @Now, NULL, NULL, NULL);
+INSERT INTO SalesRepresentatives (UserId, RepType, EmployeeCode, Mobile, HireDate, Status, TerritoryDescription, CreatedAt, UpdatedAt, CreatedBy, UpdatedBy, IsDeleted)
+VALUES (@SalesRep5UserId, 2, 'MED-001', '+387-61-333-005', '2018-05-01', 0, N'Kanton Sarajevo - Bolnice, Domovi zdravlja, Specijalizirane klinike', @Now, NULL, NULL, NULL, 0);
 DECLARE @Rep5Id INT = SCOPE_IDENTITY();
 
 -- Rep 6: Maja Petrović - Medical, Central BiH
-INSERT INTO SalesRepresentatives (UserId, RepType, EmployeeCode, Mobile, HireDate, Status, TerritoryDescription, CreatedAt, UpdatedAt, CreatedBy, UpdatedBy)
-VALUES (@SalesRep6UserId, 1, 'MED-002', '+387-61-333-006', '2019-02-15', 0, N'Centralna BiH - Zenica, Travnik, Vitez - Bolnice i ambulante', @Now, NULL, NULL, NULL);
+INSERT INTO SalesRepresentatives (UserId, RepType, EmployeeCode, Mobile, HireDate, Status, TerritoryDescription, CreatedAt, UpdatedAt, CreatedBy, UpdatedBy, IsDeleted)
+VALUES (@SalesRep6UserId, 2, 'MED-002', '+387-61-333-006', '2019-02-15', 0, N'Centralna BiH - Zenica, Travnik, Vitez - Bolnice i ambulante', @Now, NULL, NULL, NULL, 0);
 DECLARE @Rep6Id INT = SCOPE_IDENTITY();
 
 -- Rep 7: Haris Zahirović - Medical, North BiH
-INSERT INTO SalesRepresentatives (UserId, RepType, EmployeeCode, Mobile, HireDate, Status, TerritoryDescription, CreatedAt, UpdatedAt, CreatedBy, UpdatedBy)
-VALUES (@SalesRep7UserId, 1, 'MED-003', '+387-61-333-007', '2020-08-01', 0, N'Sjeverna BiH - Tuzla, Bihać, Brčko - Medicinske ustanove', @Now, NULL, NULL, NULL);
+INSERT INTO SalesRepresentatives (UserId, RepType, EmployeeCode, Mobile, HireDate, Status, TerritoryDescription, CreatedAt, UpdatedAt, CreatedBy, UpdatedBy, IsDeleted)
+VALUES (@SalesRep7UserId, 2, 'MED-003', '+387-61-333-007', '2020-08-01', 0, N'Sjeverna BiH - Tuzla, Bihać, Brčko - Medicinske ustanove', @Now, NULL, NULL, NULL, 0);
 DECLARE @Rep7Id INT = SCOPE_IDENTITY();
 
 -- Rep 8: Aida Softić - Medical, South BiH
-INSERT INTO SalesRepresentatives (UserId, RepType, EmployeeCode, Mobile, HireDate, Status, TerritoryDescription, CreatedAt, UpdatedAt, CreatedBy, UpdatedBy)
-VALUES (@SalesRep8UserId, 1, 'MED-004', '+387-61-333-008', '2021-11-01', 0, N'Južna BiH - Mostar, Trebinje, Široki Brijeg - Zdravstvene ustanove', @Now, NULL, NULL, NULL);
+INSERT INTO SalesRepresentatives (UserId, RepType, EmployeeCode, Mobile, HireDate, Status, TerritoryDescription, CreatedAt, UpdatedAt, CreatedBy, UpdatedBy, IsDeleted)
+VALUES (@SalesRep8UserId, 2, 'MED-004', '+387-61-333-008', '2021-11-01', 0, N'Južna BiH - Mostar, Trebinje, Široki Brijeg - Zdravstvene ustanove', @Now, NULL, NULL, NULL, 0);
 DECLARE @Rep8Id INT = SCOPE_IDENTITY();
 
 PRINT 'Created 8 SalesRepresentatives (4 Commercial, 4 Medical)';
@@ -330,30 +330,30 @@ PRINT 'Created 8 SalesRepresentatives (4 Commercial, 4 Medical)';
 PRINT 'Creating RepManagerAssignments...';
 
 -- Manager 1 (Amir Hodžić) manages Commercial Reps (1-4)
-INSERT INTO RepManagerAssignments (RepId, ManagerUserId, AssignmentDate, IsActive, IsPrimary, CreatedAt, UpdatedAt, CreatedBy, UpdatedBy)
-VALUES (@Rep1Id, @Manager1Id, '2020-03-01', 1, 1, @Now, NULL, NULL, NULL);
+INSERT INTO RepManagerAssignments (RepId, ManagerUserId, AssignmentDate, IsActive, IsPrimary, CreatedAt, UpdatedAt, CreatedBy, UpdatedBy, IsDeleted)
+VALUES (@Rep1Id, @Manager1Id, '2020-03-01', 1, 1, @Now, NULL, NULL, NULL, 0);
 
-INSERT INTO RepManagerAssignments (RepId, ManagerUserId, AssignmentDate, IsActive, IsPrimary, CreatedAt, UpdatedAt, CreatedBy, UpdatedBy)
-VALUES (@Rep2Id, @Manager1Id, '2021-06-15', 1, 1, @Now, NULL, NULL, NULL);
+INSERT INTO RepManagerAssignments (RepId, ManagerUserId, AssignmentDate, IsActive, IsPrimary, CreatedAt, UpdatedAt, CreatedBy, UpdatedBy, IsDeleted)
+VALUES (@Rep2Id, @Manager1Id, '2021-06-15', 1, 1, @Now, NULL, NULL, NULL, 0);
 
-INSERT INTO RepManagerAssignments (RepId, ManagerUserId, AssignmentDate, IsActive, IsPrimary, CreatedAt, UpdatedAt, CreatedBy, UpdatedBy)
-VALUES (@Rep3Id, @Manager1Id, '2019-09-01', 1, 1, @Now, NULL, NULL, NULL);
+INSERT INTO RepManagerAssignments (RepId, ManagerUserId, AssignmentDate, IsActive, IsPrimary, CreatedAt, UpdatedAt, CreatedBy, UpdatedBy, IsDeleted)
+VALUES (@Rep3Id, @Manager1Id, '2019-09-01', 1, 1, @Now, NULL, NULL, NULL, 0);
 
-INSERT INTO RepManagerAssignments (RepId, ManagerUserId, AssignmentDate, IsActive, IsPrimary, CreatedAt, UpdatedAt, CreatedBy, UpdatedBy)
-VALUES (@Rep4Id, @Manager1Id, '2022-01-10', 1, 1, @Now, NULL, NULL, NULL);
+INSERT INTO RepManagerAssignments (RepId, ManagerUserId, AssignmentDate, IsActive, IsPrimary, CreatedAt, UpdatedAt, CreatedBy, UpdatedBy, IsDeleted)
+VALUES (@Rep4Id, @Manager1Id, '2022-01-10', 1, 1, @Now, NULL, NULL, NULL, 0);
 
 -- Manager 2 (Selma Begović) manages Medical Reps (5-8)
-INSERT INTO RepManagerAssignments (RepId, ManagerUserId, AssignmentDate, IsActive, IsPrimary, CreatedAt, UpdatedAt, CreatedBy, UpdatedBy)
-VALUES (@Rep5Id, @Manager2Id, '2018-05-01', 1, 1, @Now, NULL, NULL, NULL);
+INSERT INTO RepManagerAssignments (RepId, ManagerUserId, AssignmentDate, IsActive, IsPrimary, CreatedAt, UpdatedAt, CreatedBy, UpdatedBy, IsDeleted)
+VALUES (@Rep5Id, @Manager2Id, '2018-05-01', 1, 1, @Now, NULL, NULL, NULL, 0);
 
-INSERT INTO RepManagerAssignments (RepId, ManagerUserId, AssignmentDate, IsActive, IsPrimary, CreatedAt, UpdatedAt, CreatedBy, UpdatedBy)
-VALUES (@Rep6Id, @Manager2Id, '2019-02-15', 1, 1, @Now, NULL, NULL, NULL);
+INSERT INTO RepManagerAssignments (RepId, ManagerUserId, AssignmentDate, IsActive, IsPrimary, CreatedAt, UpdatedAt, CreatedBy, UpdatedBy, IsDeleted)
+VALUES (@Rep6Id, @Manager2Id, '2019-02-15', 1, 1, @Now, NULL, NULL, NULL, 0);
 
-INSERT INTO RepManagerAssignments (RepId, ManagerUserId, AssignmentDate, IsActive, IsPrimary, CreatedAt, UpdatedAt, CreatedBy, UpdatedBy)
-VALUES (@Rep7Id, @Manager2Id, '2020-08-01', 1, 1, @Now, NULL, NULL, NULL);
+INSERT INTO RepManagerAssignments (RepId, ManagerUserId, AssignmentDate, IsActive, IsPrimary, CreatedAt, UpdatedAt, CreatedBy, UpdatedBy, IsDeleted)
+VALUES (@Rep7Id, @Manager2Id, '2020-08-01', 1, 1, @Now, NULL, NULL, NULL, 0);
 
-INSERT INTO RepManagerAssignments (RepId, ManagerUserId, AssignmentDate, IsActive, IsPrimary, CreatedAt, UpdatedAt, CreatedBy, UpdatedBy)
-VALUES (@Rep8Id, @Manager2Id, '2021-11-01', 1, 1, @Now, NULL, NULL, NULL);
+INSERT INTO RepManagerAssignments (RepId, ManagerUserId, AssignmentDate, IsActive, IsPrimary, CreatedAt, UpdatedAt, CreatedBy, UpdatedBy, IsDeleted)
+VALUES (@Rep8Id, @Manager2Id, '2021-11-01', 1, 1, @Now, NULL, NULL, NULL, 0);
 
 PRINT 'Created 8 RepManagerAssignments';
 

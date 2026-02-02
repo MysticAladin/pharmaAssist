@@ -15,7 +15,7 @@ import { OrderSyncService } from '../../../core/services/order-sync.service';
         <span class="status-dot"></span>
         <span class="status-text">{{ statusText() }}</span>
       </div>
-      
+
       <!-- Pending Orders Badge -->
       @if (pendingCount() > 0) {
         <div class="pending-badge" (click)="toggleDetails()">
@@ -25,7 +25,7 @@ import { OrderSyncService } from '../../../core/services/order-sync.service';
           <span>{{ pendingCount() }}</span>
         </div>
       }
-      
+
       <!-- Sync Button -->
       @if (isOnline() && pendingCount() > 0 && !isSyncing()) {
         <button class="sync-btn" (click)="syncNow()" [title]="'repOrders.sync.syncNow' | translate">
@@ -34,7 +34,7 @@ import { OrderSyncService } from '../../../core/services/order-sync.service';
           </svg>
         </button>
       }
-      
+
       <!-- Syncing Spinner -->
       @if (isSyncing()) {
         <div class="syncing-spinner">
@@ -43,7 +43,7 @@ import { OrderSyncService } from '../../../core/services/order-sync.service';
           </svg>
         </div>
       }
-      
+
       <!-- Details Dropdown -->
       @if (showDetails()) {
         <div class="details-dropdown">
@@ -51,7 +51,7 @@ import { OrderSyncService } from '../../../core/services/order-sync.service';
             <h4>{{ 'repOrders.sync.pendingOrders' | translate }}</h4>
             <button class="close-btn" (click)="toggleDetails()">×</button>
           </div>
-          
+
           <div class="details-content">
             @if (pendingOrders().length === 0) {
               <p class="no-orders">{{ 'repOrders.sync.noPending' | translate }}</p>
@@ -80,7 +80,7 @@ import { OrderSyncService } from '../../../core/services/order-sync.service';
               </ul>
             }
           </div>
-          
+
           <div class="details-footer">
             @if (lastSyncTime()) {
               <span class="last-sync">
@@ -105,34 +105,34 @@ import { OrderSyncService } from '../../../core/services/order-sync.service';
       border-radius: 0.5rem;
       background: var(--surface-secondary);
     }
-    
+
     .offline-status.offline {
       background: rgba(239, 68, 68, 0.1);
     }
-    
+
     .status-indicator {
       display: flex;
       align-items: center;
       gap: 0.375rem;
     }
-    
+
     .status-dot {
       width: 8px;
       height: 8px;
       border-radius: 50%;
       background: var(--color-success);
     }
-    
+
     .status-indicator.offline .status-dot {
       background: var(--color-error);
     }
-    
+
     .status-text {
       font-size: 0.75rem;
       font-weight: 500;
       color: var(--text-secondary);
     }
-    
+
     .pending-badge {
       display: flex;
       align-items: center;
@@ -146,16 +146,16 @@ import { OrderSyncService } from '../../../core/services/order-sync.service';
       cursor: pointer;
       transition: transform 0.2s;
     }
-    
+
     .pending-badge:hover {
       transform: scale(1.05);
     }
-    
+
     .pending-badge .icon {
       width: 14px;
       height: 14px;
     }
-    
+
     .sync-btn {
       display: flex;
       align-items: center;
@@ -170,40 +170,40 @@ import { OrderSyncService } from '../../../core/services/order-sync.service';
       cursor: pointer;
       transition: background 0.2s;
     }
-    
+
     .sync-btn:hover {
       background: var(--color-primary-dark);
     }
-    
+
     .sync-btn .icon {
       width: 16px;
       height: 16px;
     }
-    
+
     .syncing-spinner {
       width: 24px;
       height: 24px;
     }
-    
+
     .spinner {
       width: 100%;
       height: 100%;
       animation: rotate 1s linear infinite;
     }
-    
+
     .spinner-circle {
       stroke: var(--color-primary);
       stroke-dasharray: 62.8;
       stroke-dashoffset: 15;
       animation: dash 1s ease-in-out infinite;
     }
-    
+
     @keyframes rotate {
       100% {
         transform: rotate(360deg);
       }
     }
-    
+
     @keyframes dash {
       0% {
         stroke-dashoffset: 62.8;
@@ -215,7 +215,7 @@ import { OrderSyncService } from '../../../core/services/order-sync.service';
         stroke-dashoffset: 62.8;
       }
     }
-    
+
     .details-dropdown {
       position: absolute;
       top: 100%;
@@ -229,7 +229,7 @@ import { OrderSyncService } from '../../../core/services/order-sync.service';
       z-index: 1000;
       overflow: hidden;
     }
-    
+
     .details-header {
       display: flex;
       justify-content: space-between;
@@ -237,13 +237,13 @@ import { OrderSyncService } from '../../../core/services/order-sync.service';
       padding: 0.75rem 1rem;
       border-bottom: 1px solid var(--border-color);
     }
-    
+
     .details-header h4 {
       margin: 0;
       font-size: 0.875rem;
       font-weight: 600;
     }
-    
+
     .close-btn {
       width: 24px;
       height: 24px;
@@ -254,83 +254,83 @@ import { OrderSyncService } from '../../../core/services/order-sync.service';
       cursor: pointer;
       color: var(--text-secondary);
     }
-    
+
     .details-content {
       max-height: 280px;
       overflow-y: auto;
       padding: 0.5rem;
     }
-    
+
     .no-orders {
       text-align: center;
       color: var(--text-secondary);
       padding: 1rem;
       margin: 0;
     }
-    
+
     .order-list {
       list-style: none;
       margin: 0;
       padding: 0;
     }
-    
+
     .order-item {
       padding: 0.75rem;
       border-radius: 0.5rem;
       background: var(--surface-secondary);
       margin-bottom: 0.5rem;
     }
-    
+
     .order-item.failed {
       background: rgba(239, 68, 68, 0.1);
       border: 1px solid rgba(239, 68, 68, 0.3);
     }
-    
+
     .order-info {
       display: flex;
       justify-content: space-between;
       align-items: center;
       margin-bottom: 0.25rem;
     }
-    
+
     .customer {
       font-weight: 500;
       font-size: 0.875rem;
     }
-    
+
     .total {
       font-weight: 600;
       color: var(--color-primary);
     }
-    
+
     .order-meta {
       display: flex;
       justify-content: space-between;
       font-size: 0.75rem;
       color: var(--text-secondary);
     }
-    
+
     .status {
       font-weight: 500;
       text-transform: uppercase;
     }
-    
+
     .status.pending {
       color: var(--color-warning);
     }
-    
+
     .status.syncing {
       color: var(--color-info);
     }
-    
+
     .status.synced {
       color: var(--color-success);
     }
-    
+
     .status.failed {
       color: var(--color-error);
     }
-    
+
     .error-message {
       font-size: 0.75rem;
       color: var(--color-error);
@@ -339,7 +339,7 @@ import { OrderSyncService } from '../../../core/services/order-sync.service';
       background: rgba(239, 68, 68, 0.1);
       border-radius: 0.25rem;
     }
-    
+
     .retry-btn {
       margin-top: 0.5rem;
       padding: 0.25rem 0.75rem;
@@ -350,12 +350,12 @@ import { OrderSyncService } from '../../../core/services/order-sync.service';
       border-radius: 0.25rem;
       cursor: pointer;
     }
-    
+
     .retry-btn:hover {
       background: var(--color-primary);
       color: white;
     }
-    
+
     .details-footer {
       display: flex;
       justify-content: space-between;
@@ -364,12 +364,12 @@ import { OrderSyncService } from '../../../core/services/order-sync.service';
       border-top: 1px solid var(--border-color);
       background: var(--surface-secondary);
     }
-    
+
     .last-sync {
       font-size: 0.75rem;
       color: var(--text-secondary);
     }
-    
+
     .refresh-cache-btn {
       padding: 0.375rem 0.75rem;
       font-size: 0.75rem;
@@ -379,11 +379,11 @@ import { OrderSyncService } from '../../../core/services/order-sync.service';
       border-radius: 0.25rem;
       cursor: pointer;
     }
-    
+
     .refresh-cache-btn:hover:not(:disabled) {
       opacity: 0.9;
     }
-    
+
     .refresh-cache-btn:disabled {
       opacity: 0.5;
       cursor: not-allowed;
@@ -394,46 +394,46 @@ export class OfflineStatusComponent {
   private readonly offlineStorage = inject(OfflineStorageService);
   private readonly syncService = inject(OrderSyncService);
   private readonly translate = inject(TranslateService);
-  
+
   // Signals from service
   readonly isOnline = this.offlineStorage.isOnline;
   readonly pendingCount = this.offlineStorage.pendingOrderCount;
   readonly isSyncing = this.offlineStorage.isSyncing;
   readonly lastSyncTime = this.offlineStorage.lastSyncTime;
-  
+
   // Local state
   readonly showDetails = signal(false);
   readonly pendingOrders = signal<PendingOrder[]>([]);
-  
+
   readonly statusText = computed(() => {
     if (!this.isOnline()) return this.translate.instant('repOrders.sync.offline');
     if (this.isSyncing()) return this.translate.instant('repOrders.sync.syncing');
     return this.translate.instant('repOrders.sync.online');
   });
-  
+
   toggleDetails(): void {
     const newValue = !this.showDetails();
     this.showDetails.set(newValue);
-    
+
     if (newValue) {
       this.loadPendingOrders();
     }
   }
-  
+
   async loadPendingOrders(): Promise<void> {
     const orders = await this.offlineStorage.getPendingOrdersAsync();
     this.pendingOrders.set(orders);
   }
-  
+
   syncNow(): void {
     this.syncService.syncPendingOrders();
   }
-  
+
   async retryOrder(orderId: string): Promise<void> {
     await this.syncService.forceSyncOrder(orderId);
     await this.loadPendingOrders();
   }
-  
+
   async refreshCache(): Promise<void> {
     await this.syncService.refreshCache();
   }

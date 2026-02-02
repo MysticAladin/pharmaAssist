@@ -76,7 +76,20 @@ export class SidebarComponent {
       labelKey: 'nav.visits',
       icon: 'icon-map-pin',
       route: '/visits',
-      roles: [UserRole.SuperAdmin, UserRole.Admin, UserRole.Manager, UserRole.SalesRep]
+      roles: [UserRole.SuperAdmin, UserRole.Admin, UserRole.Manager, UserRole.SalesRep],
+      children: [
+        { labelKey: 'nav.visitsToday', route: '/visits/today', roles: [UserRole.SalesRep] },
+        { labelKey: 'nav.visitPlanner', route: '/visits/planner', roles: [UserRole.SalesRep] },
+        { labelKey: 'nav.visitHistory', route: '/visits/history', roles: [UserRole.SalesRep] },
+        { labelKey: 'nav.teamVisits', route: '/visits/team', roles: [UserRole.SuperAdmin, UserRole.Admin, UserRole.Manager] },
+        { labelKey: 'nav.teamActivity', route: '/visits/team-activity', roles: [UserRole.SuperAdmin, UserRole.Admin, UserRole.Manager] }
+      ]
+    },
+    {
+      labelKey: 'nav.myDashboard',
+      icon: 'icon-activity',
+      route: '/portal/rep-dashboard',
+      roles: [UserRole.SalesRep]
     },
     {
       labelKey: 'nav.reports',

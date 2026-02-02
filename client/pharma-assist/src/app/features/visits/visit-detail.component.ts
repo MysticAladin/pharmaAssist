@@ -94,7 +94,7 @@ import { ExecutedVisit, VisitOutcome, VisitType } from '../../core/models/visit.
               <!-- Visit Notes Section -->
               <div class="notes-section">
                 <h3 class="notes-title">{{ 'visits.notes' | translate }}</h3>
-                
+
                 <label class="label">{{ 'visits.generalComment' | translate }}</label>
                 <textarea class="input" rows="3" [(ngModel)]="formGeneralComment" [disabled]="!isSalesRep"
                   placeholder="{{ 'visits.generalCommentPlaceholder' | translate }}"></textarea>

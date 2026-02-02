@@ -1,0 +1,152 @@
+<div class="visits-today-page">
+  <!-- Page Header -->
+  <div class="page-header">
+    <div class="header-content">
+      <h1 class="page-title">{{ 'visits.todayTitle' | translate }}</h1>
+      <p class="page-subtitle">{{ 'visits.todaySubtitle' | translate }}</p>
+    </div>
+    <div class="header-actions">
+      <button class="btn btn-secondary" routerLink="/visits/planner">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+          <line x1="16" y1="2" x2="16" y2="6"/>
+          <line x1="8" y1="2" x2="8" y2="6"/>
+          <line x1="3" y1="10" x2="21" y2="10"/>
+        </svg>
+        {{ 'visitPlanner.title' | translate }}
+      </button>
+      <button class="btn btn-secondary" routerLink="/visits/history">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="10"/>
+          <polyline points="12 6 12 12 16 14"/>
+        </svg>
+        {{ 'visitHistory.title' | translate }}
+      </button>
+      <button class="btn btn-primary" (click)="goCheckIn()">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
+          <circle cx="12" cy="10" r="3"/>
+        </svg>
+        {{ 'visits.adHocCheckIn' | translate }}
+      </button>
+    </div>
+  </div>
+
+  <!-- Stats Cards -->
+  <div class="stats-grid">
+    <div class="stat-card">
+      <div class="stat-icon planned">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+          <line x1="16" y1="2" x2="16" y2="6"/>
+          <line x1="8" y1="2" x2="8" y2="6"/>
+          <line x1="3" y1="10" x2="21" y2="10"/>
+        </svg>
+      </div>
+      <div class="stat-content">
+        <span class="stat-value">{{ planned().length }}</span>
+        <span class="stat-label">{{ 'visits.plannedToday' | translate }}</span>
+      </div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon completed">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+          <polyline points="22 4 12 14.01 9 11.01"/>
+        </svg>
+      </div>
+      <div class="stat-content">
+        <span class="stat-value">{{ executed().length }}</span>
+        <span class="stat-label">{{ 'visits.executedToday' | translate }}</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Planned Visits Section -->
+  <div class="content-card">
+    <div class="card-header">
+      <h2>{{ 'visits.plannedToday' | translate }}</h2>
+    </div>
+    <div class="card-content">
+      @if (loading()) {
+        <div class="loading-state">
+          <div class="spinner"></div>
+          <p>{{ 'common.loading' | translate }}</p>
+        </div>
+      } @else if (planned().length === 0) {
+        <div class="empty-message">{{ 'visits.noPlanned' | translate }}</div>
+      } @else {
+        <div class="visits-list">
+          @for (pv of planned(); track pv.plannedVisitId) {
+            <div class="visit-item">
+              <div class="visit-info">
+                <div class="visit-customer">{{ pv.customerName }}</div>
+                <div class="visit-meta">
+                  @if (pv.plannedTime) {
+                    <span class="visit-time">{{ pv.plannedTime }}</span>
+                  }
+                  @if (pv.objective) {
+                    <span class="visit-objective">{{ pv.objective }}</span>
+                  }
+                </div>
+              </div>
+              <div class="visit-actions">
+                @if (pv.hasExecutedVisit && pv.executedVisitId) {
+                  <button class="btn btn-secondary btn-sm" (click)="openVisit(pv.executedVisitId)">
+                    {{ 'visits.open' | translate }}
+                  </button>
+                } @else {
+                  <button class="btn btn-primary btn-sm" (click)="checkInPlanned(pv.plannedVisitId)">
+                    {{ 'visits.start' | translate }}
+                  </button>
+                }
+              </div>
+            </div>
+          }
+        </div>
+      }
+    </div>
+  </div>
+
+  <!-- Executed Visits Section -->
+  <div class="content-card">
+    <div class="card-header">
+      <h2>{{ 'visits.executedToday' | translate }}</h2>
+    </div>
+    <div class="card-content">
+      @if (loading()) {
+        <div class="loading-state">
+          <div class="spinner"></div>
+          <p>{{ 'common.loading' | translate }}</p>
+        </div>
+      } @else if (executed().length === 0) {
+        <div class="empty-message">{{ 'visits.noExecuted' | translate }}</div>
+      } @else {
+        <div class="visits-list">
+          @for (ev of executed(); track ev.id) {
+            <div class="visit-item clickable" (click)="openVisit(ev.id)">
+              <div class="visit-info">
+                <div class="visit-customer">{{ ev.customerName }}</div>
+                <div class="visit-meta">
+                  <span class="visit-time">{{ ev.checkInTime | europeanDate:'datetime' }}</span>
+                  @if (ev.isCompleted) {
+                    <span class="status-badge completed">{{ 'visits.completed' | translate }}</span>
+                  } @else {
+                    <span class="status-badge in-progress">{{ 'visits.inProgress' | translate }}</span>
+                  }
+                </div>
+              </div>
+              <div class="visit-actions">
+                <button class="btn btn-secondary btn-sm">{{ 'visits.open' | translate }}</button>
+              </div>
+            </div>
+          }
+        </div>
+      }
+    </div>
+  </div>
+
+  @if (error()) {
+    <div class="error-message">{{ error() }}</div>
+  }
+</div>
