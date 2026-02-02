@@ -145,3 +145,33 @@ Desktop.ini
 *.bak
 *.swp
 *~
+# =========================
+# Deployment Archives
+# =========================
+deployments/
+*.zip
+*.tar
+*.tar.gz
+*.tgz# =========================
+# Deployment Archives & Build Output
+# =========================
+deployments/
+*.zip
+*.tar
+*.tar.gz
+*.tgz
+
+# Build output folders
+frontend-clean/
+browser/
+publish/
+wwwroot/
+
+# Compiled files
+*.dll
+*.pdb
+*.exe
+*.cache
+frontend-static/
+server/azure-logs/
+azure-logs/
