@@ -1,3 +1,4 @@
+using Application.DTOs.Brands;
 using Application.DTOs.Categories;
 using Application.DTOs.Common;
 using Application.DTOs.Customers;
@@ -43,6 +44,9 @@ public class MappingProfile : Profile
         
         // Feature flag mappings
         CreateFeatureFlagMappings();
+
+        // Brand mappings
+        CreateBrandMappings();
     }
 
     private void CreateProductMappings()
@@ -540,5 +544,69 @@ public class MappingProfile : Profile
                     ? s.Customer.CompanyName 
                     : $"{s.Customer.FirstName} {s.Customer.LastName}")
                 : null));
+    }
+
+    private void CreateBrandMappings()
+    {
+        // Brand mappings
+        CreateMap<Brand, BrandDto>()
+            .ForMember(d => d.ManufacturerName, opt => opt.MapFrom(s => s.Manufacturer != null ? s.Manufacturer.Name : null))
+            .ForMember(d => d.ProductCount, opt => opt.MapFrom(s => s.Products != null ? s.Products.Count(p => p.IsActive && !p.IsDeleted) : 0))
+            .ForMember(d => d.Products, opt => opt.Ignore())
+            .ForMember(d => d.BrandGroups, opt => opt.Ignore());
+
+        CreateMap<Brand, BrandSummaryDto>()
+            .ForMember(d => d.ManufacturerName, opt => opt.MapFrom(s => s.Manufacturer != null ? s.Manufacturer.Name : null))
+            .ForMember(d => d.ProductCount, opt => opt.MapFrom(s => s.Products != null ? s.Products.Count(p => p.IsActive && !p.IsDeleted) : 0));
+
+        CreateMap<CreateBrandDto, Brand>()
+            .ForMember(d => d.Id, opt => opt.Ignore())
+            .ForMember(d => d.Manufacturer, opt => opt.Ignore())
+            .ForMember(d => d.Products, opt => opt.Ignore())
+            .ForMember(d => d.BrandGroupMembers, opt => opt.Ignore())
+            .ForMember(d => d.CreatedAt, opt => opt.MapFrom(_ => DateTime.UtcNow))
+            .ForMember(d => d.UpdatedAt, opt => opt.Ignore())
+            .ForMember(d => d.CreatedBy, opt => opt.Ignore())
+            .ForMember(d => d.UpdatedBy, opt => opt.Ignore())
+            .ForMember(d => d.IsDeleted, opt => opt.MapFrom(_ => false))
+            .ForMember(d => d.IsActive, opt => opt.MapFrom(_ => true));
+
+        CreateMap<UpdateBrandDto, Brand>()
+            .ForMember(d => d.Id, opt => opt.Ignore())
+            .ForMember(d => d.Manufacturer, opt => opt.Ignore())
+            .ForMember(d => d.Products, opt => opt.Ignore())
+            .ForMember(d => d.BrandGroupMembers, opt => opt.Ignore())
+            .ForMember(d => d.CreatedAt, opt => opt.Ignore())
+            .ForMember(d => d.UpdatedAt, opt => opt.MapFrom(_ => DateTime.UtcNow))
+            .ForMember(d => d.CreatedBy, opt => opt.Ignore())
+            .ForMember(d => d.UpdatedBy, opt => opt.Ignore())
+            .ForMember(d => d.IsDeleted, opt => opt.Ignore());
+
+        // Brand Group mappings
+        CreateMap<CreateBrandGroupDto, BrandGroup>()
+            .ForMember(d => d.Id, opt => opt.Ignore())
+            .ForMember(d => d.Members, opt => opt.Ignore())
+            .ForMember(d => d.CreatedAt, opt => opt.MapFrom(_ => DateTime.UtcNow))
+            .ForMember(d => d.UpdatedAt, opt => opt.Ignore())
+            .ForMember(d => d.CreatedBy, opt => opt.Ignore())
+            .ForMember(d => d.UpdatedBy, opt => opt.Ignore())
+            .ForMember(d => d.IsDeleted, opt => opt.MapFrom(_ => false))
+            .ForMember(d => d.IsActive, opt => opt.MapFrom(_ => true));
+
+        // Knowledge Article mappings
+        CreateMap<KnowledgeArticle, KnowledgeArticleDto>()
+            .ForMember(d => d.ProductName, opt => opt.MapFrom(s => s.Product != null ? s.Product.Name : null))
+            .ForMember(d => d.BrandName, opt => opt.MapFrom(s => s.Brand != null ? s.Brand.Name : null))
+            .ForMember(d => d.CategoryName, opt => opt.MapFrom(s => s.Category.ToString()));
+
+        CreateMap<KnowledgeArticle, KnowledgeArticleSummaryDto>()
+            .ForMember(d => d.ProductName, opt => opt.MapFrom(s => s.Product != null ? s.Product.Name : null))
+            .ForMember(d => d.BrandName, opt => opt.MapFrom(s => s.Brand != null ? s.Brand.Name : null))
+            .ForMember(d => d.CategoryName, opt => opt.MapFrom(s => s.Category.ToString()));
+
+        // Product Document mappings
+        CreateMap<ProductDocument, ProductDocumentDto>()
+            .ForMember(d => d.ProductName, opt => opt.MapFrom(s => s.Product != null ? s.Product.Name : null))
+            .ForMember(d => d.DocumentTypeName, opt => opt.MapFrom(s => s.DocumentType.ToString()));
     }
 }

@@ -295,3 +295,54 @@ public enum VisitNoteType
     Complaint = 4,
     Other = 5
 }
+
+/// <summary>
+/// Product document type — SmPC, PIL, SDS, or marketing material
+/// </summary>
+public enum ProductDocumentType
+{
+    SmPC = 1,                // Summary of Product Characteristics
+    PIL = 2,                 // Patient Information Leaflet
+    SDS = 3,                 // Safety Data Sheet
+    MarketingMaterial = 4,   // Marketing brochure, slide deck, etc.
+    ClinicalStudy = 5,       // Clinical study/trial data
+    Other = 99
+}
+
+/// <summary>
+/// Knowledge article category
+/// </summary>
+public enum KnowledgeCategory
+{
+    FAQ = 1,
+    ObjectionHandling = 2,
+    ClinicalData = 3,
+    Dosage = 4,
+    Interactions = 5,
+    Contraindications = 6,
+    Storage = 7,
+    General = 99
+}
+
+/// <summary>
+/// Product reaction type during visit discussion
+/// </summary>
+public enum ProductReactionType
+{
+    Positive = 1,
+    Neutral = 2,
+    Negative = 3
+}
+
+/// <summary>
+/// Product commitment level after discussion
+/// </summary>
+public enum CommitmentLevel
+{
+    None = 0,
+    LowInterest = 1,
+    Considering = 2,
+    WillTry = 3,
+    Committed = 4,
+    AlreadyUsing = 5
+}

@@ -50,6 +50,15 @@ export class SidebarComponent {
       ]
     },
     {
+      labelKey: 'nav.brands',
+      icon: 'icon-bookmark',
+      route: '/brands',
+      children: [
+        { labelKey: 'nav.allBrands', route: '/brands' },
+        { labelKey: 'nav.knowledgeBase', route: '/brands/knowledge' }
+      ]
+    },
+    {
       labelKey: 'nav.inventory',
       icon: 'icon-layers',
       route: '/inventory',

@@ -19,6 +19,7 @@ public class Product : BaseEntity
     // Classification
     public int CategoryId { get; set; }
     public int ManufacturerId { get; set; }
+    public int? BrandId { get; set; }
     
     // Pricing (in BAM - Convertible Mark)
     public decimal UnitPrice { get; set; }
@@ -31,6 +32,12 @@ public class Product : BaseEntity
     public string? DosageForm { get; set; } // Tablet, Capsule, Syrup, etc.
     public string? Strength { get; set; } // e.g., "500mg", "10mg/ml"
     public string? PackageSize { get; set; } // e.g., "30 tablets", "100ml"
+    
+    // Marketing fields (Phase 1)
+    public string? KeySellingPoints { get; set; }       // JSON array
+    public string? TargetAudience { get; set; }
+    public string? CompetitiveAdvantages { get; set; }  // JSON array
+    public string? MarketingMessages { get; set; }      // JSON array
     
     // Inventory
     public int StockQuantity { get; set; } = 0;
@@ -47,6 +54,9 @@ public class Product : BaseEntity
     // Navigation properties
     public virtual Category Category { get; set; } = null!;
     public virtual Manufacturer Manufacturer { get; set; } = null!;
+    public virtual Brand? Brand { get; set; }
     public virtual ICollection<ProductBatch> Batches { get; set; } = new List<ProductBatch>();
     public virtual ICollection<OrderItem> OrderItems { get; set; } = new List<OrderItem>();
+    public virtual ICollection<ProductDocument> Documents { get; set; } = new List<ProductDocument>();
+    public virtual ICollection<KnowledgeArticle> KnowledgeArticles { get; set; } = new List<KnowledgeArticle>();
 }

@@ -1,0 +1,119 @@
+<div class="page-container">
+  <!-- Page Header -->
+  <div class="page-header">
+    <div class="header-content">
+      <h1>{{ 'brands.title' | translate }}</h1>
+      <p class="subtitle">{{ 'brands.subtitle' | translate }}</p>
+    </div>
+    <div class="header-actions">
+      <button class="btn btn-primary" (click)="createBrand()">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+        {{ 'brands.addBrand' | translate }}
+      </button>
+    </div>
+  </div>
+
+  <!-- Filters -->
+  <div class="filters-bar">
+    <app-search-input
+      [placeholder]="'brands.searchPlaceholder' | translate"
+      (search)="onSearch($event)">
+    </app-search-input>
+
+    <div class="filter-group">
+      <select class="form-select" [ngModel]="filters().manufacturerId || ''" (ngModelChange)="onManufacturerFilter($event)">
+        <option value="">{{ 'brands.allManufacturers' | translate }}</option>
+        @for (m of manufacturers(); track m.id) {
+          <option [value]="m.id">{{ m.name }}</option>
+        }
+      </select>
+
+      <select class="form-select" [ngModel]="filters().activeOnly === undefined ? '' : filters().activeOnly!.toString()" (ngModelChange)="onActiveFilter($event)">
+        <option value="">{{ 'common.allStatuses' | translate }}</option>
+        <option value="true">{{ 'common.active' | translate }}</option>
+        <option value="false">{{ 'common.inactive' | translate }}</option>
+      </select>
+    </div>
+  </div>
+
+  <!-- Data Table -->
+  @if (loading()) {
+    <div class="loading-container">
+      <div class="spinner"></div>
+      <p>{{ 'common.loading' | translate }}</p>
+    </div>
+  } @else if (brands().length === 0) {
+    <app-empty-state
+      [title]="'brands.noBrands' | translate"
+      [message]="'brands.noBrandsMessage' | translate"
+      icon="tag">
+    </app-empty-state>
+  } @else {
+    <app-data-table
+      [data]="brands()"
+      [columns]="columns"
+      [hoverable]="true"
+      [striped]="true"
+      (rowClick)="onRowClick($event)"
+      (sortChange)="onSort($event)">
+    </app-data-table>
+
+    <app-pagination
+      [page]="filters().page"
+      [size]="filters().pageSize"
+      [totalItems]="totalItems()"
+      (pageChange)="onPageChange($event)">
+    </app-pagination>
+  }
+</div>
+
+<!-- Column Templates -->
+<ng-template #nameTemplate let-row>
+  <div class="brand-name-cell">
+    @if (row.logoPath) {
+      <img [src]="row.logoPath" [alt]="row.name" class="brand-logo-thumb">
+    } @else {
+      <div class="brand-logo-placeholder">
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"></path><line x1="7" y1="7" x2="7.01" y2="7"></line></svg>
+      </div>
+    }
+    <div>
+      <span class="brand-name">{{ row.name }}</span>
+      @if (row.nameLocal) {
+        <span class="brand-name-local">{{ row.nameLocal }}</span>
+      }
+    </div>
+  </div>
+</ng-template>
+
+<ng-template #statusTemplate let-row>
+  <app-status-badge [status]="row.isActive ? 'active' : 'inactive'"></app-status-badge>
+</ng-template>
+
+<ng-template #actionsTemplate let-row>
+  <div class="row-actions">
+    <button class="btn btn-icon btn-sm" (click)="editBrand(row, $event)" [title]="'common.edit' | translate">
+      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
+    </button>
+    <button class="btn btn-icon btn-sm" (click)="toggleStatus(row, $event)"
+            [title]="(row.isActive ? 'common.deactivate' : 'common.activate') | translate">
+      @if (row.isActive) {
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"></line></svg>
+      } @else {
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 11 12 14 22 4"></polyline><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path></svg>
+      }
+    </button>
+    <button class="btn btn-icon btn-sm btn-danger" (click)="confirmDelete(row, $event)" [title]="'common.delete' | translate">
+      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+    </button>
+  </div>
+</ng-template>
+
+<!-- Delete Confirmation -->
+<app-confirm-dialog
+  [isOpen]="showDeleteDialog()"
+  [title]="'brands.confirmDelete' | translate"
+  [message]="'brands.confirmDeleteMessage' | translate:{name: brandToDelete()?.name}"
+  (confirmed)="deleteBrand()"
+  (cancelled)="showDeleteDialog.set(false)">
+</app-confirm-dialog>

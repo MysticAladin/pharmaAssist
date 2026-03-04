@@ -1,0 +1,170 @@
+<div class="page-container">
+  @if (loading()) {
+    <div class="loading-container">
+      <div class="spinner"></div>
+    </div>
+  } @else if (brand(); as b) {
+    <!-- Header -->
+    <div class="page-header">
+      <div class="header-content">
+        <div class="breadcrumb">
+          <a routerLink="/brands">{{ 'brands.title' | translate }}</a>
+          <span class="separator">/</span>
+          <span>{{ b.name }}</span>
+        </div>
+        <div class="brand-header-info">
+          @if (b.logoPath) {
+            <img [src]="b.logoPath" [alt]="b.name" class="brand-logo">
+          }
+          <div>
+            <h1>{{ b.name }}</h1>
+            @if (b.nameLocal) {
+              <p class="name-local">{{ b.nameLocal }}</p>
+            }
+          </div>
+          <app-status-badge [status]="b.isActive ? 'active' : 'inactive'"></app-status-badge>
+        </div>
+      </div>
+      <div class="header-actions">
+        <button class="btn btn-secondary" (click)="toggleStatus()">
+          {{ b.isActive ? ('common.deactivate' | translate) : ('common.activate' | translate) }}
+        </button>
+        <button class="btn btn-primary" (click)="editBrand()">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
+          {{ 'common.edit' | translate }}
+        </button>
+        <button class="btn btn-danger" (click)="confirmDelete()">
+          {{ 'common.delete' | translate }}
+        </button>
+      </div>
+    </div>
+
+    <!-- Brand Info Cards -->
+    <div class="info-cards">
+      <div class="info-card">
+        <div class="info-label">{{ 'brands.manufacturer' | translate }}</div>
+        <div class="info-value">{{ b.manufacturerName || '-' }}</div>
+      </div>
+      <div class="info-card">
+        <div class="info-label">{{ 'brands.therapeuticArea' | translate }}</div>
+        <div class="info-value">{{ b.therapeuticArea || '-' }}</div>
+      </div>
+      <div class="info-card">
+        <div class="info-label">{{ 'brands.products' | translate }}</div>
+        <div class="info-value">{{ b.productCount }}</div>
+      </div>
+      @if (b.brandGroups.length > 0) {
+        <div class="info-card">
+          <div class="info-label">{{ 'brands.groups' | translate }}</div>
+          <div class="info-value">{{ b.brandGroups.join(', ') }}</div>
+        </div>
+      }
+    </div>
+
+    <!-- Description -->
+    @if (b.description || b.descriptionLocal) {
+      <div class="description-section">
+        @if (b.description) {
+          <div class="description-block">
+            <h3>{{ 'brands.descriptionEn' | translate }}</h3>
+            <p>{{ b.description }}</p>
+          </div>
+        }
+        @if (b.descriptionLocal) {
+          <div class="description-block">
+            <h3>{{ 'brands.descriptionLocal' | translate }}</h3>
+            <p>{{ b.descriptionLocal }}</p>
+          </div>
+        }
+      </div>
+    }
+
+    <!-- Tabs -->
+    <div class="tabs">
+      <button class="tab" [class.active]="activeTab() === 'products'" (click)="setTab('products')">
+        {{ 'brands.products' | translate }} ({{ b.products.length }})
+      </button>
+      <button class="tab" [class.active]="activeTab() === 'knowledge'" (click)="setTab('knowledge')">
+        {{ 'knowledge.title' | translate }} ({{ knowledgeArticles().length }})
+      </button>
+    </div>
+
+    <!-- Products Tab -->
+    @if (activeTab() === 'products') {
+      <div class="tab-content">
+        @if (b.products.length === 0) {
+          <div class="empty-tab">
+            <p>{{ 'brands.noProducts' | translate }}</p>
+          </div>
+        } @else {
+          <div class="products-grid">
+            @for (product of b.products; track product.id) {
+              <div class="product-card" (click)="viewProduct(product.id)">
+                <div class="product-name">{{ product.name }}</div>
+                <div class="product-details">
+                  @if (product.dosageForm) {
+                    <span class="product-tag">{{ product.dosageForm }}</span>
+                  }
+                  @if (product.strength) {
+                    <span class="product-tag">{{ product.strength }}</span>
+                  }
+                  @if (product.packageSize) {
+                    <span class="product-tag">{{ product.packageSize }}</span>
+                  }
+                </div>
+                <div class="product-price">{{ product.unitPrice | number:'1.2-2' }} KM</div>
+                <app-status-badge [status]="product.isActive ? 'active' : 'inactive'"></app-status-badge>
+              </div>
+            }
+          </div>
+        }
+      </div>
+    }
+
+    <!-- Knowledge Tab -->
+    @if (activeTab() === 'knowledge') {
+      <div class="tab-content">
+        <div class="tab-actions">
+          <button class="btn btn-primary btn-sm" (click)="createKnowledgeArticle()">
+            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+            {{ 'knowledge.addArticle' | translate }}
+          </button>
+        </div>
+        @if (knowledgeArticles().length === 0) {
+          <div class="empty-tab">
+            <p>{{ 'knowledge.noArticles' | translate }}</p>
+          </div>
+        } @else {
+          <div class="knowledge-list">
+            @for (article of knowledgeArticles(); track article.id) {
+              <div class="knowledge-card" (click)="viewKnowledgeArticle(article.id)">
+                <div class="knowledge-header">
+                  <span class="knowledge-category">{{ article.categoryName }}</span>
+                  <app-status-badge [status]="article.isPublished ? 'active' : 'inactive'"
+                                    [label]="article.isPublished ? 'Published' : 'Draft'">
+                  </app-status-badge>
+                </div>
+                <div class="knowledge-title">{{ article.title }}</div>
+                @if (article.titleLocal) {
+                  <div class="knowledge-title-local">{{ article.titleLocal }}</div>
+                }
+                @if (article.productName) {
+                  <div class="knowledge-product">{{ article.productName }}</div>
+                }
+              </div>
+            }
+          </div>
+        }
+      </div>
+    }
+  }
+</div>
+
+<!-- Delete Dialog -->
+<app-confirm-dialog
+  [isOpen]="showDeleteDialog()"
+  [title]="'brands.confirmDelete' | translate"
+  [message]="'brands.confirmDeleteMessage' | translate:{name: brand()?.name}"
+  (confirmed)="deleteBrand()"
+  (cancelled)="showDeleteDialog.set(false)">
+</app-confirm-dialog>

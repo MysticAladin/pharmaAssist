@@ -51,6 +51,12 @@ public class ProductConfiguration : IEntityTypeConfiguration<Product>
         builder.Property(e => e.ImageUrl)
             .HasMaxLength(500);
 
+        // Marketing fields
+        builder.Property(e => e.KeySellingPoints).HasMaxLength(4000);
+        builder.Property(e => e.TargetAudience).HasMaxLength(500);
+        builder.Property(e => e.CompetitiveAdvantages).HasMaxLength(4000);
+        builder.Property(e => e.MarketingMessages).HasMaxLength(4000);
+
         // Decimal precision for prices
         builder.Property(e => e.UnitPrice)
             .HasPrecision(18, 4);
@@ -69,6 +75,8 @@ public class ProductConfiguration : IEntityTypeConfiguration<Product>
 
         builder.HasIndex(e => e.ATCCode);
 
+        builder.HasIndex(e => e.BrandId);
+
         // Relationships
         builder.HasOne(e => e.Category)
             .WithMany(c => c.Products)
@@ -80,6 +88,11 @@ public class ProductConfiguration : IEntityTypeConfiguration<Product>
             .HasForeignKey(e => e.ManufacturerId)
             .OnDelete(DeleteBehavior.Restrict);
 
+        builder.HasOne(e => e.Brand)
+            .WithMany(b => b.Products)
+            .HasForeignKey(e => e.BrandId)
+            .OnDelete(DeleteBehavior.SetNull);
+
         builder.HasMany(e => e.Batches)
             .WithOne(b => b.Product)
             .HasForeignKey(b => b.ProductId)
@@ -89,5 +102,15 @@ public class ProductConfiguration : IEntityTypeConfiguration<Product>
             .WithOne(o => o.Product)
             .HasForeignKey(o => o.ProductId)
             .OnDelete(DeleteBehavior.Restrict);
+
+        builder.HasMany(e => e.Documents)
+            .WithOne(d => d.Product)
+            .HasForeignKey(d => d.ProductId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        builder.HasMany(e => e.KnowledgeArticles)
+            .WithOne(k => k.Product)
+            .HasForeignKey(k => k.ProductId)
+            .OnDelete(DeleteBehavior.Cascade);
     }
 }

@@ -1,0 +1,112 @@
+<div class="page-container">
+  <!-- Header -->
+  <div class="page-header">
+    <div class="header-content">
+      <div class="breadcrumb">
+        <a routerLink="/brands">{{ 'brands.title' | translate }}</a>
+        <span class="separator">/</span>
+        <span>{{ isEditMode() ? ('brands.editBrand' | translate) : ('brands.addBrand' | translate) }}</span>
+      </div>
+      <h1>{{ isEditMode() ? ('brands.editBrand' | translate) : ('brands.addBrand' | translate) }}</h1>
+    </div>
+  </div>
+
+  @if (loading()) {
+    <div class="loading-container">
+      <div class="spinner"></div>
+    </div>
+  } @else {
+    <form (ngSubmit)="save()" #brandForm="ngForm">
+      <!-- Basic Info -->
+      <section class="form-section">
+        <h2 class="section-title">{{ 'brands.basicInfo' | translate }}</h2>
+        <div class="form-grid">
+          <div class="form-group">
+            <label for="name">{{ 'brands.name' | translate }} *</label>
+            <input type="text" id="name" name="name" [(ngModel)]="form.name" required class="form-control"
+                   [placeholder]="'brands.namePlaceholder' | translate">
+          </div>
+          <div class="form-group">
+            <label for="nameLocal">{{ 'brands.nameLocal' | translate }}</label>
+            <input type="text" id="nameLocal" name="nameLocal" [(ngModel)]="form.nameLocal" class="form-control"
+                   [placeholder]="'brands.nameLocalPlaceholder' | translate">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="manufacturerId">{{ 'brands.manufacturer' | translate }} *</label>
+          <select id="manufacturerId" name="manufacturerId" [(ngModel)]="form.manufacturerId" required class="form-select">
+            <option [ngValue]="null" disabled>{{ 'brands.selectManufacturer' | translate }}</option>
+            @for (m of manufacturers(); track m.id) {
+              <option [ngValue]="m.id">{{ m.name }}</option>
+            }
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="therapeuticArea">{{ 'brands.therapeuticArea' | translate }}</label>
+          <input type="text" id="therapeuticArea" name="therapeuticArea" [(ngModel)]="form.therapeuticArea" class="form-control"
+                 [placeholder]="'brands.therapeuticAreaPlaceholder' | translate">
+        </div>
+      </section>
+
+      <!-- Description -->
+      <section class="form-section">
+        <h2 class="section-title">{{ 'brands.description' | translate }}</h2>
+        <div class="form-grid">
+          <div class="form-group">
+            <label for="description">{{ 'brands.descriptionEn' | translate }}</label>
+            <textarea id="description" name="description" [(ngModel)]="form.description" class="form-control" rows="4"
+                      [placeholder]="'brands.descriptionPlaceholder' | translate"></textarea>
+          </div>
+          <div class="form-group">
+            <label for="descriptionLocal">{{ 'brands.descriptionLocal' | translate }}</label>
+            <textarea id="descriptionLocal" name="descriptionLocal" [(ngModel)]="form.descriptionLocal" class="form-control" rows="4"
+                      [placeholder]="'brands.descriptionLocalPlaceholder' | translate"></textarea>
+          </div>
+        </div>
+      </section>
+
+      <!-- Branding -->
+      <section class="form-section">
+        <h2 class="section-title">{{ 'brands.branding' | translate }}</h2>
+        <div class="form-group">
+          <label for="logoPath">{{ 'brands.logoPath' | translate }}</label>
+          <input type="text" id="logoPath" name="logoPath" [(ngModel)]="form.logoPath" class="form-control"
+                 [placeholder]="'brands.logoPathPlaceholder' | translate">
+          @if (form.logoPath) {
+            <div class="image-preview">
+              <img [src]="form.logoPath" alt="Brand logo preview" class="logo-preview">
+            </div>
+          }
+        </div>
+      </section>
+
+      <!-- Status (edit mode) -->
+      @if (isEditMode()) {
+        <section class="form-section">
+          <h2 class="section-title">{{ 'common.status' | translate }}</h2>
+          <div class="form-group">
+            <label class="toggle-label">
+              <input type="checkbox" name="isActive" [(ngModel)]="form.isActive">
+              <span>{{ form.isActive ? ('common.active' | translate) : ('common.inactive' | translate) }}</span>
+            </label>
+          </div>
+        </section>
+      }
+
+      <!-- Actions -->
+      <div class="form-actions">
+        <button type="button" class="btn btn-secondary" (click)="cancel()">
+          {{ 'common.cancel' | translate }}
+        </button>
+        <button type="submit" class="btn btn-primary" [disabled]="saving()">
+          @if (saving()) {
+            <span class="spinner-sm"></span>
+          }
+          {{ isEditMode() ? ('common.save' | translate) : ('brands.createBrand' | translate) }}
+        </button>
+      </div>
+    </form>
+  }
+</div>

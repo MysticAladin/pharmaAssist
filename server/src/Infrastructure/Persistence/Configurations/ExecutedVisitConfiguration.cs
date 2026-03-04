@@ -43,6 +43,9 @@ public class ExecutedVisitConfiguration : IEntityTypeConfiguration<ExecutedVisit
         builder.Property(e => e.ProductsDiscussed)
             .HasMaxLength(2000);
 
+        builder.Property(e => e.ProductsDetailedDiscussion)
+            .HasMaxLength(4000);
+
         // Indexes for reporting
         builder.HasIndex(e => new { e.RepId, e.CheckInTime });
         builder.HasIndex(e => new { e.CustomerId, e.CheckInTime });

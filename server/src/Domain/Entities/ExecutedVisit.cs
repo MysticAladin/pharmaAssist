@@ -94,6 +94,11 @@ public class ExecutedVisit : BaseEntity
     public string? ProductsDiscussed { get; set; }
     
     /// <summary>
+    /// JSON array of detailed product discussions: [{ProductId, ReactionType, Questions, CommitmentLevel}]
+    /// </summary>
+    public string? ProductsDetailedDiscussion { get; set; }
+    
+    /// <summary>
     /// General comments about the visit
     /// </summary>
     public string? GeneralComment { get; set; }

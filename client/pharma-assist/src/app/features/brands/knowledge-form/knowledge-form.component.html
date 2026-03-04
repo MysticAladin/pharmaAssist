@@ -1,0 +1,163 @@
+<div class="page-content">
+  <!-- Header -->
+  <div class="d-flex align-items-center justify-content-between mb-4">
+    <div>
+      <nav aria-label="breadcrumb">
+        <ol class="breadcrumb mb-1">
+          <li class="breadcrumb-item"><a routerLink="/brands">{{ 'brands.title' | translate }}</a></li>
+          <li class="breadcrumb-item"><a routerLink="/brands/knowledge">{{ 'knowledge.title' | translate }}</a></li>
+          <li class="breadcrumb-item active">
+            @if (isEditMode()) {
+              {{ 'knowledge.editArticle' | translate }}
+            } @else {
+              {{ 'knowledge.addArticle' | translate }}
+            }
+          </li>
+        </ol>
+      </nav>
+      <h2 class="mb-0">
+        @if (isEditMode()) {
+          {{ 'knowledge.editArticle' | translate }}
+        } @else {
+          {{ 'knowledge.addArticle' | translate }}
+        }
+      </h2>
+    </div>
+  </div>
+
+  @if (loading()) {
+    <div class="d-flex justify-content-center py-5">
+      <div class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">Loading...</span>
+      </div>
+    </div>
+  } @else {
+    <form #articleForm="ngForm" (ngSubmit)="save()">
+      <!-- Basic Info -->
+      <div class="card mb-4">
+        <div class="card-header">
+          <h5 class="card-title mb-0">{{ 'knowledge.basicInfo' | translate }}</h5>
+        </div>
+        <div class="card-body">
+          <div class="row g-3">
+            <div class="col-md-6">
+              <label for="title" class="form-label">{{ 'knowledge.articleTitle' | translate }} *</label>
+              <input type="text" class="form-control" id="title" name="title"
+                [(ngModel)]="form.title" required maxlength="200"
+                placeholder="{{ 'knowledge.articleTitlePlaceholder' | translate }}">
+            </div>
+            <div class="col-md-6">
+              <label for="titleLocal" class="form-label">{{ 'knowledge.titleLocal' | translate }}</label>
+              <input type="text" class="form-control" id="titleLocal" name="titleLocal"
+                [(ngModel)]="form.titleLocal" maxlength="200"
+                placeholder="{{ 'knowledge.titleLocalPlaceholder' | translate }}">
+            </div>
+            <div class="col-md-4">
+              <label for="category" class="form-label">{{ 'knowledge.category' | translate }}</label>
+              <select class="form-select" id="category" name="category"
+                [(ngModel)]="form.category">
+                @for (cat of categories; track cat.value) {
+                  <option [ngValue]="cat.value">{{ cat.label }}</option>
+                }
+              </select>
+            </div>
+            <div class="col-md-4">
+              <label for="brandId" class="form-label">{{ 'knowledge.brand' | translate }}</label>
+              <select class="form-select" id="brandId" name="brandId"
+                [(ngModel)]="form.brandId">
+                <option [ngValue]="null">{{ 'common.none' | translate }}</option>
+                @for (brand of brands(); track brand.id) {
+                  <option [ngValue]="brand.id">{{ brand.name }}</option>
+                }
+              </select>
+            </div>
+            <div class="col-md-4">
+              <label for="productId" class="form-label">{{ 'knowledge.product' | translate }}</label>
+              <select class="form-select" id="productId" name="productId"
+                [(ngModel)]="form.productId">
+                <option [ngValue]="null">{{ 'common.none' | translate }}</option>
+                @for (product of products(); track product.id) {
+                  <option [ngValue]="product.id">{{ product.name }}</option>
+                }
+              </select>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Content -->
+      <div class="card mb-4">
+        <div class="card-header">
+          <h5 class="card-title mb-0">{{ 'knowledge.content' | translate }}</h5>
+        </div>
+        <div class="card-body">
+          <div class="row g-3">
+            <div class="col-md-6">
+              <label for="content" class="form-label">{{ 'knowledge.contentEn' | translate }} *</label>
+              <textarea class="form-control" id="content" name="content"
+                [(ngModel)]="form.content" required rows="10"
+                placeholder="{{ 'knowledge.contentPlaceholder' | translate }}"></textarea>
+            </div>
+            <div class="col-md-6">
+              <label for="contentLocal" class="form-label">{{ 'knowledge.contentLocal' | translate }}</label>
+              <textarea class="form-control" id="contentLocal" name="contentLocal"
+                [(ngModel)]="form.contentLocal" rows="10"
+                placeholder="{{ 'knowledge.contentLocalPlaceholder' | translate }}"></textarea>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Settings -->
+      <div class="card mb-4">
+        <div class="card-header">
+          <h5 class="card-title mb-0">{{ 'knowledge.settings' | translate }}</h5>
+        </div>
+        <div class="card-body">
+          <div class="row g-3">
+            <div class="col-md-4">
+              <label for="sortOrder" class="form-label">{{ 'knowledge.sortOrder' | translate }}</label>
+              <input type="number" class="form-control" id="sortOrder" name="sortOrder"
+                [(ngModel)]="form.sortOrder" min="0">
+            </div>
+            <div class="col-md-4">
+              <label for="tags" class="form-label">{{ 'knowledge.tags' | translate }}</label>
+              <input type="text" class="form-control" id="tags" name="tags"
+                [(ngModel)]="form.tags" maxlength="500"
+                placeholder="{{ 'knowledge.tagsPlaceholder' | translate }}">
+              <small class="text-muted">{{ 'knowledge.tagsHint' | translate }}</small>
+            </div>
+            <div class="col-md-4 d-flex align-items-end">
+              <div class="form-check form-switch">
+                <input class="form-check-input" type="checkbox" role="switch"
+                  id="isPublished" name="isPublished"
+                  [(ngModel)]="form.isPublished">
+                <label class="form-check-label" for="isPublished">
+                  {{ 'knowledge.published' | translate }}
+                </label>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Actions -->
+      <div class="d-flex justify-content-end gap-2">
+        <button type="button" class="btn btn-outline-secondary" (click)="cancel()"
+          [disabled]="saving()">
+          {{ 'common.cancel' | translate }}
+        </button>
+        <button type="submit" class="btn btn-primary" [disabled]="saving() || articleForm.invalid">
+          @if (saving()) {
+            <span class="spinner-border spinner-border-sm me-1" role="status"></span>
+          }
+          @if (isEditMode()) {
+            {{ 'common.save' | translate }}
+          } @else {
+            {{ 'knowledge.createArticle' | translate }}
+          }
+        </button>
+      </div>
+    </form>
+  }
+</div>

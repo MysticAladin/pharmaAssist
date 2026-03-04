@@ -22,6 +22,11 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser, Applicati
     public DbSet<Manufacturer> Manufacturers { get; set; } = null!;
     public DbSet<Product> Products { get; set; } = null!;
     public DbSet<ProductBatch> ProductBatches { get; set; } = null!;
+    public DbSet<Brand> Brands { get; set; } = null!;
+    public DbSet<BrandGroup> BrandGroups { get; set; } = null!;
+    public DbSet<BrandGroupMember> BrandGroupMembers { get; set; } = null!;
+    public DbSet<ProductDocument> ProductDocuments { get; set; } = null!;
+    public DbSet<KnowledgeArticle> KnowledgeArticles { get; set; } = null!;
 
     // Customer Management
     public DbSet<Customer> Customers { get; set; } = null!;

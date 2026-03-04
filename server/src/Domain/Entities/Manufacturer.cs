@@ -18,4 +18,5 @@ public class Manufacturer : BaseEntity
 
     // Navigation properties
     public virtual ICollection<Product> Products { get; set; } = new List<Product>();
+    public virtual ICollection<Brand> Brands { get; set; } = new List<Brand>();
 }

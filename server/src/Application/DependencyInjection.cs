@@ -30,6 +30,7 @@ public static class DependencyInjection
         services.AddScoped<IFeatureFlagService, FeatureFlagService>();
         services.AddScoped<INotificationSettingsService, NotificationSettingsService>();
         services.AddScoped<ISalesRepService, SalesRepService>();
+        services.AddScoped<IBrandService, BrandService>();
         
         return services;
     }

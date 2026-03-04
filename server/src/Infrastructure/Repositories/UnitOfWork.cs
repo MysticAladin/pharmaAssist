@@ -21,6 +21,12 @@ public class UnitOfWork : IUnitOfWork
     private IInventoryRepository? _inventory;
     private ISalesRepRepository? _salesReps;
     private IRepository<Domain.Entities.NotificationEmailRecipient>? _notificationEmailRecipients;
+    private IRepository<Domain.Entities.Brand>? _brands;
+    private IRepository<Domain.Entities.BrandGroup>? _brandGroups;
+    private IRepository<Domain.Entities.BrandGroupMember>? _brandGroupMembers;
+    private IRepository<Domain.Entities.ProductDocument>? _productDocuments;
+    private IRepository<Domain.Entities.KnowledgeArticle>? _knowledgeArticles;
+    private IRepository<Domain.Entities.ExecutedVisit>? _executedVisits;
 
     public UnitOfWork(ApplicationDbContext context)
     {
@@ -53,6 +59,24 @@ public class UnitOfWork : IUnitOfWork
 
     public IRepository<Domain.Entities.NotificationEmailRecipient> NotificationEmailRecipients =>
         _notificationEmailRecipients ??= new Repository<Domain.Entities.NotificationEmailRecipient>(_context);
+
+    public IRepository<Domain.Entities.Brand> Brands =>
+        _brands ??= new Repository<Domain.Entities.Brand>(_context);
+
+    public IRepository<Domain.Entities.BrandGroup> BrandGroups =>
+        _brandGroups ??= new Repository<Domain.Entities.BrandGroup>(_context);
+
+    public IRepository<Domain.Entities.BrandGroupMember> BrandGroupMembers =>
+        _brandGroupMembers ??= new Repository<Domain.Entities.BrandGroupMember>(_context);
+
+    public IRepository<Domain.Entities.ProductDocument> ProductDocuments =>
+        _productDocuments ??= new Repository<Domain.Entities.ProductDocument>(_context);
+
+    public IRepository<Domain.Entities.KnowledgeArticle> KnowledgeArticles =>
+        _knowledgeArticles ??= new Repository<Domain.Entities.KnowledgeArticle>(_context);
+
+    public IRepository<Domain.Entities.ExecutedVisit> ExecutedVisits =>
+        _executedVisits ??= new Repository<Domain.Entities.ExecutedVisit>(_context);
 
     public async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
     {

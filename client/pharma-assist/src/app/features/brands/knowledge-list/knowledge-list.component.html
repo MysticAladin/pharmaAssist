@@ -1,0 +1,135 @@
+<div class="page-content">
+  <!-- Header -->
+  <div class="d-flex align-items-center justify-content-between mb-4">
+    <div>
+      <nav aria-label="breadcrumb">
+        <ol class="breadcrumb mb-1">
+          <li class="breadcrumb-item"><a routerLink="/brands">{{ 'brands.title' | translate }}</a></li>
+          <li class="breadcrumb-item active">{{ 'knowledge.title' | translate }}</li>
+        </ol>
+      </nav>
+      <h2 class="mb-0">{{ 'knowledge.title' | translate }}</h2>
+      <p class="text-muted mb-0">{{ 'knowledge.subtitle' | translate }}</p>
+    </div>
+    <button class="btn btn-primary" (click)="createArticle()">
+      <i class="bi bi-plus-lg me-1"></i>
+      {{ 'knowledge.addArticle' | translate }}
+    </button>
+  </div>
+
+  <!-- Filters -->
+  <div class="card mb-4">
+    <div class="card-body">
+      <div class="row g-3 align-items-end">
+        <div class="col-md-4">
+          <app-search-input
+            [placeholder]="'knowledge.searchPlaceholder' | translate"
+            (searchChange)="onSearch($event)">
+          </app-search-input>
+        </div>
+        <div class="col-md-3">
+          <label class="form-label">{{ 'knowledge.category' | translate }}</label>
+          <select class="form-select" (change)="onCategoryChange($any($event.target).value)">
+            <option value="">{{ 'common.all' | translate }}</option>
+            @for (cat of categories; track cat.value) {
+              <option [value]="cat.value">{{ cat.label }}</option>
+            }
+          </select>
+        </div>
+        <div class="col-md-3">
+          <label class="form-label">{{ 'knowledge.status' | translate }}</label>
+          <select class="form-select" (change)="onPublishedChange($any($event.target).value)">
+            <option value="">{{ 'common.all' | translate }}</option>
+            <option value="true">{{ 'knowledge.publishedOnly' | translate }}</option>
+            <option value="false">{{ 'knowledge.draftsOnly' | translate }}</option>
+          </select>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Content -->
+  @if (loading()) {
+    <div class="d-flex justify-content-center py-5">
+      <div class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">Loading...</span>
+      </div>
+    </div>
+  } @else if (articles().length === 0) {
+    <app-empty-state
+      [title]="'knowledge.noArticles' | translate"
+      [message]="'knowledge.noArticlesMessage' | translate"
+      icon="bi-journal-text">
+    </app-empty-state>
+  } @else {
+    <div class="row g-3">
+      @for (article of articles(); track article.id) {
+        <div class="col-md-6 col-lg-4">
+          <div class="card h-100 card-hover" role="button" (click)="viewArticle(article)">
+            <div class="card-body">
+              <div class="d-flex justify-content-between align-items-start mb-2">
+                <span class="badge {{ getCategoryClass(article.category) }}">
+                  {{ getCategoryLabel(article.category) }}
+                </span>
+                <div class="dropdown" (click)="$event.stopPropagation()">
+                  <button class="btn btn-sm btn-link text-muted p-0" data-bs-toggle="dropdown">
+                    <i class="bi bi-three-dots-vertical"></i>
+                  </button>
+                  <ul class="dropdown-menu dropdown-menu-end">
+                    <li><a class="dropdown-item" (click)="editArticle(article)">
+                      <i class="bi bi-pencil me-2"></i>{{ 'common.edit' | translate }}
+                    </a></li>
+                    <li><hr class="dropdown-divider"></li>
+                    <li><a class="dropdown-item text-danger" (click)="confirmDelete(article, $event)">
+                      <i class="bi bi-trash me-2"></i>{{ 'common.delete' | translate }}
+                    </a></li>
+                  </ul>
+                </div>
+              </div>
+              <h6 class="card-title mb-1">{{ article.title }}</h6>
+              @if (article.brandName) {
+                <small class="text-muted d-block mb-1">
+                  <i class="bi bi-bookmark me-1"></i>{{ article.brandName }}
+                </small>
+              }
+              @if (article.productName) {
+                <small class="text-muted d-block mb-1">
+                  <i class="bi bi-box me-1"></i>{{ article.productName }}
+                </small>
+              }
+              <div class="mt-2">
+                @if (article.isPublished) {
+                  <span class="badge bg-success-subtle text-success">{{ 'knowledge.published' | translate }}</span>
+                } @else {
+                  <span class="badge bg-warning-subtle text-warning">{{ 'knowledge.draft' | translate }}</span>
+                }
+              </div>
+            </div>
+          </div>
+        </div>
+      }
+    </div>
+
+    <!-- Pagination -->
+    <div class="mt-4">
+      <app-pagination
+        [currentPage]="currentPage()"
+        [totalItems]="totalCount()"
+        [pageSize]="pageSize()"
+        (pageChange)="onPageChange($event)">
+      </app-pagination>
+    </div>
+  }
+
+  <!-- Delete Dialog -->
+  @if (showDeleteDialog()) {
+    <app-confirm-dialog
+      [title]="'knowledge.deleteTitle' | translate"
+      [message]="'knowledge.deleteMessage' | translate"
+      [confirmText]="'common.delete' | translate"
+      confirmClass="btn-danger"
+      (confirmed)="onDeleteConfirmed()"
+      (cancelled)="onDeleteCancelled()">
+    </app-confirm-dialog>
+  }
+</div>
