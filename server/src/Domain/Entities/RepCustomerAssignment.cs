@@ -26,6 +26,29 @@ public class RepCustomerAssignment : BaseEntity
     /// </summary>
     public bool IsActive { get; set; } = true;
     
+    /// <summary>
+    /// Override for required visits per month. When null, defaults by tier:
+    /// A = 4/month, B = 2/month, C = 1/month
+    /// </summary>
+    public int? RequiredVisitsPerMonth { get; set; }
+    
+    /// <summary>
+    /// Get the effective required visits per month based on override or tier default
+    /// </summary>
+    public int GetEffectiveRequiredVisits(Domain.Enums.CustomerTier tier)
+    {
+        if (RequiredVisitsPerMonth.HasValue)
+            return RequiredVisitsPerMonth.Value;
+            
+        return tier switch
+        {
+            Domain.Enums.CustomerTier.A => 4,
+            Domain.Enums.CustomerTier.B => 2,
+            Domain.Enums.CustomerTier.C => 1,
+            _ => 1
+        };
+    }
+    
     // Navigation properties
     
     /// <summary>

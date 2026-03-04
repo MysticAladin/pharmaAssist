@@ -230,4 +230,31 @@ public class RepCustomersController : ControllerBase
         var isAssigned = await _repCustomerService.IsCustomerAssignedAsync(repId.Value, customerId, cancellationToken);
         return Ok(new { isAssigned });
     }
+
+    /// <summary>
+    /// Get photo archive for an assigned customer (images from visit attachments)
+    /// </summary>
+    [HttpGet("{customerId:int}/photos")]
+    [ProducesResponseType(typeof(CustomerPhotoArchiveDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> GetCustomerPhotos(
+        int customerId,
+        [FromQuery] int page = 1,
+        [FromQuery] int pageSize = 20,
+        CancellationToken cancellationToken = default)
+    {
+        var repId = await GetRepIdAsync(cancellationToken);
+        if (!repId.HasValue)
+        {
+            return Unauthorized(new { message = "Not a sales representative" });
+        }
+
+        var result = await _repCustomerService.GetCustomerPhotosAsync(repId.Value, customerId, page, pageSize, cancellationToken);
+        if (!result.Success)
+        {
+            return NotFound(new { message = result.Message });
+        }
+
+        return Ok(result.Data);
+    }
 }

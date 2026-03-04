@@ -1,14 +1,17 @@
-import { Component, OnInit, inject, signal, computed } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject, signal, computed, ElementRef, ViewChild, AfterViewInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
+import * as L from 'leaflet';
 
 import { RepCustomerService } from '../../core/services/rep-customer.service';
 import {
   RepCustomer,
   RepCustomerCredit,
   RepCustomerOrder,
-  RepCustomerVisit
+  RepCustomerVisit,
+  CustomerPhoto,
+  CustomerPhotoArchive
 } from '../../core/models/rep-order.model';
 
 @Component({
@@ -93,6 +96,53 @@ import {
               <span class="info-item__value">{{ customer()!.assignedAt | date:'mediumDate' }}</span>
             </div>
           </div>
+        </div>
+
+        <!-- Location Map -->
+        @if (customer()!.latitude != null && customer()!.longitude != null) {
+          <div class="card">
+            <h3 class="card__title">📍 {{ 'customers.location' | translate }}</h3>
+            <div class="detail-map" #detailMapContainer></div>
+            @if (customer()!.fullAddress) {
+              <p class="map-address">{{ customer()!.fullAddress }}</p>
+            }
+          </div>
+        }
+
+        <!-- Visit Compliance Card -->
+        <div class="card" [class.card--warning]="customer()!.isOverdue">
+          <h3 class="card__title">{{ 'customers.visitCompliance' | translate }}</h3>
+          <div class="compliance-bar">
+            <div class="compliance-bar__fill" 
+                 [style.width.%]="customer()!.visitCompliancePercent"
+                 [class.compliance-bar__fill--low]="customer()!.visitCompliancePercent < 50"
+                 [class.compliance-bar__fill--mid]="customer()!.visitCompliancePercent >= 50 && customer()!.visitCompliancePercent < 100"
+                 [class.compliance-bar__fill--full]="customer()!.visitCompliancePercent >= 100">
+            </div>
+          </div>
+          <div class="compliance-bar__labels">
+            <span>{{ customer()!.completedVisitsThisMonth }} / {{ customer()!.requiredVisitsPerMonth }} {{ 'customers.visitsThisMonth' | translate }}</span>
+            <span>{{ customer()!.visitCompliancePercent | number:'1.0-0' }}%</span>
+          </div>
+          <div class="credit-grid">
+            <div class="credit-item">
+              <span class="credit-item__label">{{ 'customers.requiredPerMonth' | translate }}</span>
+              <span class="credit-item__value">{{ customer()!.requiredVisitsPerMonth }}</span>
+            </div>
+            <div class="credit-item">
+              <span class="credit-item__label">{{ 'customers.completedThisMonth' | translate }}</span>
+              <span class="credit-item__value">{{ customer()!.completedVisitsThisMonth }}</span>
+            </div>
+            <div class="credit-item" [class.credit-item--danger]="customer()!.isOverdue">
+              <span class="credit-item__label">{{ 'customers.daysSinceLastVisit' | translate }}</span>
+              <span class="credit-item__value">{{ customer()!.daysSinceLastVisit ?? '-' }}</span>
+            </div>
+          </div>
+          @if (customer()!.isOverdue) {
+            <div class="credit-warning">
+              🕐 {{ 'customers.visitOverdueWarning' | translate }}
+            </div>
+          }
         </div>
 
         <!-- Credit Status Card -->
@@ -182,6 +232,35 @@ import {
                 </div>
               }
             </div>
+          }
+        </div>
+
+        <!-- Photo Archive -->
+        <div class="card">
+          <h3 class="card__title">{{ 'customers.photoArchive' | translate }}</h3>
+          @if (photosLoading()) {
+            <p class="muted">{{ 'common.loading' | translate }}</p>
+          } @else if (photos().length === 0) {
+            <p class="muted">{{ 'customers.noPhotos' | translate }}</p>
+          } @else {
+            <div class="photo-grid">
+              @for (photo of photos(); track photo.id) {
+                <div class="photo-card" (click)="openPhoto(photo)">
+                  <div class="photo-card__image">
+                    <img [src]="photo.filePath" [alt]="photo.fileName" loading="lazy" />
+                  </div>
+                  <div class="photo-card__info">
+                    <span class="photo-card__date">{{ photo.visitDate | date:'shortDate' }}</span>
+                    <span class="photo-card__size">{{ formatFileSize(photo.fileSize) }}</span>
+                  </div>
+                </div>
+              }
+            </div>
+            @if (photoArchive()?.totalPhotos && photoArchive()!.totalPhotos > photos().length) {
+              <button class="btn btn-outline btn-block" (click)="loadMorePhotos()">
+                {{ 'customers.loadMorePhotos' | translate }} ({{ photos().length }}/{{ photoArchive()!.totalPhotos }})
+              </button>
+            }
           }
         </div>
       }
@@ -276,6 +355,46 @@ import {
         background: linear-gradient(90deg, #10b981, #f59e0b, #ef4444);
         border-radius: 4px;
         transition: width 0.3s ease;
+      }
+
+      &__labels {
+        display: flex;
+        justify-content: space-between;
+        font-size: 12px;
+        color: var(--text-secondary);
+        margin-bottom: 16px;
+      }
+    }
+
+    .detail-map {
+      height: 260px;
+      border-radius: 10px;
+      overflow: hidden;
+      border: 1px solid var(--border-light);
+      z-index: 0;
+    }
+
+    .map-address {
+      margin: 8px 0 0;
+      font-size: 13px;
+      color: var(--text-secondary);
+    }
+
+    .compliance-bar {
+      height: 8px;
+      background: var(--border-light);
+      border-radius: 4px;
+      overflow: hidden;
+      margin-bottom: 8px;
+
+      &__fill {
+        height: 100%;
+        border-radius: 4px;
+        transition: width 0.3s ease;
+
+        &--low { background: #ef4444; }
+        &--mid { background: #f59e0b; }
+        &--full { background: #10b981; }
       }
 
       &__labels {
@@ -453,24 +572,84 @@ import {
       color: var(--text-secondary);
       font-size: 14px;
     }
+
+    .photo-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+
+    .photo-card {
+      border-radius: 10px;
+      overflow: hidden;
+      border: 1px solid var(--border-light);
+      cursor: pointer;
+      transition: all 0.2s ease;
+
+      &:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      }
+
+      &__image {
+        aspect-ratio: 1;
+        overflow: hidden;
+        background: var(--bg-tertiary);
+
+        img {
+          width: 100%;
+          height: 100%;
+          object-fit: cover;
+        }
+      }
+
+      &__info {
+        padding: 6px 8px;
+        display: flex;
+        justify-content: space-between;
+        font-size: 11px;
+        color: var(--text-secondary);
+      }
+    }
+
+    .btn-block {
+      width: 100%;
+      justify-content: center;
+    }
   `]
 })
-export class RepCustomerDetailComponent implements OnInit {
+export class RepCustomerDetailComponent implements OnInit, OnDestroy {
+  @ViewChild('detailMapContainer', { static: false }) mapContainer?: ElementRef;
+
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly customerService = inject(RepCustomerService);
+
+  private map: L.Map | null = null;
 
   loading = signal(true);
   customer = signal<RepCustomer | null>(null);
   credit = signal<RepCustomerCredit | null>(null);
   orders = signal<RepCustomerOrder[]>([]);
   visits = signal<RepCustomerVisit[]>([]);
+  photos = signal<CustomerPhoto[]>([]);
+  photoArchive = signal<CustomerPhotoArchive | null>(null);
+  photosLoading = signal(false);
+  private photoPage = 1;
 
   private customerId = 0;
 
   ngOnInit(): void {
     this.customerId = Number(this.route.snapshot.paramMap.get('id'));
     this.loadData();
+  }
+
+  ngOnDestroy(): void {
+    if (this.map) {
+      this.map.remove();
+      this.map = null;
+    }
   }
 
   goBack(): void {
@@ -485,6 +664,10 @@ export class RepCustomerDetailComponent implements OnInit {
       next: (customer) => {
         this.customer.set(customer);
         this.loading.set(false);
+        // Init map after view updates if customer has location
+        if (customer.latitude != null && customer.longitude != null) {
+          setTimeout(() => this.initDetailMap(customer), 0);
+        }
       },
       error: () => {
         this.customer.set(null);
@@ -507,6 +690,82 @@ export class RepCustomerDetailComponent implements OnInit {
       next: (visits) => this.visits.set(visits),
       error: () => this.visits.set([])
     });
+
+    // Load photos
+    this.loadPhotos();
+  }
+
+  private initDetailMap(customer: RepCustomer): void {
+    if (!this.mapContainer?.nativeElement) return;
+    if (this.map) {
+      this.map.remove();
+      this.map = null;
+    }
+
+    const lat = Number(customer.latitude);
+    const lng = Number(customer.longitude);
+
+    const iconDefault = L.icon({
+      iconRetinaUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png',
+      iconUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png',
+      shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
+      iconSize: [25, 41],
+      iconAnchor: [12, 41],
+      popupAnchor: [1, -34],
+      shadowSize: [41, 41]
+    });
+
+    this.map = L.map(this.mapContainer.nativeElement, {
+      center: [lat, lng],
+      zoom: 15,
+      zoomControl: true,
+      scrollWheelZoom: false
+    });
+
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+      maxZoom: 19
+    }).addTo(this.map);
+
+    const marker = L.marker([lat, lng], { icon: iconDefault }).addTo(this.map);
+    marker.bindPopup(`<strong>${customer.name}</strong><br>${customer.fullAddress || customer.city || ''}`).openPopup();
+
+    setTimeout(() => this.map?.invalidateSize(), 100);
+  }
+
+  private loadPhotos(): void {
+    this.photosLoading.set(true);
+    this.customerService.getCustomerPhotos(this.customerId, this.photoPage).subscribe({
+      next: (archive) => {
+        this.photoArchive.set(archive);
+        this.photos.set(archive.photos);
+        this.photosLoading.set(false);
+      },
+      error: () => {
+        this.photos.set([]);
+        this.photosLoading.set(false);
+      }
+    });
+  }
+
+  loadMorePhotos(): void {
+    this.photoPage++;
+    this.customerService.getCustomerPhotos(this.customerId, this.photoPage).subscribe({
+      next: (archive) => {
+        this.photoArchive.set(archive);
+        this.photos.update(current => [...current, ...archive.photos]);
+      }
+    });
+  }
+
+  openPhoto(photo: CustomerPhoto): void {
+    window.open(photo.filePath, '_blank');
+  }
+
+  formatFileSize(bytes: number): string {
+    if (bytes < 1024) return bytes + ' B';
+    if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
+    return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
   }
 
   getTierClass(): string {

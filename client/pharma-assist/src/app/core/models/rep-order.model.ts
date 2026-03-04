@@ -111,6 +111,17 @@ export interface RepCustomer {
   lastOrderAmount?: number;
   assignedAt: Date;
   isActive: boolean;
+  
+  // Visit frequency fields
+  requiredVisitsPerMonth: number;
+  completedVisitsThisMonth: number;
+  daysSinceLastVisit?: number;
+  isOverdue: boolean;
+  visitCompliancePercent: number;
+  
+  // Location fields (for map views)
+  latitude?: number;
+  longitude?: number;
 }
 
 /**
@@ -202,9 +213,11 @@ export interface RepCustomerStats {
   customersByTier: Record<string, number>;
   customersWithCreditWarning: number;
   customersNeedingVisit: number;
+  customersOverdue: number;
   customersVisitedThisWeek: number;
   customersWithOrdersThisMonth: number;
   totalOrderValueThisMonth: number;
+  overallVisitCompliance: number;
 }
 
 // ============= Rep Product DTOs =============
@@ -252,4 +265,31 @@ export interface WarehouseStock {
   minQuantity: number;
   maxQuantity: number;
   isLow: boolean;
+}
+
+// ============= Customer Photo Archive DTOs =============
+
+/**
+ * Photo from a customer visit
+ */
+export interface CustomerPhoto {
+  id: number;
+  visitId: number;
+  visitDate: Date;
+  fileName: string;
+  fileType: string;
+  filePath: string;
+  fileSize: number;
+  uploadedAt: Date;
+  thumbnailUrl?: string;
+}
+
+/**
+ * Customer photo archive result
+ */
+export interface CustomerPhotoArchive {
+  customerId: number;
+  customerName: string;
+  totalPhotos: number;
+  photos: CustomerPhoto[];
 }

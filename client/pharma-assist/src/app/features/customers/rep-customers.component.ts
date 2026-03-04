@@ -20,6 +20,11 @@ import { CustomerTier, CustomerType } from '../../core/models/customer.model';
     <div class="rep-customers">
       <header class="header">
         <h1 class="header__title">{{ 'customers.myCustomers' | translate }}</h1>
+        <div class="header__actions">
+          <button class="btn btn-outline" (click)="openMap()">
+            🗺️ {{ 'customers.mapView' | translate }}
+          </button>
+        </div>
         <p class="header__subtitle">{{ 'customers.myCustomersDesc' | translate }}</p>
       </header>
 
@@ -45,6 +50,10 @@ import { CustomerTier, CustomerType } from '../../core/models/customer.model';
           <div class="stat-card stat-card--success">
             <span class="stat-card__value">{{ stats()!.customersVisitedThisWeek }}</span>
             <span class="stat-card__label">{{ 'customers.stats.visitedThisWeek' | translate }}</span>
+          </div>
+          <div class="stat-card" [class.stat-card--success]="stats()!.overallVisitCompliance >= 80" [class.stat-card--warning]="stats()!.overallVisitCompliance < 80">
+            <span class="stat-card__value">{{ stats()!.overallVisitCompliance | number:'1.0-0' }}%</span>
+            <span class="stat-card__label">{{ 'customers.stats.visitCompliance' | translate }}</span>
           </div>
         </div>
       }
@@ -105,6 +114,9 @@ import { CustomerTier, CustomerType } from '../../core/models/customer.model';
                   <span class="badge badge--{{ getTierClass(customer.tier) }}">
                     {{ customer.tierName }}
                   </span>
+                  @if (customer.isOverdue) {
+                    <span class="badge badge--warning">🕐 {{ 'customers.overdue' | translate }}</span>
+                  }
                   @if (customer.creditWarning) {
                     <span class="badge badge--danger">⚠️ {{ 'customers.creditWarning' | translate }}</span>
                   }
@@ -137,6 +149,13 @@ import { CustomerTier, CustomerType } from '../../core/models/customer.model';
 
                 <div class="customer-card__metrics">
                   <div class="metric">
+                    <span class="metric__label">{{ 'customers.visitCompliance' | translate }}</span>
+                    <span class="metric__value" [class.warning]="customer.visitCompliancePercent < 50" [class.success]="customer.visitCompliancePercent >= 100">
+                      {{ customer.completedVisitsThisMonth }}/{{ customer.requiredVisitsPerMonth }}
+                      ({{ customer.visitCompliancePercent | number:'1.0-0' }}%)
+                    </span>
+                  </div>
+                  <div class="metric">
                     <span class="metric__label">{{ 'customers.creditAvailable' | translate }}</span>
                     <span class="metric__value" [class.warning]="customer.creditWarning">
                       {{ customer.creditAvailable | currency }}
@@ -144,8 +163,11 @@ import { CustomerTier, CustomerType } from '../../core/models/customer.model';
                   </div>
                   <div class="metric">
                     <span class="metric__label">{{ 'customers.lastVisit' | translate }}</span>
-                    <span class="metric__value">
+                    <span class="metric__value" [class.warning]="customer.isOverdue">
                       {{ customer.lastVisitDate ? (customer.lastVisitDate | date:'shortDate') : '-' }}
+                      @if (customer.daysSinceLastVisit != null) {
+                        <small>({{ customer.daysSinceLastVisit }}d)</small>
+                      }
                     </span>
                   </div>
                   <div class="metric">
@@ -209,13 +231,22 @@ import { CustomerTier, CustomerType } from '../../core/models/customer.model';
     }
 
     .header {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 12px;
+
       &__title {
         font-size: 24px;
         font-weight: 700;
-        margin: 0 0 8px 0;
+        margin: 0;
         color: var(--text-primary);
       }
+      &__actions {
+        margin-left: auto;
+      }
       &__subtitle {
+        width: 100%;
         font-size: 14px;
         color: var(--text-secondary);
         margin: 0;
@@ -434,6 +465,16 @@ import { CustomerTier, CustomerType } from '../../core/models/customer.model';
         &.warning {
           color: #f59e0b;
         }
+        
+        &.success {
+          color: #059669;
+        }
+
+        small {
+          font-weight: 400;
+          font-size: 11px;
+          color: var(--text-secondary);
+        }
       }
     }
 
@@ -449,6 +490,8 @@ import { CustomerTier, CustomerType } from '../../core/models/customer.model';
       &--standard { background: #d1d5db; color: #1f2937; }
       &--basic { background: #e5e7eb; color: #374151; }
       &--danger { background: #fee2e2; color: #dc2626; }
+      &--warning { background: #fef3c7; color: #d97706; }
+      &--success { background: #d1fae5; color: #059669; }
     }
 
     .btn {
@@ -624,6 +667,10 @@ export class RepCustomersComponent implements OnInit {
 
   viewCustomer(customer: RepCustomer): void {
     this.router.navigate(['/customers/rep', customer.id]);
+  }
+
+  openMap(): void {
+    this.router.navigate(['/customers/rep/map']);
   }
 
   createOrder(customer: RepCustomer, event: Event): void {

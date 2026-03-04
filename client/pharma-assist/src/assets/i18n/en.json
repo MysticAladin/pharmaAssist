@@ -577,7 +577,9 @@
     "agreedDeals": "Agreed Deals",
     "agreedDealsPlaceholder": "Any deals or agreements made during the visit...",
     "competitionNotes": "Competition Notes",
-    "competitionNotesPlaceholder": "Notes about competitor products, pricing, or activity..."
+    "competitionNotesPlaceholder": "Notes about competitor products, pricing, or activity...",
+    "calendar": "Calendar",
+    "pending": "Pending"
   },
   "visitPlanner": {
     "title": "Weekly Visit Planner",
@@ -990,7 +992,8 @@
       "pharmacies": "Pharmacies",
       "needsVisit": "Need Visit",
       "creditWarning": "Credit Warning",
-      "visitedThisWeek": "Visited This Week"
+      "visitedThisWeek": "Visited This Week",
+      "visitCompliance": "Visit Compliance"
     },
     "types": {
       "retail": "Retail",
@@ -1139,7 +1142,24 @@
     "noRecentOrders": "No recent orders",
     "recentVisits": "Recent Visits",
     "noRecentVisits": "No recent visits",
-    "lastVisit": "Last Visit"
+    "lastVisit": "Last Visit",
+    "visitCompliance": "Visit Compliance",
+    "visitsThisMonth": "visits this month",
+    "requiredPerMonth": "Required/Month",
+    "completedThisMonth": "Completed This Month",
+    "daysSinceLastVisit": "Days Since Last Visit",
+    "visitOverdueWarning": "This customer is overdue for a visit based on their tier requirements",
+    "photoArchive": "Photo Archive",
+    "noPhotos": "No photos from visits yet",
+    "loadMorePhotos": "Load More Photos",
+    "customerMap": "Customer Map",
+    "mapView": "Map View",
+    "needsVisitSoon": "Needs Visit Soon",
+    "visitedRecently": "Visited Recently",
+    "customersNoLocation": "customers have no location data",
+    "onMap": "on map",
+    "onTrack": "on track",
+    "location": "Location"
   },
   "orders": {
       "selectBranch": "Select branch",

@@ -28,6 +28,17 @@ public class RepCustomerDto
     public decimal? LastOrderAmount { get; set; }
     public DateTime AssignedAt { get; set; }
     public bool IsActive { get; set; }
+    
+    // Visit frequency fields
+    public int RequiredVisitsPerMonth { get; set; }
+    public int CompletedVisitsThisMonth { get; set; }
+    public int? DaysSinceLastVisit { get; set; }
+    public bool IsOverdue { get; set; }
+    public decimal VisitCompliancePercent { get; set; }
+    
+    // Location fields (for map views)
+    public decimal? Latitude { get; set; }
+    public decimal? Longitude { get; set; }
 }
 
 /// <summary>
@@ -125,7 +136,36 @@ public class RepCustomerStatsDto
     public Dictionary<string, int> CustomersByTier { get; set; } = new();
     public int CustomersWithCreditWarning { get; set; }
     public int CustomersNeedingVisit { get; set; }
+    public int CustomersOverdue { get; set; }
     public int CustomersVisitedThisWeek { get; set; }
     public int CustomersWithOrdersThisMonth { get; set; }
     public decimal TotalOrderValueThisMonth { get; set; }
+    public decimal OverallVisitCompliance { get; set; }
+}
+
+/// <summary>
+/// Photo/attachment from a customer visit
+/// </summary>
+public class CustomerPhotoDto
+{
+    public int Id { get; set; }
+    public int VisitId { get; set; }
+    public DateTime VisitDate { get; set; }
+    public string FileName { get; set; } = string.Empty;
+    public string FileType { get; set; } = string.Empty;
+    public string FilePath { get; set; } = string.Empty;
+    public long FileSize { get; set; }
+    public DateTime UploadedAt { get; set; }
+    public string? ThumbnailUrl { get; set; }
+}
+
+/// <summary>
+/// Result for customer photo archive
+/// </summary>
+public class CustomerPhotoArchiveDto
+{
+    public int CustomerId { get; set; }
+    public string CustomerName { get; set; } = string.Empty;
+    public int TotalPhotos { get; set; }
+    public List<CustomerPhotoDto> Photos { get; set; } = new();
 }

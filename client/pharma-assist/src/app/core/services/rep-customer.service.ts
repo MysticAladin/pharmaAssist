@@ -9,7 +9,8 @@ import {
   RepCustomerVisit,
   RepCustomerFilter,
   RepCustomerResult,
-  RepCustomerStats
+  RepCustomerStats,
+  CustomerPhotoArchive
 } from '../models/rep-order.model';
 
 @Injectable({
@@ -107,5 +108,18 @@ export class RepCustomerService {
    */
   isCustomerAssigned(customerId: number): Observable<{ isAssigned: boolean }> {
     return this.http.get<{ isAssigned: boolean }>(`${this.baseUrl}/${customerId}/is-assigned`);
+  }
+
+  /**
+   * Get photo archive for a customer (images from visit attachments)
+   */
+  getCustomerPhotos(customerId: number, page: number = 1, pageSize: number = 20): Observable<CustomerPhotoArchive> {
+    const params = new HttpParams()
+      .set('page', page.toString())
+      .set('pageSize', pageSize.toString());
+    return this.http.get<CustomerPhotoArchive>(
+      `${this.baseUrl}/${customerId}/photos`,
+      { params }
+    );
   }
 }

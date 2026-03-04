@@ -64,4 +64,14 @@ public interface IRepCustomerService
         int repId, 
         int customerId, 
         CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Get photo archive for a customer (aggregated from visit attachments)
+    /// </summary>
+    Task<ApiResponse<CustomerPhotoArchiveDto>> GetCustomerPhotosAsync(
+        int repId,
+        int customerId,
+        int page = 1,
+        int pageSize = 20,
+        CancellationToken cancellationToken = default);
 }

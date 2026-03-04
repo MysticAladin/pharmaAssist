@@ -18,6 +18,9 @@ public class RepCustomerAssignmentConfiguration : IEntityTypeConfiguration<RepCu
         builder.Property(e => e.CustomerId)
             .IsRequired();
 
+        builder.Property(e => e.RequiredVisitsPerMonth)
+            .IsRequired(false);
+
         // Unique constraint on rep-customer pair
         builder.HasIndex(e => new { e.RepId, e.CustomerId })
             .IsUnique();

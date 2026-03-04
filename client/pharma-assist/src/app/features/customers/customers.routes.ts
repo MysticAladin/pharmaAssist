@@ -12,6 +12,12 @@ export const CUSTOMERS_ROUTES: Routes = [
     loadComponent: () => import('./rep-customers.component').then(m => m.RepCustomersComponent)
   },
   {
+    path: 'rep/map',
+    canActivate: [roleGuard],
+    data: { roles: [UserRole.SalesRep] },
+    loadComponent: () => import('./customer-map.component').then(m => m.CustomerMapComponent)
+  },
+  {
     path: 'rep/:id',
     canActivate: [roleGuard],
     data: { roles: [UserRole.SalesRep] },

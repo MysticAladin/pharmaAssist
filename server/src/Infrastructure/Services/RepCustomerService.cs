@@ -91,6 +91,18 @@ public class RepCustomerService : IRepCustomerService
                 })
                 .ToListAsync(cancellationToken);
 
+            // Get visit counts this month for compliance calculation
+            var startOfMonth = new DateTime(DateTime.UtcNow.Year, DateTime.UtcNow.Month, 1);
+            var visitsThisMonth = await _context.ExecutedVisits
+                .Where(v => customerIds.Contains(v.CustomerId) && v.RepId == repId && v.CheckInTime >= startOfMonth)
+                .GroupBy(v => v.CustomerId)
+                .Select(g => new
+                {
+                    CustomerId = g.Key,
+                    Count = g.Count()
+                })
+                .ToListAsync(cancellationToken);
+
             var totalCount = customers.Count;
             
             // Sorting
@@ -123,6 +135,20 @@ public class RepCustomerService : IRepCustomerService
                     var orderInfo = recentOrders.FirstOrDefault(o => o.CustomerId == c.Id);
                     var visitInfo = recentVisits.FirstOrDefault(v => v.CustomerId == c.Id);
                     var assignment = assignmentLookup.GetValueOrDefault(c.Id);
+                    var monthlyVisitCount = visitsThisMonth.FirstOrDefault(v => v.CustomerId == c.Id)?.Count ?? 0;
+                    var requiredVisits = assignment?.GetEffectiveRequiredVisits(c.Tier) ?? 1;
+                    
+                    var daysSinceLastVisit = visitInfo?.LastVisitDate != null
+                        ? (int?)(DateTime.UtcNow - visitInfo.LastVisitDate).TotalDays
+                        : null;
+                    
+                    // Calculate max days between visits based on monthly requirement
+                    var maxDaysBetweenVisits = requiredVisits > 0 ? 30.0 / requiredVisits : 30.0;
+                    var isOverdue = daysSinceLastVisit == null || daysSinceLastVisit > maxDaysBetweenVisits;
+                    
+                    var compliance = requiredVisits > 0
+                        ? Math.Min(100, (decimal)monthlyVisitCount / requiredVisits * 100)
+                        : 100;
 
                     return new RepCustomerDto
                     {
@@ -148,7 +174,14 @@ public class RepCustomerService : IRepCustomerService
                         LastOrderDate = orderInfo?.LastOrderDate,
                         LastOrderAmount = orderInfo?.LastOrderAmount,
                         AssignedAt = assignment?.AssignmentDate ?? DateTime.UtcNow,
-                        IsActive = c.IsActive
+                        IsActive = c.IsActive,
+                        RequiredVisitsPerMonth = requiredVisits,
+                        CompletedVisitsThisMonth = monthlyVisitCount,
+                        DaysSinceLastVisit = daysSinceLastVisit.HasValue ? (int)daysSinceLastVisit.Value : null,
+                        IsOverdue = isOverdue,
+                        VisitCompliancePercent = compliance,
+                        Latitude = primaryAddress?.Latitude,
+                        Longitude = primaryAddress?.Longitude
                     };
                 }).ToList()
             };
@@ -157,6 +190,13 @@ public class RepCustomerService : IRepCustomerService
             if (filter.HasCreditWarning == true)
             {
                 result.Customers = result.Customers.Where(c => c.CreditWarning).ToList();
+                result.TotalCount = result.Customers.Count;
+            }
+            
+            // Apply post-filter for needs visit (overdue based on tier frequency)
+            if (filter.NeedsVisit == true)
+            {
+                result.Customers = result.Customers.Where(c => c.IsOverdue).ToList();
                 result.TotalCount = result.Customers.Count;
             }
 
@@ -208,6 +248,21 @@ public class RepCustomerService : IRepCustomerService
                 .OrderByDescending(v => v.CheckInTime)
                 .FirstOrDefaultAsync(cancellationToken);
 
+            // Calculate visit frequency metrics
+            var startOfMonth = new DateTime(DateTime.UtcNow.Year, DateTime.UtcNow.Month, 1);
+            var monthlyVisitCount = await _context.ExecutedVisits
+                .CountAsync(v => v.CustomerId == customerId && v.RepId == repId && v.CheckInTime >= startOfMonth, cancellationToken);
+            
+            var requiredVisits = assignment.GetEffectiveRequiredVisits(customer.Tier);
+            var daysSinceLastVisit = lastVisit != null
+                ? (int?)(DateTime.UtcNow - lastVisit.CheckInTime).TotalDays
+                : null;
+            var maxDaysBetweenVisits = requiredVisits > 0 ? 30.0 / requiredVisits : 30.0;
+            var isOverdue = daysSinceLastVisit == null || daysSinceLastVisit > maxDaysBetweenVisits;
+            var compliance = requiredVisits > 0
+                ? Math.Min(100, (decimal)monthlyVisitCount / requiredVisits * 100)
+                : 100;
+
             var dto = new RepCustomerDto
             {
                 Id = customer.Id,
@@ -232,7 +287,14 @@ public class RepCustomerService : IRepCustomerService
                 LastOrderDate = lastOrder?.OrderDate,
                 LastOrderAmount = lastOrder?.TotalAmount,
                 AssignedAt = assignment.AssignmentDate,
-                IsActive = customer.IsActive
+                IsActive = customer.IsActive,
+                RequiredVisitsPerMonth = requiredVisits,
+                CompletedVisitsThisMonth = monthlyVisitCount,
+                DaysSinceLastVisit = daysSinceLastVisit.HasValue ? (int)daysSinceLastVisit.Value : null,
+                IsOverdue = isOverdue,
+                VisitCompliancePercent = compliance,
+                Latitude = primaryAddress?.Latitude,
+                Longitude = primaryAddress?.Longitude
             };
 
             return ApiResponse<RepCustomerDto>.Ok(dto);
@@ -457,6 +519,44 @@ public class RepCustomerService : IRepCustomerService
                 .Distinct()
                 .CountAsync(cancellationToken);
 
+            // Get visits this month per customer for compliance
+            var visitsThisMonthPerCustomer = await _context.ExecutedVisits
+                .Where(v => v.RepId == repId &&
+                            customerIds.Contains(v.CustomerId) &&
+                            v.CheckInTime >= startOfMonth)
+                .GroupBy(v => v.CustomerId)
+                .Select(g => new { CustomerId = g.Key, Count = g.Count() })
+                .ToListAsync(cancellationToken);
+
+            // Get last visit date per customer for overdue calculation
+            var lastVisitsPerCustomer = await _context.ExecutedVisits
+                .Where(v => v.RepId == repId && customerIds.Contains(v.CustomerId))
+                .GroupBy(v => v.CustomerId)
+                .Select(g => new { CustomerId = g.Key, LastVisit = g.Max(v => v.CheckInTime) })
+                .ToListAsync(cancellationToken);
+
+            // Calculate overdue count using tier-based frequency
+            var overdueCount = 0;
+            var totalRequired = 0;
+            var totalCompleted = 0;
+            foreach (var assignment in assignments)
+            {
+                var customer = assignment.Customer!;
+                var required = assignment.GetEffectiveRequiredVisits(customer.Tier);
+                var completed = visitsThisMonthPerCustomer.FirstOrDefault(v => v.CustomerId == customer.Id)?.Count ?? 0;
+                var lastVisitDate = lastVisitsPerCustomer.FirstOrDefault(v => v.CustomerId == customer.Id)?.LastVisit;
+                var maxDays = required > 0 ? 30.0 / required : 30.0;
+                var daysSince = lastVisitDate != null ? (DateTime.UtcNow - lastVisitDate.Value).TotalDays : double.MaxValue;
+                
+                if (daysSince > maxDays) overdueCount++;
+                totalRequired += required;
+                totalCompleted += completed;
+            }
+
+            var overallCompliance = totalRequired > 0
+                ? Math.Min(100, (decimal)totalCompleted / totalRequired * 100)
+                : 100;
+
             // Get orders this month
             var ordersThisMonth = await _context.Orders
                 .Where(o => customerIds.Contains(o.CustomerId) && 
@@ -482,10 +582,12 @@ public class RepCustomerService : IRepCustomerService
                     .ToDictionary(g => g.Key, g => g.Count()),
                 CustomersWithCreditWarning = customers
                     .Count(c => c.CurrentBalance >= c.CreditLimit * 0.8m),
-                CustomersNeedingVisit = assignments.Count - visitsThisWeek,
+                CustomersNeedingVisit = overdueCount,
+                CustomersOverdue = overdueCount,
                 CustomersVisitedThisWeek = visitsThisWeek,
                 CustomersWithOrdersThisMonth = customersWithOrdersThisMonth,
-                TotalOrderValueThisMonth = totalOrderValueThisMonth
+                TotalOrderValueThisMonth = totalOrderValueThisMonth,
+                OverallVisitCompliance = overallCompliance
             };
 
             return ApiResponse<RepCustomerStatsDto>.Ok(stats);
@@ -494,6 +596,75 @@ public class RepCustomerService : IRepCustomerService
         {
             _logger.LogError(ex, "Error getting customer stats for rep {RepId}", repId);
             return ApiResponse<RepCustomerStatsDto>.Fail("Failed to retrieve statistics");
+        }
+    }
+
+    public async Task<ApiResponse<CustomerPhotoArchiveDto>> GetCustomerPhotosAsync(
+        int repId,
+        int customerId,
+        int page = 1,
+        int pageSize = 20,
+        CancellationToken cancellationToken = default)
+    {
+        try
+        {
+            if (!await IsCustomerAssignedAsync(repId, customerId, cancellationToken))
+            {
+                return ApiResponse<CustomerPhotoArchiveDto>.Fail("Customer not assigned to you");
+            }
+
+            var customer = await _context.Customers.FindAsync(new object[] { customerId }, cancellationToken);
+            if (customer == null)
+            {
+                return ApiResponse<CustomerPhotoArchiveDto>.Fail("Customer not found");
+            }
+
+            // Get all visit IDs for this customer by this rep
+            var visitIds = await _context.ExecutedVisits
+                .Where(v => v.CustomerId == customerId && v.RepId == repId)
+                .Select(v => v.Id)
+                .ToListAsync(cancellationToken);
+
+            // Get attachments that are images from those visits
+            var imageTypes = new[] { "image/jpeg", "image/png", "image/gif", "image/webp", "image/bmp" };
+            var totalPhotos = await _context.VisitAttachments
+                .CountAsync(a => visitIds.Contains(a.VisitId) && imageTypes.Contains(a.FileType), cancellationToken);
+
+            var attachments = await _context.VisitAttachments
+                .Where(a => visitIds.Contains(a.VisitId) && imageTypes.Contains(a.FileType))
+                .OrderByDescending(a => a.UploadedAt)
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .Include(a => a.Visit)
+                .ToListAsync(cancellationToken);
+
+            var photos = attachments.Select(a => new CustomerPhotoDto
+            {
+                Id = a.Id,
+                VisitId = a.VisitId,
+                VisitDate = a.Visit?.CheckInTime.Date ?? a.UploadedAt.Date,
+                FileName = a.FileName,
+                FileType = a.FileType,
+                FilePath = a.FilePath,
+                FileSize = a.FileSize,
+                UploadedAt = a.UploadedAt,
+                ThumbnailUrl = null // TODO: Generate thumbnails
+            }).ToList();
+
+            var result = new CustomerPhotoArchiveDto
+            {
+                CustomerId = customerId,
+                CustomerName = customer.FullName,
+                TotalPhotos = totalPhotos,
+                Photos = photos
+            };
+
+            return ApiResponse<CustomerPhotoArchiveDto>.Ok(result);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error getting photos for customer {CustomerId}", customerId);
+            return ApiResponse<CustomerPhotoArchiveDto>.Fail("Failed to retrieve photos");
         }
     }
 

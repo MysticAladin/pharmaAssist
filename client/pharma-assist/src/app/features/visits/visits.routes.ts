@@ -24,6 +24,12 @@ export const VISITS_ROUTES: Routes = [
     loadComponent: () => import('./visit-planner.component').then(m => m.VisitPlannerComponent)
   },
   {
+    path: 'calendar',
+    canActivate: [roleGuard],
+    data: { roles: [UserRole.SalesRep] },
+    loadComponent: () => import('./visit-calendar.component').then(m => m.VisitCalendarComponent)
+  },
+  {
     path: 'planning-hierarchy',
     canActivate: [roleGuard],
     data: { roles: [UserRole.SalesRep, UserRole.Manager] },
