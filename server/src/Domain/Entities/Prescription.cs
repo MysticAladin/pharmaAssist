@@ -11,7 +11,8 @@ public class Prescription : BaseEntity
     public DateTime IssuedDate { get; set; }
     public DateTime ExpiryDate { get; set; }
     
-    // Doctor information
+    // Doctor information - PhysicianId replaces free-text fields
+    public int? PhysicianId { get; set; }
     public string DoctorName { get; set; } = null!;
     public string? DoctorLicenseNumber { get; set; }
     public string? MedicalInstitution { get; set; }
@@ -31,5 +32,6 @@ public class Prescription : BaseEntity
 
     // Navigation properties
     public virtual Customer Customer { get; set; } = null!;
+    public virtual Physician? Physician { get; set; }
     public virtual ICollection<OrderItem> OrderItems { get; set; } = new List<OrderItem>();
 }

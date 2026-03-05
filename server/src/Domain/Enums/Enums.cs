@@ -488,3 +488,45 @@ public enum MaterialType
     Equipment = 4,
     Other = 99
 }
+
+/// <summary>
+/// Medical specialty of a physician
+/// </summary>
+public enum PhysicianSpecialty
+{
+    GeneralPractice = 1,
+    InternalMedicine = 2,
+    Cardiology = 3,
+    Neurology = 4,
+    Oncology = 5,
+    Pediatrics = 6,
+    Surgery = 7,
+    Orthopedics = 8,
+    Dermatology = 9,
+    Psychiatry = 10,
+    Gastroenterology = 11,
+    Pulmonology = 12,
+    Endocrinology = 13,
+    Nephrology = 14,
+    Rheumatology = 15,
+    Ophthalmology = 16,
+    ENT = 17,
+    Urology = 18,
+    Gynecology = 19,
+    Anesthesiology = 20,
+    Radiology = 21,
+    Pathology = 22,
+    Pharmacology = 23,
+    Other = 99
+}
+
+/// <summary>
+/// Key Opinion Leader status of a physician
+/// </summary>
+public enum KOLStatus
+{
+    None = 0,
+    Potential = 1,
+    Active = 2,
+    Senior = 3
+}

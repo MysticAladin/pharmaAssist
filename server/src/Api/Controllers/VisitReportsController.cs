@@ -115,6 +115,31 @@ public class VisitReportsController : ControllerBase
         }
     }
 
+    /// <summary>
+    /// Get all visits for a specific customer across all reps (admin/manager view)
+    /// </summary>
+    [HttpGet("customer/{customerId:int}/visits")]
+    [ProducesResponseType(typeof(CustomerVisitHistoryDto), StatusCodes.Status200OK)]
+    public async Task<IActionResult> GetCustomerVisitsAcrossReps(
+        int customerId,
+        [FromQuery] int page = 1,
+        [FromQuery] int pageSize = 10,
+        [FromQuery] DateTime? from = null,
+        [FromQuery] DateTime? to = null,
+        CancellationToken cancellationToken = default)
+    {
+        try
+        {
+            var result = await _service.GetCustomerVisitsAcrossRepsAsync(customerId, page, pageSize, from, to, cancellationToken);
+            return Ok(result);
+        }
+        catch (InvalidOperationException ex)
+        {
+            _logger.LogWarning(ex, "Customer cross-rep visits query failed for customer {CustomerId}", customerId);
+            return BadRequest(new { message = ex.Message });
+        }
+    }
+
     private string GetUserId()
     {
         var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);

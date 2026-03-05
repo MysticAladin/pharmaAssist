@@ -1,0 +1,183 @@
+<div class="container mx-auto p-6">
+  <!-- Header -->
+  <div class="flex items-center justify-between mb-6">
+    <div>
+      <h1 class="text-2xl font-bold text-gray-900">{{ 'HOSPITAL.CUSTOMER_VISIT_HISTORY' | translate }}</h1>
+      @if (history()) {
+        <p class="text-sm text-gray-500 mt-1">{{ history()!.customerName }}</p>
+      }
+    </div>
+    <div class="flex gap-3">
+      <a [routerLink]="['/hospital', customerId(), 'departments']"
+         class="btn btn-outline">
+        <i class="icon-grid mr-2"></i>
+        {{ 'HOSPITAL.DEPARTMENTS' | translate }}
+      </a>
+      <a [routerLink]="['/hospital', customerId(), 'hierarchy']"
+         class="btn btn-outline">
+        <i class="icon-git-branch mr-2"></i>
+        {{ 'HOSPITAL.HIERARCHY_VIEW' | translate }}
+      </a>
+    </div>
+  </div>
+
+  <!-- Filters -->
+  <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4 mb-6">
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 items-end">
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-1">
+          {{ 'HOSPITAL.FROM_DATE' | translate }}
+        </label>
+        <input type="date"
+               [ngModel]="fromDate()"
+               (ngModelChange)="updateFromDate($event)"
+               name="fromDate"
+               class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+      </div>
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-1">
+          {{ 'HOSPITAL.TO_DATE' | translate }}
+        </label>
+        <input type="date"
+               [ngModel]="toDate()"
+               (ngModelChange)="updateToDate($event)"
+               name="toDate"
+               class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+      </div>
+      <button (click)="onFilterChange()" class="btn btn-primary h-10">
+        <i class="icon-filter mr-2"></i>
+        {{ 'COMMON.FILTER' | translate }}
+      </button>
+    </div>
+  </div>
+
+  <!-- Loading -->
+  @if (loading()) {
+    <div class="flex justify-center py-12">
+      <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+    </div>
+  }
+
+  <!-- Empty -->
+  @if (!loading() && (!history() || history()!.visits.length === 0)) {
+    <app-empty-state
+      [title]="'HOSPITAL.NO_VISITS' | translate"
+      [description]="'HOSPITAL.NO_VISITS_DESC' | translate"
+      icon="icon-map-pin">
+    </app-empty-state>
+  }
+
+  <!-- Visit History Table -->
+  @if (!loading() && history() && history()!.visits.length > 0) {
+    <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+      <!-- Summary Stats -->
+      <div class="bg-gray-50 px-6 py-3 border-b border-gray-200">
+        <div class="flex gap-6 text-sm">
+          <span class="text-gray-600">
+            {{ 'HOSPITAL.TOTAL_VISITS' | translate }}: <strong>{{ history()!.totalVisits }}</strong>
+          </span>
+        </div>
+      </div>
+
+      <table class="min-w-full divide-y divide-gray-200">
+        <thead class="bg-gray-50">
+          <tr>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+              {{ 'HOSPITAL.REP_NAME' | translate }}
+            </th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+              {{ 'HOSPITAL.CHECK_IN' | translate }}
+            </th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+              {{ 'HOSPITAL.DURATION' | translate }}
+            </th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+              {{ 'HOSPITAL.OUTCOME' | translate }}
+            </th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+              {{ 'HOSPITAL.LOCATION_VERIFIED' | translate }}
+            </th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+              {{ 'HOSPITAL.SUMMARY' | translate }}
+            </th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-gray-200">
+          @for (visit of history()!.visits; track visit.id) {
+            <tr class="hover:bg-gray-50">
+              <td class="px-6 py-4 whitespace-nowrap">
+                <div class="text-sm font-medium text-gray-900">{{ visit.repName }}</div>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                {{ visit.checkInTime | date:'medium' }}
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                {{ formatDuration(visit.actualDurationMinutes) }}
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap">
+                @if (visit.outcome) {
+                  <app-status-badge
+                    [label]="visit.outcome"
+                    [variant]="getOutcomeBadgeVariant(visit.outcome)">
+                  </app-status-badge>
+                } @else {
+                  <span class="text-sm text-gray-400">-</span>
+                }
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm">
+                @if (visit.locationVerified) {
+                  <span class="text-green-600"><i class="icon-check-circle"></i></span>
+                } @else {
+                  <span class="text-gray-400"><i class="icon-x-circle"></i></span>
+                }
+              </td>
+              <td class="px-6 py-4 text-sm text-gray-600 max-w-xs truncate">
+                {{ visit.summary || '-' }}
+              </td>
+            </tr>
+
+            <!-- Expandable details row -->
+            @if (visit.competitionNotes || visit.agreedDeals || visit.productsDiscussed) {
+              <tr class="bg-gray-50">
+                <td colspan="6" class="px-6 py-3">
+                  <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+                    @if (visit.productsDiscussed) {
+                      <div>
+                        <span class="text-gray-500 font-medium">{{ 'HOSPITAL.PRODUCTS_DISCUSSED' | translate }}:</span>
+                        <p class="text-gray-700 mt-1">{{ visit.productsDiscussed }}</p>
+                      </div>
+                    }
+                    @if (visit.competitionNotes) {
+                      <div>
+                        <span class="text-orange-600 font-medium">{{ 'HOSPITAL.COMPETITION_NOTES' | translate }}:</span>
+                        <p class="text-gray-700 mt-1">{{ visit.competitionNotes }}</p>
+                      </div>
+                    }
+                    @if (visit.agreedDeals) {
+                      <div>
+                        <span class="text-green-600 font-medium">{{ 'HOSPITAL.AGREED_DEALS' | translate }}:</span>
+                        <p class="text-gray-700 mt-1">{{ visit.agreedDeals }}</p>
+                      </div>
+                    }
+                  </div>
+                </td>
+              </tr>
+            }
+          }
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Pagination -->
+    @if (history()!.totalPages > 1) {
+      <div class="mt-4">
+        <app-pagination
+          [page]="currentPage()"
+          [size]="pageSize()"
+          [totalItems]="history()!.totalVisits"
+          (pageChange)="onPageChange($event)">
+        </app-pagination>
+      </div>
+    }
+  }
+</div>

@@ -356,4 +356,62 @@ public class VisitReportService : IVisitReportService
             PageSize = filter.PageSize
         };
     }
+
+    public async Task<CustomerVisitHistoryDto> GetCustomerVisitsAcrossRepsAsync(
+        int customerId, int page = 1, int pageSize = 10,
+        DateTime? from = null, DateTime? to = null,
+        CancellationToken ct = default)
+    {
+        var customer = await _context.Customers.AsNoTracking()
+            .FirstOrDefaultAsync(c => c.Id == customerId, ct);
+
+        if (customer == null)
+            throw new InvalidOperationException("Customer not found");
+
+        var query = _context.ExecutedVisits.AsNoTracking()
+            .Where(v => v.CustomerId == customerId);
+
+        if (from.HasValue)
+            query = query.Where(v => v.CheckInTime >= from.Value);
+        if (to.HasValue)
+            query = query.Where(v => v.CheckInTime <= to.Value);
+
+        var totalCount = await query.CountAsync(ct);
+
+        var visits = await query
+            .Include(v => v.Rep!).ThenInclude(r => r.User)
+            .OrderByDescending(v => v.CheckInTime)
+            .Skip((page - 1) * pageSize)
+            .Take(pageSize)
+            .ToListAsync(ct);
+
+        return new CustomerVisitHistoryDto
+        {
+            CustomerId = customerId,
+            CustomerName = customer.CompanyName ?? (customer.FirstName + " " + customer.LastName),
+            CustomerType = customer.CustomerType.ToString(),
+            TotalVisits = totalCount,
+            TotalPages = (int)Math.Ceiling(totalCount / (double)pageSize),
+            CurrentPage = page,
+            PageSize = pageSize,
+            Visits = visits.Select(v => new CrossRepVisitDto
+            {
+                Id = v.Id,
+                RepId = v.RepId,
+                RepName = v.Rep?.User?.FirstName + " " + v.Rep?.User?.LastName,
+                CheckInTime = v.CheckInTime,
+                CheckOutTime = v.CheckOutTime,
+                ActualDurationMinutes = v.ActualDurationMinutes,
+                LocationVerified = v.LocationVerified,
+                VisitType = v.VisitType.ToString(),
+                Outcome = v.Outcome?.ToString(),
+                Summary = v.Summary,
+                ProductsDiscussed = v.ProductsDiscussed,
+                CompetitionNotes = v.CompetitionNotes,
+                AgreedDeals = v.AgreedDeals,
+                FollowUpRequired = v.FollowUpRequired,
+                NextVisitDate = v.NextVisitDate
+            }).ToList()
+        };
+    }
 }

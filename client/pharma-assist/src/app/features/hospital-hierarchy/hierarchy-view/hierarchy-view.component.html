@@ -1,0 +1,132 @@
+<div class="container mx-auto p-6">
+  <!-- Header -->
+  <div class="flex items-center justify-between mb-6">
+    <div>
+      <a [routerLink]="['/hospital', customerId(), 'departments']"
+         class="text-sm text-blue-600 hover:underline mb-2 inline-block">
+        &larr; {{ 'HOSPITAL.BACK_TO_DEPARTMENTS' | translate }}
+      </a>
+      <h1 class="text-2xl font-bold text-gray-900">{{ 'HOSPITAL.HIERARCHY_VIEW' | translate }}</h1>
+      @if (rootNode()) {
+        <p class="text-sm text-gray-500 mt-1">{{ rootNode()!.name }}</p>
+      }
+    </div>
+    <div class="flex gap-3">
+      <div class="bg-blue-50 text-blue-700 px-3 py-1 rounded-full text-sm">
+        {{ totalDepartments() }} {{ 'HOSPITAL.DEPARTMENTS' | translate }}
+      </div>
+      <div class="bg-green-50 text-green-700 px-3 py-1 rounded-full text-sm">
+        {{ totalPhysicians() }} {{ 'HOSPITAL.PHYSICIANS' | translate }}
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading -->
+  @if (loading()) {
+    <div class="flex justify-center py-12">
+      <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+    </div>
+  }
+
+  <!-- Tree View -->
+  @if (!loading() && rootNode()) {
+    <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+      <ng-container *ngTemplateOutlet="treeNode; context: { $implicit: rootNode(), depth: 0 }"></ng-container>
+    </div>
+  }
+</div>
+
+<!-- Recursive Tree Node Template -->
+<ng-template #treeNode let-node let-depth="depth">
+  <div class="tree-node" [style.margin-left.px]="depth * 24">
+    <!-- Node Header -->
+    <div class="flex items-center gap-3 py-3 px-4 rounded-lg hover:bg-gray-50 cursor-pointer group"
+         (click)="toggleNode(node)">
+      <!-- Expand/Collapse Icon -->
+      @if (node.children && node.children.length > 0) {
+        <i class="text-gray-400 transition-transform duration-200"
+           [class]="node.expanded ? 'icon-chevron-down' : 'icon-chevron-right'"
+           style="width: 16px;"></i>
+      } @else {
+        <span style="width: 16px;"></span>
+      }
+
+      <!-- Type Icon -->
+      <div class="flex-shrink-0 w-10 h-10 rounded-full flex items-center justify-center"
+           [class]="node.type === 'institution' ? 'bg-purple-100 text-purple-600' :
+                     node.type === 'department' ? 'bg-blue-100 text-blue-600' :
+                     'bg-green-100 text-green-600'">
+        <i [class]="getNodeIcon(node)"></i>
+      </div>
+
+      <!-- Name & Subtitle -->
+      <div class="flex-1 min-w-0">
+        <div class="text-sm font-semibold text-gray-900">{{ node.name }}</div>
+        @if (node.subtitle) {
+          <div class="text-xs text-gray-500">{{ node.subtitle }}</div>
+        }
+      </div>
+
+      <!-- Badge -->
+      @if (node.badge) {
+        <app-status-badge
+          [label]="node.badge"
+          [variant]="node.badgeVariant || 'neutral'">
+        </app-status-badge>
+      }
+
+      <!-- Meta info on hover for physicians -->
+      @if (node.type === 'physician' && node.meta) {
+        <div class="hidden group-hover:flex items-center gap-3 text-xs text-gray-400">
+          @if (node.meta['license']) {
+            <span>{{ node.meta['license'] }}</span>
+          }
+          @if (node.meta['prescriptions'] && node.meta['prescriptions'] !== '0') {
+            <span>{{ node.meta['prescriptions'] }} Rx</span>
+          }
+        </div>
+      }
+
+      <!-- Department meta -->
+      @if (node.type === 'department' && node.meta) {
+        <div class="hidden group-hover:flex items-center gap-3 text-xs text-gray-400">
+          @if (node.meta['head']) {
+            <span><i class="icon-user mr-1"></i>{{ node.meta['head'] }}</span>
+          }
+          @if (node.meta['phone']) {
+            <span><i class="icon-phone mr-1"></i>{{ node.meta['phone'] }}</span>
+          }
+        </div>
+      }
+
+      <!-- Action links -->
+      @if (node.type === 'department' && node.id !== 0) {
+        <a [routerLink]="['/hospital', customerId(), 'departments', node.id, 'edit']"
+           class="hidden group-hover:inline-flex text-blue-600 text-sm hover:underline"
+           (click)="$event.stopPropagation()">
+          {{ 'COMMON.EDIT' | translate }}
+        </a>
+      }
+      @if (node.type === 'physician') {
+        <a [routerLink]="['/hospital', customerId(), 'physicians', node.id, 'edit']"
+           class="hidden group-hover:inline-flex text-blue-600 text-sm hover:underline"
+           (click)="$event.stopPropagation()">
+          {{ 'COMMON.EDIT' | translate }}
+        </a>
+      }
+    </div>
+
+    <!-- Connection Line Visual -->
+    @if (node.expanded && node.children && node.children.length > 0) {
+      <div class="relative" [style.margin-left.px]="12">
+        <div class="absolute left-0 top-0 bottom-0 w-px bg-gray-200"></div>
+        @for (child of node.children; track child.id) {
+          <div class="relative pl-4">
+            <div class="absolute left-0 top-6 w-4 h-px bg-gray-200"></div>
+            <ng-container *ngTemplateOutlet="treeNode; context: { $implicit: child, depth: depth + 1 }"></ng-container>
+          </div>
+        }
+      </div>
+    }
+  </div>
+</ng-template>

@@ -100,6 +100,15 @@ export class SidebarComponent {
       roles: [UserRole.SuperAdmin, UserRole.Admin, UserRole.Manager, UserRole.SalesRep]
     },
     {
+      labelKey: 'nav.hospital',
+      icon: 'icon-activity',
+      route: '/hospital',
+      roles: [UserRole.SuperAdmin, UserRole.Admin, UserRole.Manager, UserRole.SalesRep],
+      children: [
+        { labelKey: 'nav.physicians', route: '/hospital/physicians' }
+      ]
+    },
+    {
       labelKey: 'nav.visits',
       icon: 'icon-map-pin',
       route: '/visits',

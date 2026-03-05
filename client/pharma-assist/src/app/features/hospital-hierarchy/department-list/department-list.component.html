@@ -1,0 +1,122 @@
+<div class="container mx-auto p-6">
+  <!-- Header -->
+  <div class="flex items-center justify-between mb-6">
+    <div>
+      <h1 class="text-2xl font-bold text-gray-900">{{ 'HOSPITAL.DEPARTMENTS' | translate }}</h1>
+      @if (customerName()) {
+        <p class="text-sm text-gray-500 mt-1">{{ customerName() }}</p>
+      }
+    </div>
+    <div class="flex gap-3">
+      <a [routerLink]="['/hospital', customerId(), 'hierarchy']"
+         class="btn btn-outline">
+        <i class="icon-git-branch mr-2"></i>
+        {{ 'HOSPITAL.VIEW_HIERARCHY' | translate }}
+      </a>
+      <a [routerLink]="['/hospital', customerId(), 'departments', 'new']"
+         class="btn btn-primary">
+        <i class="icon-plus mr-2"></i>
+        {{ 'HOSPITAL.ADD_DEPARTMENT' | translate }}
+      </a>
+    </div>
+  </div>
+
+  <!-- Loading -->
+  @if (loading()) {
+    <div class="flex justify-center py-12">
+      <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+    </div>
+  }
+
+  <!-- Empty State -->
+  @if (!loading() && departments().length === 0) {
+    <app-empty-state
+      [title]="'HOSPITAL.NO_DEPARTMENTS' | translate"
+      [description]="'HOSPITAL.NO_DEPARTMENTS_DESC' | translate"
+      icon="icon-grid"
+      [actionLabel]="'HOSPITAL.ADD_DEPARTMENT' | translate"
+      (actionClick)="null">
+    </app-empty-state>
+  }
+
+  <!-- Department Cards -->
+  @if (!loading() && departments().length > 0) {
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+      @for (dept of departments(); track dept.id) {
+        <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-5 hover:shadow-md transition-shadow">
+          <div class="flex items-start justify-between mb-3">
+            <div>
+              <h3 class="text-lg font-semibold text-gray-900">{{ dept.name }}</h3>
+              @if (dept.nameLocal) {
+                <p class="text-sm text-gray-500">{{ dept.nameLocal }}</p>
+              }
+            </div>
+            <app-status-badge
+              [label]="dept.isActive ? ('COMMON.ACTIVE' | translate) : ('COMMON.INACTIVE' | translate)"
+              [variant]="dept.isActive ? 'success' : 'neutral'">
+            </app-status-badge>
+          </div>
+
+          <div class="space-y-2 text-sm text-gray-600 mb-4">
+            @if (dept.floor) {
+              <div class="flex items-center gap-2">
+                <i class="icon-layers text-gray-400"></i>
+                <span>{{ 'HOSPITAL.FLOOR' | translate }}: {{ dept.floor }}</span>
+              </div>
+            }
+            @if (dept.headPhysicianName) {
+              <div class="flex items-center gap-2">
+                <i class="icon-user text-gray-400"></i>
+                <span>{{ 'HOSPITAL.HEAD_PHYSICIAN' | translate }}: {{ dept.headPhysicianName }}</span>
+              </div>
+            }
+            <div class="flex items-center gap-2">
+              <i class="icon-users text-gray-400"></i>
+              <span>{{ dept.physicianCount }} {{ 'HOSPITAL.PHYSICIANS' | translate }}</span>
+            </div>
+            @if (dept.contactPhone) {
+              <div class="flex items-center gap-2">
+                <i class="icon-phone text-gray-400"></i>
+                <span>{{ dept.contactPhone }}</span>
+              </div>
+            }
+            @if (dept.contactEmail) {
+              <div class="flex items-center gap-2">
+                <i class="icon-mail text-gray-400"></i>
+                <span>{{ dept.contactEmail }}</span>
+              </div>
+            }
+          </div>
+
+          <div class="flex justify-end gap-2 pt-3 border-t border-gray-100">
+            <a [routerLink]="['/hospital', customerId(), 'departments', dept.id]"
+               class="btn btn-sm btn-outline">
+              <i class="icon-eye mr-1"></i>
+              {{ 'COMMON.VIEW' | translate }}
+            </a>
+            <a [routerLink]="['/hospital', customerId(), 'departments', dept.id, 'edit']"
+               class="btn btn-sm btn-outline">
+              <i class="icon-edit mr-1"></i>
+              {{ 'COMMON.EDIT' | translate }}
+            </a>
+            <button (click)="confirmDelete(dept)" class="btn btn-sm btn-danger-outline">
+              <i class="icon-trash-2 mr-1"></i>
+              {{ 'COMMON.DELETE' | translate }}
+            </button>
+          </div>
+        </div>
+      }
+    </div>
+  }
+</div>
+
+<!-- Delete Confirmation -->
+<app-confirm-dialog
+  [title]="'HOSPITAL.DELETE_DEPARTMENT' | translate"
+  [message]="'HOSPITAL.DELETE_DEPARTMENT_CONFIRM' | translate"
+  [isOpen]="showDeleteConfirm()"
+  variant="danger"
+  [isLoading]="deleting()"
+  (confirmed)="onDeleteConfirmed()"
+  (cancelled)="onDeleteCancelled()">
+</app-confirm-dialog>

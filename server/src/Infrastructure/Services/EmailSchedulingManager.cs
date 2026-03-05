@@ -3,6 +3,7 @@ using Application.Interfaces;
 using Application.Services;
 using Application.DTOs.Email;
 using Domain.Entities;
+using Domain.Enums;
 using Domain.Interfaces;
 using Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
@@ -158,7 +159,60 @@ public class EmailSchedulingManager : IEmailSchedulingManager
 
                 emailBody += @"
                 </table>
-                
+                ";
+
+                // Competition Intelligence - aggregate competition notes from the week
+                var competitionNotes = visits
+                    .Where(v => !string.IsNullOrWhiteSpace(v.CompetitionNotes))
+                    .OrderByDescending(v => v.CheckInTime)
+                    .ToList();
+
+                if (competitionNotes.Count > 0)
+                {
+                    emailBody += @"
+                <h3>Competition Intelligence</h3>
+                <p>The following competitive insights were recorded during visits this week:</p>
+                <table border='1' cellpadding='5' cellspacing='0'>
+                    <tr>
+                        <th>Representative</th>
+                        <th>Customer</th>
+                        <th>Date</th>
+                        <th>Notes</th>
+                    </tr>";
+
+                    foreach (var note in competitionNotes)
+                    {
+                        var noteRepName = note.Rep?.User?.FullName ?? "Unknown";
+                        var noteCustomerName = note.Customer?.CompanyName ?? (note.Customer?.FirstName + " " + note.Customer?.LastName) ?? "Unknown";
+                        emailBody += $@"
+                    <tr>
+                        <td>{noteRepName}</td>
+                        <td>{noteCustomerName}</td>
+                        <td>{note.CheckInTime:yyyy-MM-dd}</td>
+                        <td>{note.CompetitionNotes}</td>
+                    </tr>";
+                    }
+
+                    emailBody += @"
+                </table>";
+                }
+
+                // Key Metrics Summary
+                var locationVerifiedCount = visits.Count(v => v.LocationVerified);
+                var followUpCount = visits.Count(v => v.FollowUpRequired);
+                var positiveOutcomes = visits.Count(v => v.Outcome == VisitOutcome.Positive);
+                var negativeOutcomes = visits.Count(v => v.Outcome == VisitOutcome.Negative);
+
+                emailBody += $@"
+                <h3>Key Metrics</h3>
+                <ul>
+                    <li><strong>Location Verified:</strong> {locationVerifiedCount} / {totalVisits}</li>
+                    <li><strong>Follow-Ups Required:</strong> {followUpCount}</li>
+                    <li><strong>Positive Outcomes:</strong> {positiveOutcomes}</li>
+                    <li><strong>Negative Outcomes:</strong> {negativeOutcomes}</li>
+                    <li><strong>Competition Notes Recorded:</strong> {competitionNotes.Count}</li>
+                </ul>
+
                 <p>Please find the detailed report attached as an Excel file.</p>
                 <p>Best regards,<br>PharmaAssist System</p>";
 

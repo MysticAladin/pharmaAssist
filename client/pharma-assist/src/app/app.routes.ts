@@ -98,6 +98,14 @@ export const routes: Routes = [
         loadChildren: () => import('./features/customers/customers.routes').then(m => m.CUSTOMERS_ROUTES)
       },
 
+      // Hospital Hierarchy (Departments, Physicians, Org Chart)
+      {
+        path: 'hospital',
+        canActivate: [roleGuard],
+        data: { roles: [UserRole.SuperAdmin, UserRole.Admin, UserRole.Manager, UserRole.SalesRep] },
+        loadChildren: () => import('./features/hospital-hierarchy/hospital-hierarchy.routes').then(m => m.HOSPITAL_ROUTES)
+      },
+
       // Visits (Sales Rep mobile workflow)
       {
         path: 'visits',

@@ -58,6 +58,10 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser, Applicati
     public DbSet<MaterialDistribution> MaterialDistributions { get; set; } = null!;
     public DbSet<RepInventory> RepInventories { get; set; } = null!;
 
+    // Hospital Hierarchy
+    public DbSet<Department> Departments { get; set; } = null!;
+    public DbSet<Physician> Physicians { get; set; } = null!;
+
     // Customer Management
     public DbSet<Customer> Customers { get; set; } = null!;
     public DbSet<CustomerAddress> CustomerAddresses { get; set; } = null!;

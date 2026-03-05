@@ -29,4 +29,12 @@ public interface IVisitReportService
         string managerUserId,
         VisitAuditFilterDto filter,
         CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Get all visits for a customer across all reps (admin/manager view)
+    /// </summary>
+    Task<CustomerVisitHistoryDto> GetCustomerVisitsAcrossRepsAsync(
+        int customerId, int page = 1, int pageSize = 10,
+        DateTime? from = null, DateTime? to = null,
+        CancellationToken cancellationToken = default);
 }

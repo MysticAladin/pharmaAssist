@@ -1,0 +1,126 @@
+<div class="container mx-auto p-6 max-w-2xl">
+  <!-- Header -->
+  <div class="mb-6">
+    <a [routerLink]="['/hospital', customerId(), 'departments']" class="text-sm text-blue-600 hover:underline mb-2 inline-block">
+      &larr; {{ 'HOSPITAL.BACK_TO_DEPARTMENTS' | translate }}
+    </a>
+    <h1 class="text-2xl font-bold text-gray-900">
+      {{ (isEdit() ? 'HOSPITAL.EDIT_DEPARTMENT' : 'HOSPITAL.ADD_DEPARTMENT') | translate }}
+    </h1>
+  </div>
+
+  @if (loading()) {
+    <div class="flex justify-center py-12">
+      <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+    </div>
+  }
+
+  @if (!loading()) {
+    <form (ngSubmit)="save()" class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 space-y-5">
+      <!-- Name -->
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-1">
+          {{ 'HOSPITAL.DEPARTMENT_NAME' | translate }} *
+        </label>
+        <input type="text"
+               [ngModel]="formData().name"
+               (ngModelChange)="updateFormField('name', $event)"
+               name="name"
+               required
+               class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+               [placeholder]="'HOSPITAL.DEPARTMENT_NAME_PLACEHOLDER' | translate">
+      </div>
+
+      <!-- Name Local -->
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-1">
+          {{ 'HOSPITAL.NAME_LOCAL' | translate }}
+        </label>
+        <input type="text"
+               [ngModel]="formData().nameLocal"
+               (ngModelChange)="updateFormField('nameLocal', $event)"
+               name="nameLocal"
+               class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+      </div>
+
+      <!-- Floor -->
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-1">
+          {{ 'HOSPITAL.FLOOR' | translate }}
+        </label>
+        <input type="text"
+               [ngModel]="formData().floor"
+               (ngModelChange)="updateFormField('floor', $event)"
+               name="floor"
+               class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+               [placeholder]="'HOSPITAL.FLOOR_PLACEHOLDER' | translate">
+      </div>
+
+      <!-- Head Physician -->
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-1">
+          {{ 'HOSPITAL.HEAD_PHYSICIAN' | translate }}
+        </label>
+        <select [ngModel]="formData().headPhysicianId"
+                (ngModelChange)="updateFormField('headPhysicianId', $event)"
+                name="headPhysicianId"
+                class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+          <option [ngValue]="undefined">{{ 'COMMON.NONE' | translate }}</option>
+          @for (p of physicians(); track p.id) {
+            <option [ngValue]="p.id">{{ p.fullName }}</option>
+          }
+        </select>
+      </div>
+
+      <!-- Contact Phone -->
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-1">
+          {{ 'HOSPITAL.CONTACT_PHONE' | translate }}
+        </label>
+        <input type="tel"
+               [ngModel]="formData().contactPhone"
+               (ngModelChange)="updateFormField('contactPhone', $event)"
+               name="contactPhone"
+               class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+      </div>
+
+      <!-- Contact Email -->
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-1">
+          {{ 'HOSPITAL.CONTACT_EMAIL' | translate }}
+        </label>
+        <input type="email"
+               [ngModel]="formData().contactEmail"
+               (ngModelChange)="updateFormField('contactEmail', $event)"
+               name="contactEmail"
+               class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+      </div>
+
+      <!-- Sort Order -->
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-1">
+          {{ 'HOSPITAL.SORT_ORDER' | translate }}
+        </label>
+        <input type="number"
+               [ngModel]="formData().sortOrder"
+               (ngModelChange)="updateFormField('sortOrder', $event)"
+               name="sortOrder"
+               class="w-32 rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+      </div>
+
+      <!-- Actions -->
+      <div class="flex justify-end gap-3 pt-4 border-t border-gray-200">
+        <a [routerLink]="['/hospital', customerId(), 'departments']"
+           class="btn btn-outline">
+          {{ 'COMMON.CANCEL' | translate }}
+        </a>
+        <button type="submit" class="btn btn-primary" [disabled]="saving()">
+          @if (saving()) {
+            <span class="animate-spin mr-2">&#9696;</span>
+          }
+          {{ (isEdit() ? 'COMMON.SAVE' : 'COMMON.CREATE') | translate }}
+        </button>
+      </div>
+    </form>
+  }
+</div>

@@ -54,4 +54,6 @@ public class Customer : BaseEntity
     public virtual ICollection<CustomerAddress> Addresses { get; set; } = new List<CustomerAddress>();
     public virtual ICollection<Order> Orders { get; set; } = new List<Order>();
     public virtual ICollection<Prescription> Prescriptions { get; set; } = new List<Prescription>();
+    public virtual ICollection<Department> Departments { get; set; } = new List<Department>();
+    public virtual ICollection<Physician> Physicians { get; set; } = new List<Physician>();
 }
