@@ -28,6 +28,11 @@ public interface IUnitOfWork : IDisposable
     IRepository<Domain.Entities.CampaignExpense> CampaignExpenses { get; }
     IRepository<Domain.Entities.Territory> Territories { get; }
     IRepository<Domain.Entities.TerritoryAssignment> TerritoryAssignments { get; }
+    IRepository<Domain.Entities.WholesalerDataImport> WholesalerDataImports { get; }
+    IRepository<Domain.Entities.WholesalerSalesRecord> WholesalerSalesRecords { get; }
+    IRepository<Domain.Entities.WholesalerStockRecord> WholesalerStockRecords { get; }
+    IRepository<Domain.Entities.PriceList> PriceLists { get; }
+    IRepository<Domain.Entities.PriceListItem> PriceListItems { get; }
     
     Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
     Task BeginTransactionAsync(CancellationToken cancellationToken = default);

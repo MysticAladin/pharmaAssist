@@ -34,6 +34,11 @@ public class UnitOfWork : IUnitOfWork
     private IRepository<Domain.Entities.CampaignExpense>? _campaignExpenses;
     private IRepository<Domain.Entities.Territory>? _territories;
     private IRepository<Domain.Entities.TerritoryAssignment>? _territoryAssignments;
+    private IRepository<Domain.Entities.WholesalerDataImport>? _wholesalerDataImports;
+    private IRepository<Domain.Entities.WholesalerSalesRecord>? _wholesalerSalesRecords;
+    private IRepository<Domain.Entities.WholesalerStockRecord>? _wholesalerStockRecords;
+    private IRepository<Domain.Entities.PriceList>? _priceLists;
+    private IRepository<Domain.Entities.PriceListItem>? _priceListItems;
 
     public UnitOfWork(ApplicationDbContext context)
     {
@@ -105,6 +110,21 @@ public class UnitOfWork : IUnitOfWork
 
     public IRepository<Domain.Entities.TerritoryAssignment> TerritoryAssignments =>
         _territoryAssignments ??= new Repository<Domain.Entities.TerritoryAssignment>(_context);
+
+    public IRepository<Domain.Entities.WholesalerDataImport> WholesalerDataImports =>
+        _wholesalerDataImports ??= new Repository<Domain.Entities.WholesalerDataImport>(_context);
+
+    public IRepository<Domain.Entities.WholesalerSalesRecord> WholesalerSalesRecords =>
+        _wholesalerSalesRecords ??= new Repository<Domain.Entities.WholesalerSalesRecord>(_context);
+
+    public IRepository<Domain.Entities.WholesalerStockRecord> WholesalerStockRecords =>
+        _wholesalerStockRecords ??= new Repository<Domain.Entities.WholesalerStockRecord>(_context);
+
+    public IRepository<Domain.Entities.PriceList> PriceLists =>
+        _priceLists ??= new Repository<Domain.Entities.PriceList>(_context);
+
+    public IRepository<Domain.Entities.PriceListItem> PriceListItems =>
+        _priceListItems ??= new Repository<Domain.Entities.PriceListItem>(_context);
 
     public async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
     {

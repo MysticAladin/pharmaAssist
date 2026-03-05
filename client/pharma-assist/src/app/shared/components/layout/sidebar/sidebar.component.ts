@@ -129,6 +129,40 @@ export class SidebarComponent {
         { labelKey: 'nav.inventoryReport', route: '/reports/inventory' },
         { labelKey: 'nav.advancedAnalytics', route: '/reports/analytics', feature: 'advanced_analytics' }
       ]
+    },
+    {
+      labelKey: 'nav.wholesalerData',
+      icon: 'icon-upload',
+      route: '/wholesaler-data',
+      roles: [UserRole.SuperAdmin, UserRole.Admin, UserRole.Manager],
+      children: [
+        { labelKey: 'nav.imports', route: '/wholesaler-data' },
+        { labelKey: 'nav.uploadData', route: '/wholesaler-data/upload' },
+        { labelKey: 'nav.stockOverview', route: '/wholesaler-data/stock' }
+      ]
+    },
+    {
+      labelKey: 'nav.salesAnalytics',
+      icon: 'icon-trending-up',
+      route: '/sales-analytics',
+      roles: [UserRole.SuperAdmin, UserRole.Admin, UserRole.Manager],
+      children: [
+        { labelKey: 'nav.analyticsDashboard', route: '/sales-analytics' },
+        { labelKey: 'nav.byInstitution', route: '/sales-analytics/by-institution' },
+        { labelKey: 'nav.byRegion', route: '/sales-analytics/by-region' },
+        { labelKey: 'nav.byProduct', route: '/sales-analytics/by-product' },
+        { labelKey: 'nav.salesTrends', route: '/sales-analytics/trends' }
+      ]
+    },
+    {
+      labelKey: 'nav.priceLists',
+      icon: 'icon-tag',
+      route: '/price-lists',
+      roles: [UserRole.SuperAdmin, UserRole.Admin, UserRole.Manager],
+      children: [
+        { labelKey: 'nav.allPriceLists', route: '/price-lists' },
+        { labelKey: 'nav.createPriceList', route: '/price-lists/new' }
+      ]
     }
   ];
 

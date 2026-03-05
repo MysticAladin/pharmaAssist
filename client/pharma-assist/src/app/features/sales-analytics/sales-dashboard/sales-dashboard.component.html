@@ -1,0 +1,218 @@
+<div class="page-container">
+  <div class="page-header">
+    <div>
+      <h1>{{ 'salesAnalytics.title' | translate }}</h1>
+      <p class="text-muted">{{ 'salesAnalytics.subtitle' | translate }}</p>
+    </div>
+  </div>
+
+  <!-- Date Filters -->
+  <div class="filters-bar mb-4">
+    <div class="d-flex gap-3 align-items-center">
+      <div>
+        <label class="form-label mb-0 small">{{ 'common.from' | translate }}</label>
+        <input type="date" class="form-control form-control-sm" (change)="onDateFromChange($any($event.target).value)">
+      </div>
+      <div>
+        <label class="form-label mb-0 small">{{ 'common.to' | translate }}</label>
+        <input type="date" class="form-control form-control-sm" (change)="onDateToChange($any($event.target).value)">
+      </div>
+    </div>
+  </div>
+
+  @if (loading()) {
+    <div class="loading-spinner">
+      <div class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">Loading...</span>
+      </div>
+    </div>
+  } @else if (dashboard()) {
+    <!-- KPI Cards -->
+    <div class="row g-3 mb-4">
+      <div class="col-md-3">
+        <div class="card">
+          <div class="card-body">
+            <h6 class="text-muted mb-1">{{ 'salesAnalytics.totalSales' | translate }}</h6>
+            <h3 class="mb-0">{{ formatCurrency(dashboard()!.totalSalesAmount) }}</h3>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="card">
+          <div class="card-body">
+            <h6 class="text-muted mb-1">{{ 'salesAnalytics.totalQuantity' | translate }}</h6>
+            <h3 class="mb-0">{{ formatNumber(dashboard()!.totalQuantity) }}</h3>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="card">
+          <div class="card-body">
+            <h6 class="text-muted mb-1">{{ 'salesAnalytics.totalInvoices' | translate }}</h6>
+            <h3 class="mb-0">{{ formatNumber(dashboard()!.totalInvoices) }}</h3>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="card">
+          <div class="card-body">
+            <h6 class="text-muted mb-1">{{ 'salesAnalytics.totalCustomers' | translate }}</h6>
+            <h3 class="mb-0">{{ formatNumber(dashboard()!.totalCustomers) }}</h3>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Quick Access Links -->
+    <div class="row g-3 mb-4">
+      <div class="col-md-2">
+        <a routerLink="/sales-analytics/by-institution" class="card text-decoration-none h-100">
+          <div class="card-body text-center">
+            <i class="icon-building h3 text-primary"></i>
+            <div class="small mt-1">{{ 'salesAnalytics.byInstitution' | translate }}</div>
+          </div>
+        </a>
+      </div>
+      <div class="col-md-2">
+        <a routerLink="/sales-analytics/by-region" class="card text-decoration-none h-100">
+          <div class="card-body text-center">
+            <i class="icon-map h3 text-primary"></i>
+            <div class="small mt-1">{{ 'salesAnalytics.byRegion' | translate }}</div>
+          </div>
+        </a>
+      </div>
+      <div class="col-md-2">
+        <a routerLink="/sales-analytics/by-product" class="card text-decoration-none h-100">
+          <div class="card-body text-center">
+            <i class="icon-package h3 text-primary"></i>
+            <div class="small mt-1">{{ 'salesAnalytics.byProduct' | translate }}</div>
+          </div>
+        </a>
+      </div>
+      <div class="col-md-2">
+        <a routerLink="/sales-analytics/by-brand" class="card text-decoration-none h-100">
+          <div class="card-body text-center">
+            <i class="icon-bookmark h3 text-primary"></i>
+            <div class="small mt-1">{{ 'salesAnalytics.byBrand' | translate }}</div>
+          </div>
+        </a>
+      </div>
+      <div class="col-md-2">
+        <a routerLink="/sales-analytics/by-rep" class="card text-decoration-none h-100">
+          <div class="card-body text-center">
+            <i class="icon-users h3 text-primary"></i>
+            <div class="small mt-1">{{ 'salesAnalytics.byRep' | translate }}</div>
+          </div>
+        </a>
+      </div>
+      <div class="col-md-2">
+        <a routerLink="/sales-analytics/trends" class="card text-decoration-none h-100">
+          <div class="card-body text-center">
+            <i class="icon-trending-up h3 text-primary"></i>
+            <div class="small mt-1">{{ 'salesAnalytics.trends' | translate }}</div>
+          </div>
+        </a>
+      </div>
+    </div>
+
+    <!-- Monthly Trend -->
+    @if (dashboard()!.monthlyTrend.length > 0) {
+      <div class="card mb-4">
+        <div class="card-header">
+          <h5 class="mb-0">{{ 'salesAnalytics.monthlyTrend' | translate }}</h5>
+        </div>
+        <div class="card-body">
+          <div class="table-responsive">
+            <table class="table table-sm">
+              <thead>
+                <tr>
+                  <th>{{ 'salesAnalytics.period' | translate }}</th>
+                  <th class="text-end">{{ 'salesAnalytics.amount' | translate }}</th>
+                  <th class="text-end">{{ 'salesAnalytics.quantity' | translate }}</th>
+                  <th class="text-end">{{ 'salesAnalytics.invoices' | translate }}</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (trend of dashboard()!.monthlyTrend; track trend.period) {
+                  <tr>
+                    <td>{{ trend.period }}</td>
+                    <td class="text-end">{{ trend.totalAmount | number:'1.2-2' }}</td>
+                    <td class="text-end">{{ trend.totalQuantity | number:'1.0-0' }}</td>
+                    <td class="text-end">{{ trend.recordCount }}</td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    }
+
+    <!-- Top Products & Regions -->
+    <div class="row g-3">
+      @if (dashboard()!.topProducts.length > 0) {
+        <div class="col-md-6">
+          <div class="card">
+            <div class="card-header">
+              <h5 class="mb-0">{{ 'salesAnalytics.topProducts' | translate }}</h5>
+            </div>
+            <div class="card-body">
+              <div class="table-responsive">
+                <table class="table table-sm">
+                  <thead>
+                    <tr>
+                      <th>{{ 'salesAnalytics.product' | translate }}</th>
+                      <th class="text-end">{{ 'salesAnalytics.amount' | translate }}</th>
+                      <th class="text-end">{{ 'salesAnalytics.customers' | translate }}</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    @for (product of dashboard()!.topProducts; track product.productId) {
+                      <tr>
+                        <td>{{ product.productName }}</td>
+                        <td class="text-end">{{ product.totalAmount | number:'1.2-2' }}</td>
+                        <td class="text-end">{{ product.customerCount }}</td>
+                      </tr>
+                    }
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      }
+
+      @if (dashboard()!.topRegions.length > 0) {
+        <div class="col-md-6">
+          <div class="card">
+            <div class="card-header">
+              <h5 class="mb-0">{{ 'salesAnalytics.topRegions' | translate }}</h5>
+            </div>
+            <div class="card-body">
+              <div class="table-responsive">
+                <table class="table table-sm">
+                  <thead>
+                    <tr>
+                      <th>{{ 'salesAnalytics.region' | translate }}</th>
+                      <th class="text-end">{{ 'salesAnalytics.amount' | translate }}</th>
+                      <th class="text-end">{{ 'salesAnalytics.percentOfTotal' | translate }}</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    @for (region of dashboard()!.topRegions; track region.cantonId) {
+                      <tr>
+                        <td>{{ region.cantonName }}</td>
+                        <td class="text-end">{{ region.totalAmount | number:'1.2-2' }}</td>
+                        <td class="text-end">{{ region.percentOfTotal | number:'1.1-1' }}%</td>
+                      </tr>
+                    }
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      }
+    </div>
+  }
+</div>

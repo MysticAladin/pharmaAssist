@@ -1,0 +1,197 @@
+<div class="page-container">
+  <div class="page-header">
+    <div>
+      <h1>{{ 'wholesalerData.importWizardTitle' | translate }}</h1>
+      <p class="text-muted">{{ 'wholesalerData.importWizardSubtitle' | translate }}</p>
+    </div>
+    <button class="btn btn-outline-secondary" routerLink="/wholesaler-data">
+      <i class="icon-arrow-left"></i> {{ 'common.back' | translate }}
+    </button>
+  </div>
+
+  <!-- Step indicators -->
+  <div class="d-flex gap-3 mb-4">
+    <div class="step-indicator" [class.active]="currentStep() >= 1" [class.completed]="currentStep() > 1">
+      <span class="step-number">1</span>
+      <span class="step-label">{{ 'wholesalerData.stepUpload' | translate }}</span>
+    </div>
+    <div class="step-indicator" [class.active]="currentStep() >= 2" [class.completed]="currentStep() > 2">
+      <span class="step-number">2</span>
+      <span class="step-label">{{ 'wholesalerData.stepMapping' | translate }}</span>
+    </div>
+    <div class="step-indicator" [class.active]="currentStep() >= 3">
+      <span class="step-number">3</span>
+      <span class="step-label">{{ 'wholesalerData.stepResult' | translate }}</span>
+    </div>
+  </div>
+
+  <!-- Step 1: Upload -->
+  @if (currentStep() === 1) {
+    <div class="card">
+      <div class="card-body">
+        <h5 class="card-title">{{ 'wholesalerData.uploadFile' | translate }}</h5>
+
+        <div class="mb-3">
+          <label class="form-label">{{ 'wholesalerData.wholesaler' | translate }} *</label>
+          <input type="number" class="form-control" [value]="wholesalerId()" (input)="wholesalerId.set(+$any($event.target).value)" placeholder="Wholesaler ID">
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label">{{ 'wholesalerData.period' | translate }}</label>
+          <input type="text" class="form-control" [value]="period()" (input)="period.set($any($event.target).value)" placeholder="e.g. 2024-Q1">
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label">{{ 'wholesalerData.file' | translate }} *</label>
+          <input type="file" class="form-control" accept=".csv,.xlsx,.xls" (change)="onFileSelected($event)">
+          <small class="form-text text-muted">{{ 'wholesalerData.supportedFormats' | translate }}</small>
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label">{{ 'wholesalerData.notes' | translate }}</label>
+          <textarea class="form-control" rows="2" [value]="notes()" (input)="notes.set($any($event.target).value)"></textarea>
+        </div>
+
+        <button class="btn btn-primary" [disabled]="!selectedFile() || !wholesalerId() || loading()" (click)="previewFile()">
+          @if (loading()) {
+            <span class="spinner-border spinner-border-sm me-1"></span>
+          }
+          {{ 'wholesalerData.previewData' | translate }}
+        </button>
+      </div>
+    </div>
+  }
+
+  <!-- Step 2: Column Mapping & Preview -->
+  @if (currentStep() === 2 && preview()) {
+    <div class="card mb-3">
+      <div class="card-body">
+        <h5 class="card-title">{{ 'wholesalerData.columnMapping' | translate }}</h5>
+        <p class="text-muted">{{ 'wholesalerData.columnMappingHelp' | translate }}</p>
+
+        <div class="row g-3">
+          @for (col of preview()!.detectedColumns; track col) {
+            <div class="col-md-4">
+              <label class="form-label">{{ col }}</label>
+              <select class="form-select form-select-sm" [value]="columnMapping()[col] || ''" (change)="updateMapping(col, $any($event.target).value)">
+                <option value="">-- {{ 'wholesalerData.skip' | translate }} --</option>
+                @for (std of standardColumns; track std) {
+                  <option [value]="std">{{ std }}</option>
+                }
+              </select>
+            </div>
+          }
+        </div>
+      </div>
+    </div>
+
+    <div class="card mb-3">
+      <div class="card-body">
+        <h5 class="card-title">{{ 'wholesalerData.dataPreview' | translate }}</h5>
+        <p class="text-muted">{{ 'wholesalerData.totalRows' | translate }}: {{ preview()!.totalRows }}</p>
+
+        @if (preview()!.warnings.length > 0) {
+          <div class="alert alert-warning">
+            <ul class="mb-0">
+              @for (warning of preview()!.warnings; track warning) {
+                <li>{{ warning }}</li>
+              }
+            </ul>
+          </div>
+        }
+
+        <div class="table-responsive">
+          <table class="table table-sm table-striped">
+            <thead>
+              <tr>
+                @for (col of preview()!.detectedColumns; track col) {
+                  <th>{{ col }}</th>
+                }
+              </tr>
+            </thead>
+            <tbody>
+              @for (row of preview()!.previewRows; track $index) {
+                <tr>
+                  @for (col of preview()!.detectedColumns; track col) {
+                    <td>{{ row[col] }}</td>
+                  }
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <div class="d-flex gap-2">
+      <button class="btn btn-outline-secondary" (click)="currentStep.set(1)">
+        <i class="icon-arrow-left"></i> {{ 'common.back' | translate }}
+      </button>
+      <button class="btn btn-primary" [disabled]="loading()" (click)="startImport()">
+        @if (loading()) {
+          <span class="spinner-border spinner-border-sm me-1"></span>
+        }
+        {{ 'wholesalerData.startImport' | translate }}
+      </button>
+    </div>
+  }
+
+  <!-- Step 3: Result -->
+  @if (currentStep() === 3 && importResult()) {
+    <div class="card">
+      <div class="card-body">
+        <h5 class="card-title">
+          <i class="icon-check-circle text-success me-2"></i>
+          {{ 'wholesalerData.importComplete' | translate }}
+        </h5>
+
+        <div class="row g-3 mt-3">
+          <div class="col-md-3">
+            <div class="stat-card">
+              <div class="stat-value">{{ importResult()!.totalRecords }}</div>
+              <div class="stat-label">{{ 'wholesalerData.totalRecords' | translate }}</div>
+            </div>
+          </div>
+          <div class="col-md-3">
+            <div class="stat-card">
+              <div class="stat-value text-success">{{ importResult()!.successCount }}</div>
+              <div class="stat-label">{{ 'wholesalerData.successCount' | translate }}</div>
+            </div>
+          </div>
+          <div class="col-md-3">
+            <div class="stat-card">
+              <div class="stat-value text-primary">{{ importResult()!.matchedProducts }}</div>
+              <div class="stat-label">{{ 'wholesalerData.matchedProducts' | translate }}</div>
+            </div>
+          </div>
+          <div class="col-md-3">
+            <div class="stat-card">
+              <div class="stat-value text-warning">{{ importResult()!.unmatchedProducts }}</div>
+              <div class="stat-label">{{ 'wholesalerData.unmatchedProducts' | translate }}</div>
+            </div>
+          </div>
+        </div>
+
+        @if (importResult()!.errors.length > 0) {
+          <div class="alert alert-warning mt-3">
+            <strong>{{ 'wholesalerData.importErrors' | translate }}:</strong>
+            <ul class="mb-0 mt-1">
+              @for (error of importResult()!.errors; track error) {
+                <li>{{ error }}</li>
+              }
+            </ul>
+          </div>
+        }
+
+        <div class="d-flex gap-2 mt-3">
+          <button class="btn btn-primary" (click)="goToImport()">
+            {{ 'wholesalerData.viewImport' | translate }}
+          </button>
+          <button class="btn btn-outline-secondary" routerLink="/wholesaler-data">
+            {{ 'wholesalerData.backToList' | translate }}
+          </button>
+        </div>
+      </div>
+    </div>
+  }
+</div>

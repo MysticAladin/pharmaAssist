@@ -39,6 +39,15 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser, Applicati
     public DbSet<Territory> Territories { get; set; } = null!;
     public DbSet<TerritoryAssignment> TerritoryAssignments { get; set; } = null!;
 
+    // Wholesaler Data & Sales
+    public DbSet<WholesalerDataImport> WholesalerDataImports { get; set; } = null!;
+    public DbSet<WholesalerSalesRecord> WholesalerSalesRecords { get; set; } = null!;
+    public DbSet<WholesalerStockRecord> WholesalerStockRecords { get; set; } = null!;
+
+    // Price Lists
+    public DbSet<PriceList> PriceLists { get; set; } = null!;
+    public DbSet<PriceListItem> PriceListItems { get; set; } = null!;
+
     // Customer Management
     public DbSet<Customer> Customers { get; set; } = null!;
     public DbSet<CustomerAddress> CustomerAddresses { get; set; } = null!;

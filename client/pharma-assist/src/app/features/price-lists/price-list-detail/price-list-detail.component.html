@@ -1,0 +1,129 @@
+<div class="page-container">
+  @if (loading()) {
+    <div class="loading-spinner">
+      <div class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">Loading...</span>
+      </div>
+    </div>
+  } @else if (priceList()) {
+    <div class="page-header">
+      <div>
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb mb-1">
+            <li class="breadcrumb-item"><a routerLink="/price-lists">{{ 'priceLists.title' | translate }}</a></li>
+            <li class="breadcrumb-item active">{{ priceList()!.name }}</li>
+          </ol>
+        </nav>
+        <h1>{{ priceList()!.name }}</h1>
+      </div>
+      <div class="d-flex gap-2">
+        <a [routerLink]="['/price-lists', priceList()!.id, 'edit']" class="btn btn-primary btn-sm">
+          <i class="icon-edit me-1"></i>
+          {{ 'common.edit' | translate }}
+        </a>
+        <button class="btn btn-outline-danger btn-sm" (click)="openDeleteDialog()">
+          <i class="icon-trash me-1"></i>
+          {{ 'common.delete' | translate }}
+        </button>
+      </div>
+    </div>
+
+    <!-- Info Cards -->
+    <div class="row g-3 mb-4">
+      <div class="col-md-3">
+        <div class="card">
+          <div class="card-body">
+            <h6 class="text-muted mb-1">{{ 'priceLists.type' | translate }}</h6>
+            <app-status-badge [label]="getTypeLabel(priceList()!.type)" variant="info"></app-status-badge>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="card">
+          <div class="card-body">
+            <h6 class="text-muted mb-1">{{ 'priceLists.effectiveDate' | translate }}</h6>
+            <div>{{ priceList()!.effectiveFrom | date:'mediumDate' }}</div>
+            @if (priceList()!.effectiveTo) {
+              <div class="text-muted small">{{ 'priceLists.expires' | translate }}: {{ priceList()!.effectiveTo | date:'mediumDate' }}</div>
+            }
+          </div>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="card">
+          <div class="card-body">
+            <h6 class="text-muted mb-1">{{ 'priceLists.status' | translate }}</h6>
+            <app-status-badge
+              [label]="priceList()!.isActive ? ('priceLists.active' | translate) : ('priceLists.inactive' | translate)"
+              [variant]="priceList()!.isActive ? 'success' : 'neutral'">
+            </app-status-badge>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="card">
+          <div class="card-body">
+            <h6 class="text-muted mb-1">{{ 'priceLists.itemCount' | translate }}</h6>
+            <h3 class="mb-0">{{ priceList()!.items.length }}</h3>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    @if (priceList()!.description) {
+      <div class="card mb-4">
+        <div class="card-body">
+          <h6 class="text-muted mb-1">{{ 'priceLists.notes' | translate }}</h6>
+          <p class="mb-0">{{ priceList()!.description }}</p>
+        </div>
+      </div>
+    }
+
+    <!-- Items Table -->
+    <div class="card">
+      <div class="card-header d-flex justify-content-between align-items-center">
+        <h5 class="mb-0">{{ 'priceLists.items' | translate }}</h5>
+      </div>
+      <div class="card-body">
+        @if (priceList()!.items.length === 0) {
+          <p class="text-muted text-center py-3">{{ 'priceLists.noItems' | translate }}</p>
+        } @else {
+          <app-data-table
+            [data]="priceList()!.items"
+            [columns]="columns()">
+          </app-data-table>
+        }
+      </div>
+    </div>
+  }
+</div>
+
+<ng-template #priceTpl let-row>
+  {{ row.price | number:'1.2-2' }}
+</ng-template>
+
+<ng-template #itemActionsTpl let-row>
+  <button class="btn btn-sm btn-outline-danger" (click)="openDeleteItemDialog(row)">
+    <i class="icon-trash"></i>
+  </button>
+</ng-template>
+
+<app-confirm-dialog
+  [title]="'priceLists.deleteItemTitle' | translate"
+  [message]="'priceLists.deleteItemConfirmation' | translate"
+  [isOpen]="showDeleteItemDialog()"
+  variant="danger"
+  [isLoading]="deleteItemLoading()"
+  (confirmed)="confirmDeleteItem()"
+  (cancelled)="showDeleteItemDialog.set(false)">
+</app-confirm-dialog>
+
+<app-confirm-dialog
+  [title]="'priceLists.deleteTitle' | translate"
+  [message]="'priceLists.deleteConfirmation' | translate"
+  [isOpen]="showDeleteDialog()"
+  variant="danger"
+  [isLoading]="deleteLoading()"
+  (confirmed)="confirmDelete()"
+  (cancelled)="showDeleteDialog.set(false)">
+</app-confirm-dialog>

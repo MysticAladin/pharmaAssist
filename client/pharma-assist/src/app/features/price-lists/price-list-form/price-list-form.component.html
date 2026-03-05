@@ -1,0 +1,76 @@
+<div class="page-container">
+  <div class="page-header">
+    <div>
+      <nav aria-label="breadcrumb">
+        <ol class="breadcrumb mb-1">
+          <li class="breadcrumb-item"><a routerLink="/price-lists">{{ 'priceLists.title' | translate }}</a></li>
+          <li class="breadcrumb-item active">
+            {{ isEditMode() ? ('common.edit' | translate) : ('priceLists.create' | translate) }}
+          </li>
+        </ol>
+      </nav>
+      <h1>{{ isEditMode() ? ('priceLists.editTitle' | translate) : ('priceLists.createTitle' | translate) }}</h1>
+    </div>
+  </div>
+
+  @if (loading()) {
+    <div class="loading-spinner">
+      <div class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">Loading...</span>
+      </div>
+    </div>
+  } @else {
+    <div class="card">
+      <div class="card-body">
+        <form (ngSubmit)="save()">
+          <div class="row g-3">
+            <div class="col-md-6">
+              <label class="form-label">{{ 'priceLists.name' | translate }} <span class="text-danger">*</span></label>
+              <input type="text" class="form-control" [ngModel]="name()" (ngModelChange)="name.set($event)" name="name" required>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">{{ 'priceLists.type' | translate }} <span class="text-danger">*</span></label>
+              <select class="form-select" [ngModel]="type()" (ngModelChange)="type.set($event)" name="type">
+                @for (t of priceListTypes; track t.value) {
+                  <option [ngValue]="t.value">{{ t.label }}</option>
+                }
+              </select>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">{{ 'priceLists.wholesaler' | translate }}</label>
+              <input type="text" class="form-control" [ngModel]="wholesalerName()" (ngModelChange)="wholesalerName.set($event)" name="wholesalerName">
+            </div>
+            <div class="col-md-3">
+              <label class="form-label">{{ 'priceLists.effectiveDate' | translate }} <span class="text-danger">*</span></label>
+              <input type="date" class="form-control" [ngModel]="effectiveFrom()" (ngModelChange)="effectiveFrom.set($event)" name="effectiveFrom" required>
+            </div>
+            <div class="col-md-3">
+              <label class="form-label">{{ 'priceLists.expiryDate' | translate }}</label>
+              <input type="date" class="form-control" [ngModel]="effectiveTo()" (ngModelChange)="effectiveTo.set($event)" name="effectiveTo">
+            </div>
+            <div class="col-md-12">
+              <label class="form-label">{{ 'priceLists.notes' | translate }}</label>
+              <textarea class="form-control" rows="3" [ngModel]="description()" (ngModelChange)="description.set($event)" name="description"></textarea>
+            </div>
+            <div class="col-md-12">
+              <div class="form-check">
+                <input class="form-check-input" type="checkbox" id="isActive" [ngModel]="isActive()" (ngModelChange)="isActive.set($event)" name="isActive">
+                <label class="form-check-label" for="isActive">{{ 'priceLists.isActive' | translate }}</label>
+              </div>
+            </div>
+          </div>
+
+          <div class="d-flex gap-2 mt-4">
+            <button type="submit" class="btn btn-primary" [disabled]="saving()">
+              @if (saving()) {
+                <span class="spinner-border spinner-border-sm me-1"></span>
+              }
+              {{ isEditMode() ? ('common.save' | translate) : ('priceLists.create' | translate) }}
+            </button>
+            <a routerLink="/price-lists" class="btn btn-outline-secondary">{{ 'common.cancel' | translate }}</a>
+          </div>
+        </form>
+      </div>
+    </div>
+  }
+</div>

@@ -1,0 +1,50 @@
+<div class="page-container">
+  <div class="page-header">
+    <div>
+      <h1>{{ 'wholesalerData.stockOverviewTitle' | translate }}</h1>
+      <p class="text-muted">{{ 'wholesalerData.stockOverviewSubtitle' | translate }}</p>
+    </div>
+    <button class="btn btn-outline-secondary" routerLink="/wholesaler-data">
+      <i class="icon-arrow-left"></i> {{ 'common.back' | translate }}
+    </button>
+  </div>
+
+  @if (loading()) {
+    <div class="loading-spinner">
+      <div class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">Loading...</span>
+      </div>
+    </div>
+  } @else if (stockSummary().length === 0) {
+    <app-empty-state
+      [title]="'wholesalerData.noStockData' | translate"
+      [description]="'wholesalerData.noStockDataMessage' | translate"
+      icon="icon-layers">
+    </app-empty-state>
+  } @else {
+    <div class="table-responsive">
+      <table class="table table-striped">
+        <thead>
+          <tr>
+            <th>{{ 'wholesalerData.productName' | translate }}</th>
+            @for (stock of stockSummary()[0]?.stockLevels || []; track stock.wholesalerId) {
+              <th class="text-end">{{ stock.wholesalerName }}</th>
+            }
+            <th class="text-end fw-bold">{{ 'wholesalerData.totalStock' | translate }}</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (item of stockSummary(); track item.productId) {
+            <tr>
+              <td>{{ item.productName }}</td>
+              @for (level of item.stockLevels; track level.wholesalerId) {
+                <td class="text-end">{{ level.quantity | number:'1.0-0' }}</td>
+              }
+              <td class="text-end fw-bold">{{ item.totalStock | number:'1.0-0' }}</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+</div>

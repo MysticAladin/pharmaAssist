@@ -1,0 +1,91 @@
+<div class="page-container">
+  <div class="page-header">
+    <div>
+      <h1>{{ 'wholesalerData.title' | translate }}</h1>
+      <p class="text-muted">{{ 'wholesalerData.subtitle' | translate }}</p>
+    </div>
+    <div class="d-flex gap-2">
+      <button class="btn btn-outline-primary" routerLink="/wholesaler-data/stock">
+        <i class="icon-layers"></i> {{ 'wholesalerData.stockOverview' | translate }}
+      </button>
+      <button class="btn btn-primary" routerLink="/wholesaler-data/upload">
+        <i class="icon-upload"></i> {{ 'wholesalerData.importData' | translate }}
+      </button>
+    </div>
+  </div>
+
+  <div class="filters-bar">
+    <select class="form-select form-select-sm" style="max-width: 200px" (change)="onStatusFilterChange($any($event.target).value)">
+      <option value="">{{ 'wholesalerData.allStatuses' | translate }}</option>
+      <option value="Pending">{{ 'wholesalerData.statusPending' | translate }}</option>
+      <option value="Processing">{{ 'wholesalerData.statusProcessing' | translate }}</option>
+      <option value="Completed">{{ 'wholesalerData.statusCompleted' | translate }}</option>
+      <option value="CompletedWithErrors">{{ 'wholesalerData.statusCompletedWithErrors' | translate }}</option>
+      <option value="Error">{{ 'wholesalerData.statusError' | translate }}</option>
+    </select>
+  </div>
+
+  @if (loading()) {
+    <div class="loading-spinner">
+      <div class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">Loading...</span>
+      </div>
+    </div>
+  } @else if (imports().length === 0) {
+    <app-empty-state
+      [title]="'wholesalerData.noImports' | translate"
+      [description]="'wholesalerData.noImportsMessage' | translate"
+      icon="icon-upload"
+      [actionLabel]="'wholesalerData.importData' | translate"
+      (actionClick)="router.navigate(['/wholesaler-data/upload'])">
+    </app-empty-state>
+  } @else {
+    <app-data-table
+      [data]="imports()"
+      [columns]="columns"
+      (sortChange)="onSort($event)"
+      (rowClick)="viewImport($event)">
+    </app-data-table>
+
+    <app-pagination
+      [page]="filters().page"
+      [size]="filters().pageSize"
+      [totalItems]="totalItems()"
+      (pageChange)="onPageChange($event.page)">
+    </app-pagination>
+  }
+
+  <ng-template #statusTemplate let-row>
+    <app-status-badge
+      [label]="statusLabels[row.status] || row.statusName"
+      [variant]="statusVariants[row.status] || 'neutral'">
+    </app-status-badge>
+  </ng-template>
+
+  <ng-template #matchTemplate let-row>
+    <div class="d-flex flex-column align-items-center">
+      <span class="fw-medium">{{ getMatchPercent(row) }}%</span>
+      <small class="text-muted">{{ row.matchedProductCount }}/{{ row.matchedProductCount + row.unmatchedProductCount }}</small>
+    </div>
+  </ng-template>
+
+  <ng-template #actionsTemplate let-row>
+    <div class="btn-group btn-group-sm">
+      <button class="btn btn-outline-primary btn-sm" (click)="viewImport(row); $event.stopPropagation()" title="{{ 'common.view' | translate }}">
+        <i class="icon-eye"></i>
+      </button>
+      <button class="btn btn-outline-danger btn-sm" (click)="confirmDelete(row); $event.stopPropagation()" title="{{ 'common.delete' | translate }}">
+        <i class="icon-trash-2"></i>
+      </button>
+    </div>
+  </ng-template>
+</div>
+
+<app-confirm-dialog
+  [show]="showDeleteDialog()"
+  [title]="'wholesalerData.confirmDelete' | translate"
+  [message]="'wholesalerData.confirmDeleteMessage' | translate"
+  type="danger"
+  (confirmed)="deleteImport()"
+  (cancelled)="showDeleteDialog.set(false)">
+</app-confirm-dialog>

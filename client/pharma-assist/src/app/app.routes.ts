@@ -114,6 +114,30 @@ export const routes: Routes = [
         loadChildren: () => import('./features/reports/reports.routes').then(m => m.REPORTS_ROUTES)
       },
 
+      // Wholesaler Data Import
+      {
+        path: 'wholesaler-data',
+        canActivate: [roleGuard],
+        data: { roles: [UserRole.SuperAdmin, UserRole.Admin, UserRole.Manager] },
+        loadChildren: () => import('./features/wholesaler-data/wholesaler-data.routes').then(m => m.WHOLESALER_DATA_ROUTES)
+      },
+
+      // Sales Analytics
+      {
+        path: 'sales-analytics',
+        canActivate: [roleGuard],
+        data: { roles: [UserRole.SuperAdmin, UserRole.Admin, UserRole.Manager] },
+        loadChildren: () => import('./features/sales-analytics/sales-analytics.routes').then(m => m.SALES_ANALYTICS_ROUTES)
+      },
+
+      // Price Lists
+      {
+        path: 'price-lists',
+        canActivate: [roleGuard],
+        data: { roles: [UserRole.SuperAdmin, UserRole.Admin, UserRole.Manager] },
+        loadChildren: () => import('./features/price-lists/price-lists.routes').then(m => m.PRICE_LISTS_ROUTES)
+      },
+
       // Profile & Settings
       {
         path: 'profile',

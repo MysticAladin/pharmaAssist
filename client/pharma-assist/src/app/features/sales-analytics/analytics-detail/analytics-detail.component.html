@@ -1,0 +1,59 @@
+<div class="page-container">
+  <div class="page-header">
+    <div>
+      <nav aria-label="breadcrumb">
+        <ol class="breadcrumb mb-1">
+          <li class="breadcrumb-item"><a routerLink="/sales-analytics">{{ 'salesAnalytics.title' | translate }}</a></li>
+          <li class="breadcrumb-item active">{{ viewTitle() }}</li>
+        </ol>
+      </nav>
+      <h1>{{ viewTitle() }}</h1>
+    </div>
+    <a routerLink="/sales-analytics" class="btn btn-outline-secondary btn-sm">
+      {{ 'common.back' | translate }}
+    </a>
+  </div>
+
+  <!-- Date Filters -->
+  <div class="filters-bar mb-4">
+    <div class="d-flex gap-3 align-items-center">
+      <div>
+        <label class="form-label mb-0 small">{{ 'common.from' | translate }}</label>
+        <input type="date" class="form-control form-control-sm" (change)="onDateFromChange($any($event.target).value)">
+      </div>
+      <div>
+        <label class="form-label mb-0 small">{{ 'common.to' | translate }}</label>
+        <input type="date" class="form-control form-control-sm" (change)="onDateToChange($any($event.target).value)">
+      </div>
+    </div>
+  </div>
+
+  @if (loading()) {
+    <div class="loading-spinner">
+      <div class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">Loading...</span>
+      </div>
+    </div>
+  } @else {
+    <div class="card">
+      <div class="card-body">
+        <app-data-table
+          [data]="data()"
+          [columns]="columns()">
+        </app-data-table>
+      </div>
+    </div>
+  }
+</div>
+
+<ng-template #amountTpl let-row>
+  {{ row.totalAmount | number:'1.2-2' }}
+</ng-template>
+
+<ng-template #percentTpl let-row>
+  {{ row.percentOfTotal | number:'1.1-1' }}%
+</ng-template>
+
+<ng-template #numberTpl let-row>
+  {{ row.totalQuantity ?? row.customerCount ?? row.productCount ?? row.recordCount | number:'1.0-0' }}
+</ng-template>

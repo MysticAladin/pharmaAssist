@@ -1,0 +1,109 @@
+<div class="page-container">
+  <div class="page-header">
+    <div>
+      <h1>{{ 'priceLists.title' | translate }}</h1>
+      <p class="text-muted">{{ 'priceLists.subtitle' | translate }}</p>
+    </div>
+    <a routerLink="/price-lists/new" class="btn btn-primary btn-sm">
+      <i class="icon-plus me-1"></i>
+      {{ 'priceLists.create' | translate }}
+    </a>
+  </div>
+
+  <!-- Filters -->
+  <div class="filters-bar mb-4">
+    <div class="d-flex gap-3 flex-wrap align-items-end">
+      <div>
+        <label class="form-label mb-0 small">{{ 'common.search' | translate }}</label>
+        <input type="text" class="form-control form-control-sm"
+          [placeholder]="'priceLists.searchPlaceholder' | translate"
+          (input)="onSearch($any($event.target).value)">
+      </div>
+      <div>
+        <label class="form-label mb-0 small">{{ 'priceLists.type' | translate }}</label>
+        <select class="form-select form-select-sm" (change)="onTypeFilter($any($event.target).value)">
+          <option value="">{{ 'common.all' | translate }}</option>
+          @for (type of priceListTypes; track type.value) {
+            <option [value]="type.value">{{ type.label }}</option>
+          }
+        </select>
+      </div>
+      <div>
+        <label class="form-label mb-0 small">{{ 'priceLists.status' | translate }}</label>
+        <select class="form-select form-select-sm" (change)="onActiveFilter($any($event.target).value)">
+          <option value="">{{ 'common.all' | translate }}</option>
+          <option value="true">{{ 'priceLists.active' | translate }}</option>
+          <option value="false">{{ 'priceLists.inactive' | translate }}</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  @if (loading()) {
+    <div class="loading-spinner">
+      <div class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">Loading...</span>
+      </div>
+    </div>
+  } @else {
+    <div class="card">
+      <div class="card-body">
+        <app-data-table
+          [data]="priceLists()"
+          [columns]="columns()"
+          (rowClick)="onRowClick($event)">
+        </app-data-table>
+      </div>
+      <div class="card-footer">
+        <app-pagination
+          [page]="page()"
+          [size]="pageSize()"
+          [totalItems]="totalItems()"
+          (pageChange)="onPageChange($event)">
+        </app-pagination>
+      </div>
+    </div>
+  }
+</div>
+
+<ng-template #typeTpl let-row>
+  <app-status-badge [label]="getTypeLabel(row.type)" variant="info"></app-status-badge>
+</ng-template>
+
+<ng-template #dateTpl let-row>
+  {{ row.effectiveFrom | date:'mediumDate' }}
+  @if (row.effectiveTo) {
+    <span class="text-muted">- {{ row.effectiveTo | date:'mediumDate' }}</span>
+  }
+</ng-template>
+
+<ng-template #activeTpl let-row>
+  <app-status-badge
+    [label]="row.isActive ? ('priceLists.active' | translate) : ('priceLists.inactive' | translate)"
+    [variant]="row.isActive ? 'success' : 'neutral'">
+  </app-status-badge>
+</ng-template>
+
+<ng-template #actionsTpl let-row>
+  <div class="d-flex gap-1 justify-content-center">
+    <a [routerLink]="['/price-lists', row.id]" class="btn btn-sm btn-outline-primary" (click)="$event.stopPropagation()">
+      <i class="icon-eye"></i>
+    </a>
+    <a [routerLink]="['/price-lists', row.id, 'edit']" class="btn btn-sm btn-outline-secondary" (click)="$event.stopPropagation()">
+      <i class="icon-edit"></i>
+    </a>
+    <button class="btn btn-sm btn-outline-danger" (click)="$event.stopPropagation(); openDeleteDialog(row)">
+      <i class="icon-trash"></i>
+    </button>
+  </div>
+</ng-template>
+
+<app-confirm-dialog
+  [title]="'priceLists.deleteTitle' | translate"
+  [message]="'priceLists.deleteConfirmation' | translate"
+  [isOpen]="showDeleteDialog()"
+  variant="danger"
+  [isLoading]="deleteLoading()"
+  (confirmed)="confirmDelete()"
+  (cancelled)="showDeleteDialog.set(false)">
+</app-confirm-dialog>

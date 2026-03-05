@@ -1,0 +1,227 @@
+<div class="page-container">
+  @if (loading()) {
+    <div class="loading-spinner">
+      <div class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">Loading...</span>
+      </div>
+    </div>
+  } @else if (importData()) {
+    <div class="page-header">
+      <div>
+        <h1>{{ importData()!.wholesalerName }} - {{ importData()!.fileName }}</h1>
+        <p class="text-muted">
+          {{ 'wholesalerData.importedOn' | translate }} {{ importData()!.importDate | date:'mediumDate' }}
+          @if (importData()!.period) {
+            | {{ 'wholesalerData.period' | translate }}: {{ importData()!.period }}
+          }
+        </p>
+      </div>
+      <button class="btn btn-outline-secondary" routerLink="/wholesaler-data">
+        <i class="icon-arrow-left"></i> {{ 'common.back' | translate }}
+      </button>
+    </div>
+
+    <!-- Summary Cards -->
+    <div class="row g-3 mb-4">
+      <div class="col-md-2">
+        <div class="card stat-card">
+          <div class="card-body text-center">
+            <div class="stat-value">{{ importData()!.recordCount }}</div>
+            <div class="stat-label">{{ 'wholesalerData.totalRecords' | translate }}</div>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-2">
+        <div class="card stat-card">
+          <div class="card-body text-center">
+            <app-status-badge
+              [label]="statusLabels[importData()!.status] || importData()!.statusName"
+              [variant]="statusVariants[importData()!.status] || 'neutral'">
+            </app-status-badge>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-2">
+        <div class="card stat-card">
+          <div class="card-body text-center">
+            <div class="stat-value text-success">{{ importData()!.matchedProductCount }}</div>
+            <div class="stat-label">{{ 'wholesalerData.matchedProducts' | translate }}</div>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-2">
+        <div class="card stat-card">
+          <div class="card-body text-center">
+            <div class="stat-value text-warning">{{ importData()!.unmatchedProductCount }}</div>
+            <div class="stat-label">{{ 'wholesalerData.unmatchedProducts' | translate }}</div>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-2">
+        <div class="card stat-card">
+          <div class="card-body text-center">
+            <div class="stat-value text-primary">{{ getMatchPercent() }}%</div>
+            <div class="stat-label">{{ 'wholesalerData.matchRate' | translate }}</div>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-2">
+        <div class="card stat-card">
+          <div class="card-body text-center">
+            <div class="stat-value text-danger">{{ importData()!.errorCount }}</div>
+            <div class="stat-label">{{ 'wholesalerData.errors' | translate }}</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tabs -->
+    <ul class="nav nav-tabs mb-3">
+      <li class="nav-item">
+        <button class="nav-link" [class.active]="activeTab() === 'sales'" (click)="switchTab('sales')">
+          {{ 'wholesalerData.salesRecords' | translate }} ({{ importData()!.salesRecords.length }})
+        </button>
+      </li>
+      <li class="nav-item">
+        <button class="nav-link" [class.active]="activeTab() === 'stock'" (click)="switchTab('stock')">
+          {{ 'wholesalerData.stockRecords' | translate }} ({{ importData()!.stockRecords.length }})
+        </button>
+      </li>
+      <li class="nav-item">
+        <button class="nav-link" [class.active]="activeTab() === 'unmatched'" (click)="switchTab('unmatched')">
+          {{ 'wholesalerData.unmatchedRecords' | translate }}
+          @if (importData()!.unmatchedProductCount > 0 || importData()!.unmatchedCustomerCount > 0) {
+            <span class="badge bg-warning ms-1">{{ importData()!.unmatchedProductCount + importData()!.unmatchedCustomerCount }}</span>
+          }
+        </button>
+      </li>
+    </ul>
+
+    <!-- Sales Records Tab -->
+    @if (activeTab() === 'sales') {
+      <div class="table-responsive">
+        <table class="table table-sm table-striped">
+          <thead>
+            <tr>
+              <th>{{ 'wholesalerData.productCode' | translate }}</th>
+              <th>{{ 'wholesalerData.productName' | translate }}</th>
+              <th>{{ 'wholesalerData.customer' | translate }}</th>
+              <th class="text-end">{{ 'wholesalerData.quantity' | translate }}</th>
+              <th class="text-end">{{ 'wholesalerData.unitPrice' | translate }}</th>
+              <th class="text-end">{{ 'wholesalerData.totalAmount' | translate }}</th>
+              <th>{{ 'wholesalerData.invoiceDate' | translate }}</th>
+              <th>{{ 'common.status' | translate }}</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (record of importData()!.salesRecords; track record.id) {
+              <tr>
+                <td>{{ record.productCode }}</td>
+                <td>
+                  {{ record.productName }}
+                  @if (record.matchedProductName) {
+                    <br><small class="text-success"><i class="icon-check"></i> {{ record.matchedProductName }}</small>
+                  }
+                </td>
+                <td>
+                  {{ record.customerName }}
+                  @if (record.matchedCustomerName) {
+                    <br><small class="text-success"><i class="icon-check"></i> {{ record.matchedCustomerName }}</small>
+                  }
+                </td>
+                <td class="text-end">{{ record.quantity | number:'1.0-2' }}</td>
+                <td class="text-end">{{ record.unitPrice | number:'1.2-2' }}</td>
+                <td class="text-end">{{ record.totalAmount | number:'1.2-2' }}</td>
+                <td>{{ record.invoiceDate | date:'shortDate' }}</td>
+                <td>
+                  @if (record.productId && record.customerId) {
+                    <app-status-badge label="Matched" variant="success"></app-status-badge>
+                  } @else if (record.productId || record.customerId) {
+                    <app-status-badge label="Partial" variant="warning"></app-status-badge>
+                  } @else {
+                    <app-status-badge label="Unmatched" variant="danger"></app-status-badge>
+                  }
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    }
+
+    <!-- Stock Records Tab -->
+    @if (activeTab() === 'stock') {
+      <div class="table-responsive">
+        <table class="table table-sm table-striped">
+          <thead>
+            <tr>
+              <th>{{ 'wholesalerData.productCode' | translate }}</th>
+              <th>{{ 'wholesalerData.productName' | translate }}</th>
+              <th class="text-end">{{ 'wholesalerData.quantity' | translate }}</th>
+              <th>{{ 'wholesalerData.reportDate' | translate }}</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (record of importData()!.stockRecords; track record.id) {
+              <tr>
+                <td>{{ record.productCode }}</td>
+                <td>{{ record.productName }}</td>
+                <td class="text-end">{{ record.quantity | number:'1.0-2' }}</td>
+                <td>{{ record.reportDate | date:'shortDate' }}</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    }
+
+    <!-- Unmatched Records Tab -->
+    @if (activeTab() === 'unmatched') {
+      @if (unmatchedRecords().length === 0) {
+        <div class="alert alert-success">{{ 'wholesalerData.allRecordsMatched' | translate }}</div>
+      } @else {
+        <div class="table-responsive">
+          <table class="table table-sm table-striped">
+            <thead>
+              <tr>
+                <th>{{ 'wholesalerData.productCode' | translate }}</th>
+                <th>{{ 'wholesalerData.productName' | translate }}</th>
+                <th>{{ 'wholesalerData.customer' | translate }}</th>
+                <th class="text-end">{{ 'wholesalerData.totalAmount' | translate }}</th>
+                <th>{{ 'wholesalerData.issue' | translate }}</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (record of unmatchedRecords(); track record.id) {
+                <tr>
+                  <td>{{ record.productCode }}</td>
+                  <td>{{ record.productName }}</td>
+                  <td>{{ record.customerName }}</td>
+                  <td class="text-end">{{ record.totalAmount | number:'1.2-2' }}</td>
+                  <td>
+                    @if (!record.productId) {
+                      <app-status-badge label="Product" variant="warning"></app-status-badge>
+                    }
+                    @if (!record.customerId) {
+                      <app-status-badge label="Customer" variant="warning"></app-status-badge>
+                    }
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      }
+    }
+
+    <!-- Error Log -->
+    @if (importData()!.errorLog) {
+      <div class="card mt-3">
+        <div class="card-header">{{ 'wholesalerData.errorLog' | translate }}</div>
+        <div class="card-body">
+          <pre class="mb-0" style="max-height: 300px; overflow-y: auto">{{ importData()!.errorLog }}</pre>
+        </div>
+      </div>
+    }
+  }
+</div>

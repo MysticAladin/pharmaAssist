@@ -428,3 +428,27 @@ public enum AssignmentType
     Exclusive = 1,
     Shared = 2
 }
+
+/// <summary>
+/// Status of a wholesaler data import job
+/// </summary>
+public enum ImportStatus
+{
+    Pending = 0,
+    Processing = 1,
+    Completed = 2,
+    CompletedWithErrors = 3,
+    Error = 4
+}
+
+/// <summary>
+/// Price list type — determines context of pricing
+/// </summary>
+public enum PriceListType
+{
+    Hospital = 1,
+    Retail = 2,
+    Wholesale = 3,
+    Government = 4,
+    Export = 5
+}

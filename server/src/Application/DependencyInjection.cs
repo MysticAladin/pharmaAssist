@@ -33,6 +33,9 @@ public static class DependencyInjection
         services.AddScoped<IBrandService, BrandService>();
         services.AddScoped<ICycleService, CycleService>();
         services.AddScoped<ITerritoryService, TerritoryService>();
+        services.AddScoped<IWholesalerDataService, WholesalerDataService>();
+        services.AddScoped<ISalesAnalyticsService, SalesAnalyticsService>();
+        services.AddScoped<IPriceListService, PriceListService>();
         
         return services;
     }

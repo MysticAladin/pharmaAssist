@@ -8,8 +8,10 @@ using Application.DTOs.Inventory;
 using Application.DTOs.Locations;
 using Application.DTOs.Manufacturers;
 using Application.DTOs.Orders;
+using Application.DTOs.PriceLists;
 using Application.DTOs.Products;
 using Application.DTOs.Territories;
+using Application.DTOs.Wholesaler;
 using AutoMapper;
 using Domain.Entities;
 using Domain.Enums;
@@ -55,6 +57,10 @@ public class MappingProfile : Profile
 
         // Territory mappings
         CreateTerritoryMappings();
+
+        // Wholesaler & Price List mappings
+        CreateWholesalerMappings();
+        CreatePriceListMappings();
     }
 
     private void CreateProductMappings()
@@ -712,5 +718,33 @@ public class MappingProfile : Profile
             .ForMember(d => d.CreatedBy, opt => opt.Ignore())
             .ForMember(d => d.UpdatedBy, opt => opt.Ignore())
             .ForMember(d => d.IsDeleted, opt => opt.MapFrom(_ => false));
+    }
+
+    private void CreateWholesalerMappings()
+    {
+        CreateMap<WholesalerDataImport, WholesalerDataImportDto>()
+            .ForMember(d => d.WholesalerName, opt => opt.MapFrom(s => s.Wholesaler != null ? s.Wholesaler.FullName : s.WholesalerName));
+
+        CreateMap<WholesalerSalesRecord, WholesalerSalesRecordDto>()
+            .ForMember(d => d.MatchedProductName, opt => opt.MapFrom(s => s.Product != null ? s.Product.Name : null))
+            .ForMember(d => d.MatchedCustomerName, opt => opt.MapFrom(s => s.Customer != null ? s.Customer.FullName : null));
+
+        CreateMap<WholesalerStockRecord, WholesalerStockRecordDto>()
+            .ForMember(d => d.WholesalerName, opt => opt.MapFrom(s => s.Wholesaler != null ? s.Wholesaler.FullName : null));
+    }
+
+    private void CreatePriceListMappings()
+    {
+        CreateMap<PriceList, PriceListDto>()
+            .ForMember(d => d.ItemCount, opt => opt.MapFrom(s => s.Items != null ? s.Items.Count : 0));
+
+        CreateMap<PriceListItem, PriceListItemDto>()
+            .ForMember(d => d.ProductName, opt => opt.MapFrom(s => s.Product != null ? s.Product.Name : string.Empty))
+            .ForMember(d => d.ProductCode, opt => opt.MapFrom(s => s.Product != null ? s.Product.SKU : null));
+
+        CreateMap<CreatePriceListRequest, PriceList>()
+            .ForMember(d => d.Id, opt => opt.Ignore())
+            .ForMember(d => d.Items, opt => opt.Ignore())
+            .ForMember(d => d.CreatedAt, opt => opt.MapFrom(_ => DateTime.UtcNow));
     }
 }
