@@ -1,0 +1,68 @@
+<div class="page-container">
+  <div class="page-header">
+    <div>
+      <h1>{{ 'MATERIALS.NEW_DISTRIBUTION' | translate }}</h1>
+      <p class="text-muted">{{ 'MATERIALS.FORM_SUBTITLE' | translate }}</p>
+    </div>
+    <a routerLink="/materials" class="btn btn-outline-secondary btn-sm">
+      {{ 'common.back' | translate }}
+    </a>
+  </div>
+
+  <div class="card">
+    <div class="card-body">
+      <div class="row g-3">
+        <div class="col-md-6">
+          <label class="form-label">{{ 'MATERIALS.MATERIAL_NAME' | translate }} *</label>
+          <input type="text" class="form-control" [ngModel]="materialName()" (ngModelChange)="materialName.set($event)">
+        </div>
+        <div class="col-md-6">
+          <label class="form-label">{{ 'MATERIALS.TYPE' | translate }}</label>
+          <select class="form-select" [ngModel]="materialType()" (ngModelChange)="materialType.set(+$event)">
+            @for (t of materialTypes; track t.value) {
+              <option [value]="t.value">{{ t.label | translate }}</option>
+            }
+          </select>
+        </div>
+        <div class="col-md-4">
+          <label class="form-label">{{ 'MATERIALS.REP_ID' | translate }} *</label>
+          <input type="number" class="form-control" [ngModel]="repId()" (ngModelChange)="repId.set($event)">
+        </div>
+        <div class="col-md-4">
+          <label class="form-label">{{ 'MATERIALS.CUSTOMER_ID' | translate }} *</label>
+          <input type="number" class="form-control" [ngModel]="customerId()" (ngModelChange)="customerId.set($event)">
+        </div>
+        <div class="col-md-4">
+          <label class="form-label">{{ 'MATERIALS.QUANTITY' | translate }}</label>
+          <input type="number" class="form-control" [ngModel]="quantity()" (ngModelChange)="quantity.set($event)" min="1">
+        </div>
+        <div class="col-md-4">
+          <label class="form-label">{{ 'MATERIALS.PRODUCT_ID' | translate }}</label>
+          <input type="number" class="form-control" [ngModel]="productId()" (ngModelChange)="productId.set($event)">
+        </div>
+        <div class="col-md-4">
+          <label class="form-label">{{ 'MATERIALS.VISIT_ID' | translate }}</label>
+          <input type="number" class="form-control" [ngModel]="visitId()" (ngModelChange)="visitId.set($event)">
+        </div>
+        <div class="col-md-4">
+          <label class="form-label">{{ 'MATERIALS.LOT_NUMBER' | translate }}</label>
+          <input type="text" class="form-control" [ngModel]="lotNumber()" (ngModelChange)="lotNumber.set($event)">
+        </div>
+        <div class="col-12">
+          <label class="form-label">{{ 'MATERIALS.NOTES' | translate }}</label>
+          <textarea class="form-control" rows="3" [ngModel]="notes()" (ngModelChange)="notes.set($event)"></textarea>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="d-flex justify-content-end gap-2 mt-3">
+    <a routerLink="/materials" class="btn btn-outline-secondary">{{ 'common.cancel' | translate }}</a>
+    <button class="btn btn-primary" [disabled]="saving()" (click)="onSave()">
+      @if (saving()) {
+        <span class="spinner-border spinner-border-sm me-1"></span>
+      }
+      {{ 'MATERIALS.CREATE_DISTRIBUTION' | translate }}
+    </button>
+  </div>
+</div>

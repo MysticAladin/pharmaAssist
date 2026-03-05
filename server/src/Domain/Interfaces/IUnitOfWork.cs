@@ -33,6 +33,12 @@ public interface IUnitOfWork : IDisposable
     IRepository<Domain.Entities.WholesalerStockRecord> WholesalerStockRecords { get; }
     IRepository<Domain.Entities.PriceList> PriceLists { get; }
     IRepository<Domain.Entities.PriceListItem> PriceListItems { get; }
+    IRepository<Domain.Entities.Survey> Surveys { get; }
+    IRepository<Domain.Entities.SurveyQuestion> SurveyQuestions { get; }
+    IRepository<Domain.Entities.SurveyResponse> SurveyResponses { get; }
+    IRepository<Domain.Entities.SurveyAnswer> SurveyAnswers { get; }
+    IRepository<Domain.Entities.MaterialDistribution> MaterialDistributions { get; }
+    IRepository<Domain.Entities.RepInventory> RepInventories { get; }
     
     Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
     Task BeginTransactionAsync(CancellationToken cancellationToken = default);

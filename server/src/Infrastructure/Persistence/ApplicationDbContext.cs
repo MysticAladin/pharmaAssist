@@ -48,6 +48,16 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser, Applicati
     public DbSet<PriceList> PriceLists { get; set; } = null!;
     public DbSet<PriceListItem> PriceListItems { get; set; } = null!;
 
+    // Surveys
+    public DbSet<Survey> Surveys { get; set; } = null!;
+    public DbSet<SurveyQuestion> SurveyQuestions { get; set; } = null!;
+    public DbSet<SurveyResponse> SurveyResponses { get; set; } = null!;
+    public DbSet<SurveyAnswer> SurveyAnswers { get; set; } = null!;
+
+    // Material Distribution
+    public DbSet<MaterialDistribution> MaterialDistributions { get; set; } = null!;
+    public DbSet<RepInventory> RepInventories { get; set; } = null!;
+
     // Customer Management
     public DbSet<Customer> Customers { get; set; } = null!;
     public DbSet<CustomerAddress> CustomerAddresses { get; set; } = null!;

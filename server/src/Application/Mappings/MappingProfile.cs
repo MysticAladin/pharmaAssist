@@ -7,9 +7,11 @@ using Application.DTOs.FeatureFlags;
 using Application.DTOs.Inventory;
 using Application.DTOs.Locations;
 using Application.DTOs.Manufacturers;
+using Application.DTOs.Materials;
 using Application.DTOs.Orders;
 using Application.DTOs.PriceLists;
 using Application.DTOs.Products;
+using Application.DTOs.Surveys;
 using Application.DTOs.Territories;
 using Application.DTOs.Wholesaler;
 using AutoMapper;
@@ -61,6 +63,12 @@ public class MappingProfile : Profile
         // Wholesaler & Price List mappings
         CreateWholesalerMappings();
         CreatePriceListMappings();
+
+        // Survey mappings
+        CreateSurveyMappings();
+
+        // Material Distribution mappings
+        CreateMaterialMappings();
     }
 
     private void CreateProductMappings()
@@ -746,5 +754,90 @@ public class MappingProfile : Profile
             .ForMember(d => d.Id, opt => opt.Ignore())
             .ForMember(d => d.Items, opt => opt.Ignore())
             .ForMember(d => d.CreatedAt, opt => opt.MapFrom(_ => DateTime.UtcNow));
+    }
+
+    // ─── Phase 5: Survey Mappings ───────────────────────────────────────
+    private void CreateSurveyMappings()
+    {
+        CreateMap<Survey, SurveyDto>()
+            .ForMember(d => d.CycleName, opt => opt.MapFrom(s => s.Cycle != null ? s.Cycle.Name : null))
+            .ForMember(d => d.QuestionCount, opt => opt.MapFrom(s => s.Questions.Count))
+            .ForMember(d => d.ResponseCount, opt => opt.MapFrom(s => s.Responses.Count));
+
+        CreateMap<Survey, SurveyDetailDto>()
+            .ForMember(d => d.CycleName, opt => opt.MapFrom(s => s.Cycle != null ? s.Cycle.Name : null))
+            .ForMember(d => d.QuestionCount, opt => opt.MapFrom(s => s.Questions.Count))
+            .ForMember(d => d.ResponseCount, opt => opt.MapFrom(s => s.Responses.Count))
+            .ForMember(d => d.Questions, opt => opt.MapFrom(s => s.Questions.OrderBy(q => q.SortOrder)));
+
+        CreateMap<SurveyQuestion, SurveyQuestionDto>()
+            .ForMember(d => d.Options, opt => opt.MapFrom(s =>
+                string.IsNullOrEmpty(s.Options)
+                    ? null
+                    : System.Text.Json.JsonSerializer.Deserialize<List<string>>(s.Options, (System.Text.Json.JsonSerializerOptions?)null)));
+
+        CreateMap<CreateSurveyRequest, Survey>()
+            .ForMember(d => d.Id, opt => opt.Ignore())
+            .ForMember(d => d.Status, opt => opt.MapFrom(_ => SurveyStatus.Draft))
+            .ForMember(d => d.Questions, opt => opt.Ignore())
+            .ForMember(d => d.Responses, opt => opt.Ignore())
+            .ForMember(d => d.CreatedAt, opt => opt.MapFrom(_ => DateTime.UtcNow));
+
+        CreateMap<CreateSurveyQuestionRequest, SurveyQuestion>()
+            .ForMember(d => d.Id, opt => opt.Ignore())
+            .ForMember(d => d.SurveyId, opt => opt.Ignore())
+            .ForMember(d => d.Options, opt => opt.MapFrom(s =>
+                s.Options != null && s.Options.Any()
+                    ? System.Text.Json.JsonSerializer.Serialize(s.Options, (System.Text.Json.JsonSerializerOptions?)null)
+                    : null));
+
+        CreateMap<SurveyResponse, SurveyResponseDto>()
+            .ForMember(d => d.SurveyTitle, opt => opt.MapFrom(s => s.Survey.Title))
+            .ForMember(d => d.RepName, opt => opt.MapFrom(s =>
+                s.RespondentRep != null && s.RespondentRep.User != null
+                    ? s.RespondentRep.User.FullName
+                    : string.Empty))
+            .ForMember(d => d.CustomerName, opt => opt.MapFrom(s =>
+                s.Customer != null ? s.Customer.FullName : string.Empty));
+
+        CreateMap<SurveyAnswer, SurveyAnswerDto>()
+            .ForMember(d => d.QuestionText, opt => opt.MapFrom(s => s.Question.QuestionText))
+            .ForMember(d => d.QuestionType, opt => opt.MapFrom(s => s.Question.QuestionType))
+            .ForMember(d => d.SelectedOptions, opt => opt.MapFrom(s =>
+                string.IsNullOrEmpty(s.SelectedOptions)
+                    ? null
+                    : System.Text.Json.JsonSerializer.Deserialize<List<string>>(s.SelectedOptions, (System.Text.Json.JsonSerializerOptions?)null)));
+    }
+
+    // ─── Phase 5: Material Distribution Mappings ────────────────────────
+    private void CreateMaterialMappings()
+    {
+        CreateMap<MaterialDistribution, MaterialDistributionDto>()
+            .ForMember(d => d.RepName, opt => opt.MapFrom(s =>
+                s.Rep != null && s.Rep.User != null
+                    ? s.Rep.User.FullName
+                    : string.Empty))
+            .ForMember(d => d.CustomerName, opt => opt.MapFrom(s =>
+                s.Customer != null ? s.Customer.FullName : string.Empty))
+            .ForMember(d => d.ProductName, opt => opt.MapFrom(s =>
+                s.Product != null ? s.Product.Name : null));
+
+        CreateMap<CreateDistributionRequest, MaterialDistribution>()
+            .ForMember(d => d.Id, opt => opt.Ignore())
+            .ForMember(d => d.DistributedAt, opt => opt.MapFrom(_ => DateTime.UtcNow))
+            .ForMember(d => d.CreatedAt, opt => opt.MapFrom(_ => DateTime.UtcNow));
+
+        CreateMap<RepInventory, RepInventoryDto>()
+            .ForMember(d => d.RepName, opt => opt.MapFrom(s =>
+                s.Rep != null && s.Rep.User != null
+                    ? s.Rep.User.FullName
+                    : string.Empty))
+            .ForMember(d => d.ProductName, opt => opt.MapFrom(s =>
+                s.Product != null ? s.Product.Name : null));
+
+        CreateMap<UpdateRepInventoryRequest, RepInventory>()
+            .ForMember(d => d.Id, opt => opt.Ignore())
+            .ForMember(d => d.LastRestockedAt, opt => opt.Ignore())
+            .ForMember(d => d.CreatedAt, opt => opt.Ignore());
     }
 }

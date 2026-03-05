@@ -1,0 +1,104 @@
+<div class="page-container">
+  <div class="page-header">
+    <div>
+      <h1>{{ 'MATERIALS.REP_INVENTORY' | translate }}</h1>
+      <p class="text-muted">{{ 'MATERIALS.REP_ID' | translate }}: {{ repId() }}</p>
+    </div>
+    <a routerLink="/materials" class="btn btn-outline-secondary btn-sm">
+      {{ 'common.back' | translate }}
+    </a>
+  </div>
+
+  @if (loading()) {
+    <div class="loading-spinner">
+      <div class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">Loading...</span>
+      </div>
+    </div>
+  } @else if (inventory().length === 0) {
+    <app-empty-state
+      title="{{ 'MATERIALS.NO_INVENTORY' | translate }}"
+      icon="icon-package"
+      [isCompact]="true" />
+  } @else {
+    <div class="row g-3">
+      @for (item of inventory(); track item.id) {
+        <div class="col-md-6 col-lg-4">
+          <div class="card" [class.border-danger]="item.isLowStock">
+            <div class="card-body">
+              <div class="d-flex justify-content-between align-items-start mb-2">
+                <h6 class="mb-0">{{ item.materialName }}</h6>
+                @if (item.isLowStock) {
+                  <app-status-badge label="{{ 'MATERIALS.LOW_STOCK' | translate }}" variant="danger" />
+                }
+              </div>
+              @if (item.productName) {
+                <p class="text-muted small mb-1">{{ item.productName }}</p>
+              }
+              <div class="d-flex justify-content-between align-items-center mt-3">
+                <div>
+                  <span class="fs-4 fw-bold">{{ item.quantity }}</span>
+                  @if (item.minQuantity !== null && item.minQuantity !== undefined) {
+                    <small class="text-muted"> / {{ 'MATERIALS.MIN' | translate }}: {{ item.minQuantity }}</small>
+                  }
+                </div>
+                <div class="d-flex gap-1">
+                  <button class="btn btn-sm btn-outline-primary" (click)="openRestock(item)">
+                    <i class="icon-plus"></i> {{ 'MATERIALS.RESTOCK' | translate }}
+                  </button>
+                  <button class="btn btn-sm btn-outline-danger" (click)="confirmDelete(item)">
+                    <i class="icon-trash"></i>
+                  </button>
+                </div>
+              </div>
+              @if (item.lastRestockedAt) {
+                <small class="text-muted d-block mt-2">
+                  {{ 'MATERIALS.LAST_RESTOCKED' | translate }}: {{ item.lastRestockedAt | date:'mediumDate' }}
+                </small>
+              }
+            </div>
+          </div>
+        </div>
+      }
+    </div>
+  }
+
+  <!-- Restock Dialog -->
+  @if (showRestockDialog()) {
+    <div class="modal-backdrop fade show"></div>
+    <div class="modal d-block" tabindex="-1">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">{{ 'MATERIALS.RESTOCK' | translate }}: {{ restockTarget()?.materialName }}</h5>
+            <button type="button" class="btn-close" (click)="showRestockDialog.set(false)"></button>
+          </div>
+          <div class="modal-body">
+            <label class="form-label">{{ 'MATERIALS.RESTOCK_QUANTITY' | translate }}</label>
+            <input type="number" class="form-control" min="1"
+              [ngModel]="restockQuantity()" (ngModelChange)="restockQuantity.set($event)">
+          </div>
+          <div class="modal-footer">
+            <button class="btn btn-outline-secondary" (click)="showRestockDialog.set(false)">{{ 'common.cancel' | translate }}</button>
+            <button class="btn btn-primary" [disabled]="restocking() || restockQuantity() <= 0" (click)="restock()">
+              @if (restocking()) {
+                <span class="spinner-border spinner-border-sm me-1"></span>
+              }
+              {{ 'MATERIALS.RESTOCK' | translate }}
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  }
+
+  <!-- Delete Confirmation -->
+  <app-confirm-dialog
+    [title]="'MATERIALS.DELETE_CONFIRM_TITLE' | translate"
+    [message]="'MATERIALS.INVENTORY_DELETE_CONFIRM' | translate"
+    [isOpen]="showDeleteDialog()"
+    variant="danger"
+    [isLoading]="deleting()"
+    (confirmed)="deleteItem()"
+    (cancelled)="showDeleteDialog.set(false)" />
+</div>

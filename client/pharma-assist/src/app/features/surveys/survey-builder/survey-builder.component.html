@@ -1,0 +1,156 @@
+<div class="page-container">
+  <div class="page-header">
+    <div>
+      <h1>{{ (surveyId() ? 'SURVEYS.EDIT' : 'SURVEYS.CREATE') | translate }}</h1>
+      <p class="text-muted">{{ 'SURVEYS.BUILDER_SUBTITLE' | translate }}</p>
+    </div>
+    <a routerLink="/surveys" class="btn btn-outline-secondary btn-sm">
+      {{ 'common.back' | translate }}
+    </a>
+  </div>
+
+  @if (loading()) {
+    <div class="loading-spinner">
+      <div class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">Loading...</span>
+      </div>
+    </div>
+  } @else {
+    <!-- Survey Details -->
+    <div class="card mb-4">
+      <div class="card-header">
+        <h5 class="mb-0">{{ 'SURVEYS.DETAILS' | translate }}</h5>
+      </div>
+      <div class="card-body">
+        <div class="row g-3">
+          <div class="col-md-6">
+            <label class="form-label">{{ 'SURVEYS.TITLE' | translate }} *</label>
+            <input type="text" class="form-control" [ngModel]="title()" (ngModelChange)="title.set($event)">
+          </div>
+          <div class="col-md-6">
+            <label class="form-label">{{ 'SURVEYS.TITLE_LOCAL' | translate }}</label>
+            <input type="text" class="form-control" [ngModel]="titleLocal()" (ngModelChange)="titleLocal.set($event)">
+          </div>
+          <div class="col-12">
+            <label class="form-label">{{ 'SURVEYS.DESCRIPTION' | translate }}</label>
+            <textarea class="form-control" rows="3" [ngModel]="description()" (ngModelChange)="description.set($event)"></textarea>
+          </div>
+          <div class="col-md-4">
+            <label class="form-label">{{ 'SURVEYS.STARTS_AT' | translate }}</label>
+            <input type="date" class="form-control" [ngModel]="startsAt()" (ngModelChange)="startsAt.set($event)">
+          </div>
+          <div class="col-md-4">
+            <label class="form-label">{{ 'SURVEYS.EXPIRES_AT' | translate }}</label>
+            <input type="date" class="form-control" [ngModel]="expiresAt()" (ngModelChange)="expiresAt.set($event)">
+          </div>
+          <div class="col-md-4 d-flex align-items-end">
+            <div class="form-check">
+              <input type="checkbox" class="form-check-input" id="isAnonymous"
+                [ngModel]="isAnonymous()" (ngModelChange)="isAnonymous.set($event)">
+              <label class="form-check-label" for="isAnonymous">{{ 'SURVEYS.ANONYMOUS' | translate }}</label>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Questions -->
+    <div class="card mb-4">
+      <div class="card-header d-flex justify-content-between align-items-center">
+        <h5 class="mb-0">{{ 'SURVEYS.QUESTIONS' | translate }} ({{ questions().length }})</h5>
+        <button class="btn btn-sm btn-primary" (click)="addQuestion()">
+          <i class="icon-plus me-1"></i>{{ 'SURVEYS.ADD_QUESTION' | translate }}
+        </button>
+      </div>
+      <div class="card-body">
+        @if (questions().length === 0) {
+          <p class="text-muted text-center py-4">{{ 'SURVEYS.NO_QUESTIONS' | translate }}</p>
+        }
+
+        @for (q of questions(); track q.sortOrder; let i = $index) {
+          <div class="border rounded p-3 mb-3">
+            <div class="d-flex justify-content-between align-items-start mb-2">
+              <span class="badge bg-secondary">{{ 'SURVEYS.QUESTION' | translate }} #{{ i + 1 }}</span>
+              <div class="d-flex gap-1">
+                <button class="btn btn-sm btn-outline-secondary" (click)="moveQuestion(i, 'up')" [disabled]="i === 0">
+                  <i class="icon-arrow-up"></i>
+                </button>
+                <button class="btn btn-sm btn-outline-secondary" (click)="moveQuestion(i, 'down')" [disabled]="i === questions().length - 1">
+                  <i class="icon-arrow-down"></i>
+                </button>
+                <button class="btn btn-sm btn-outline-danger" (click)="removeQuestion(i)">
+                  <i class="icon-trash"></i>
+                </button>
+              </div>
+            </div>
+
+            <div class="row g-3">
+              <div class="col-md-8">
+                <label class="form-label">{{ 'SURVEYS.QUESTION_TEXT' | translate }} *</label>
+                <input type="text" class="form-control" [ngModel]="q.questionText"
+                  (ngModelChange)="updateQuestionField(i, 'questionText', $event)">
+              </div>
+              <div class="col-md-4">
+                <label class="form-label">{{ 'SURVEYS.QUESTION_TYPE' | translate }}</label>
+                <select class="form-select" [ngModel]="q.questionType"
+                  (ngModelChange)="updateQuestionField(i, 'questionType', +$event)">
+                  @for (type of questionTypes; track type.value) {
+                    <option [value]="type.value">{{ type.label | translate }}</option>
+                  }
+                </select>
+              </div>
+              <div class="col-md-8">
+                <label class="form-label">{{ 'SURVEYS.QUESTION_TEXT_LOCAL' | translate }}</label>
+                <input type="text" class="form-control" [ngModel]="q.questionTextLocal"
+                  (ngModelChange)="updateQuestionField(i, 'questionTextLocal', $event)">
+              </div>
+              <div class="col-md-4 d-flex align-items-end">
+                <div class="form-check">
+                  <input type="checkbox" class="form-check-input" [id]="'required-' + i"
+                    [ngModel]="q.isRequired"
+                    (ngModelChange)="updateQuestionField(i, 'isRequired', $event)">
+                  <label class="form-check-label" [for]="'required-' + i">{{ 'SURVEYS.REQUIRED' | translate }}</label>
+                </div>
+              </div>
+            </div>
+
+            @if (needsOptions(q.questionType)) {
+              <div class="mt-3">
+                <label class="form-label">{{ 'SURVEYS.OPTIONS' | translate }}</label>
+                @for (opt of q.options; track opt; let j = $index) {
+                  <div class="d-flex gap-2 mb-1">
+                    <span class="form-control form-control-sm bg-light">{{ opt }}</span>
+                    <button class="btn btn-sm btn-outline-danger" (click)="removeOption(i, j)">
+                      <i class="icon-x"></i>
+                    </button>
+                  </div>
+                }
+                <div class="d-flex gap-2 mt-1">
+                  <input type="text" class="form-control form-control-sm"
+                    [placeholder]="'SURVEYS.NEW_OPTION' | translate"
+                    [ngModel]="q.newOption"
+                    (ngModelChange)="updateQuestionField(i, 'newOption', $event)"
+                    (keydown.enter)="addOption(i)">
+                  <button class="btn btn-sm btn-outline-primary" (click)="addOption(i)">
+                    {{ 'common.add' | translate }}
+                  </button>
+                </div>
+              </div>
+            }
+          </div>
+        }
+      </div>
+    </div>
+
+    <!-- Actions -->
+    <div class="d-flex justify-content-end gap-2">
+      <a routerLink="/surveys" class="btn btn-outline-secondary">{{ 'common.cancel' | translate }}</a>
+      <button class="btn btn-primary" [disabled]="saving()" (click)="onSave()">
+        @if (saving()) {
+          <span class="spinner-border spinner-border-sm me-1"></span>
+        }
+        {{ (surveyId() ? 'common.save' : 'SURVEYS.CREATE') | translate }}
+      </button>
+    </div>
+  }
+</div>

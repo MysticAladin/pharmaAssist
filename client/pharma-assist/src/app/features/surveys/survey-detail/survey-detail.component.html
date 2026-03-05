@@ -1,0 +1,190 @@
+<div class="page-container">
+  @if (loading()) {
+    <div class="loading-spinner">
+      <div class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">Loading...</span>
+      </div>
+    </div>
+  } @else if (survey(); as s) {
+    <!-- Header -->
+    <div class="page-header">
+      <div>
+        <div class="d-flex align-items-center gap-2 mb-1">
+          <h1>{{ s.title }}</h1>
+          <app-status-badge [label]="(SURVEY_STATUS_LABELS[s.status] | translate)" [variant]="getStatusVariant(s.status)" />
+        </div>
+        @if (s.titleLocal) {
+          <p class="text-muted mb-0">{{ s.titleLocal }}</p>
+        }
+      </div>
+      <div class="d-flex gap-2">
+        <a routerLink="/surveys" class="btn btn-outline-secondary btn-sm">{{ 'common.back' | translate }}</a>
+        @if (s.status === SurveyStatus.Draft || s.status === SurveyStatus.Active) {
+          <a [routerLink]="['/surveys', s.id, 'edit']" class="btn btn-outline-primary btn-sm">
+            <i class="icon-edit me-1"></i>{{ 'common.edit' | translate }}
+          </a>
+        }
+        <a [routerLink]="['/surveys', s.id, 'analytics']" class="btn btn-outline-info btn-sm">
+          <i class="icon-bar-chart me-1"></i>{{ 'SURVEYS.ANALYTICS' | translate }}
+        </a>
+        <button class="btn btn-outline-success btn-sm" (click)="exportSurvey()">
+          <i class="icon-download me-1"></i>{{ 'common.export' | translate }}
+        </button>
+        <button class="btn btn-outline-danger btn-sm" (click)="showDeleteDialog.set(true)">
+          <i class="icon-trash me-1"></i>{{ 'common.delete' | translate }}
+        </button>
+      </div>
+    </div>
+
+    <!-- Status Actions -->
+    @if (!statusUpdating()) {
+      <div class="d-flex gap-2 mb-4">
+        @if (s.status === SurveyStatus.Draft) {
+          <button class="btn btn-sm btn-success" (click)="updateStatus(SurveyStatus.Active)">
+            {{ 'SURVEYS.ACTIVATE' | translate }}
+          </button>
+        }
+        @if (s.status === SurveyStatus.Active) {
+          <button class="btn btn-sm btn-warning" (click)="updateStatus(SurveyStatus.Closed)">
+            {{ 'SURVEYS.CLOSE' | translate }}
+          </button>
+          <a [routerLink]="['/surveys', s.id, 'fill']" class="btn btn-sm btn-primary">
+            {{ 'SURVEYS.FILL' | translate }}
+          </a>
+        }
+        @if (s.status === SurveyStatus.Closed) {
+          <button class="btn btn-sm btn-secondary" (click)="updateStatus(SurveyStatus.Archived)">
+            {{ 'SURVEYS.ARCHIVE' | translate }}
+          </button>
+        }
+      </div>
+    }
+
+    <!-- Info Cards -->
+    <div class="row g-3 mb-4">
+      <div class="col-md-3">
+        <div class="card text-center">
+          <div class="card-body">
+            <h3 class="mb-0">{{ s.questionCount }}</h3>
+            <small class="text-muted">{{ 'SURVEYS.QUESTIONS' | translate }}</small>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="card text-center">
+          <div class="card-body">
+            <h3 class="mb-0">{{ s.responseCount }}</h3>
+            <small class="text-muted">{{ 'SURVEYS.RESPONSES' | translate }}</small>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="card text-center">
+          <div class="card-body">
+            <p class="mb-0 small">{{ 'SURVEYS.STARTS_AT' | translate }}</p>
+            <strong>{{ s.startsAt ? (s.startsAt | date:'mediumDate') : '—' }}</strong>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="card text-center">
+          <div class="card-body">
+            <p class="mb-0 small">{{ 'SURVEYS.EXPIRES_AT' | translate }}</p>
+            <strong>{{ s.expiresAt ? (s.expiresAt | date:'mediumDate') : '—' }}</strong>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    @if (s.description) {
+      <div class="card mb-4">
+        <div class="card-body">
+          <h6>{{ 'SURVEYS.DESCRIPTION' | translate }}</h6>
+          <p class="mb-0">{{ s.description }}</p>
+        </div>
+      </div>
+    }
+
+    <!-- Questions List -->
+    <div class="card mb-4">
+      <div class="card-header">
+        <h5 class="mb-0">{{ 'SURVEYS.QUESTIONS' | translate }}</h5>
+      </div>
+      <div class="card-body">
+        @if (s.questions.length === 0) {
+          <app-empty-state title="{{ 'SURVEYS.NO_QUESTIONS' | translate }}" icon="icon-help-circle" [isCompact]="true" />
+        } @else {
+          @for (q of s.questions; track q.id; let i = $index) {
+            <div class="border rounded p-3 mb-2">
+              <div class="d-flex justify-content-between align-items-start">
+                <div>
+                  <span class="badge bg-info me-2">{{ getQuestionTypeLabel(q.questionType) | translate }}</span>
+                  @if (q.isRequired) {
+                    <span class="badge bg-danger">{{ 'SURVEYS.REQUIRED' | translate }}</span>
+                  }
+                </div>
+                <small class="text-muted">#{{ q.sortOrder }}</small>
+              </div>
+              <p class="mb-1 mt-2 fw-semibold">{{ q.questionText }}</p>
+              @if (q.questionTextLocal) {
+                <p class="mb-1 text-muted small">{{ q.questionTextLocal }}</p>
+              }
+              @if (q.options && q.options.length > 0) {
+                <div class="mt-2">
+                  @for (opt of q.options; track opt) {
+                    <span class="badge bg-light text-dark me-1">{{ opt }}</span>
+                  }
+                </div>
+              }
+            </div>
+          }
+        }
+      </div>
+    </div>
+
+    <!-- Responses Preview -->
+    <div class="card mb-4">
+      <div class="card-header d-flex justify-content-between align-items-center">
+        <h5 class="mb-0">{{ 'SURVEYS.RESPONSES' | translate }} ({{ responseTotalItems() }})</h5>
+      </div>
+      <div class="card-body">
+        @if (responses().length === 0) {
+          <app-empty-state title="{{ 'SURVEYS.NO_RESPONSES' | translate }}" icon="icon-clipboard" [isCompact]="true" />
+        } @else {
+          <div class="table-responsive">
+            <table class="table table-sm">
+              <thead>
+                <tr>
+                  <th>{{ 'SURVEYS.REP' | translate }}</th>
+                  <th>{{ 'SURVEYS.CUSTOMER' | translate }}</th>
+                  <th>{{ 'SURVEYS.COMPLETED_AT' | translate }}</th>
+                  <th>{{ 'SURVEYS.ANSWERS_COUNT' | translate }}</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (r of responses(); track r.id) {
+                  <tr>
+                    <td>{{ r.repName }}</td>
+                    <td>{{ r.customerName }}</td>
+                    <td>{{ r.completedAt | date:'medium' }}</td>
+                    <td>{{ r.answers?.length || 0 }}</td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        }
+      </div>
+    </div>
+
+    <!-- Delete Confirmation -->
+    <app-confirm-dialog
+      [title]="'SURVEYS.DELETE_CONFIRM_TITLE' | translate"
+      [message]="'SURVEYS.DELETE_CONFIRM_MESSAGE' | translate"
+      [isOpen]="showDeleteDialog()"
+      variant="danger"
+      [isLoading]="deleting()"
+      (confirmed)="deleteSurvey()"
+      (cancelled)="showDeleteDialog.set(false)" />
+  }
+</div>

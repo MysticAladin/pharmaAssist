@@ -1,0 +1,101 @@
+<div class="page-container">
+  <div class="page-header">
+    <div>
+      <h1>{{ 'MATERIALS.DISTRIBUTIONS' | translate }}</h1>
+      <p class="text-muted">{{ 'MATERIALS.DISTRIBUTIONS_SUBTITLE' | translate }}</p>
+    </div>
+    <div class="d-flex gap-2">
+      <button class="btn btn-outline-success btn-sm" (click)="exportDistributions()">
+        <i class="icon-download me-1"></i>{{ 'common.export' | translate }}
+      </button>
+      <a routerLink="/materials/new" class="btn btn-primary btn-sm">
+        <i class="icon-plus me-1"></i>{{ 'MATERIALS.NEW_DISTRIBUTION' | translate }}
+      </a>
+    </div>
+  </div>
+
+  <!-- Filters -->
+  <div class="card mb-4">
+    <div class="card-body">
+      <div class="row g-3">
+        <div class="col-md-3">
+          <input type="text" class="form-control form-control-sm"
+            [placeholder]="'common.search' | translate"
+            [ngModel]="search()" (ngModelChange)="search.set($event)"
+            (keydown.enter)="onSearch()">
+        </div>
+        <div class="col-md-2">
+          <select class="form-select form-select-sm" [ngModel]="materialTypeFilter()" (ngModelChange)="materialTypeFilter.set($event); onFilterChange()">
+            <option [ngValue]="null">{{ 'MATERIALS.ALL_TYPES' | translate }}</option>
+            @for (t of materialTypes; track t.value) {
+              <option [ngValue]="t.value">{{ t.label | translate }}</option>
+            }
+          </select>
+        </div>
+        <div class="col-md-2">
+          <input type="date" class="form-control form-control-sm" [ngModel]="fromDate()" (ngModelChange)="fromDate.set($event); onFilterChange()">
+        </div>
+        <div class="col-md-2">
+          <input type="date" class="form-control form-control-sm" [ngModel]="toDate()" (ngModelChange)="toDate.set($event); onFilterChange()">
+        </div>
+        <div class="col-md-1">
+          <button class="btn btn-sm btn-primary w-100" (click)="onSearch()">
+            <i class="icon-search"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Table -->
+  @if (loading()) {
+    <div class="loading-spinner">
+      <div class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">Loading...</span>
+      </div>
+    </div>
+  } @else if (distributions().length === 0) {
+    <app-empty-state
+      title="{{ 'MATERIALS.NO_DISTRIBUTIONS' | translate }}"
+      description="{{ 'MATERIALS.NO_DISTRIBUTIONS_DESC' | translate }}"
+      icon="icon-package"
+      actionLabel="{{ 'MATERIALS.NEW_DISTRIBUTION' | translate }}"
+      (actionClick)="null" />
+  } @else {
+    <app-data-table [data]="distributions()" [columns]="columns" />
+
+    <app-pagination
+      [page]="page()"
+      [size]="pageSize()"
+      [totalItems]="totalItems()"
+      (pageChange)="onPageChange($event)" />
+  }
+
+  <!-- Templates -->
+  <ng-template #typeTemplate let-row>
+    <app-status-badge
+      [label]="(getTypeLabel(row.materialType) | translate)"
+      [variant]="getTypeVariant(row.materialType)" />
+  </ng-template>
+
+  <ng-template #dateTemplate let-row>
+    {{ row.distributedAt | date:'mediumDate' }}
+  </ng-template>
+
+  <ng-template #actionsTemplate let-row>
+    <div class="d-flex gap-1">
+      <button class="btn btn-sm btn-outline-danger" (click)="confirmDelete(row)">
+        <i class="icon-trash"></i>
+      </button>
+    </div>
+  </ng-template>
+
+  <app-confirm-dialog
+    [title]="'MATERIALS.DELETE_CONFIRM_TITLE' | translate"
+    [message]="'MATERIALS.DELETE_CONFIRM_MESSAGE' | translate"
+    [isOpen]="showDeleteDialog()"
+    variant="danger"
+    [isLoading]="deleting()"
+    (confirmed)="deleteDistribution()"
+    (cancelled)="showDeleteDialog.set(false)" />
+</div>

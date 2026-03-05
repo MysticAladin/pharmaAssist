@@ -1,0 +1,151 @@
+<div class="page-container">
+  @if (loading()) {
+    <div class="loading-spinner">
+      <div class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">Loading...</span>
+      </div>
+    </div>
+  } @else if (survey(); as s) {
+    <div class="page-header">
+      <div>
+        <h1>{{ s.title }}</h1>
+        @if (s.titleLocal) {
+          <p class="text-muted mb-0">{{ s.titleLocal }}</p>
+        }
+        @if (s.description) {
+          <p class="text-muted small mb-0">{{ s.description }}</p>
+        }
+      </div>
+      <a [routerLink]="['/surveys', s.id]" class="btn btn-outline-secondary btn-sm">
+        {{ 'common.back' | translate }}
+      </a>
+    </div>
+
+    <!-- Context Fields -->
+    <div class="card mb-4">
+      <div class="card-header">
+        <h6 class="mb-0">{{ 'SURVEYS.RESPONSE_INFO' | translate }}</h6>
+      </div>
+      <div class="card-body">
+        <div class="row g-3">
+          <div class="col-md-4">
+            <label class="form-label">{{ 'SURVEYS.REP_ID' | translate }} *</label>
+            <input type="number" class="form-control" [ngModel]="respondentRepId()" (ngModelChange)="respondentRepId.set($event)">
+          </div>
+          <div class="col-md-4">
+            <label class="form-label">{{ 'SURVEYS.CUSTOMER_ID' | translate }} *</label>
+            <input type="number" class="form-control" [ngModel]="customerId()" (ngModelChange)="customerId.set($event)">
+          </div>
+          <div class="col-md-4">
+            <label class="form-label">{{ 'SURVEYS.VISIT_ID' | translate }}</label>
+            <input type="number" class="form-control" [ngModel]="visitId()" (ngModelChange)="visitId.set($event)">
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Questions -->
+    @for (q of s.questions; track q.id; let i = $index) {
+      <div class="card mb-3">
+        <div class="card-body">
+          <div class="d-flex justify-content-between mb-2">
+            <h6 class="mb-0">
+              {{ q.sortOrder }}. {{ q.questionText }}
+              @if (q.isRequired) {
+                <span class="text-danger">*</span>
+              }
+            </h6>
+          </div>
+          @if (q.questionTextLocal) {
+            <p class="text-muted small mb-2">{{ q.questionTextLocal }}</p>
+          }
+
+          <!-- Text -->
+          @if (q.questionType === QuestionType.Text) {
+            <textarea class="form-control" rows="2"
+              [ngModel]="answers()[i]?.answerValue || ''"
+              (ngModelChange)="updateAnswer(i, $event)"></textarea>
+          }
+
+          <!-- Number -->
+          @if (q.questionType === QuestionType.Number) {
+            <input type="number" class="form-control"
+              [ngModel]="answers()[i]?.answerValue || ''"
+              (ngModelChange)="updateAnswer(i, $event)">
+          }
+
+          <!-- Yes/No -->
+          @if (q.questionType === QuestionType.YesNo) {
+            <div class="d-flex gap-3">
+              <div class="form-check">
+                <input type="radio" class="form-check-input" [name]="'q-' + q.id" value="Yes"
+                  [checked]="answers()[i]?.answerValue === 'Yes'"
+                  (change)="updateAnswer(i, 'Yes')">
+                <label class="form-check-label">{{ 'common.yes' | translate }}</label>
+              </div>
+              <div class="form-check">
+                <input type="radio" class="form-check-input" [name]="'q-' + q.id" value="No"
+                  [checked]="answers()[i]?.answerValue === 'No'"
+                  (change)="updateAnswer(i, 'No')">
+                <label class="form-check-label">{{ 'common.no' | translate }}</label>
+              </div>
+            </div>
+          }
+
+          <!-- Rating -->
+          @if (q.questionType === QuestionType.Rating) {
+            <div class="d-flex gap-2">
+              @for (star of [1,2,3,4,5]; track star) {
+                <button class="btn btn-sm"
+                  [class]="answers()[i]?.answerValue === star.toString() ? 'btn-warning' : 'btn-outline-secondary'"
+                  (click)="updateAnswer(i, star.toString())">
+                  {{ star }} ★
+                </button>
+              }
+            </div>
+          }
+
+          <!-- Single Choice -->
+          @if (q.questionType === QuestionType.SingleChoice && q.options) {
+            <div class="d-flex flex-column gap-1">
+              @for (opt of q.options; track opt) {
+                <div class="form-check">
+                  <input type="radio" class="form-check-input" [name]="'q-' + q.id"
+                    [value]="opt"
+                    [checked]="isOptionSelected(i, opt)"
+                    (change)="selectSingleOption(i, opt)">
+                  <label class="form-check-label">{{ opt }}</label>
+                </div>
+              }
+            </div>
+          }
+
+          <!-- Multi Choice -->
+          @if (q.questionType === QuestionType.MultiChoice && q.options) {
+            <div class="d-flex flex-column gap-1">
+              @for (opt of q.options; track opt) {
+                <div class="form-check">
+                  <input type="checkbox" class="form-check-input"
+                    [checked]="isOptionSelected(i, opt)"
+                    (change)="toggleOption(i, opt)">
+                  <label class="form-check-label">{{ opt }}</label>
+                </div>
+              }
+            </div>
+          }
+        </div>
+      </div>
+    }
+
+    <!-- Submit -->
+    <div class="d-flex justify-content-end gap-2 mb-4">
+      <a [routerLink]="['/surveys', s.id]" class="btn btn-outline-secondary">{{ 'common.cancel' | translate }}</a>
+      <button class="btn btn-primary" [disabled]="submitting()" (click)="onSubmit()">
+        @if (submitting()) {
+          <span class="spinner-border spinner-border-sm me-1"></span>
+        }
+        {{ 'SURVEYS.SUBMIT_RESPONSE' | translate }}
+      </button>
+    </div>
+  }
+</div>

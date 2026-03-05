@@ -1,0 +1,110 @@
+<div class="page-container">
+  <div class="page-header">
+    <div>
+      <h1>{{ 'SURVEYS.PAGE_TITLE' | translate }}</h1>
+      <p class="text-muted">{{ 'SURVEYS.PAGE_SUBTITLE' | translate }}</p>
+    </div>
+    <a routerLink="/surveys/new" class="btn btn-primary btn-sm">
+      <i class="icon-plus me-1"></i>
+      {{ 'SURVEYS.CREATE' | translate }}
+    </a>
+  </div>
+
+  <!-- Filters -->
+  <div class="filters-bar mb-4">
+    <div class="d-flex gap-3 flex-wrap align-items-end">
+      <div>
+        <label class="form-label mb-0 small">{{ 'common.search' | translate }}</label>
+        <input type="text" class="form-control form-control-sm"
+          [placeholder]="'SURVEYS.SEARCH_PLACEHOLDER' | translate"
+          (input)="onSearch($any($event.target).value)">
+      </div>
+      <div>
+        <label class="form-label mb-0 small">{{ 'SURVEYS.STATUS_LABEL' | translate }}</label>
+        <select class="form-select form-select-sm" (change)="onStatusFilter($any($event.target).value)">
+          <option value="">{{ 'common.all' | translate }}</option>
+          @for (opt of statusOptions; track opt.value) {
+            <option [value]="opt.value">{{ opt.label | translate }}</option>
+          }
+        </select>
+      </div>
+    </div>
+  </div>
+
+  @if (loading()) {
+    <div class="loading-spinner">
+      <div class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">Loading...</span>
+      </div>
+    </div>
+  } @else {
+    <div class="card">
+      <div class="card-body">
+        <app-data-table
+          [data]="surveys()"
+          [columns]="columns()"
+          (rowClick)="onRowClick($event)">
+        </app-data-table>
+      </div>
+      <div class="card-footer">
+        <app-pagination
+          [page]="page()"
+          [size]="pageSize()"
+          [totalItems]="totalItems()"
+          (pageChange)="onPageChange($event)">
+        </app-pagination>
+      </div>
+    </div>
+  }
+</div>
+
+<ng-template #statusTpl let-row>
+  <app-status-badge
+    [label]="getStatusLabel(row.status) | translate"
+    [variant]="getStatusVariant(row.status)">
+  </app-status-badge>
+</ng-template>
+
+<ng-template #datesTpl let-row>
+  @if (row.startsAt) {
+    {{ row.startsAt | date:'mediumDate' }}
+  }
+  @if (row.startsAt && row.expiresAt) {
+    <span class="text-muted"> - </span>
+  }
+  @if (row.expiresAt) {
+    {{ row.expiresAt | date:'mediumDate' }}
+  }
+  @if (!row.startsAt && !row.expiresAt) {
+    <span class="text-muted">-</span>
+  }
+</ng-template>
+
+<ng-template #actionsTpl let-row>
+  <div class="d-flex gap-1 justify-content-center">
+    <a [routerLink]="['/surveys', row.id]" class="btn btn-sm btn-outline-primary" (click)="$event.stopPropagation()">
+      <i class="icon-eye"></i>
+    </a>
+    <a [routerLink]="['/surveys', row.id, 'edit']" class="btn btn-sm btn-outline-secondary" (click)="$event.stopPropagation()">
+      <i class="icon-edit"></i>
+    </a>
+    @if (row.status === 1) {
+      <a [routerLink]="['/surveys', row.id, 'analytics']" class="btn btn-sm btn-outline-info" (click)="$event.stopPropagation()">
+        <i class="icon-chart"></i>
+      </a>
+    }
+    <button class="btn btn-sm btn-outline-danger" (click)="$event.stopPropagation(); openDeleteDialog(row)">
+      <i class="icon-trash"></i>
+    </button>
+  </div>
+</ng-template>
+
+<app-confirm-dialog
+  [title]="'SURVEYS.DELETE_TITLE' | translate"
+  [message]="'SURVEYS.DELETE_CONFIRMATION' | translate"
+  [isOpen]="showDeleteDialog()"
+  variant="danger"
+  [isLoading]="deleteLoading()"
+  (confirmed)="confirmDelete()"
+  (cancelled)="showDeleteDialog.set(false)">
+</app-confirm-dialog>

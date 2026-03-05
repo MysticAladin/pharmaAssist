@@ -39,6 +39,12 @@ public class UnitOfWork : IUnitOfWork
     private IRepository<Domain.Entities.WholesalerStockRecord>? _wholesalerStockRecords;
     private IRepository<Domain.Entities.PriceList>? _priceLists;
     private IRepository<Domain.Entities.PriceListItem>? _priceListItems;
+    private IRepository<Domain.Entities.Survey>? _surveys;
+    private IRepository<Domain.Entities.SurveyQuestion>? _surveyQuestions;
+    private IRepository<Domain.Entities.SurveyResponse>? _surveyResponses;
+    private IRepository<Domain.Entities.SurveyAnswer>? _surveyAnswers;
+    private IRepository<Domain.Entities.MaterialDistribution>? _materialDistributions;
+    private IRepository<Domain.Entities.RepInventory>? _repInventories;
 
     public UnitOfWork(ApplicationDbContext context)
     {
@@ -125,6 +131,24 @@ public class UnitOfWork : IUnitOfWork
 
     public IRepository<Domain.Entities.PriceListItem> PriceListItems =>
         _priceListItems ??= new Repository<Domain.Entities.PriceListItem>(_context);
+
+    public IRepository<Domain.Entities.Survey> Surveys =>
+        _surveys ??= new Repository<Domain.Entities.Survey>(_context);
+
+    public IRepository<Domain.Entities.SurveyQuestion> SurveyQuestions =>
+        _surveyQuestions ??= new Repository<Domain.Entities.SurveyQuestion>(_context);
+
+    public IRepository<Domain.Entities.SurveyResponse> SurveyResponses =>
+        _surveyResponses ??= new Repository<Domain.Entities.SurveyResponse>(_context);
+
+    public IRepository<Domain.Entities.SurveyAnswer> SurveyAnswers =>
+        _surveyAnswers ??= new Repository<Domain.Entities.SurveyAnswer>(_context);
+
+    public IRepository<Domain.Entities.MaterialDistribution> MaterialDistributions =>
+        _materialDistributions ??= new Repository<Domain.Entities.MaterialDistribution>(_context);
+
+    public IRepository<Domain.Entities.RepInventory> RepInventories =>
+        _repInventories ??= new Repository<Domain.Entities.RepInventory>(_context);
 
     public async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
     {

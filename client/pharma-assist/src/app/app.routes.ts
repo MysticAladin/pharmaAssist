@@ -138,6 +138,22 @@ export const routes: Routes = [
         loadChildren: () => import('./features/price-lists/price-lists.routes').then(m => m.PRICE_LISTS_ROUTES)
       },
 
+      // Surveys
+      {
+        path: 'surveys',
+        canActivate: [roleGuard],
+        data: { roles: [UserRole.SuperAdmin, UserRole.Admin, UserRole.Manager, UserRole.SalesRep] },
+        loadChildren: () => import('./features/surveys/surveys.routes').then(m => m.SURVEYS_ROUTES)
+      },
+
+      // Material Distribution
+      {
+        path: 'materials',
+        canActivate: [roleGuard],
+        data: { roles: [UserRole.SuperAdmin, UserRole.Admin, UserRole.Manager, UserRole.SalesRep] },
+        loadChildren: () => import('./features/materials/materials.routes').then(m => m.MATERIALS_ROUTES)
+      },
+
       // Profile & Settings
       {
         path: 'profile',

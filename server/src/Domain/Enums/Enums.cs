@@ -452,3 +452,39 @@ public enum PriceListType
     Government = 4,
     Export = 5
 }
+
+/// <summary>
+/// Survey lifecycle status
+/// </summary>
+public enum SurveyStatus
+{
+    Draft = 0,
+    Active = 1,
+    Closed = 2,
+    Archived = 3
+}
+
+/// <summary>
+/// Question type for survey questions
+/// </summary>
+public enum QuestionType
+{
+    Text = 1,
+    SingleChoice = 2,
+    MultiChoice = 3,
+    Rating = 4,
+    Number = 5,
+    YesNo = 6
+}
+
+/// <summary>
+/// Type of material distributed to customers
+/// </summary>
+public enum MaterialType
+{
+    Sample = 1,
+    Brochure = 2,
+    Gift = 3,
+    Equipment = 4,
+    Other = 99
+}

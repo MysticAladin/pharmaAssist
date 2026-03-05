@@ -163,6 +163,26 @@ export class SidebarComponent {
         { labelKey: 'nav.allPriceLists', route: '/price-lists' },
         { labelKey: 'nav.createPriceList', route: '/price-lists/new' }
       ]
+    },
+    {
+      labelKey: 'nav.surveys',
+      icon: 'icon-clipboard',
+      route: '/surveys',
+      roles: [UserRole.SuperAdmin, UserRole.Admin, UserRole.Manager, UserRole.SalesRep],
+      children: [
+        { labelKey: 'nav.allSurveys', route: '/surveys' },
+        { labelKey: 'nav.createSurvey', route: '/surveys/new' }
+      ]
+    },
+    {
+      labelKey: 'nav.materials',
+      icon: 'icon-gift',
+      route: '/materials',
+      roles: [UserRole.SuperAdmin, UserRole.Admin, UserRole.Manager, UserRole.SalesRep],
+      children: [
+        { labelKey: 'nav.distributions', route: '/materials' },
+        { labelKey: 'nav.newDistribution', route: '/materials/new' }
+      ]
     }
   ];
 
