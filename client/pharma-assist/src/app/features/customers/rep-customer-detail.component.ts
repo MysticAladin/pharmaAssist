@@ -113,7 +113,7 @@ import {
         <div class="card" [class.card--warning]="customer()!.isOverdue">
           <h3 class="card__title">{{ 'customers.visitCompliance' | translate }}</h3>
           <div class="compliance-bar">
-            <div class="compliance-bar__fill" 
+            <div class="compliance-bar__fill"
                  [style.width.%]="customer()!.visitCompliancePercent"
                  [class.compliance-bar__fill--low]="customer()!.visitCompliancePercent < 50"
                  [class.compliance-bar__fill--mid]="customer()!.visitCompliancePercent >= 50 && customer()!.visitCompliancePercent < 100"

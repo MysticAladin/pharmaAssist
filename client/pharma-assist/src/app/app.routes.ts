@@ -50,6 +50,12 @@ export const routes: Routes = [
         loadChildren: () => import('./features/brands/brands.routes').then(m => m.BRANDS_ROUTES)
       },
 
+      // Cycles & Campaigns
+      {
+        path: 'cycles',
+        loadChildren: () => import('./features/cycles/cycles.routes').then(m => m.CYCLES_ROUTES)
+      },
+
       // Inventory
       {
         path: 'inventory',

@@ -59,6 +59,15 @@ export class SidebarComponent {
       ]
     },
     {
+      labelKey: 'nav.cycles',
+      icon: 'icon-refresh-cw',
+      route: '/cycles',
+      children: [
+        { labelKey: 'nav.allCycles', route: '/cycles' },
+        { labelKey: 'nav.campaigns', route: '/cycles/campaigns' }
+      ]
+    },
+    {
       labelKey: 'nav.inventory',
       icon: 'icon-layers',
       route: '/inventory',

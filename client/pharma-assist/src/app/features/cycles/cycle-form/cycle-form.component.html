@@ -1,0 +1,81 @@
+<div class="page-container">
+  <nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+      <li class="breadcrumb-item"><a routerLink="/cycles">{{ 'cycles.title' | translate }}</a></li>
+      <li class="breadcrumb-item active">{{ isEditMode() ? ('cycles.editCycle' | translate) : ('cycles.addCycle' | translate) }}</li>
+    </ol>
+  </nav>
+
+  @if (loading()) {
+    <div class="loading-spinner">
+      <div class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">Loading...</span>
+      </div>
+    </div>
+  } @else {
+    <div class="card">
+      <div class="card-header">
+        <h5>{{ isEditMode() ? ('cycles.editCycle' | translate) : ('cycles.addCycle' | translate) }}</h5>
+      </div>
+      <div class="card-body">
+        <div class="form-section">
+          <h6 class="section-title">{{ 'cycles.basicInfo' | translate }}</h6>
+          <div class="row g-3">
+            <div class="col-md-6">
+              <label class="form-label">{{ 'cycles.name' | translate }} *</label>
+              <input type="text" class="form-control" [(ngModel)]="form().name"
+                     [placeholder]="'cycles.namePlaceholder' | translate" required>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">{{ 'cycles.nameLocal' | translate }}</label>
+              <input type="text" class="form-control" [(ngModel)]="form().nameLocal">
+            </div>
+            <div class="col-md-4">
+              <label class="form-label">{{ 'cycles.startDate' | translate }} *</label>
+              <input type="date" class="form-control" [(ngModel)]="form().startDate" required>
+            </div>
+            <div class="col-md-4">
+              <label class="form-label">{{ 'cycles.endDate' | translate }} *</label>
+              <input type="date" class="form-control" [(ngModel)]="form().endDate" required>
+            </div>
+            <div class="col-md-4">
+              <label class="form-label">{{ 'cycles.plannedBudget' | translate }}</label>
+              <input type="number" class="form-control" [(ngModel)]="form().plannedBudget" min="0" step="0.01">
+            </div>
+            <div class="col-md-12">
+              <label class="form-label">{{ 'cycles.description' | translate }}</label>
+              <textarea class="form-control" rows="3" [(ngModel)]="form().description"
+                        [placeholder]="'cycles.descriptionPlaceholder' | translate"></textarea>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">{{ 'cycles.focusBrands' | translate }}</label>
+              <input type="text" class="form-control" [(ngModel)]="form().focusBrandIds"
+                     [placeholder]="'cycles.focusBrandsPlaceholder' | translate">
+              <small class="text-muted">{{ 'cycles.focusBrandsHelp' | translate }}</small>
+            </div>
+            @if (isEditMode()) {
+              <div class="col-md-6">
+                <label class="form-label">{{ 'common.status' | translate }}</label>
+                <div class="form-check form-switch mt-2">
+                  <input class="form-check-input" type="checkbox" [(ngModel)]="form().isActive">
+                  <label class="form-check-label">{{ 'common.active' | translate }}</label>
+                </div>
+              </div>
+            }
+          </div>
+        </div>
+      </div>
+      <div class="card-footer">
+        <div class="form-actions">
+          <button class="btn btn-secondary" (click)="cancel()">{{ 'common.cancel' | translate }}</button>
+          <button class="btn btn-primary" (click)="save()" [disabled]="saving()">
+            @if (saving()) {
+              <span class="spinner-border spinner-border-sm me-1"></span>
+            }
+            {{ 'common.save' | translate }}
+          </button>
+        </div>
+      </div>
+    </div>
+  }
+</div>

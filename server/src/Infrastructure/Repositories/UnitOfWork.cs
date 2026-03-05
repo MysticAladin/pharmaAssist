@@ -27,6 +27,11 @@ public class UnitOfWork : IUnitOfWork
     private IRepository<Domain.Entities.ProductDocument>? _productDocuments;
     private IRepository<Domain.Entities.KnowledgeArticle>? _knowledgeArticles;
     private IRepository<Domain.Entities.ExecutedVisit>? _executedVisits;
+    private IRepository<Domain.Entities.Cycle>? _cycles;
+    private IRepository<Domain.Entities.CycleTarget>? _cycleTargets;
+    private IRepository<Domain.Entities.Campaign>? _campaigns;
+    private IRepository<Domain.Entities.CampaignTarget>? _campaignTargets;
+    private IRepository<Domain.Entities.CampaignExpense>? _campaignExpenses;
 
     public UnitOfWork(ApplicationDbContext context)
     {
@@ -77,6 +82,21 @@ public class UnitOfWork : IUnitOfWork
 
     public IRepository<Domain.Entities.ExecutedVisit> ExecutedVisits =>
         _executedVisits ??= new Repository<Domain.Entities.ExecutedVisit>(_context);
+
+    public IRepository<Domain.Entities.Cycle> Cycles =>
+        _cycles ??= new Repository<Domain.Entities.Cycle>(_context);
+
+    public IRepository<Domain.Entities.CycleTarget> CycleTargets =>
+        _cycleTargets ??= new Repository<Domain.Entities.CycleTarget>(_context);
+
+    public IRepository<Domain.Entities.Campaign> Campaigns =>
+        _campaigns ??= new Repository<Domain.Entities.Campaign>(_context);
+
+    public IRepository<Domain.Entities.CampaignTarget> CampaignTargets =>
+        _campaignTargets ??= new Repository<Domain.Entities.CampaignTarget>(_context);
+
+    public IRepository<Domain.Entities.CampaignExpense> CampaignExpenses =>
+        _campaignExpenses ??= new Repository<Domain.Entities.CampaignExpense>(_context);
 
     public async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
     {

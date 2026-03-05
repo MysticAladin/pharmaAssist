@@ -1,0 +1,192 @@
+<div class="page-container">
+  @if (loading()) {
+    <div class="loading-container">
+      <div class="spinner"></div>
+    </div>
+  } @else if (cycle(); as c) {
+    <!-- Header -->
+    <div class="page-header">
+      <div class="header-content">
+        <div class="breadcrumb">
+          <a routerLink="/cycles">{{ 'cycles.title' | translate }}</a>
+          <span class="separator">/</span>
+          <span>{{ c.name }}</span>
+        </div>
+        <div class="brand-header-info">
+          <div>
+            <h1>{{ c.name }}</h1>
+            @if (c.nameLocal) {
+              <p class="name-local">{{ c.nameLocal }}</p>
+            }
+          </div>
+          <app-status-badge [status]="getStatusClass(c.status)"></app-status-badge>
+        </div>
+      </div>
+      <div class="header-actions">
+        @if (c.status === 0) {
+          <button class="btn btn-success" (click)="activateCycle()">
+            {{ 'cycles.activate' | translate }}
+          </button>
+        }
+        @if (c.status === 1) {
+          <button class="btn btn-info" (click)="completeCycle()">
+            {{ 'cycles.complete' | translate }}
+          </button>
+        }
+        <button class="btn btn-primary" (click)="editCycle()">
+          {{ 'common.edit' | translate }}
+        </button>
+        <button class="btn btn-danger" (click)="confirmDelete()">
+          {{ 'common.delete' | translate }}
+        </button>
+      </div>
+    </div>
+
+    <!-- Info Cards -->
+    <div class="info-cards">
+      <div class="info-card">
+        <div class="info-label">{{ 'cycles.startDate' | translate }}</div>
+        <div class="info-value">{{ c.startDate | date:'mediumDate' }}</div>
+      </div>
+      <div class="info-card">
+        <div class="info-label">{{ 'cycles.endDate' | translate }}</div>
+        <div class="info-value">{{ c.endDate | date:'mediumDate' }}</div>
+      </div>
+      <div class="info-card">
+        <div class="info-label">{{ 'cycles.plannedBudget' | translate }}</div>
+        <div class="info-value">{{ c.plannedBudget | number:'1.2-2' }} KM</div>
+      </div>
+      <div class="info-card">
+        <div class="info-label">{{ 'cycles.progress' | translate }}</div>
+        <div class="info-value">{{ c.completionPercentage }}% ({{ c.completedTargets }}/{{ c.totalTargets }})</div>
+      </div>
+      @if (c.ownerName) {
+        <div class="info-card">
+          <div class="info-label">{{ 'cycles.owner' | translate }}</div>
+          <div class="info-value">{{ c.ownerName }}</div>
+        </div>
+      }
+    </div>
+
+    <!-- Description -->
+    @if (c.description) {
+      <div class="description-section">
+        <div class="description-block">
+          <h3>{{ 'cycles.description' | translate }}</h3>
+          <p>{{ c.description }}</p>
+        </div>
+      </div>
+    }
+
+    @if (c.focusBrandNames && c.focusBrandNames.length > 0) {
+      <div class="description-section">
+        <div class="description-block">
+          <h3>{{ 'cycles.focusBrands' | translate }}</h3>
+          <div class="tags">
+            @for (brand of c.focusBrandNames; track brand) {
+              <span class="tag">{{ brand }}</span>
+            }
+          </div>
+        </div>
+      </div>
+    }
+
+    <!-- Tabs -->
+    <div class="tabs">
+      <button class="tab" [class.active]="activeTab() === 'targets'" (click)="setTab('targets')">
+        {{ 'cycles.targets' | translate }} ({{ c.targets.length }})
+      </button>
+      <button class="tab" [class.active]="activeTab() === 'campaigns'" (click)="setTab('campaigns')">
+        {{ 'cycles.campaigns' | translate }} ({{ c.campaigns.length }})
+      </button>
+    </div>
+
+    <!-- Targets Tab -->
+    @if (activeTab() === 'targets') {
+      <div class="tab-content">
+        @if (c.targets.length === 0) {
+          <div class="empty-tab">
+            <p>{{ 'cycles.noTargets' | translate }}</p>
+          </div>
+        } @else {
+          <div class="table-responsive">
+            <table class="table">
+              <thead>
+                <tr>
+                  <th>{{ 'cycles.customer' | translate }}</th>
+                  <th>{{ 'cycles.rep' | translate }}</th>
+                  <th>{{ 'cycles.requiredVisits' | translate }}</th>
+                  <th>{{ 'cycles.completedVisits' | translate }}</th>
+                  <th>{{ 'cycles.progress' | translate }}</th>
+                  <th>{{ 'cycles.priority' | translate }}</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (target of c.targets; track target.id) {
+                  <tr>
+                    <td>{{ target.customerName }}</td>
+                    <td>{{ target.repName }}</td>
+                    <td>{{ target.requiredVisits }}</td>
+                    <td>{{ target.completedVisits }}</td>
+                    <td>
+                      <div class="progress-bar-container">
+                        <div class="progress-bar" [style.width.%]="target.completionPercentage"></div>
+                        <span class="progress-text">{{ target.completionPercentage }}%</span>
+                      </div>
+                    </td>
+                    <td>{{ target.priority }}</td>
+                    <td>
+                      <button class="btn btn-sm btn-danger" (click)="removeTarget(target)">
+                        {{ 'common.remove' | translate }}
+                      </button>
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        }
+      </div>
+    }
+
+    <!-- Campaigns Tab -->
+    @if (activeTab() === 'campaigns') {
+      <div class="tab-content">
+        <div class="tab-actions">
+          <button class="btn btn-primary btn-sm" (click)="createCampaign()">
+            {{ 'campaigns.addCampaign' | translate }}
+          </button>
+        </div>
+        @if (c.campaigns.length === 0) {
+          <div class="empty-tab">
+            <p>{{ 'campaigns.noCampaigns' | translate }}</p>
+          </div>
+        } @else {
+          <div class="products-grid">
+            @for (campaign of c.campaigns; track campaign.id) {
+              <div class="product-card" (click)="viewCampaign(campaign)">
+                <div class="product-name">{{ campaign.name }}</div>
+                <div class="product-details">
+                  <span class="product-tag">{{ campaignTypeLabels[campaign.type] }}</span>
+                  <span class="product-tag">{{ campaign.startDate | date:'shortDate' }} - {{ campaign.endDate | date:'shortDate' }}</span>
+                </div>
+                <div class="product-price">{{ campaign.plannedBudget | number:'1.2-2' }} KM</div>
+                <app-status-badge [status]="getStatusClass(campaign.status)"></app-status-badge>
+              </div>
+            }
+          </div>
+        }
+      </div>
+    }
+  }
+</div>
+
+<!-- Delete Dialog -->
+<app-confirm-dialog
+  [isOpen]="showDeleteDialog()"
+  [title]="'cycles.confirmDelete' | translate"
+  [message]="'cycles.confirmDeleteMessage' | translate:{name: cycle()?.name}"
+  (confirmed)="deleteCycle()"
+  (cancelled)="showDeleteDialog.set(false)">
+</app-confirm-dialog>

@@ -2,6 +2,7 @@ using Application.DTOs.Brands;
 using Application.DTOs.Categories;
 using Application.DTOs.Common;
 using Application.DTOs.Customers;
+using Application.DTOs.Cycles;
 using Application.DTOs.FeatureFlags;
 using Application.DTOs.Inventory;
 using Application.DTOs.Locations;
@@ -47,6 +48,9 @@ public class MappingProfile : Profile
 
         // Brand mappings
         CreateBrandMappings();
+
+        // Cycle & Campaign mappings
+        CreateCycleMappings();
     }
 
     private void CreateProductMappings()
@@ -608,5 +612,64 @@ public class MappingProfile : Profile
         CreateMap<ProductDocument, ProductDocumentDto>()
             .ForMember(d => d.ProductName, opt => opt.MapFrom(s => s.Product != null ? s.Product.Name : null))
             .ForMember(d => d.DocumentTypeName, opt => opt.MapFrom(s => s.DocumentType.ToString()));
+    }
+
+    private void CreateCycleMappings()
+    {
+        // Cycle mappings
+        CreateMap<CreateCycleDto, Cycle>()
+            .ForMember(d => d.Id, opt => opt.Ignore())
+            .ForMember(d => d.Owner, opt => opt.Ignore())
+            .ForMember(d => d.Targets, opt => opt.Ignore())
+            .ForMember(d => d.Campaigns, opt => opt.Ignore())
+            .ForMember(d => d.Status, opt => opt.MapFrom(_ => CycleStatus.Draft))
+            .ForMember(d => d.IsActive, opt => opt.MapFrom(_ => true))
+            .ForMember(d => d.CreatedAt, opt => opt.MapFrom(_ => DateTime.UtcNow))
+            .ForMember(d => d.UpdatedAt, opt => opt.Ignore())
+            .ForMember(d => d.CreatedBy, opt => opt.Ignore())
+            .ForMember(d => d.UpdatedBy, opt => opt.Ignore())
+            .ForMember(d => d.IsDeleted, opt => opt.MapFrom(_ => false));
+
+        CreateMap<UpdateCycleDto, Cycle>()
+            .ForMember(d => d.Id, opt => opt.Ignore())
+            .ForMember(d => d.Owner, opt => opt.Ignore())
+            .ForMember(d => d.Targets, opt => opt.Ignore())
+            .ForMember(d => d.Campaigns, opt => opt.Ignore())
+            .ForMember(d => d.Status, opt => opt.Ignore())
+            .ForMember(d => d.CreatedAt, opt => opt.Ignore())
+            .ForMember(d => d.UpdatedAt, opt => opt.MapFrom(_ => DateTime.UtcNow))
+            .ForMember(d => d.CreatedBy, opt => opt.Ignore())
+            .ForMember(d => d.UpdatedBy, opt => opt.Ignore())
+            .ForMember(d => d.IsDeleted, opt => opt.Ignore());
+
+        // Campaign mappings
+        CreateMap<CreateCampaignDto, Campaign>()
+            .ForMember(d => d.Id, opt => opt.Ignore())
+            .ForMember(d => d.Cycle, opt => opt.Ignore())
+            .ForMember(d => d.Targets, opt => opt.Ignore())
+            .ForMember(d => d.Expenses, opt => opt.Ignore())
+            .ForMember(d => d.ActualSpent, opt => opt.MapFrom(_ => 0m))
+            .ForMember(d => d.Status, opt => opt.MapFrom(_ => CampaignStatus.Draft))
+            .ForMember(d => d.IsActive, opt => opt.MapFrom(_ => true))
+            .ForMember(d => d.CreatedAt, opt => opt.MapFrom(_ => DateTime.UtcNow))
+            .ForMember(d => d.UpdatedAt, opt => opt.Ignore())
+            .ForMember(d => d.CreatedBy, opt => opt.Ignore())
+            .ForMember(d => d.UpdatedBy, opt => opt.Ignore())
+            .ForMember(d => d.IsDeleted, opt => opt.MapFrom(_ => false));
+
+        // CampaignExpense mappings
+        CreateMap<CreateCampaignExpenseDto, CampaignExpense>()
+            .ForMember(d => d.Id, opt => opt.Ignore())
+            .ForMember(d => d.Campaign, opt => opt.Ignore())
+            .ForMember(d => d.Cycle, opt => opt.Ignore())
+            .ForMember(d => d.Customer, opt => opt.Ignore())
+            .ForMember(d => d.Rep, opt => opt.Ignore())
+            .ForMember(d => d.IsApproved, opt => opt.MapFrom(_ => false))
+            .ForMember(d => d.ApprovalNotes, opt => opt.Ignore())
+            .ForMember(d => d.CreatedAt, opt => opt.MapFrom(_ => DateTime.UtcNow))
+            .ForMember(d => d.UpdatedAt, opt => opt.Ignore())
+            .ForMember(d => d.CreatedBy, opt => opt.Ignore())
+            .ForMember(d => d.UpdatedBy, opt => opt.Ignore())
+            .ForMember(d => d.IsDeleted, opt => opt.MapFrom(_ => false));
     }
 }

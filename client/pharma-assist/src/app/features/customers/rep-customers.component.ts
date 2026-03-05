@@ -465,7 +465,7 @@ import { CustomerTier, CustomerType } from '../../core/models/customer.model';
         &.warning {
           color: #f59e0b;
         }
-        
+
         &.success {
           color: #059669;
         }

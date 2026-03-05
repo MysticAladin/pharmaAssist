@@ -1,0 +1,229 @@
+<div class="page-container">
+  @if (loading()) {
+    <div class="loading-container">
+      <div class="spinner"></div>
+    </div>
+  } @else if (campaign(); as c) {
+    <!-- Header -->
+    <div class="page-header">
+      <div class="header-content">
+        <div class="breadcrumb">
+          <a routerLink="/cycles/campaigns">{{ 'campaigns.title' | translate }}</a>
+          <span class="separator">/</span>
+          <span>{{ c.name }}</span>
+        </div>
+        <div class="brand-header-info">
+          <div>
+            <h1>{{ c.name }}</h1>
+            @if (c.nameLocal) {
+              <p class="name-local">{{ c.nameLocal }}</p>
+            }
+          </div>
+          <span class="badge badge-info">{{ typeLabels[c.type] }}</span>
+          <app-status-badge [status]="getStatusClass(c.status)"></app-status-badge>
+        </div>
+      </div>
+      <div class="header-actions">
+        @if (c.status === 0) {
+          <button class="btn btn-success" (click)="activateCampaign()">
+            {{ 'campaigns.activate' | translate }}
+          </button>
+        }
+        @if (c.status === 1) {
+          <button class="btn btn-info" (click)="completeCampaign()">
+            {{ 'campaigns.complete' | translate }}
+          </button>
+        }
+        <button class="btn btn-primary" (click)="editCampaign()">
+          {{ 'common.edit' | translate }}
+        </button>
+        <button class="btn btn-danger" (click)="confirmDelete()">
+          {{ 'common.delete' | translate }}
+        </button>
+      </div>
+    </div>
+
+    <!-- Info Cards -->
+    <div class="info-cards">
+      @if (c.cycleName) {
+        <div class="info-card">
+          <div class="info-label">{{ 'campaigns.cycle' | translate }}</div>
+          <div class="info-value">{{ c.cycleName }}</div>
+        </div>
+      }
+      <div class="info-card">
+        <div class="info-label">{{ 'campaigns.startDate' | translate }}</div>
+        <div class="info-value">{{ c.startDate | date:'mediumDate' }}</div>
+      </div>
+      <div class="info-card">
+        <div class="info-label">{{ 'campaigns.endDate' | translate }}</div>
+        <div class="info-value">{{ c.endDate | date:'mediumDate' }}</div>
+      </div>
+      <div class="info-card">
+        <div class="info-label">{{ 'campaigns.plannedBudget' | translate }}</div>
+        <div class="info-value">{{ c.plannedBudget | number:'1.2-2' }} KM</div>
+      </div>
+      <div class="info-card">
+        <div class="info-label">{{ 'campaigns.actualSpent' | translate }}</div>
+        <div class="info-value">{{ c.actualSpent | number:'1.2-2' }} KM</div>
+      </div>
+      <div class="info-card">
+        <div class="info-label">{{ 'campaigns.progress' | translate }}</div>
+        <div class="info-value">{{ c.completionPercentage }}% ({{ c.completedTargets }}/{{ c.totalTargets }})</div>
+      </div>
+    </div>
+
+    <!-- Description -->
+    @if (c.description) {
+      <div class="description-section">
+        <div class="description-block">
+          <h3>{{ 'campaigns.description' | translate }}</h3>
+          <p>{{ c.description }}</p>
+        </div>
+      </div>
+    }
+
+    @if (c.targetingCriteria) {
+      <div class="description-section">
+        <div class="description-block">
+          <h3>{{ 'campaigns.targetingCriteria' | translate }}</h3>
+          <p>{{ c.targetingCriteria }}</p>
+        </div>
+      </div>
+    }
+
+    <!-- Tabs -->
+    <div class="tabs">
+      <button class="tab" [class.active]="activeTab() === 'targets'" (click)="setTab('targets')">
+        {{ 'campaigns.targets' | translate }} ({{ c.targets.length }})
+      </button>
+      <button class="tab" [class.active]="activeTab() === 'expenses'" (click)="setTab('expenses')">
+        {{ 'campaigns.expenses' | translate }} ({{ c.expenses.length }})
+      </button>
+    </div>
+
+    <!-- Targets Tab -->
+    @if (activeTab() === 'targets') {
+      <div class="tab-content">
+        @if (c.targets.length === 0) {
+          <div class="empty-tab">
+            <p>{{ 'campaigns.noTargets' | translate }}</p>
+          </div>
+        } @else {
+          <div class="table-responsive">
+            <table class="table">
+              <thead>
+                <tr>
+                  <th>{{ 'campaigns.customer' | translate }}</th>
+                  <th>{{ 'campaigns.rep' | translate }}</th>
+                  <th>{{ 'common.status' | translate }}</th>
+                  <th>{{ 'campaigns.contactedAt' | translate }}</th>
+                  <th>{{ 'campaigns.completedAt' | translate }}</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (target of c.targets; track target.id) {
+                  <tr>
+                    <td>{{ target.customerName }}</td>
+                    <td>{{ target.repName || '-' }}</td>
+                    <td>
+                      <app-status-badge [status]="getTargetStatusClass(target.status)"
+                                        [label]="targetStatusLabels[target.status]">
+                      </app-status-badge>
+                    </td>
+                    <td>{{ target.contactedAt ? (target.contactedAt | date:'short') : '-' }}</td>
+                    <td>{{ target.completedAt ? (target.completedAt | date:'short') : '-' }}</td>
+                    <td>
+                      <div class="action-buttons">
+                        @if (target.status === 0) {
+                          <button class="btn btn-sm btn-info" (click)="updateTargetStatus(target, 1)">
+                            {{ 'campaigns.markContacted' | translate }}
+                          </button>
+                        }
+                        @if (target.status === 1 || target.status === 2) {
+                          <button class="btn btn-sm btn-success" (click)="updateTargetStatus(target, 3)">
+                            {{ 'campaigns.markCompleted' | translate }}
+                          </button>
+                        }
+                        <button class="btn btn-sm btn-danger" (click)="removeTarget(target)">
+                          {{ 'common.remove' | translate }}
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        }
+      </div>
+    }
+
+    <!-- Expenses Tab -->
+    @if (activeTab() === 'expenses') {
+      <div class="tab-content">
+        @if (c.expenses.length === 0) {
+          <div class="empty-tab">
+            <p>{{ 'campaigns.noExpenses' | translate }}</p>
+          </div>
+        } @else {
+          <div class="table-responsive">
+            <table class="table">
+              <thead>
+                <tr>
+                  <th>{{ 'campaigns.expenseCategory' | translate }}</th>
+                  <th>{{ 'campaigns.expenseDescription' | translate }}</th>
+                  <th>{{ 'campaigns.amount' | translate }}</th>
+                  <th>{{ 'campaigns.expenseDate' | translate }}</th>
+                  <th>{{ 'campaigns.approved' | translate }}</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (expense of c.expenses; track expense.id) {
+                  <tr>
+                    <td>{{ categoryLabels[expense.category] || expense.categoryName }}</td>
+                    <td>{{ expense.description }}</td>
+                    <td class="text-right">{{ expense.amount | number:'1.2-2' }} KM</td>
+                    <td>{{ expense.expenseDate | date:'shortDate' }}</td>
+                    <td>
+                      <app-status-badge [status]="expense.isApproved ? 'active' : 'pending'"
+                                        [label]="expense.isApproved ? 'Approved' : 'Pending'">
+                      </app-status-badge>
+                    </td>
+                    <td>
+                      <div class="action-buttons">
+                        @if (!expense.isApproved) {
+                          <button class="btn btn-sm btn-success" (click)="approveExpense(expense)">
+                            {{ 'campaigns.approve' | translate }}
+                          </button>
+                        }
+                        <button class="btn btn-sm btn-danger" (click)="deleteExpense(expense)">
+                          {{ 'common.delete' | translate }}
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+          <div class="expense-total">
+            <strong>{{ 'campaigns.totalExpenses' | translate }}:</strong>
+            {{ c.actualSpent | number:'1.2-2' }} KM
+          </div>
+        }
+      </div>
+    }
+  }
+</div>
+
+<!-- Delete Dialog -->
+<app-confirm-dialog
+  [isOpen]="showDeleteDialog()"
+  [title]="'campaigns.confirmDelete' | translate"
+  [message]="'campaigns.confirmDeleteMessage' | translate:{name: campaign()?.name}"
+  (confirmed)="deleteCampaign()"
+  (cancelled)="showDeleteDialog.set(false)">
+</app-confirm-dialog>

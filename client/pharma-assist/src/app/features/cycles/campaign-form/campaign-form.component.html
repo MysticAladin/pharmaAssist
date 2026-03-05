@@ -1,0 +1,107 @@
+<div class="page-container">
+  <nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+      <li class="breadcrumb-item"><a routerLink="/cycles/campaigns">{{ 'campaigns.title' | translate }}</a></li>
+      <li class="breadcrumb-item active">{{ isEditMode() ? ('campaigns.editCampaign' | translate) : ('campaigns.addCampaign' | translate) }}</li>
+    </ol>
+  </nav>
+
+  @if (loading()) {
+    <div class="loading-container">
+      <div class="spinner"></div>
+    </div>
+  } @else {
+    <form (ngSubmit)="save()" #campaignForm="ngForm">
+      <!-- Basic Info -->
+      <section class="form-section">
+        <h2 class="section-title">{{ 'campaigns.basicInfo' | translate }}</h2>
+        <div class="form-grid">
+          <div class="form-group">
+            <label for="name">{{ 'campaigns.name' | translate }} *</label>
+            <input type="text" id="name" name="name" [(ngModel)]="form().name" required class="form-control"
+                   [placeholder]="'campaigns.namePlaceholder' | translate">
+          </div>
+          <div class="form-group">
+            <label for="nameLocal">{{ 'campaigns.nameLocal' | translate }}</label>
+            <input type="text" id="nameLocal" name="nameLocal" [(ngModel)]="form().nameLocal" class="form-control">
+          </div>
+        </div>
+
+        <div class="form-grid">
+          <div class="form-group">
+            <label for="type">{{ 'campaigns.type' | translate }} *</label>
+            <select id="type" name="type" [(ngModel)]="form().type" class="form-select" required>
+              @for (entry of typeLabels | keyvalue; track entry.key) {
+                <option [ngValue]="entry.key | number">{{ entry.value }}</option>
+              }
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="cycleId">{{ 'campaigns.cycle' | translate }}</label>
+            <input type="number" id="cycleId" name="cycleId" [(ngModel)]="form().cycleId" class="form-control"
+                   [placeholder]="'campaigns.cyclePlaceholder' | translate">
+          </div>
+        </div>
+
+        <div class="form-grid">
+          <div class="form-group">
+            <label for="startDate">{{ 'campaigns.startDate' | translate }} *</label>
+            <input type="date" id="startDate" name="startDate" [(ngModel)]="form().startDate" required class="form-control">
+          </div>
+          <div class="form-group">
+            <label for="endDate">{{ 'campaigns.endDate' | translate }} *</label>
+            <input type="date" id="endDate" name="endDate" [(ngModel)]="form().endDate" required class="form-control">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="plannedBudget">{{ 'campaigns.plannedBudget' | translate }}</label>
+          <input type="number" id="plannedBudget" name="plannedBudget" [(ngModel)]="form().plannedBudget"
+                 class="form-control" min="0" step="0.01">
+        </div>
+      </section>
+
+      <!-- Description -->
+      <section class="form-section">
+        <h2 class="section-title">{{ 'campaigns.details' | translate }}</h2>
+        <div class="form-group">
+          <label for="description">{{ 'campaigns.description' | translate }}</label>
+          <textarea id="description" name="description" [(ngModel)]="form().description" class="form-control" rows="3"
+                    [placeholder]="'campaigns.descriptionPlaceholder' | translate"></textarea>
+        </div>
+        <div class="form-group">
+          <label for="targetingCriteria">{{ 'campaigns.targetingCriteria' | translate }}</label>
+          <textarea id="targetingCriteria" name="targetingCriteria" [(ngModel)]="form().targetingCriteria"
+                    class="form-control" rows="3"
+                    [placeholder]="'campaigns.targetingCriteriaPlaceholder' | translate"></textarea>
+        </div>
+      </section>
+
+      <!-- Status (edit mode) -->
+      @if (isEditMode()) {
+        <section class="form-section">
+          <h2 class="section-title">{{ 'common.status' | translate }}</h2>
+          <div class="form-group">
+            <label class="toggle-label">
+              <input type="checkbox" name="isActive" [(ngModel)]="form().isActive">
+              <span>{{ form().isActive ? ('common.active' | translate) : ('common.inactive' | translate) }}</span>
+            </label>
+          </div>
+        </section>
+      }
+
+      <!-- Actions -->
+      <div class="form-actions">
+        <button type="button" class="btn btn-secondary" (click)="cancel()">
+          {{ 'common.cancel' | translate }}
+        </button>
+        <button type="submit" class="btn btn-primary" [disabled]="saving()">
+          @if (saving()) {
+            <span class="spinner-sm"></span>
+          }
+          {{ isEditMode() ? ('common.save' | translate) : ('campaigns.createCampaign' | translate) }}
+        </button>
+      </div>
+    </form>
+  }
+</div>

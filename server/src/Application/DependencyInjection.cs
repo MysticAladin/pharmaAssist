@@ -31,6 +31,7 @@ public static class DependencyInjection
         services.AddScoped<INotificationSettingsService, NotificationSettingsService>();
         services.AddScoped<ISalesRepService, SalesRepService>();
         services.AddScoped<IBrandService, BrandService>();
+        services.AddScoped<ICycleService, CycleService>();
         
         return services;
     }

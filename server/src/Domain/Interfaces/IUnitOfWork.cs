@@ -21,6 +21,11 @@ public interface IUnitOfWork : IDisposable
     IRepository<Domain.Entities.ProductDocument> ProductDocuments { get; }
     IRepository<Domain.Entities.KnowledgeArticle> KnowledgeArticles { get; }
     IRepository<Domain.Entities.ExecutedVisit> ExecutedVisits { get; }
+    IRepository<Domain.Entities.Cycle> Cycles { get; }
+    IRepository<Domain.Entities.CycleTarget> CycleTargets { get; }
+    IRepository<Domain.Entities.Campaign> Campaigns { get; }
+    IRepository<Domain.Entities.CampaignTarget> CampaignTargets { get; }
+    IRepository<Domain.Entities.CampaignExpense> CampaignExpenses { get; }
     
     Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
     Task BeginTransactionAsync(CancellationToken cancellationToken = default);

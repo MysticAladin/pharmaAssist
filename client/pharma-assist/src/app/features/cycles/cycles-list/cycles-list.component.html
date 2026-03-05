@@ -1,0 +1,103 @@
+<div class="page-container">
+  <div class="page-header">
+    <div>
+      <h1>{{ 'cycles.title' | translate }}</h1>
+      <p class="text-muted">{{ 'cycles.subtitle' | translate }}</p>
+    </div>
+    <button class="btn btn-primary" (click)="createCycle()">
+      <i class="icon-plus"></i> {{ 'cycles.addCycle' | translate }}
+    </button>
+  </div>
+
+  <div class="filters-bar">
+    <app-search-input
+      [placeholder]="'cycles.searchPlaceholder' | translate"
+      (searchChange)="onSearch($event)">
+    </app-search-input>
+
+    <select class="form-select form-select-sm" (change)="onStatusFilter($any($event.target).value)">
+      <option value="">{{ 'cycles.allStatuses' | translate }}</option>
+      @for (entry of statusLabels | keyvalue; track entry.key) {
+        <option [value]="entry.key">{{ entry.value }}</option>
+      }
+    </select>
+
+    <select class="form-select form-select-sm" (change)="onActiveFilter($any($event.target).value)">
+      <option value="true">{{ 'common.activeOnly' | translate }}</option>
+      <option value="">{{ 'common.all' | translate }}</option>
+      <option value="false">{{ 'common.inactiveOnly' | translate }}</option>
+    </select>
+  </div>
+
+  @if (loading()) {
+    <div class="loading-spinner">
+      <div class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">Loading...</span>
+      </div>
+    </div>
+  } @else if (cycles().length === 0) {
+    <app-empty-state
+      [title]="'cycles.noCycles' | translate"
+      [message]="'cycles.noCyclesMessage' | translate"
+      icon="icon-refresh-cw">
+    </app-empty-state>
+  } @else {
+    <app-data-table
+      [data]="cycles()"
+      [columns]="columns"
+      (sort)="onSort($event)"
+      (rowClick)="onRowClick($event)">
+    </app-data-table>
+
+    <app-pagination
+      [currentPage]="filters().page"
+      [pageSize]="filters().pageSize"
+      [totalItems]="totalItems()"
+      (pageChange)="onPageChange($event)">
+    </app-pagination>
+  }
+
+  <ng-template #statusTemplate let-row>
+    <app-status-badge [status]="row.statusName" [type]="row.isActive ? 'success' : 'secondary'"></app-status-badge>
+  </ng-template>
+
+  <ng-template #progressTemplate let-row>
+    <div class="progress" style="height: 8px; min-width: 80px;">
+      <div class="progress-bar" [style.width.%]="row.completionPercentage"
+           [class.bg-success]="row.completionPercentage >= 75"
+           [class.bg-warning]="row.completionPercentage >= 25 && row.completionPercentage < 75"
+           [class.bg-danger]="row.completionPercentage < 25">
+      </div>
+    </div>
+    <small class="text-muted">{{ row.completedTargets }}/{{ row.totalTargets }} ({{ row.completionPercentage }}%)</small>
+  </ng-template>
+
+  <ng-template #actionsTemplate let-row>
+    <div class="btn-group btn-group-sm">
+      <button class="btn btn-outline-primary btn-sm" (click)="editCycle(row); $event.stopPropagation()" title="{{ 'common.edit' | translate }}">
+        <i class="icon-edit-2"></i>
+      </button>
+      @if (row.status === 0 || row.status === 2) {
+        <button class="btn btn-outline-success btn-sm" (click)="activateCycle(row); $event.stopPropagation()" title="{{ 'cycles.activate' | translate }}">
+          <i class="icon-play"></i>
+        </button>
+      }
+      @if (row.status === 1) {
+        <button class="btn btn-outline-info btn-sm" (click)="completeCycle(row); $event.stopPropagation()" title="{{ 'cycles.complete' | translate }}">
+          <i class="icon-check-circle"></i>
+        </button>
+      }
+      <button class="btn btn-outline-danger btn-sm" (click)="confirmDelete(row); $event.stopPropagation()" title="{{ 'common.delete' | translate }}">
+        <i class="icon-trash-2"></i>
+      </button>
+    </div>
+  </ng-template>
+</div>
+
+<app-confirm-dialog
+  [show]="showDeleteDialog()"
+  [title]="'cycles.confirmDelete' | translate"
+  [message]="'cycles.confirmDeleteMessage' | translate"
+  (confirmed)="onDeleteConfirmed()"
+  (cancelled)="showDeleteDialog.set(false)">
+</app-confirm-dialog>

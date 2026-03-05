@@ -111,14 +111,14 @@ export interface RepCustomer {
   lastOrderAmount?: number;
   assignedAt: Date;
   isActive: boolean;
-  
+
   // Visit frequency fields
   requiredVisitsPerMonth: number;
   completedVisitsThisMonth: number;
   daysSinceLastVisit?: number;
   isOverdue: boolean;
   visitCompliancePercent: number;
-  
+
   // Location fields (for map views)
   latitude?: number;
   longitude?: number;

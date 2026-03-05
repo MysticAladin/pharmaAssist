@@ -1,0 +1,112 @@
+<div class="page-container">
+  <!-- Header -->
+  <div class="page-header">
+    <div class="header-content">
+      <h1>{{ 'campaigns.title' | translate }}</h1>
+      <p class="subtitle">{{ 'campaigns.subtitle' | translate }}</p>
+    </div>
+    <div class="header-actions">
+      <button class="btn btn-primary" (click)="createCampaign()">
+        {{ 'campaigns.addCampaign' | translate }}
+      </button>
+    </div>
+  </div>
+
+  <!-- Filters -->
+  <div class="filters-bar">
+    <app-search-input
+      [placeholder]="'campaigns.searchPlaceholder' | translate"
+      (searchChange)="onSearch($event)">
+    </app-search-input>
+    <div class="filter-group">
+      <select class="form-select" (change)="onTypeFilter($any($event.target).value)">
+        <option value="">{{ 'campaigns.allTypes' | translate }}</option>
+        @for (entry of typeLabels | keyvalue; track entry.key) {
+          <option [value]="entry.key">{{ entry.value }}</option>
+        }
+      </select>
+      <select class="form-select" (change)="onStatusFilter($any($event.target).value)">
+        <option value="">{{ 'campaigns.allStatuses' | translate }}</option>
+        @for (entry of statusLabels | keyvalue; track entry.key) {
+          <option [value]="entry.key">{{ entry.value }}</option>
+        }
+      </select>
+    </div>
+  </div>
+
+  <!-- Table -->
+  @if (loading()) {
+    <div class="loading-container">
+      <div class="spinner"></div>
+    </div>
+  } @else if (campaigns().length === 0) {
+    <app-empty-state
+      [title]="'campaigns.noCampaigns' | translate"
+      [message]="'campaigns.noCampaignsMessage' | translate"
+      [actionLabel]="'campaigns.addCampaign' | translate"
+      (action)="createCampaign()">
+    </app-empty-state>
+  } @else {
+    <app-data-table
+      [columns]="columns"
+      [data]="campaigns()"
+      (rowClick)="onRowClick($event)"
+      (sort)="onSort($event)">
+    </app-data-table>
+
+    <app-pagination
+      [currentPage]="filters().page"
+      [pageSize]="filters().pageSize"
+      [totalItems]="totalItems()"
+      (pageChange)="onPageChange($event)">
+    </app-pagination>
+  }
+</div>
+
+<!-- Column Templates -->
+<ng-template #typeTemplate let-row>
+  <span class="badge badge-info">{{ typeLabels[row.type] || row.typeName }}</span>
+</ng-template>
+
+<ng-template #statusTemplate let-row>
+  <app-status-badge [status]="row.statusName?.toLowerCase() || 'draft'" [label]="statusLabels[row.status] || row.statusName"></app-status-badge>
+</ng-template>
+
+<ng-template #budgetTemplate let-row>
+  <div>
+    <div>{{ row.plannedBudget | number:'1.2-2' }} KM</div>
+    @if (row.actualSpent > 0) {
+      <small class="text-muted">{{ 'campaigns.spent' | translate }}: {{ row.actualSpent | number:'1.2-2' }}</small>
+    }
+  </div>
+</ng-template>
+
+<ng-template #actionsTemplate let-row>
+  <div class="action-buttons">
+    @if (row.status === 0) {
+      <button class="btn btn-sm btn-success" (click)="activateCampaign(row); $event.stopPropagation()">
+        {{ 'campaigns.activate' | translate }}
+      </button>
+    }
+    @if (row.status === 1) {
+      <button class="btn btn-sm btn-info" (click)="completeCampaign(row); $event.stopPropagation()">
+        {{ 'campaigns.complete' | translate }}
+      </button>
+    }
+    <button class="btn btn-sm btn-secondary" (click)="editCampaign(row); $event.stopPropagation()">
+      {{ 'common.edit' | translate }}
+    </button>
+    <button class="btn btn-sm btn-danger" (click)="confirmDelete(row); $event.stopPropagation()">
+      {{ 'common.delete' | translate }}
+    </button>
+  </div>
+</ng-template>
+
+<!-- Delete Dialog -->
+<app-confirm-dialog
+  [isOpen]="showDeleteDialog()"
+  [title]="'campaigns.confirmDelete' | translate"
+  [message]="'campaigns.confirmDeleteMessage' | translate:{name: campaignToDelete()?.name}"
+  (confirmed)="onDeleteConfirmed()"
+  (cancelled)="showDeleteDialog.set(false)">
+</app-confirm-dialog>

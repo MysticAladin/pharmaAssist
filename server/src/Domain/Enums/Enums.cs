@@ -346,3 +346,66 @@ public enum CommitmentLevel
     Committed = 4,
     AlreadyUsing = 5
 }
+
+/// <summary>
+/// Cycle status — lifecycle of a pharmaceutical visit cycle
+/// </summary>
+public enum CycleStatus
+{
+    Draft = 0,
+    Active = 1,
+    Paused = 2,
+    Completed = 3,
+    Cancelled = 4
+}
+
+/// <summary>
+/// Campaign type
+/// </summary>
+public enum CampaignType
+{
+    Launch = 1,
+    Reminder = 2,
+    Detail = 3,
+    Event = 4,
+    Sampling = 5
+}
+
+/// <summary>
+/// Campaign status
+/// </summary>
+public enum CampaignStatus
+{
+    Draft = 0,
+    Active = 1,
+    Paused = 2,
+    Completed = 3,
+    Cancelled = 4
+}
+
+/// <summary>
+/// Campaign target status — per-customer progress
+/// </summary>
+public enum CampaignTargetStatus
+{
+    Pending = 0,
+    Contacted = 1,
+    InProgress = 2,
+    Completed = 3,
+    Skipped = 4
+}
+
+/// <summary>
+/// Campaign expense category
+/// </summary>
+public enum CampaignExpenseCategory
+{
+    Travel = 1,
+    Accommodation = 2,
+    Materials = 3,
+    Samples = 4,
+    Events = 5,
+    Sponsorship = 6,
+    Promotional = 7,
+    Other = 8
+}

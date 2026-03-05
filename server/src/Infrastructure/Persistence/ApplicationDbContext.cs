@@ -28,6 +28,13 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser, Applicati
     public DbSet<ProductDocument> ProductDocuments { get; set; } = null!;
     public DbSet<KnowledgeArticle> KnowledgeArticles { get; set; } = null!;
 
+    // Cycle & Campaign Management
+    public DbSet<Cycle> Cycles { get; set; } = null!;
+    public DbSet<CycleTarget> CycleTargets { get; set; } = null!;
+    public DbSet<Campaign> Campaigns { get; set; } = null!;
+    public DbSet<CampaignTarget> CampaignTargets { get; set; } = null!;
+    public DbSet<CampaignExpense> CampaignExpenses { get; set; } = null!;
+
     // Customer Management
     public DbSet<Customer> Customers { get; set; } = null!;
     public DbSet<CustomerAddress> CustomerAddresses { get; set; } = null!;
