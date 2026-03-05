@@ -1,0 +1,82 @@
+<div class="page-container">
+  <div class="page-header">
+    <div>
+      <h1>{{ 'territories.title' | translate }}</h1>
+      <p class="text-muted">{{ 'territories.subtitle' | translate }}</p>
+    </div>
+    <button class="btn btn-primary" routerLink="/territories/new">
+      <i class="icon-plus"></i> {{ 'territories.addTerritory' | translate }}
+    </button>
+  </div>
+
+  <div class="filters-bar">
+    <app-search-input
+      [placeholder]="'territories.searchPlaceholder' | translate"
+      (searchChange)="onSearch($event)">
+    </app-search-input>
+
+    <select class="form-select form-select-sm" (change)="onTypeFilterChange($any($event.target).value)">
+      <option value="">{{ 'territories.allTypes' | translate }}</option>
+      @for (entry of typeLabels | keyvalue; track entry.key) {
+        <option [value]="entry.key">{{ entry.value }}</option>
+      }
+    </select>
+  </div>
+
+  @if (loading()) {
+    <div class="loading-spinner">
+      <div class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">Loading...</span>
+      </div>
+    </div>
+  } @else if (territories().length === 0) {
+    <app-empty-state
+      [title]="'territories.noTerritories' | translate"
+      [description]="'territories.noTerritoriesMessage' | translate"
+      icon="icon-map">
+    </app-empty-state>
+  } @else {
+    <app-data-table
+      [data]="territories()"
+      [columns]="columns"
+      (sortChange)="onSort($event)"
+      (rowClick)="viewTerritory($event)">
+    </app-data-table>
+
+    <app-pagination
+      [page]="filters().page"
+      [size]="filters().pageSize"
+      [totalItems]="totalItems()"
+      (pageChange)="onPageChange($event.page)">
+    </app-pagination>
+  }
+
+  <ng-template #typeTemplate let-row>
+    <span class="badge" [class.bg-primary]="row.type === 1" [class.bg-info]="row.type === 2" [class.bg-secondary]="row.type === 3">
+      {{ typeLabels[row.type] || row.typeName }}
+    </span>
+  </ng-template>
+
+  <ng-template #statusTemplate let-row>
+    <app-status-badge [status]="row.isActive ? 'Active' : 'Inactive'" [type]="row.isActive ? 'success' : 'neutral'"></app-status-badge>
+  </ng-template>
+
+  <ng-template #actionsTemplate let-row>
+    <div class="btn-group btn-group-sm">
+      <button class="btn btn-outline-primary btn-sm" (click)="editTerritory(row); $event.stopPropagation()" title="{{ 'common.edit' | translate }}">
+        <i class="icon-edit-2"></i>
+      </button>
+      <button class="btn btn-outline-danger btn-sm" (click)="confirmDelete(row); $event.stopPropagation()" title="{{ 'common.delete' | translate }}">
+        <i class="icon-trash-2"></i>
+      </button>
+    </div>
+  </ng-template>
+</div>
+
+<app-confirm-dialog
+  [show]="showDeleteDialog()"
+  [title]="'territories.confirmDelete' | translate"
+  [message]="'territories.confirmDeleteMessage' | translate"
+  (confirmed)="deleteTerritory()"
+  (cancelled)="showDeleteDialog.set(false)">
+</app-confirm-dialog>

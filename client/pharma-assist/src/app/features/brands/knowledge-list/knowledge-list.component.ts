@@ -163,11 +163,13 @@ export class KnowledgeListComponent {
   getCategoryClass(category: number): string {
     switch (category) {
       case KnowledgeCategory.FAQ: return 'bg-info';
-      case KnowledgeCategory.ProductInfo: return 'bg-primary';
-      case KnowledgeCategory.ClinicalStudy: return 'bg-success';
-      case KnowledgeCategory.CompetitorAnalysis: return 'bg-warning';
-      case KnowledgeCategory.SalesGuide: return 'bg-secondary';
-      case KnowledgeCategory.Training: return 'bg-dark';
+      case KnowledgeCategory.ObjectionHandling: return 'bg-primary';
+      case KnowledgeCategory.ClinicalData: return 'bg-success';
+      case KnowledgeCategory.Dosage: return 'bg-warning';
+      case KnowledgeCategory.Interactions: return 'bg-secondary';
+      case KnowledgeCategory.Contraindications: return 'bg-danger';
+      case KnowledgeCategory.Storage: return 'bg-dark';
+      case KnowledgeCategory.General: return 'bg-light';
       default: return 'bg-light';
     }
   }

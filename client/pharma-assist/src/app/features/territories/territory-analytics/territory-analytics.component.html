@@ -1,0 +1,266 @@
+<div class="container-fluid py-4">
+  <!-- Header -->
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+      <h2>{{ 'territories.analytics' | translate }}</h2>
+      <p class="text-muted mb-0">{{ 'territories.analyticsSubtitle' | translate }}</p>
+    </div>
+    <a routerLink="/territories" class="btn btn-outline-secondary">
+      <i class="fas fa-arrow-left me-1"></i>
+      {{ 'common.back' | translate }}
+    </a>
+  </div>
+
+  <!-- Date Filters -->
+  <div class="card mb-4">
+    <div class="card-body">
+      <div class="row g-3 align-items-end">
+        <div class="col-md-3">
+          <label class="form-label">{{ 'common.fromDate' | translate }}</label>
+          <input type="date" class="form-control" [(ngModel)]="filters().fromDate">
+        </div>
+        <div class="col-md-3">
+          <label class="form-label">{{ 'common.toDate' | translate }}</label>
+          <input type="date" class="form-control" [(ngModel)]="filters().toDate">
+        </div>
+        <div class="col-md-3">
+          <button class="btn btn-primary" (click)="applyFilters()">
+            <i class="fas fa-filter me-1"></i>
+            {{ 'common.applyFilters' | translate }}
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tabs -->
+  <ul class="nav nav-tabs mb-4">
+    <li class="nav-item">
+      <button class="nav-link" [class.active]="activeTab() === 'comparison'"
+              (click)="setTab('comparison')">
+        <i class="fas fa-chart-bar me-1"></i>
+        {{ 'territories.performanceComparison' | translate }}
+      </button>
+    </li>
+    <li class="nav-item">
+      <button class="nav-link" [class.active]="activeTab() === 'visits'"
+              (click)="setTab('visits')">
+        <i class="fas fa-calendar-check me-1"></i>
+        {{ 'territories.visitFrequency' | translate }}
+      </button>
+    </li>
+    <li class="nav-item">
+      <button class="nav-link" [class.active]="activeTab() === 'fieldwork'"
+              (click)="setTab('fieldwork')">
+        <i class="fas fa-road me-1"></i>
+        {{ 'territories.fieldWork' | translate }}
+      </button>
+    </li>
+    <li class="nav-item">
+      <button class="nav-link" [class.active]="activeTab() === 'institutions'"
+              (click)="setTab('institutions')">
+        <i class="fas fa-hospital me-1"></i>
+        {{ 'territories.institutionBreakdown' | translate }}
+      </button>
+    </li>
+  </ul>
+
+  <!-- Loading -->
+  @if (loading()) {
+    <div class="text-center py-5">
+      <div class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">Loading...</span>
+      </div>
+    </div>
+  }
+
+  <!-- Comparison Tab -->
+  @if (!loading() && activeTab() === 'comparison') {
+    @if (territoryComparison().length === 0) {
+      <div class="text-center py-5 text-muted">
+        <i class="fas fa-chart-bar fa-3x mb-3"></i>
+        <p>{{ 'territories.noPerformanceData' | translate }}</p>
+      </div>
+    } @else {
+      <div class="row g-4">
+        @for (perf of territoryComparison(); track perf.territoryId) {
+          <div class="col-md-6 col-lg-4">
+            <div class="card h-100">
+              <div class="card-header">
+                <h6 class="mb-0">
+                  <a [routerLink]="['/territories', perf.territoryId]">{{ perf.territoryName }}</a>
+                </h6>
+              </div>
+              <div class="card-body">
+                <div class="row g-2 text-center">
+                  <div class="col-6">
+                    <div class="border rounded p-2">
+                      <div class="fs-4 fw-bold text-primary">{{ perf.totalVisits }}</div>
+                      <small class="text-muted">{{ 'territories.totalVisits' | translate }}</small>
+                    </div>
+                  </div>
+                  <div class="col-6">
+                    <div class="border rounded p-2">
+                      <div class="fs-4 fw-bold" [class.text-success]="perf.visitCompliancePercent >= 80"
+                           [class.text-warning]="perf.visitCompliancePercent >= 50 && perf.visitCompliancePercent < 80"
+                           [class.text-danger]="perf.visitCompliancePercent < 50">
+                        {{ perf.visitCompliancePercent | number:'1.0-0' }}%
+                      </div>
+                      <small class="text-muted">{{ 'territories.visitCompliance' | translate }}</small>
+                    </div>
+                  </div>
+                  <div class="col-6">
+                    <div class="border rounded p-2">
+                      <div class="fs-4 fw-bold text-info">{{ perf.totalCustomers }}</div>
+                      <small class="text-muted">{{ 'territories.customers' | translate }}</small>
+                    </div>
+                  </div>
+                  <div class="col-6">
+                    <div class="border rounded p-2">
+                      <div class="fs-4 fw-bold text-secondary">{{ perf.totalReps }}</div>
+                      <small class="text-muted">{{ 'territories.reps' | translate }}</small>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        }
+      </div>
+    }
+  }
+
+  <!-- Visit Frequency Tab -->
+  @if (!loading() && activeTab() === 'visits') {
+    @if (visitFrequency().length === 0) {
+      <div class="text-center py-5 text-muted">
+        <i class="fas fa-calendar-check fa-3x mb-3"></i>
+        <p>{{ 'territories.noPerformanceData' | translate }}</p>
+      </div>
+    } @else {
+      <div class="table-responsive">
+        <table class="table table-hover">
+          <thead>
+            <tr>
+              <th>{{ 'territories.name' | translate }}</th>
+              <th class="text-center">{{ 'territories.requiredVisits' | translate }}</th>
+              <th class="text-center">{{ 'territories.actualVisits' | translate }}</th>
+              <th class="text-center">{{ 'territories.visitCompliance' | translate }}</th>
+              <th class="text-center">{{ 'territories.overdueVisits' | translate }}</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (vf of visitFrequency(); track vf.customerId) {
+              <tr>
+                <td>{{ vf.customerName }}</td>
+                <td class="text-center">{{ vf.requiredVisitsPerMonth }}</td>
+                <td class="text-center">{{ vf.completedVisitsThisMonth }}</td>
+                <td class="text-center">
+                  <span class="badge" [class.bg-success]="vf.compliancePercent >= 80"
+                        [class.bg-warning]="vf.compliancePercent >= 50 && vf.compliancePercent < 80"
+                        [class.bg-danger]="vf.compliancePercent < 50">
+                    {{ vf.compliancePercent | number:'1.0-0' }}%
+                  </span>
+                </td>
+                <td class="text-center">
+                  @if (vf.isOverdue) {
+                    <span class="badge bg-danger">{{ 'common.yes' | translate }}</span>
+                  } @else {
+                    <span class="badge bg-success">{{ 'common.no' | translate }}</span>
+                  }
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    }
+  }
+
+  <!-- Field Work Tab -->
+  @if (!loading() && activeTab() === 'fieldwork') {
+    @if (fieldWorkMetrics().length === 0) {
+      <div class="text-center py-5 text-muted">
+        <i class="fas fa-road fa-3x mb-3"></i>
+        <p>{{ 'territories.noPerformanceData' | translate }}</p>
+      </div>
+    } @else {
+      <div class="table-responsive">
+        <table class="table table-hover">
+          <thead>
+            <tr>
+              <th>{{ 'territories.name' | translate }}</th>
+              <th class="text-center">{{ 'territories.uniqueFieldDays' | translate }}</th>
+              <th class="text-center">{{ 'territories.avgVisitsPerDay' | translate }}</th>
+              <th class="text-center">{{ 'territories.totalVisits' | translate }}</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (fm of fieldWorkMetrics(); track fm.repId) {
+              <tr>
+                <td>{{ fm.repName }}</td>
+                <td class="text-center">{{ fm.uniqueFieldDays }}</td>
+                <td class="text-center">{{ fm.avgVisitsPerFieldDay | number:'1.1-1' }}</td>
+                <td class="text-center">{{ fm.totalVisits }}</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    }
+  }
+
+  <!-- Institutions Tab -->
+  @if (!loading() && activeTab() === 'institutions') {
+    @if (institutionAnalytics().length === 0) {
+      <div class="text-center py-5 text-muted">
+        <i class="fas fa-hospital fa-3x mb-3"></i>
+        <p>{{ 'territories.noPerformanceData' | translate }}</p>
+      </div>
+    } @else {
+      <div class="row g-4">
+        @for (ia of institutionAnalytics(); track ia.customerType) {
+          <div class="col-md-6 col-lg-4">
+            <div class="card h-100">
+              <div class="card-header">
+                <h6 class="mb-0">{{ ia.customerType }}</h6>
+              </div>
+              <div class="card-body">
+                <div class="row g-2 text-center">
+                  <div class="col-6">
+                    <div class="border rounded p-2">
+                      <div class="fs-4 fw-bold text-primary">{{ ia.totalInstitutions }}</div>
+                      <small class="text-muted">Total</small>
+                    </div>
+                  </div>
+                  <div class="col-6">
+                    <div class="border rounded p-2">
+                      <div class="fs-4 fw-bold text-success">{{ ia.activeInstitutions }}</div>
+                      <small class="text-muted">Active</small>
+                    </div>
+                  </div>
+                  <div class="col-6">
+                    <div class="border rounded p-2">
+                      <div class="fs-4 fw-bold text-info">{{ ia.visitedThisPeriod }}</div>
+                      <small class="text-muted">Visited</small>
+                    </div>
+                  </div>
+                  <div class="col-6">
+                    <div class="border rounded p-2">
+                      <div class="fs-4 fw-bold" [class.text-success]="ia.coveragePercent >= 80"
+                           [class.text-warning]="ia.coveragePercent >= 50 && ia.coveragePercent < 80"
+                           [class.text-danger]="ia.coveragePercent < 50">
+                        {{ ia.coveragePercent | number:'1.0-0' }}%
+                      </div>
+                      <small class="text-muted">Coverage</small>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        }
+      </div>
+    }
+  }
+</div>

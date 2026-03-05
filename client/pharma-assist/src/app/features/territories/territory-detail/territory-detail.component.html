@@ -1,0 +1,309 @@
+<div class="page-container">
+  @if (loading()) {
+    <div class="loading-spinner">
+      <div class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">Loading...</span>
+      </div>
+    </div>
+  } @else if (territory(); as t) {
+    <!-- Header -->
+    <div class="page-header">
+      <div class="d-flex align-items-center gap-2">
+        <a routerLink="/territories" class="btn btn-outline-secondary btn-sm">
+          <i class="icon-arrow-left"></i>
+        </a>
+        <div>
+          <h1>{{ t.name }}</h1>
+          @if (t.nameLocal) {
+            <p class="text-muted mb-0">{{ t.nameLocal }}</p>
+          }
+        </div>
+        <app-status-badge [status]="t.isActive ? 'Active' : 'Inactive'" [type]="t.isActive ? 'success' : 'neutral'" class="ms-2"></app-status-badge>
+      </div>
+      <div class="d-flex gap-2">
+        <button class="btn btn-outline-primary btn-sm" (click)="editTerritory()">
+          <i class="icon-edit-2"></i> {{ 'common.edit' | translate }}
+        </button>
+      </div>
+    </div>
+
+    <!-- Info Cards -->
+    <div class="row g-3 mb-4">
+      <div class="col-md-3">
+        <div class="info-card">
+          <div class="info-card-label">{{ 'territories.type' | translate }}</div>
+          <div class="info-card-value">
+            <span class="badge" [class.bg-primary]="t.type === 1" [class.bg-info]="t.type === 2" [class.bg-secondary]="t.type === 3">
+              {{ typeLabels[t.type] || t.typeName }}
+            </span>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="info-card">
+          <div class="info-card-label">{{ 'territories.reps' | translate }}</div>
+          <div class="info-card-value">{{ t.assignedRepCount }}</div>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="info-card">
+          <div class="info-card-label">{{ 'territories.customers' | translate }}</div>
+          <div class="info-card-value">{{ t.customerCount }}</div>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="info-card">
+          <div class="info-card-label">{{ 'territories.cantons' | translate }}</div>
+          <div class="info-card-value">{{ t.cantonNames?.length || 0 }}</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tabs -->
+    <ul class="nav nav-tabs mb-3">
+      <li class="nav-item">
+        <a class="nav-link" [class.active]="activeTab() === 'overview'" (click)="setTab('overview')" role="button">
+          {{ 'territories.overview' | translate }}
+        </a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" [class.active]="activeTab() === 'assignments'" (click)="setTab('assignments')" role="button">
+          {{ 'territories.assignments' | translate }} ({{ t.assignments?.length || 0 }})
+        </a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" [class.active]="activeTab() === 'performance'" (click)="setTab('performance')" role="button">
+          {{ 'territories.performance' | translate }}
+        </a>
+      </li>
+    </ul>
+
+    <!-- Overview Tab -->
+    @if (activeTab() === 'overview') {
+      <div class="card">
+        <div class="card-body">
+          <div class="row g-3">
+            @if (t.parentTerritoryName) {
+              <div class="col-md-6">
+                <strong>{{ 'territories.parent' | translate }}:</strong> {{ t.parentTerritoryName }}
+              </div>
+            }
+            @if (t.cantonNames && t.cantonNames.length > 0) {
+              <div class="col-md-6">
+                <strong>{{ 'territories.cantons' | translate }}:</strong>
+                @for (canton of t.cantonNames; track canton) {
+                  <span class="badge bg-light text-dark me-1">{{ canton }}</span>
+                }
+              </div>
+            }
+            @if (t.description) {
+              <div class="col-12">
+                <strong>{{ 'territories.description' | translate }}:</strong>
+                <p class="mt-1">{{ t.description }}</p>
+              </div>
+            }
+          </div>
+
+          @if (t.children && t.children.length > 0) {
+            <h6 class="mt-4">{{ 'territories.childTerritories' | translate }}</h6>
+            <div class="table-responsive">
+              <table class="table table-sm">
+                <thead>
+                  <tr>
+                    <th>{{ 'territories.name' | translate }}</th>
+                    <th>{{ 'territories.type' | translate }}</th>
+                    <th>{{ 'territories.reps' | translate }}</th>
+                    <th>{{ 'territories.customers' | translate }}</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  @for (child of t.children; track child.id) {
+                    <tr class="cursor-pointer" [routerLink]="['/territories', child.id]">
+                      <td>{{ child.name }}</td>
+                      <td>{{ typeLabels[child.type] || child.typeName }}</td>
+                      <td>{{ child.assignedRepCount }}</td>
+                      <td>{{ child.customerCount }}</td>
+                    </tr>
+                  }
+                </tbody>
+              </table>
+            </div>
+          }
+        </div>
+      </div>
+    }
+
+    <!-- Assignments Tab -->
+    @if (activeTab() === 'assignments') {
+      <div class="card">
+        <div class="card-header d-flex justify-content-between align-items-center">
+          <h6 class="mb-0">{{ 'territories.repAssignments' | translate }}</h6>
+          <button class="btn btn-primary btn-sm" (click)="showAssignForm.set(!showAssignForm())">
+            <i class="icon-plus"></i> {{ 'territories.assignRep' | translate }}
+          </button>
+        </div>
+        <div class="card-body">
+          @if (showAssignForm()) {
+            <div class="border rounded p-3 mb-3 bg-light">
+              <div class="row g-2">
+                <div class="col-md-3">
+                  <label class="form-label">{{ 'territories.repId' | translate }}*</label>
+                  <input type="number" class="form-control form-control-sm" [(ngModel)]="assignForm().repId" name="repId">
+                </div>
+                <div class="col-md-3">
+                  <label class="form-label">{{ 'territories.startDate' | translate }}*</label>
+                  <input type="date" class="form-control form-control-sm" [(ngModel)]="assignForm().startDate" name="startDate">
+                </div>
+                <div class="col-md-2">
+                  <label class="form-label">{{ 'territories.assignmentType' | translate }}</label>
+                  <select class="form-select form-select-sm" [(ngModel)]="assignForm().assignmentType" name="assignmentType">
+                    @for (entry of assignmentTypeLabels | keyvalue; track entry.key) {
+                      <option [value]="entry.key">{{ entry.value }}</option>
+                    }
+                  </select>
+                </div>
+                <div class="col-md-2">
+                  <label class="form-label">&nbsp;</label>
+                  <div class="form-check mt-2">
+                    <input class="form-check-input" type="checkbox" [(ngModel)]="assignForm().isPrimary" name="isPrimary" id="isPrimary">
+                    <label class="form-check-label" for="isPrimary">{{ 'territories.primary' | translate }}</label>
+                  </div>
+                </div>
+                <div class="col-md-2 d-flex align-items-end">
+                  <button class="btn btn-primary btn-sm" (click)="assignRep()">{{ 'common.save' | translate }}</button>
+                </div>
+              </div>
+            </div>
+          }
+
+          @if (t.assignments && t.assignments.length > 0) {
+            <div class="table-responsive">
+              <table class="table table-sm">
+                <thead>
+                  <tr>
+                    <th>{{ 'territories.rep' | translate }}</th>
+                    <th>{{ 'territories.employeeCode' | translate }}</th>
+                    <th>{{ 'territories.startDate' | translate }}</th>
+                    <th>{{ 'territories.endDate' | translate }}</th>
+                    <th>{{ 'territories.assignmentType' | translate }}</th>
+                    <th>{{ 'territories.primary' | translate }}</th>
+                    <th></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  @for (a of t.assignments; track a.id) {
+                    <tr>
+                      <td>{{ a.repName }}</td>
+                      <td>{{ a.repEmployeeCode }}</td>
+                      <td>{{ a.startDate | date:'mediumDate' }}</td>
+                      <td>{{ a.endDate ? (a.endDate | date:'mediumDate') : '—' }}</td>
+                      <td>{{ assignmentTypeLabels[a.assignmentType] || a.assignmentTypeName }}</td>
+                      <td>
+                        @if (a.isPrimary) {
+                          <span class="badge bg-success">{{ 'common.yes' | translate }}</span>
+                        } @else {
+                          <span class="badge bg-secondary">{{ 'common.no' | translate }}</span>
+                        }
+                      </td>
+                      <td>
+                        <button class="btn btn-outline-danger btn-sm" (click)="confirmRemoveAssignment(a)">
+                          <i class="icon-x"></i>
+                        </button>
+                      </td>
+                    </tr>
+                  }
+                </tbody>
+              </table>
+            </div>
+          } @else {
+            <p class="text-muted">{{ 'territories.noAssignments' | translate }}</p>
+          }
+        </div>
+      </div>
+    }
+
+    <!-- Performance Tab -->
+    @if (activeTab() === 'performance') {
+      @if (performance(); as p) {
+        <div class="row g-3">
+          <div class="col-md-3">
+            <div class="info-card">
+              <div class="info-card-label">{{ 'territories.totalVisits' | translate }}</div>
+              <div class="info-card-value">{{ p.totalVisits }}</div>
+            </div>
+          </div>
+          <div class="col-md-3">
+            <div class="info-card">
+              <div class="info-card-label">{{ 'territories.visitCompliance' | translate }}</div>
+              <div class="info-card-value">{{ p.visitCompliancePercent }}%</div>
+            </div>
+          </div>
+          <div class="col-md-3">
+            <div class="info-card">
+              <div class="info-card-label">{{ 'territories.fieldDays' | translate }}</div>
+              <div class="info-card-value">{{ p.uniqueFieldDays }}</div>
+            </div>
+          </div>
+          <div class="col-md-3">
+            <div class="info-card">
+              <div class="info-card-label">{{ 'territories.overdueVisits' | translate }}</div>
+              <div class="info-card-value text-danger">{{ p.overdueVisits }}</div>
+            </div>
+          </div>
+        </div>
+
+        @if (p.visitsByCustomerType) {
+          <div class="card mt-3">
+            <div class="card-header">
+              <h6 class="mb-0">{{ 'territories.visitsByType' | translate }}</h6>
+            </div>
+            <div class="card-body">
+              <div class="row g-2">
+                @for (entry of p.visitsByCustomerType | keyvalue; track entry.key) {
+                  <div class="col-md-3">
+                    <div class="d-flex justify-content-between">
+                      <span>{{ entry.key }}</span>
+                      <strong>{{ entry.value }}</strong>
+                    </div>
+                  </div>
+                }
+              </div>
+            </div>
+          </div>
+        }
+
+        @if (p.monthlyVisitTrend) {
+          <div class="card mt-3">
+            <div class="card-header">
+              <h6 class="mb-0">{{ 'territories.monthlyTrend' | translate }}</h6>
+            </div>
+            <div class="card-body">
+              <div class="row g-2">
+                @for (entry of p.monthlyVisitTrend | keyvalue; track entry.key) {
+                  <div class="col-md-2">
+                    <div class="text-center">
+                      <div class="fw-bold">{{ entry.value }}</div>
+                      <small class="text-muted">{{ entry.key }}</small>
+                    </div>
+                  </div>
+                }
+              </div>
+            </div>
+          </div>
+        }
+      } @else {
+        <div class="text-center text-muted py-4">
+          {{ 'territories.noPerformanceData' | translate }}
+        </div>
+      }
+    }
+  }
+</div>
+
+<app-confirm-dialog
+  [show]="showDeleteDialog()"
+  [title]="'territories.confirmUnassign' | translate"
+  [message]="'territories.confirmUnassignMessage' | translate"
+  (confirmed)="removeAssignment()"
+  (cancelled)="showDeleteDialog.set(false)">
+</app-confirm-dialog>

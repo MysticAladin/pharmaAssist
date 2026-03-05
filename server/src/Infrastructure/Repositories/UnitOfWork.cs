@@ -32,6 +32,8 @@ public class UnitOfWork : IUnitOfWork
     private IRepository<Domain.Entities.Campaign>? _campaigns;
     private IRepository<Domain.Entities.CampaignTarget>? _campaignTargets;
     private IRepository<Domain.Entities.CampaignExpense>? _campaignExpenses;
+    private IRepository<Domain.Entities.Territory>? _territories;
+    private IRepository<Domain.Entities.TerritoryAssignment>? _territoryAssignments;
 
     public UnitOfWork(ApplicationDbContext context)
     {
@@ -97,6 +99,12 @@ public class UnitOfWork : IUnitOfWork
 
     public IRepository<Domain.Entities.CampaignExpense> CampaignExpenses =>
         _campaignExpenses ??= new Repository<Domain.Entities.CampaignExpense>(_context);
+
+    public IRepository<Domain.Entities.Territory> Territories =>
+        _territories ??= new Repository<Domain.Entities.Territory>(_context);
+
+    public IRepository<Domain.Entities.TerritoryAssignment> TerritoryAssignments =>
+        _territoryAssignments ??= new Repository<Domain.Entities.TerritoryAssignment>(_context);
 
     public async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
     {

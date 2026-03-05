@@ -118,8 +118,8 @@ export class CyclesListComponent implements AfterViewInit {
     this.loadCycles();
   }
 
-  onSort(event: { key: string; direction: string }): void {
-    this.filters.update(f => ({ ...f, sortBy: event.key, sortDirection: event.direction }));
+  onSort(event: { column: string; direction: string }): void {
+    this.filters.update(f => ({ ...f, sortBy: event.column, sortDirection: event.direction }));
     this.loadCycles();
   }
 

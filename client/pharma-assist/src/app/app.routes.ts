@@ -50,6 +50,12 @@ export const routes: Routes = [
         loadChildren: () => import('./features/brands/brands.routes').then(m => m.BRANDS_ROUTES)
       },
 
+      // Territories
+      {
+        path: 'territories',
+        loadChildren: () => import('./features/territories/territories.routes').then(m => m.TERRITORIES_ROUTES)
+      },
+
       // Cycles & Campaigns
       {
         path: 'cycles',

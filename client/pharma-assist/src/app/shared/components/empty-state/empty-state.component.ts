@@ -12,6 +12,7 @@ import { TranslateModule } from '@ngx-translate/core';
 export class EmptyStateComponent {
   @Input() title = 'common.noData';
   @Input() description = '';
+  @Input() set message(value: string) { this.description = value; }
   @Input() icon = '';
   @Input() actionLabel = '';
   @Input() set isCompact(value: boolean) { this.compact.set(value); }

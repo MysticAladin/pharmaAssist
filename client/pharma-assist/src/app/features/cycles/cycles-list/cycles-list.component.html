@@ -38,27 +38,27 @@
   } @else if (cycles().length === 0) {
     <app-empty-state
       [title]="'cycles.noCycles' | translate"
-      [message]="'cycles.noCyclesMessage' | translate"
+      [description]="'cycles.noCyclesMessage' | translate"
       icon="icon-refresh-cw">
     </app-empty-state>
   } @else {
     <app-data-table
       [data]="cycles()"
       [columns]="columns"
-      (sort)="onSort($event)"
+      (sortChange)="onSort($event)"
       (rowClick)="onRowClick($event)">
     </app-data-table>
 
     <app-pagination
-      [currentPage]="filters().page"
-      [pageSize]="filters().pageSize"
+      [page]="filters().page"
+      [size]="filters().pageSize"
       [totalItems]="totalItems()"
-      (pageChange)="onPageChange($event)">
+      (pageChange)="onPageChange($event.page)">
     </app-pagination>
   }
 
   <ng-template #statusTemplate let-row>
-    <app-status-badge [status]="row.statusName" [type]="row.isActive ? 'success' : 'secondary'"></app-status-badge>
+    <app-status-badge [status]="row.statusName" [type]="row.isActive ? 'success' : 'neutral'"></app-status-badge>
   </ng-template>
 
   <ng-template #progressTemplate let-row>

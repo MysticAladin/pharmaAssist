@@ -9,6 +9,7 @@ using Application.DTOs.Locations;
 using Application.DTOs.Manufacturers;
 using Application.DTOs.Orders;
 using Application.DTOs.Products;
+using Application.DTOs.Territories;
 using AutoMapper;
 using Domain.Entities;
 using Domain.Enums;
@@ -51,6 +52,9 @@ public class MappingProfile : Profile
 
         // Cycle & Campaign mappings
         CreateCycleMappings();
+
+        // Territory mappings
+        CreateTerritoryMappings();
     }
 
     private void CreateProductMappings()
@@ -666,6 +670,43 @@ public class MappingProfile : Profile
             .ForMember(d => d.Rep, opt => opt.Ignore())
             .ForMember(d => d.IsApproved, opt => opt.MapFrom(_ => false))
             .ForMember(d => d.ApprovalNotes, opt => opt.Ignore())
+            .ForMember(d => d.CreatedAt, opt => opt.MapFrom(_ => DateTime.UtcNow))
+            .ForMember(d => d.UpdatedAt, opt => opt.Ignore())
+            .ForMember(d => d.CreatedBy, opt => opt.Ignore())
+            .ForMember(d => d.UpdatedBy, opt => opt.Ignore())
+            .ForMember(d => d.IsDeleted, opt => opt.MapFrom(_ => false));
+    }
+
+    private void CreateTerritoryMappings()
+    {
+        CreateMap<CreateTerritoryDto, Territory>()
+            .ForMember(d => d.Id, opt => opt.Ignore())
+            .ForMember(d => d.ParentTerritory, opt => opt.Ignore())
+            .ForMember(d => d.ChildTerritories, opt => opt.Ignore())
+            .ForMember(d => d.Assignments, opt => opt.Ignore())
+            .ForMember(d => d.IsActive, opt => opt.MapFrom(_ => true))
+            .ForMember(d => d.CreatedAt, opt => opt.MapFrom(_ => DateTime.UtcNow))
+            .ForMember(d => d.UpdatedAt, opt => opt.Ignore())
+            .ForMember(d => d.CreatedBy, opt => opt.Ignore())
+            .ForMember(d => d.UpdatedBy, opt => opt.Ignore())
+            .ForMember(d => d.IsDeleted, opt => opt.MapFrom(_ => false));
+
+        CreateMap<UpdateTerritoryDto, Territory>()
+            .ForMember(d => d.Id, opt => opt.Ignore())
+            .ForMember(d => d.ParentTerritory, opt => opt.Ignore())
+            .ForMember(d => d.ChildTerritories, opt => opt.Ignore())
+            .ForMember(d => d.Assignments, opt => opt.Ignore())
+            .ForMember(d => d.CreatedAt, opt => opt.Ignore())
+            .ForMember(d => d.UpdatedAt, opt => opt.MapFrom(_ => DateTime.UtcNow))
+            .ForMember(d => d.CreatedBy, opt => opt.Ignore())
+            .ForMember(d => d.UpdatedBy, opt => opt.Ignore())
+            .ForMember(d => d.IsDeleted, opt => opt.Ignore());
+
+        CreateMap<CreateTerritoryAssignmentDto, TerritoryAssignment>()
+            .ForMember(d => d.Id, opt => opt.Ignore())
+            .ForMember(d => d.TerritoryId, opt => opt.Ignore())
+            .ForMember(d => d.Territory, opt => opt.Ignore())
+            .ForMember(d => d.Rep, opt => opt.Ignore())
             .ForMember(d => d.CreatedAt, opt => opt.MapFrom(_ => DateTime.UtcNow))
             .ForMember(d => d.UpdatedAt, opt => opt.Ignore())
             .ForMember(d => d.CreatedBy, opt => opt.Ignore())

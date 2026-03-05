@@ -409,3 +409,22 @@ public enum CampaignExpenseCategory
     Promotional = 7,
     Other = 8
 }
+
+/// <summary>
+/// Territory type
+/// </summary>
+public enum TerritoryType
+{
+    Region = 1,
+    Canton = 2,
+    Custom = 3
+}
+
+/// <summary>
+/// Territory assignment type
+/// </summary>
+public enum AssignmentType
+{
+    Exclusive = 1,
+    Shared = 2
+}

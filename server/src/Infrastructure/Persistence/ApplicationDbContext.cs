@@ -35,6 +35,10 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser, Applicati
     public DbSet<CampaignTarget> CampaignTargets { get; set; } = null!;
     public DbSet<CampaignExpense> CampaignExpenses { get; set; } = null!;
 
+    // Territory Management
+    public DbSet<Territory> Territories { get; set; } = null!;
+    public DbSet<TerritoryAssignment> TerritoryAssignments { get; set; } = null!;
+
     // Customer Management
     public DbSet<Customer> Customers { get; set; } = null!;
     public DbSet<CustomerAddress> CustomerAddresses { get; set; } = null!;

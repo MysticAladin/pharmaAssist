@@ -32,6 +32,7 @@ public static class DependencyInjection
         services.AddScoped<ISalesRepService, SalesRepService>();
         services.AddScoped<IBrandService, BrandService>();
         services.AddScoped<ICycleService, CycleService>();
+        services.AddScoped<ITerritoryService, TerritoryService>();
         
         return services;
     }

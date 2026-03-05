@@ -14,7 +14,9 @@ export type BadgeSize = 'sm' | 'md' | 'lg';
 })
 export class StatusBadgeComponent {
   @Input() label = '';
+  @Input() set status(value: string) { this.label = value; }
   @Input() set variant(value: BadgeVariant) { this._variant.set(value); }
+  @Input() set type(value: BadgeVariant) { this._variant.set(value); }
   @Input() set size(value: BadgeSize) { this._size.set(value); }
   @Input() set dot(value: boolean) { this.showDot.set(value); }
   @Input() set svgIcon(value: string) { this.icon.set(value); }

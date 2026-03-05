@@ -26,6 +26,8 @@ public interface IUnitOfWork : IDisposable
     IRepository<Domain.Entities.Campaign> Campaigns { get; }
     IRepository<Domain.Entities.CampaignTarget> CampaignTargets { get; }
     IRepository<Domain.Entities.CampaignExpense> CampaignExpenses { get; }
+    IRepository<Domain.Entities.Territory> Territories { get; }
+    IRepository<Domain.Entities.TerritoryAssignment> TerritoryAssignments { get; }
     
     Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
     Task BeginTransactionAsync(CancellationToken cancellationToken = default);

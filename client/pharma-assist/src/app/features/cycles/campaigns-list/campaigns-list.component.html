@@ -42,7 +42,7 @@
   } @else if (campaigns().length === 0) {
     <app-empty-state
       [title]="'campaigns.noCampaigns' | translate"
-      [message]="'campaigns.noCampaignsMessage' | translate"
+      [description]="'campaigns.noCampaignsMessage' | translate"
       [actionLabel]="'campaigns.addCampaign' | translate"
       (action)="createCampaign()">
     </app-empty-state>
@@ -51,14 +51,14 @@
       [columns]="columns"
       [data]="campaigns()"
       (rowClick)="onRowClick($event)"
-      (sort)="onSort($event)">
+      (sortChange)="onSort($event)">
     </app-data-table>
 
     <app-pagination
-      [currentPage]="filters().page"
-      [pageSize]="filters().pageSize"
+      [page]="filters().page"
+      [size]="filters().pageSize"
       [totalItems]="totalItems()"
-      (pageChange)="onPageChange($event)">
+      (pageChange)="onPageChange($event.page)">
     </app-pagination>
   }
 </div>

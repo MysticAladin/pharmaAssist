@@ -68,6 +68,15 @@ export class SidebarComponent {
       ]
     },
     {
+      labelKey: 'nav.territories',
+      icon: 'icon-globe',
+      route: '/territories',
+      children: [
+        { labelKey: 'nav.allTerritories', route: '/territories' },
+        { labelKey: 'nav.territoryAnalytics', route: '/territories/analytics' }
+      ]
+    },
+    {
       labelKey: 'nav.inventory',
       icon: 'icon-layers',
       route: '/inventory',

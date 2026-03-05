@@ -62,7 +62,7 @@
       [page]="filters().page"
       [size]="filters().pageSize"
       [totalItems]="totalItems()"
-      (pageChange)="onPageChange($event)">
+      (pageChange)="onPageChange($event.page)">
     </app-pagination>
   }
 </div>

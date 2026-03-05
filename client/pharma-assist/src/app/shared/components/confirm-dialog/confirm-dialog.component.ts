@@ -187,6 +187,7 @@ export class ConfirmDialogComponent {
   @Input('cancelLabel') set cancelLabelAlias(value: string) { this.cancelText = value; }
   @Input('isOpen') set isOpenInput(value: boolean) { this.isOpen.set(value); }
   @Input() set open(value: boolean) { this.isOpen.set(value); }
+  @Input() set show(value: boolean) { this.isOpen.set(value); }
   @Input('variant') set variantInput(value: ConfirmVariant) { this.variant.set(value); }
   @Input() set type(value: ConfirmVariant) { this.variant.set(value); }
   @Input() set isLoading(value: boolean) { this.loading.set(value); }
